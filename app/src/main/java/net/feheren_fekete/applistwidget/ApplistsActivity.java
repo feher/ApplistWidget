@@ -31,8 +31,7 @@ public class ApplistsActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ApplistPagerAdapter adapter = new ApplistPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new ApplistFragment(), "All");
-        adapter.addFragment(new ApplistFragment(), "Recents");
+        adapter.addFragment(new ApplistFragment(ApplistModel.APPS_ALL), "All");
         viewPager.setAdapter(adapter);
     }
 }

@@ -32,7 +32,7 @@ public class ApplistFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new ApplistAdapter(new ApplistModel(mApplistName));
+        mAdapter = new ApplistAdapter(new ApplistModel(getContext().getPackageManager(), mApplistName));
         mRecyclerView.setAdapter(mAdapter);
 
         mAdapter.loadAllItems();
