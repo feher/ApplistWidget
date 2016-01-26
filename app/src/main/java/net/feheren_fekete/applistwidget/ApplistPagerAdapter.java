@@ -25,6 +25,11 @@ public class ApplistPagerAdapter extends FragmentPagerAdapter {
         return mFragmentList.size();
     }
 
+    public void removeFragments() {
+        mFragmentList.clear();
+        mFragmentTitleList.clear();
+    }
+
     public void addFragment(Fragment fragment, String title) {
         mFragmentList.add(fragment);
         mFragmentTitleList.add(title);

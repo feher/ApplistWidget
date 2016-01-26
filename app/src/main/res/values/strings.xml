@@ -1,3 +1,20 @@
 <resources>
-    <string name="app_name">ApplistWidget</string>
+    <string name="app_name">Applist</string>
+
+    <string name="action_create_section">Create section</string>
+    <string name="action_remove_section">Remove section</string>
+    <string name="action_create_page">Create page</string>
+    <string name="action_remove_page">Remove page</string>
+    <string name="action_uninstall_app">Uninstall app</string>
+    <string name="action_app_info">App info</string>
+
+    <string name="section_name">Section name</string>
+    <string name="page_name">Page name</string>
+
+    <string name="remove_page">Are you sure you want to\nremove this page?</string>
+    <string name="remove_section">Are you sure you want\nto remove this section?</string>
+    <string name="uninstall_app">Are you sure you want to\nuninstall %1$s?</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_create_section"
+        android:title="@string/action_create_section"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_remove_items"
+        android:title="@string/action_remove_section"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_create_page"
+        android:title="@string/action_create_page"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_remove_page"
+        android:title="@string/action_remove_page"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_test_reset"
+        android:title="TEST: Reset"
+        app:showAsAction="never"/>
+</menu>
