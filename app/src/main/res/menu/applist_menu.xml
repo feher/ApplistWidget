@@ -22,4 +22,8 @@
         android:id="@+id/action_test_reset"
         android:title="TEST: Reset"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_test_save"
+        android:title="TEST: Save"
+        app:showAsAction="never"/>
 </menu>

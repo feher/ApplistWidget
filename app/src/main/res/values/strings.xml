@@ -17,4 +17,13 @@
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+
+    <string-array name="app_item_menu">
+        <item>Move to section</item>
+        <item>Show information</item>
+        <item>Uninstall</item>
+    </string-array>
+
+    <string name="dialog_move_to_section_title">Move to section</string>
+
 </resources>

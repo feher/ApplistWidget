@@ -71,7 +71,7 @@ public class ApplistActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         final DataModel dataModel = ((ApplistApp)getApplication()).getDataModel();
-        dataModel.storeData();
+        dataModel.storeData(null);
     }
 
     @Override
@@ -98,8 +98,12 @@ public class ApplistActivity extends AppCompatActivity {
                 break;
             case R.id.action_test_reset: {
                 ((ApplistApp)getApplication()).getDataModel().removeAllPages();
-                ((ApplistApp)getApplication()).getDataModel().storeData();
+                ((ApplistApp)getApplication()).getDataModel().storeData(null);
                 finish();
+                break;
+            }
+            case R.id.action_test_save: {
+                ((ApplistApp)getApplication()).getDataModel().storeData("/sdcard/Download/applist.saved.json");
                 break;
             }
         }
@@ -126,7 +130,8 @@ public class ApplistActivity extends AppCompatActivity {
                     Task.callInBackground(new Callable<Void>() {
                         @Override
                         public Void call() throws Exception {
-                            dataModel.addNewSection(pageName, sectionName);
+                            dataModel.addNewSection(pageName, sectionName, true);
+                            dataModel.storeData(null);
                             return null;
                         }
                     });

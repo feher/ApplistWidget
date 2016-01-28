@@ -3,6 +3,7 @@ package net.feheren_fekete.applistwidget.model;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PageData {
@@ -24,6 +25,7 @@ public class PageData {
 
     public void setSections(List<SectionData> sections) {
         mSections = sections;
+        Collections.sort(mSections, new SectionData.NameComparator());
     }
 
     public boolean hasSection(String sectionName) {
@@ -48,9 +50,19 @@ public class PageData {
         return false;
     }
 
+    public boolean removeApp(AppData app) {
+        for (SectionData section : mSections) {
+            if (section.removeApp(app)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void addSection(SectionData section) {
         // Always add to the beginning of the list.
-        mSections.add(0, section);
+        mSections.add(section);
+        Collections.sort(mSections, new SectionData.NameComparator());
     }
 
     public void removeSection(String sectionName) {

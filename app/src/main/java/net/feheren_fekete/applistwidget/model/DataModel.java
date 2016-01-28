@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.util.Log;
+
+import net.feheren_fekete.applistwidget.viewmodel.AppItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +27,8 @@ import de.greenrobot.event.EventBus;
 
 public class DataModel {
 
+    private static final String TAG = DataModel.class.getSimpleName();
+
     public static final String DEFAULT_PAGE_NAME = "Apps";
     private static final String UNCATEGORIZED_SECTION_NAME = "Uncategorized";
 
@@ -38,7 +43,8 @@ public class DataModel {
 
     public DataModel(Context context, PackageManager packageManager) {
         mPackageManager = packageManager;
-        mDatabasePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist.json";
+//        mDatabasePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist.json";
+        mDatabasePath = "/sdcard/Download/applist.json";
         mInstalledApps = new ArrayList<>();
         mPages = new ArrayList<>();
     }
@@ -53,7 +59,7 @@ public class DataModel {
         EventBus.getDefault().postSticky(new DataLoadedEvent());
     }
 
-    public void storeData() {
+    public void storeData(String filePath) {
         JSONObject jsonObject = new JSONObject();
         try {
             JSONArray jsonPages = new JSONArray();
@@ -65,11 +71,13 @@ public class DataModel {
                 for (SectionData section : page.getSections()) {
                     JSONObject jsonSection = new JSONObject();
                     jsonSection.put("name", section.getName());
+                    jsonSection.put("is-removable", section.isRemovable());
 
                     JSONArray jsonApps = new JSONArray();
                     for (AppData app : section.getApps()) {
                         JSONObject jsonApp = new JSONObject();
                         jsonApp.put("package-name", app.getPackageName());
+                        jsonApp.put("component-name", app.getComponentName());
                         jsonApp.put("app-name", app.getAppName());
                         jsonApps.put(jsonApp);
                     }
@@ -84,23 +92,26 @@ public class DataModel {
 
             jsonObject.put("pages", jsonPages);
         } catch (JSONException e) {
+            Log.e(TAG, "Cannot construct JSON", e);
             return;
         }
 
         BufferedWriter bw = null;
         try {
             String content = jsonObject.toString();
-            FileWriter fw = new FileWriter(mDatabasePath);
+            FileWriter fw = new FileWriter(filePath == null ? mDatabasePath : filePath);
             bw = new BufferedWriter(fw);
             bw.write(content);
         } catch (IOException e) {
             // TODO: Report error.
+            Log.e(TAG, "Cannot write file", e);
         } finally {
             if (bw != null) {
                 try {
                     bw.close();
                 } catch (IOException e) {
                     // TODO: Report error
+                    Log.e(TAG, "Cannot close file", e);
                 }
             }
         }
@@ -162,10 +173,10 @@ public class DataModel {
         }
     }
 
-    public void addNewSection(String pageName, String sectionName) {
+    public void addNewSection(String pageName, String sectionName, boolean removable) {
         for (PageData page : mPages) {
             if (page.getName().equals(pageName)) {
-                page.addSection(new SectionData(sectionName, new ArrayList<AppData>()));
+                page.addSection(new SectionData(sectionName, new ArrayList<AppData>(), removable));
                 EventBus.getDefault().post(new SectionsChangedEvent());
                 return;
             }
@@ -178,6 +189,25 @@ public class DataModel {
             pageNames.add(page.getName());
         }
         return pageNames;
+    }
+
+    public List<String> getSectionNames(String pageName) {
+        List<String> sectionNames = new ArrayList<>();
+        PageData page = getPage(pageName);
+        for (SectionData section : page.getSections()) {
+            sectionNames.add(section.getName());
+        }
+        return sectionNames;
+    }
+
+    public void moveAppToSection(String pageName, String sectionName, AppData app) {
+        PageData page = getPage(pageName);
+        page.removeApp(app);
+        SectionData section = page.getSection(sectionName);
+        if (section != null) {
+            section.addApp(app);
+        }
+        EventBus.getDefault().post(new SectionsChangedEvent());
     }
 
     private void addUncategorizedSection(PageData page) {
@@ -195,7 +225,7 @@ public class DataModel {
             }
         });
 
-        SectionData uncategorizedSection = new SectionData(UNCATEGORIZED_SECTION_NAME, uncategorizedApps);
+        SectionData uncategorizedSection = new SectionData(UNCATEGORIZED_SECTION_NAME, uncategorizedApps, false);
         page.addSection(uncategorizedSection);
     }
 
@@ -257,10 +287,14 @@ public class DataModel {
             JSONObject jsonApp = jsonApps.getJSONObject(k);
             AppData app = new AppData(
                     jsonApp.getString("package-name"),
+                    jsonApp.getString("component-name"),
                     jsonApp.getString("app-name"));
             apps.add(app);
         }
-        return new SectionData(jsonSection.getString("name"), apps);
+        return new SectionData(
+                jsonSection.getString("name"),
+                apps,
+                jsonSection.getBoolean("is-removable"));
     }
 
     private String readFile(String filePath) {
@@ -294,16 +328,18 @@ public class DataModel {
     }
 
     private List<AppData> getInstalledApps() {
-        List<AppData> packageNames = new ArrayList<>();
+        List<AppData> installedApps = new ArrayList<>();
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> installedApps = mPackageManager.queryIntentActivities(intent, 0);
-        for (ResolveInfo resolveInfo : installedApps) {
-            packageNames.add(new AppData(
-                    resolveInfo.activityInfo.packageName,
+        List<ResolveInfo> installedAppInfos = mPackageManager.queryIntentActivities(intent, 0);
+        for (ResolveInfo resolveInfo : installedAppInfos) {
+            installedApps.add(new AppData(
+                    resolveInfo.activityInfo.applicationInfo.packageName,
+                    resolveInfo.activityInfo.name,
                     resolveInfo.loadLabel(mPackageManager).toString()));
         }
-        return packageNames;
+        return installedApps;
     }
+
 
 }
