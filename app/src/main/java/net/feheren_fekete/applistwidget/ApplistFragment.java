@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import net.feheren_fekete.applistwidget.model.AppData;
 import net.feheren_fekete.applistwidget.model.DataModel;
 import net.feheren_fekete.applistwidget.viewmodel.AppItem;
+import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -96,6 +97,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         return getArguments().getString("pageName");
     }
 
+    private static final int SECTION_ITEM_MENU_RENAME = 0;
+    private static final int SECTION_ITEM_MENU_DELETE = 1;
+
     private static final int APP_ITEM_MENU_MOVE_TO_SECTION = 0;
     private static final int APP_ITEM_MENU_SHOW_INFO = 1;
     private static final int APP_ITEM_MENU_UNINSTALL = 2;
@@ -155,7 +159,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                     public Void call() throws Exception {
                         AppData appData = new AppData(appItem);
                         mDataModel.moveAppToSection(pageName, sectionName, appData);
-                        mDataModel.storeData(null);
+                        mDataModel.storePages();
                         return null;
                     }
                 });
@@ -181,6 +185,64 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     @Override
     public void onSectionLongTapped(int position) {
-
+        final SectionItem sectionItem = (SectionItem) mAdapter.getItem(position);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialogBuilder.setTitle(sectionItem.getName());
+        alertDialogBuilder.setItems(R.array.section_item_menu, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case SECTION_ITEM_MENU_RENAME:
+                        renameSection(sectionItem);
+                        break;
+                    case SECTION_ITEM_MENU_DELETE:
+                        deleteSection(sectionItem);
+                        break;
+                }
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
+
+    private void renameSection(SectionItem sectionItem) {
+        final String oldSectionName = sectionItem.getName();
+        final String pageName = getPageName();
+        ApplistDialogs.textInputDialog(
+                getActivity(), R.string.section_name, oldSectionName,
+                new ApplistDialogs.RunnableWithArg<String>() {
+                    @Override
+                    public void run(final String newSectionName) {
+                        Task.callInBackground(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                mDataModel.setSectionName(pageName, oldSectionName, newSectionName);
+                                mDataModel.storePages();
+                                return null;
+                            }
+                        });
+                    }
+                });
+    }
+
+    private void deleteSection(SectionItem sectionItem) {
+        final String sectionName = sectionItem.getName();
+        final String pageName = getPageName();
+        ApplistDialogs.questionDialog(
+                getActivity(), R.string.remove_section,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Task.callInBackground(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                mDataModel.removeSection(pageName, sectionName);
+                                mDataModel.storePages();
+                                return null;
+                            }
+                        });
+                    }
+                });
+    }
+
 }

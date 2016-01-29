@@ -6,14 +6,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.util.Log;
 
-import net.feheren_fekete.applistwidget.viewmodel.AppItem;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -33,7 +30,8 @@ public class DataModel {
     private static final String UNCATEGORIZED_SECTION_NAME = "Uncategorized";
 
     private PackageManager mPackageManager;
-    private String mDatabasePath;
+    private String mPagesFilePath;
+    private String mInstalledAppsFilePath;
     private List<AppData> mInstalledApps;
     private List<PageData> mPages;
 
@@ -43,15 +41,16 @@ public class DataModel {
 
     public DataModel(Context context, PackageManager packageManager) {
         mPackageManager = packageManager;
-//        mDatabasePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist.json";
-        mDatabasePath = "/sdcard/Download/applist.json";
+//        mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist.json";
+        mPagesFilePath = "/sdcard/Download/applist-pages.json";
+        mInstalledAppsFilePath = "/sdcard/Download/applist-installed-apps.json";
         mInstalledApps = new ArrayList<>();
         mPages = new ArrayList<>();
     }
 
     public void loadData() {
-        mInstalledApps = getInstalledApps();
-        List<PageData> pages = loadPages();
+        mInstalledApps = loadInstalledApps(mInstalledAppsFilePath);
+        List<PageData> pages = loadPages(mPagesFilePath);
         for (PageData page : pages) {
             updateSections(page);
         }
@@ -59,62 +58,30 @@ public class DataModel {
         EventBus.getDefault().postSticky(new DataLoadedEvent());
     }
 
-    public void storeData(String filePath) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            JSONArray jsonPages = new JSONArray();
-            for (PageData page : mPages) {
-                JSONObject jsonPage = new JSONObject();
-                jsonPage.put("name", page.getName());
-
-                JSONArray jsonSections = new JSONArray();
-                for (SectionData section : page.getSections()) {
-                    JSONObject jsonSection = new JSONObject();
-                    jsonSection.put("name", section.getName());
-                    jsonSection.put("is-removable", section.isRemovable());
-
-                    JSONArray jsonApps = new JSONArray();
-                    for (AppData app : section.getApps()) {
-                        JSONObject jsonApp = new JSONObject();
-                        jsonApp.put("package-name", app.getPackageName());
-                        jsonApp.put("component-name", app.getComponentName());
-                        jsonApp.put("app-name", app.getAppName());
-                        jsonApps.put(jsonApp);
-                    }
-
-                    jsonSection.put("apps", jsonApps);
-                    jsonSections.put(jsonSection);
-                }
-
-                jsonPage.put("sections", jsonSections);
-                jsonPages.put(jsonPage);
-            }
-
-            jsonObject.put("pages", jsonPages);
-        } catch (JSONException e) {
-            Log.e(TAG, "Cannot construct JSON", e);
-            return;
-        }
-
-        BufferedWriter bw = null;
-        try {
-            String content = jsonObject.toString();
-            FileWriter fw = new FileWriter(filePath == null ? mDatabasePath : filePath);
-            bw = new BufferedWriter(fw);
-            bw.write(content);
-        } catch (IOException e) {
-            // TODO: Report error.
-            Log.e(TAG, "Cannot write file", e);
-        } finally {
-            if (bw != null) {
-                try {
-                    bw.close();
-                } catch (IOException e) {
-                    // TODO: Report error
-                    Log.e(TAG, "Cannot close file", e);
-                }
+    public void updateInstalledApps() {
+        mInstalledApps = getInstalledApps();
+        boolean isSectionChanged = false;
+        for (PageData page : mPages) {
+            if (updateSections(page)) {
+                isSectionChanged = true;
             }
         }
+        if (isSectionChanged) {
+            EventBus.getDefault().post(new SectionsChangedEvent());
+        }
+    }
+
+    public void storeData() {
+        storePages(mPagesFilePath);
+        storeInstalledApps(mInstalledAppsFilePath);
+    }
+
+    public void storePages() {
+        storePages(mPagesFilePath);
+    }
+
+    public void storeInstalledApps() {
+        storeInstalledApps(mInstalledAppsFilePath);
     }
 
     public PageData getPage(String pageName) {
@@ -163,10 +130,19 @@ public class DataModel {
         EventBus.getDefault().post(new PagesChangedEvent());
     }
 
+    public List<String> getPageNames() {
+        List<String> pageNames = new ArrayList<>();
+        for (PageData page : mPages) {
+            pageNames.add(page.getName());
+        }
+        return pageNames;
+    }
+
     public void removeSection(String pageName, String sectionName) {
         for (PageData p : mPages) {
             if (p.getName().equals(pageName)) {
                 p.removeSection(sectionName);
+                updateSections(p);
                 EventBus.getDefault().post(new SectionsChangedEvent());
                 return;
             }
@@ -183,14 +159,6 @@ public class DataModel {
         }
     }
 
-    public List<String> getPageNames() {
-        List<String> pageNames = new ArrayList<>();
-        for (PageData page : mPages) {
-            pageNames.add(page.getName());
-        }
-        return pageNames;
-    }
-
     public List<String> getSectionNames(String pageName) {
         List<String> sectionNames = new ArrayList<>();
         PageData page = getPage(pageName);
@@ -200,14 +168,85 @@ public class DataModel {
         return sectionNames;
     }
 
+    public void setSectionName(String pageName, String oldSectionName, String newSectionName) {
+        PageData page = getPage(pageName);
+        if (page.renameSection(oldSectionName, newSectionName)) {
+            EventBus.getDefault().post(new SectionsChangedEvent());
+        }
+    }
+
     public void moveAppToSection(String pageName, String sectionName, AppData app) {
         PageData page = getPage(pageName);
         page.removeApp(app);
         SectionData section = page.getSection(sectionName);
         if (section != null) {
             section.addApp(app);
+            EventBus.getDefault().post(new SectionsChangedEvent());
         }
-        EventBus.getDefault().post(new SectionsChangedEvent());
+    }
+
+    private void storePages(String filePath) {
+        String data = "";
+        JSONObject jsonObject = new JSONObject();
+        try {
+            JSONArray jsonPages = new JSONArray();
+            for (PageData page : mPages) {
+                JSONObject jsonPage = new JSONObject();
+                jsonPage.put("name", page.getName());
+
+                JSONArray jsonSections = new JSONArray();
+                for (SectionData section : page.getSections()) {
+                    JSONObject jsonSection = new JSONObject();
+                    jsonSection.put("name", section.getName());
+                    jsonSection.put("is-removable", section.isRemovable());
+
+                    JSONArray jsonApps = new JSONArray();
+                    for (AppData app : section.getApps()) {
+                        JSONObject jsonApp = new JSONObject();
+                        jsonApp.put("package-name", app.getPackageName());
+                        jsonApp.put("component-name", app.getComponentName());
+                        jsonApp.put("app-name", app.getAppName());
+                        jsonApps.put(jsonApp);
+                    }
+
+                    jsonSection.put("apps", jsonApps);
+                    jsonSections.put(jsonSection);
+                }
+
+                jsonPage.put("sections", jsonSections);
+                jsonPages.put(jsonPage);
+            }
+
+            jsonObject.put("pages", jsonPages);
+            data = jsonObject.toString(2);
+        } catch (JSONException e) {
+            Log.e(TAG, "Cannot construct JSON", e);
+            return;
+        }
+
+        writeFile(filePath, data);
+    }
+
+    private void storeInstalledApps(String filePath) {
+        String data = "";
+        JSONObject jsonObject = new JSONObject();
+        try {
+            JSONArray jsonApps = new JSONArray();
+            for (AppData app : mInstalledApps) {
+                JSONObject jsonApp = new JSONObject();
+                jsonApp.put("package-name", app.getPackageName());
+                jsonApp.put("component-name", app.getComponentName());
+                jsonApp.put("app-name", app.getAppName());
+                jsonApps.put(jsonApp);
+            }
+            jsonObject.put("installed-apps", jsonApps);
+            data = jsonObject.toString(2);
+        } catch (JSONException e) {
+            Log.e(TAG, "Cannot construct JSON", e);
+            return;
+        }
+
+        writeFile(filePath, data);
     }
 
     private void addUncategorizedSection(PageData page) {
@@ -229,7 +268,12 @@ public class DataModel {
         page.addSection(uncategorizedSection);
     }
 
-    private void updateSections(PageData page) {
+    private boolean updateSections(PageData page) {
+        if (mInstalledApps.isEmpty()) {
+            return false;
+        }
+
+        boolean isSectionChanged = false;
         List<AppData> uncategorizedApps = new ArrayList<>(mInstalledApps);
         for (SectionData section : page.getSections()) {
             List<AppData> installedAppsInSection = new ArrayList<>();
@@ -239,22 +283,29 @@ public class DataModel {
                     uncategorizedApps.remove(app);
                 }
             }
-            section.setApps(installedAppsInSection);
+            if (section.getApps().size() != installedAppsInSection.size()) {
+                isSectionChanged = true;
+                section.setApps(installedAppsInSection);
+            }
         }
 
         SectionData uncategorizedSection = page.getSection(UNCATEGORIZED_SECTION_NAME);
         if (uncategorizedSection != null) {
+            // TODO: Compare the old and new uncategorized section app-by-app.
+            isSectionChanged = true;
             uncategorizedSection.addApps(uncategorizedApps);
         }
+
+        return isSectionChanged;
     }
 
     private boolean isInstalled(AppData app) {
         return mInstalledApps.contains(app);
     }
 
-    private List<PageData> loadPages() {
+    private List<PageData> loadPages(String filePath) {
         List<PageData> pages = new ArrayList<>();
-        String fileContent = readFile(mDatabasePath);
+        String fileContent = readFile(filePath);
         try {
             JSONObject jsonObject = new JSONObject(fileContent);
 
@@ -297,6 +348,28 @@ public class DataModel {
                 jsonSection.getBoolean("is-removable"));
     }
 
+    private List<AppData> loadInstalledApps(String filePath) {
+        List<AppData> installedApps = new ArrayList<>();
+        String fileContent = readFile(filePath);
+        try {
+            JSONObject jsonObject = new JSONObject(fileContent);
+
+            JSONArray jsonInstalledApps = jsonObject.getJSONArray("installed-apps");
+            for (int k = 0; k < jsonInstalledApps.length(); ++k) {
+                JSONObject jsonApp = jsonInstalledApps.getJSONObject(k);
+                AppData app = new AppData(
+                        jsonApp.getString("package-name"),
+                        jsonApp.getString("component-name"),
+                        jsonApp.getString("app-name"));
+                installedApps.add(app);
+            }
+
+        } catch (JSONException e) {
+            return new ArrayList<>();
+        }
+        return installedApps;
+    }
+
     private String readFile(String filePath) {
         String fileContent = "";
         FileInputStream fis = null;
@@ -325,6 +398,27 @@ public class DataModel {
         }
 
         return fileContent;
+    }
+
+    private void writeFile(String filePath, String content) {
+        BufferedWriter bw = null;
+        try {
+            FileWriter fw = new FileWriter(filePath);
+            bw = new BufferedWriter(fw);
+            bw.write(content);
+        } catch (IOException e) {
+            // TODO: Report error.
+            Log.e(TAG, "Cannot write file", e);
+        } finally {
+            if (bw != null) {
+                try {
+                    bw.close();
+                } catch (IOException e) {
+                    // TODO: Report error
+                    Log.e(TAG, "Cannot close file", e);
+                }
+            }
+        }
     }
 
     private List<AppData> getInstalledApps() {

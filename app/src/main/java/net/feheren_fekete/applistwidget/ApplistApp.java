@@ -8,6 +8,7 @@ import net.feheren_fekete.applistwidget.model.DataModel;
 
 import java.util.concurrent.Callable;
 
+import bolts.Continuation;
 import bolts.Task;
 
 public class ApplistApp extends MultiDexApplication {
@@ -29,6 +30,13 @@ public class ApplistApp extends MultiDexApplication {
             @Override
             public Void call() throws Exception {
                 mDataModel.loadData();
+                return null;
+            }
+        }).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                mDataModel.updateInstalledApps();
+                mDataModel.storeInstalledApps();
                 return null;
             }
         });

@@ -21,6 +21,10 @@ public class SectionData {
         return mName;
     }
 
+    public void setName(String name) {
+        mName = name;
+    }
+
     public boolean isRemovable() {
         return mIsRemovable;
     }

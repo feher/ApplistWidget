@@ -41,6 +41,16 @@ public class PageData {
         return null;
     }
 
+    public boolean renameSection(String oldSectionName, String newSectionName) {
+        SectionData section = getSection(oldSectionName);
+        if (section != null) {
+            section.setName(newSectionName);
+            Collections.sort(mSections, new SectionData.NameComparator());
+            return true;
+        }
+        return false;
+    }
+
     public boolean hasApp(AppData app) {
         for (SectionData section : mSections) {
             if (section.hasApp(app)) {
