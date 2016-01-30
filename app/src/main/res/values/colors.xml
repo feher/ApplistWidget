@@ -16,4 +16,15 @@
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
 
+    <array name="icon_placeholders">
+        <item>#795548</item>
+        <item>#5D4037</item>
+        <item>#D7CCC8</item>
+        <item>#9E9E9E</item>
+        <item>#212121</item>
+        <item>#727272</item>
+        <item>#FFFFFF</item>
+        <item>#B6B6B6</item>
+    </array>
+
 </resources>

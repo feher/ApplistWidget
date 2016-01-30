@@ -25,4 +25,14 @@ public class AppItem extends BaseItem {
     public String getAppName() {
         return mAppName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof AppItem)) {
+            return false;
+        }
+        AppItem other = (AppItem) o;
+        return mPackageName.equals(other.getPackageName())
+                && mComponentName.equals(other.getComponentName());
+    }
 }

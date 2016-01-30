@@ -3,7 +3,9 @@ package net.feheren_fekete.applistwidget;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -117,8 +119,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                         moveAppToSection(appItem);
                         break;
                     case APP_ITEM_MENU_SHOW_INFO:
+                        showAppInfo(appItem);
                         break;
                     case APP_ITEM_MENU_UNINSTALL:
+                        uninstallApp(appItem);
                         break;
                 }
             }
@@ -167,6 +171,22 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    private void showAppInfo(AppItem appItem) {
+        Intent intent = new Intent();
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", appItem.getPackageName(), null);
+        intent.setData(uri);
+        getContext().startActivity(intent);
+    }
+
+    private void uninstallApp(AppItem appItem) {
+        Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
+        Uri uri = Uri.fromParts("package", appItem.getPackageName(), null);
+        intent.setData(uri);
+        intent.putExtra(Intent.EXTRA_RETURN_RESULT, false);
+        getContext().startActivity(intent);
     }
 
     @Override

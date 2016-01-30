@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -28,7 +29,6 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -49,7 +49,8 @@ public class ApplistAdapter
     private boolean mIsItemMoved;
     private ItemListener mItemListener;
     private IconCache mIconCache;
-    private ConcurrentHashMap<String, IconLoaderTask> mIconLoaders;
+    private int[] mIconPlaceholderColors;
+    private int mNextPlaceholderColor;
 
     public interface ItemListener {
         void onAppLongTapped(int position);
@@ -98,7 +99,8 @@ public class ApplistAdapter
         mItems = Collections.emptyList();
         mItemListener = itemListener;
         mIconCache = new IconCache();
-        mIconLoaders = new ConcurrentHashMap<>();
+        mIconPlaceholderColors = mContext.getResources().getIntArray(R.array.icon_placeholders);
+        mNextPlaceholderColor = 0;
     }
 
     @Override
@@ -129,14 +131,27 @@ public class ApplistAdapter
     private void bindAppItemHolder(final AppItemHolder holder, final int position) {
         AppItem item = (AppItem) mItems.get(position);
 
-        String key = mIconCache.createKey(item);
-        Bitmap icon = mIconCache.getIcon(key);
+        Bitmap icon = mIconCache.getIcon(mIconCache.createKey(item));
         if (icon == null) {
-            IconLoaderTask iconLoaderTask = new IconLoaderTask(
-                    item, holder.appIcon, mPackageManager, mIconCache, mIconLoaders);
-            mIconLoaders.put(key, iconLoaderTask);
-            iconLoaderTask.execute();
+            if (holder.iconLoader != null) {
+                if (!holder.iconLoader.isLoadingFor(item)) {
+                    holder.iconLoader.cancel(true);
+                    holder.iconLoader = null;
+                }
+            }
+            if (holder.iconLoader == null) {
+                holder.iconLoader = new IconLoaderTask(item, holder, mPackageManager, mIconCache);
+                holder.iconLoader.execute();
+                holder.appIcon.setImageBitmap(null);
+                holder.appIcon.setBackgroundColor(mIconPlaceholderColors[mNextPlaceholderColor]);
+                mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
+            }
         } else {
+            if (holder.iconLoader != null) {
+                holder.iconLoader.cancel(true);
+                holder.iconLoader = null;
+            }
+            holder.appIcon.setBackgroundColor(Color.TRANSPARENT);
             holder.appIcon.setImageBitmap(icon);
         }
 
@@ -307,27 +322,39 @@ public class ApplistAdapter
 
     private static final class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
         private AppItem appItem;
-        private WeakReference<ImageView> iconViewRef;
+        private WeakReference<AppItemHolder> appItemHolderRef;
         private PackageManager packageManager;
         private WeakReference<IconCache> iconCacheRef;
-        private WeakReference<ConcurrentHashMap<String, IconLoaderTask>> iconLoadersRef;
+
         public IconLoaderTask(AppItem appItem,
-                              ImageView iconView,
+                              AppItemHolder appItemHolder,
                               PackageManager packageManager,
-                              IconCache iconCache,
-                              ConcurrentHashMap<String, IconLoaderTask> iconLoaders) {
+                              IconCache iconCache) {
             this.appItem = appItem;
-            this.iconViewRef = new WeakReference<>(iconView);
+            this.appItemHolderRef = new WeakReference<>(appItemHolder);
             this.packageManager = packageManager;
             this.iconCacheRef = new WeakReference<>(iconCache);
-            this.iconLoadersRef = new WeakReference<>(iconLoaders);
         }
+
+        public boolean isLoadingFor(AppItem item) {
+            return appItem.equals(item);
+        }
+
         @Override
         protected Bitmap doInBackground(Void... params) {
             try {
-                Drawable iconDrawable = packageManager.getActivityIcon(
-                        new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
-                return drawableToBitmap(iconDrawable);
+                Drawable iconDrawable = null;
+                if (!isCancelled()) {
+                    iconDrawable = packageManager.getActivityIcon(
+                            new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
+                } else {
+                    return null;
+                }
+                if (!isCancelled() && iconDrawable != null) {
+                    return drawableToBitmap(iconDrawable);
+                } else {
+                    return null;
+                }
             } catch (PackageManager.NameNotFoundException e) {
                 return null;
             }
@@ -335,20 +362,18 @@ public class ApplistAdapter
 
         @Override
         protected void onPostExecute(Bitmap iconBitmap) {
-            ImageView iconView = iconViewRef.get();
+            AppItemHolder appItemHolder = appItemHolderRef.get();
             IconCache iconCache = iconCacheRef.get();
-            ConcurrentHashMap<String, IconLoaderTask> iconLoaders = iconLoadersRef.get();
             if (iconBitmap != null
-                    && iconView != null
+                    && appItemHolder != null
                     && iconCache != null
-                    && iconLoaders != null) {
+                    && appItemHolder.iconLoader == this
+                    && !isCancelled()) {
                 String key = iconCache.createKey(appItem);
-                IconLoaderTask iconLoader = iconLoaders.get(key);
-                if (iconLoader == this) {
-                    iconCache.addIcon(key, iconBitmap);
-                    iconView.setImageBitmap(iconBitmap);
-                    iconLoaders.remove(key);
-                }
+                iconCache.addIcon(key, iconBitmap);
+                appItemHolder.appIcon.setBackgroundColor(Color.TRANSPARENT);
+                appItemHolder.appIcon.setImageBitmap(iconBitmap);
+                appItemHolder.iconLoader = null;
             }
 
         }
