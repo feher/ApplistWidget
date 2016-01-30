@@ -10,6 +10,7 @@ public class SectionItem extends BaseItem {
         mIsRemovable = isRemovable;
     }
 
+    @Override
     public String getName() {
         return mName;
     }

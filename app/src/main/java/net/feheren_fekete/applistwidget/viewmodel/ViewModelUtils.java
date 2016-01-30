@@ -41,7 +41,7 @@ public class ViewModelUtils {
                 appDatas.add(new AppData(
                         appItem.getPackageName(),
                         appItem.getComponentName(),
-                        appItem.getAppName()));
+                        appItem.getName()));
             }
         }
         if (sectionData != null) {

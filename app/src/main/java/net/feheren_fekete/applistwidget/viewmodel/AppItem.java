@@ -22,7 +22,8 @@ public class AppItem extends BaseItem {
         return mComponentName;
     }
 
-    public String getAppName() {
+    @Override
+    public String getName() {
         return mAppName;
     }
 

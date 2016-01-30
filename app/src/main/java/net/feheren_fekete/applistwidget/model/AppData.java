@@ -18,7 +18,7 @@ public class AppData {
     public AppData(AppItem appItem) {
         mPackageName = appItem.getPackageName();
         mComponentName = appItem.getComponentName();
-        mAppName = appItem.getAppName();
+        mAppName = appItem.getName();
     }
 
     public String getPackageName() {

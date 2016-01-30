@@ -99,6 +99,11 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         return getArguments().getString("pageName");
     }
 
+    public void setFilter(String filterText) {
+        mAdapter.setFilter(filterText);
+        mRecyclerView.scrollToPosition(0);
+    }
+
     private static final int SECTION_ITEM_MENU_RENAME = 0;
     private static final int SECTION_ITEM_MENU_DELETE = 1;
 
@@ -110,7 +115,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     public void onAppLongTapped(int position) {
         final AppItem appItem = (AppItem) mAdapter.getItem(position);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setTitle(appItem.getAppName());
+        alertDialogBuilder.setTitle(appItem.getName());
         alertDialogBuilder.setItems(R.array.app_item_menu, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -123,6 +128,42 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                         break;
                     case APP_ITEM_MENU_UNINSTALL:
                         uninstallApp(appItem);
+                        break;
+                }
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    public void onAppTapped(int position) {
+        AppItem appItem = (AppItem) mAdapter.getItem(position);
+
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.setComponent(new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
+
+        getContext().startActivity(intent);
+        getActivity().finish();
+    }
+
+    @Override
+    public void onSectionLongTapped(int position) {
+        final SectionItem sectionItem = (SectionItem) mAdapter.getItem(position);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialogBuilder.setTitle(sectionItem.getName());
+        alertDialogBuilder.setItems(R.array.section_item_menu, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case SECTION_ITEM_MENU_RENAME:
+                        renameSection(sectionItem);
+                        break;
+                    case SECTION_ITEM_MENU_DELETE:
+                        deleteSection(sectionItem);
                         break;
                 }
             }
@@ -187,42 +228,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         intent.setData(uri);
         intent.putExtra(Intent.EXTRA_RETURN_RESULT, false);
         getContext().startActivity(intent);
-    }
-
-    @Override
-    public void onAppTapped(int position) {
-        AppItem appItem = (AppItem) mAdapter.getItem(position);
-
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        intent.setComponent(new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
-
-        getContext().startActivity(intent);
-        getActivity().finish();
-    }
-
-    @Override
-    public void onSectionLongTapped(int position) {
-        final SectionItem sectionItem = (SectionItem) mAdapter.getItem(position);
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setTitle(sectionItem.getName());
-        alertDialogBuilder.setItems(R.array.section_item_menu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case SECTION_ITEM_MENU_RENAME:
-                        renameSection(sectionItem);
-                        break;
-                    case SECTION_ITEM_MENU_DELETE:
-                        deleteSection(sectionItem);
-                        break;
-                }
-            }
-        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
     }
 
     private void renameSection(SectionItem sectionItem) {

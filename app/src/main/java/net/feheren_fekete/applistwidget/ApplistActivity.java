@@ -1,9 +1,11 @@
 package net.feheren_fekete.applistwidget;
 
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +19,9 @@ import bolts.Continuation;
 import bolts.Task;
 import de.greenrobot.event.EventBus;
 
-public class ApplistActivity extends AppCompatActivity {
+public class ApplistActivity
+        extends AppCompatActivity
+        implements SearchView.OnQueryTextListener {
 
     private Toolbar mToolbar;
     private ViewPager mViewPager;
@@ -71,6 +75,11 @@ public class ApplistActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.applist_menu, menu);
+
+        MenuItem item = menu.findItem(R.id.action_search_app);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(this);
+
         return true;
     }
 
@@ -103,6 +112,32 @@ public class ApplistActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        int pageNumber = mViewPager.getCurrentItem();
+        int pageCount = mPagerAdapter.getCount();
+        if (0 <= pageNumber && pageNumber < pageCount) {
+            ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getItem(pageNumber);
+            fragment.setFilter(newText);
+        }
+        return true;
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(DataModel.DataLoadedEvent event) {
+        updatePageFragments();
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(DataModel.PagesChangedEvent event) {
+        updatePageFragments();
     }
 
     private void createSection() {
@@ -214,16 +249,6 @@ public class ApplistActivity extends AppCompatActivity {
         } else {
             loadPageFragments(dataModel);
         }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(DataModel.DataLoadedEvent event) {
-        updatePageFragments();
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(DataModel.PagesChangedEvent event) {
-        updatePageFragments();
     }
 
     private void hack() {

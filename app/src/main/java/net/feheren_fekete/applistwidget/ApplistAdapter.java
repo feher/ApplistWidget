@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.v4.util.LruCache;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
 import net.feheren_fekete.applistwidget.viewmodel.ViewModelUtils;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -46,6 +48,8 @@ public class ApplistAdapter
     private DataModel mModel;
     private String mPageName;
     private List<BaseItem> mItems;
+    private @Nullable String mFilterText;
+    private @Nullable List<BaseItem> mFilteredItems;
     private boolean mIsItemMoved;
     private ItemListener mItemListener;
     private IconCache mIconCache;
@@ -129,7 +133,7 @@ public class ApplistAdapter
     }
 
     private void bindAppItemHolder(final AppItemHolder holder, final int position) {
-        AppItem item = (AppItem) mItems.get(position);
+        AppItem item = (AppItem) getItems().get(position);
 
         Bitmap icon = mIconCache.getIcon(mIconCache.createKey(item));
         if (icon == null) {
@@ -155,7 +159,7 @@ public class ApplistAdapter
             holder.appIcon.setImageBitmap(icon);
         }
 
-        holder.appName.setText(item.getAppName());
+        holder.appName.setText(item.getName());
 
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,7 +178,7 @@ public class ApplistAdapter
     }
 
     private void bindSectionItemHolder(SectionItemHolder holder, final int position) {
-        SectionItem item = (SectionItem) mItems.get(position);
+        SectionItem item = (SectionItem) getItems().get(position);
         holder.sectionName.setText(item.getName());
 
         holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
@@ -186,18 +190,50 @@ public class ApplistAdapter
         });
     }
 
+    public void setFilter(@Nullable String filterText) {
+        mFilterText = filterText;
+        mFilteredItems = filterItems();
+        notifyDataSetChanged();
+    }
+
+    private List<BaseItem> getItems() {
+        if (mFilterText != null) {
+            return mFilteredItems;
+        }
+        return mItems;
+    }
+
+    private List<BaseItem> filterItems() {
+        if (mFilterText == null) {
+            return mItems;
+        }
+        if (mFilterText.isEmpty()) {
+            return mItems;
+        }
+
+        List<BaseItem> result = new ArrayList<>();
+        String lowercaseFilterText = mFilterText.toLowerCase();
+        for (BaseItem item : mItems) {
+            String lowercaseItemName = item.getName().toLowerCase();
+            if (lowercaseItemName.contains(lowercaseFilterText)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
     public BaseItem getItem(int position) {
-        return mItems.get(position);
+        return getItems().get(position);
     }
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return getItems().size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        BaseItem item = mItems.get(position);
+        BaseItem item = getItems().get(position);
         if (item instanceof AppItem) {
             return APP_ITEM_VIEW;
         }
@@ -219,6 +255,9 @@ public class ApplistAdapter
                 List<BaseItem> items = task.getResult();
                 if (items != null) {
                     mItems = items;
+                    if (mFilterText != null) {
+                        mFilteredItems = filterItems();
+                    }
                     notifyDataSetChanged();
                 }
                 return null;
@@ -230,11 +269,11 @@ public class ApplistAdapter
     public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(mItems, i, i + 1);
+                Collections.swap(getItems(), i, i + 1);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(mItems, i, i - 1);
+                Collections.swap(getItems(), i, i - 1);
             }
         }
         notifyItemMoved(fromPosition, toPosition);
@@ -245,7 +284,7 @@ public class ApplistAdapter
     public void onItemMoveEnd() {
         if (mIsItemMoved) {
             mIsItemMoved = false;
-            final PageData pageData = ViewModelUtils.viewToModel(mPageName, mItems);
+            final PageData pageData = ViewModelUtils.viewToModel(mPageName, getItems());
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
