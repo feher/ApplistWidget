@@ -22,6 +22,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
+// FIXME: Make th public methods synchronized? Can they be accesses from parallel threads?
 public class DataModel {
 
     private static final String TAG = DataModel.class.getSimpleName();

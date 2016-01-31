@@ -34,18 +34,15 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private ApplistAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
 
-    public static ApplistFragment newInstance(String pageName) {
+    public static ApplistFragment newInstance(String pageName, DataModel dataModel) {
         ApplistFragment fragment = new ApplistFragment();
 
         Bundle args = new Bundle();
         args.putString("pageName", pageName);
         fragment.setArguments(args);
+        fragment.setDataModel(dataModel);
 
         return fragment;
-    }
-
-    public void setDataModel(DataModel dataModel) {
-        mDataModel = dataModel;
     }
 
     @Nullable
@@ -81,6 +78,16 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         mAdapter.loadAllItems();
 
         return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     @Override
@@ -170,6 +177,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    private void setDataModel(DataModel dataModel) {
+        mDataModel = dataModel;
     }
 
     private void moveAppToSection(final AppItem appItem) {

@@ -23,15 +23,18 @@ public class ApplistActivity
         extends AppCompatActivity
         implements SearchView.OnQueryTextListener {
 
+    private DataModel mDataModel;
     private Toolbar mToolbar;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
-    private ApplistPagerAdapter mPagerAdapter;
+    private ApplistPagerAdapter2 mPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.applists_activity);
+
+        mDataModel = ((ApplistApp)getApplication()).getDataModel();
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -39,7 +42,7 @@ public class ApplistActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
-        mPagerAdapter = new ApplistPagerAdapter(getSupportFragmentManager());
+        mPagerAdapter = new ApplistPagerAdapter2(getSupportFragmentManager(), mDataModel);
         mViewPager.setAdapter(mPagerAdapter);
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -68,8 +71,7 @@ public class ApplistActivity
     @Override
     protected void onStop() {
         super.onStop();
-        final DataModel dataModel = ((ApplistApp)getApplication()).getDataModel();
-        dataModel.storeData();
+        mDataModel.storeData();
     }
 
     @Override
@@ -100,8 +102,8 @@ public class ApplistActivity
                 removePage();
                 break;
             case R.id.action_test_reset: {
-                ((ApplistApp)getApplication()).getDataModel().removeAllPages();
-                ((ApplistApp)getApplication()).getDataModel().storeData();
+                mDataModel.removeAllPages();
+                mDataModel.storeData();
                 finish();
                 break;
             }
@@ -121,10 +123,8 @@ public class ApplistActivity
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        int pageNumber = mViewPager.getCurrentItem();
-        int pageCount = mPagerAdapter.getCount();
-        if (0 <= pageNumber && pageNumber < pageCount) {
-            ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getItem(pageNumber);
+        ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getCurrentPageFragment();
+        if (fragment != null) {
             fragment.setFilter(newText);
         }
         return true;
@@ -146,19 +146,14 @@ public class ApplistActivity
                 new ApplistDialogs.RunnableWithArg<String>() {
                     @Override
                     public void run(final String sectionName) {
-                        int pageNumber = mViewPager.getCurrentItem();
-                        int pageCount = mPagerAdapter.getCount();
-                        if (0 <= pageNumber
-                                && pageNumber < pageCount
-                                && !sectionName.isEmpty()) {
-                            ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getItem(pageNumber);
+                        ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getCurrentPageFragment();
+                        if (fragment != null && !sectionName.isEmpty()) {
                             final String pageName = fragment.getPageName();
-                            final DataModel dataModel = ((ApplistApp) getApplication()).getDataModel();
                             Task.callInBackground(new Callable<Void>() {
                                 @Override
                                 public Void call() throws Exception {
-                                    dataModel.addNewSection(pageName, sectionName, true);
-                                    dataModel.storePages();
+                                    mDataModel.addNewSection(pageName, sectionName, true);
+                                    mDataModel.storePages();
                                     return null;
                                 }
                             });
@@ -173,11 +168,10 @@ public class ApplistActivity
                 new ApplistDialogs.RunnableWithArg<String>() {
                     @Override
                     public void run(final String pageName) {
-                        final DataModel dataModel = ((ApplistApp) getApplication()).getDataModel();
                         Task.callInBackground(new Callable<Void>() {
                             @Override
                             public Void call() throws Exception {
-                                dataModel.addNewPage(pageName);
+                                mDataModel.addNewPage(pageName);
                                 return null;
                             }
                         });
@@ -189,17 +183,13 @@ public class ApplistActivity
         ApplistDialogs.questionDialog(this, R.string.remove_page, new Runnable() {
             @Override
             public void run() {
-                int pageNumber = mViewPager.getCurrentItem();
-                int pageCount = mPagerAdapter.getCount();
-                if (0 <= pageNumber
-                        && pageNumber < pageCount) {
-                    ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getItem(pageNumber);
+                ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getCurrentPageFragment();
+                if (fragment != null) {
                     final String pageName = fragment.getPageName();
-                    final DataModel dataModel = ((ApplistApp) getApplication()).getDataModel();
                     Task.callInBackground(new Callable<Void>() {
                         @Override
                         public Void call() throws Exception {
-                            dataModel.removePage(pageName);
+                            mDataModel.removePage(pageName);
                             return null;
                         }
                     });
@@ -208,22 +198,18 @@ public class ApplistActivity
         });
     }
 
-    private void loadPageFragments(final DataModel dataModel) {
+    private void loadPageFragments() {
         Task.callInBackground(new Callable<List<String>>() {
             @Override
             public List<String> call() throws Exception {
-                return dataModel.getPageNames();
+                return mDataModel.getPageNames();
             }
         }).continueWith(new Continuation<List<String>, Void>() {
             @Override
             public Void then(Task<List<String>> task) throws Exception {
-                mPagerAdapter.removeFragments();
+                mPagerAdapter.clearPageNames();
                 List<String> pageNames = task.getResult();
-                for (String pageName : pageNames) {
-                    ApplistFragment fragment = ApplistFragment.newInstance(pageName);
-                    fragment.setDataModel(dataModel);
-                    mPagerAdapter.addFragment(fragment, pageName);
-                }
+                mPagerAdapter.setPageNames(pageNames);
                 mPagerAdapter.notifyDataSetChanged();
                 hack();
                 return null;
@@ -231,23 +217,21 @@ public class ApplistActivity
         }, Task.UI_THREAD_EXECUTOR);
     }
 
-    private void addDefaultPage(final DataModel dataModel) {
+    private void addDefaultPage() {
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                dataModel.addNewPage(DataModel.DEFAULT_PAGE_NAME);
+                mDataModel.addNewPage(DataModel.DEFAULT_PAGE_NAME);
                 return null;
             }
         });
     }
 
     private void updatePageFragments() {
-        ApplistApp app = (ApplistApp) getApplication();
-        DataModel dataModel = app.getDataModel();
-        if (app.getDataModel().getPageCount() == 0) {
-            addDefaultPage(dataModel);
+        if (mDataModel.getPageCount() == 0) {
+            addDefaultPage();
         } else {
-            loadPageFragments(dataModel);
+            loadPageFragments();
         }
     }
 

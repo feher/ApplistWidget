@@ -213,10 +213,19 @@ public class ApplistAdapter
 
         List<BaseItem> result = new ArrayList<>();
         String lowercaseFilterText = mFilterText.toLowerCase();
+        SectionItem currentSectionItem = null;
         for (BaseItem item : mItems) {
-            String lowercaseItemName = item.getName().toLowerCase();
-            if (lowercaseItemName.contains(lowercaseFilterText)) {
-                result.add(item);
+            if (item instanceof SectionItem) {
+                currentSectionItem = (SectionItem) item;
+            } else {
+                String lowercaseItemName = item.getName().toLowerCase();
+                if (lowercaseItemName.contains(lowercaseFilterText)) {
+                    if (currentSectionItem != null) {
+                        result.add(currentSectionItem);
+                        currentSectionItem = null;
+                    }
+                    result.add(item);
+                }
             }
         }
         return result;
