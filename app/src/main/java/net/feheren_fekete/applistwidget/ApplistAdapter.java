@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import net.feheren_fekete.applistwidget.model.DataModel;
 import net.feheren_fekete.applistwidget.model.PageData;
+import net.feheren_fekete.applistwidget.model.SectionData;
 import net.feheren_fekete.applistwidget.viewmodel.AppItem;
 import net.feheren_fekete.applistwidget.viewmodel.BaseItem;
 import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
@@ -256,7 +257,11 @@ public class ApplistAdapter
         Task.callInBackground(new Callable<List<BaseItem>>() {
             @Override
             public List<BaseItem> call() throws Exception {
-                return ViewModelUtils.modelToView(mModel.getPage(mPageName));
+                PageData pageData = mModel.getPage(mPageName);
+                if (pageData == null) {
+                    pageData = new PageData(mPageName, new ArrayList<SectionData>());
+                }
+                return ViewModelUtils.modelToView(pageData);
             }
         }).continueWith(new Continuation<List<BaseItem>, Void>() {
             @Override

@@ -1,16 +1,24 @@
 package net.feheren_fekete.applistwidget;
 
+import android.content.DialogInterface;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import net.feheren_fekete.applistwidget.model.DataModel;
+import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
+import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -23,6 +31,9 @@ public class ApplistActivity
         extends AppCompatActivity
         implements SearchView.OnQueryTextListener {
 
+    private static final String TAG = ApplistActivity.class.getSimpleName();
+
+    private Handler mHandler;
     private DataModel mDataModel;
     private Toolbar mToolbar;
     private ViewPager mViewPager;
@@ -34,6 +45,7 @@ public class ApplistActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.applists_activity);
 
+        mHandler = new Handler();
         mDataModel = ((ApplistApp)getApplication()).getDataModel();
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -90,17 +102,6 @@ public class ApplistActivity
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_create_section:
-                createSection();
-                break;
-            case R.id.action_remove_items:
-                break;
-            case R.id.action_create_page:
-                createPage();
-                break;
-            case R.id.action_remove_page:
-                removePage();
-                break;
             case R.id.action_test_reset: {
                 mDataModel.removeAllPages();
                 mDataModel.storeData();
@@ -140,64 +141,6 @@ public class ApplistActivity
         updatePageFragments();
     }
 
-    private void createSection() {
-        ApplistDialogs.textInputDialog(
-                this, R.string.section_name, "",
-                new ApplistDialogs.RunnableWithArg<String>() {
-                    @Override
-                    public void run(final String sectionName) {
-                        ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getCurrentPageFragment();
-                        if (fragment != null && !sectionName.isEmpty()) {
-                            final String pageName = fragment.getPageName();
-                            Task.callInBackground(new Callable<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    mDataModel.addNewSection(pageName, sectionName, true);
-                                    mDataModel.storePages();
-                                    return null;
-                                }
-                            });
-                        }
-                    }
-                });
-    }
-
-    private void createPage() {
-        ApplistDialogs.textInputDialog(
-                this, R.string.page_name, "",
-                new ApplistDialogs.RunnableWithArg<String>() {
-                    @Override
-                    public void run(final String pageName) {
-                        Task.callInBackground(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                mDataModel.addNewPage(pageName);
-                                return null;
-                            }
-                        });
-                    }
-                });
-    }
-
-    private void removePage() {
-        ApplistDialogs.questionDialog(this, R.string.remove_page, new Runnable() {
-            @Override
-            public void run() {
-                ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getCurrentPageFragment();
-                if (fragment != null) {
-                    final String pageName = fragment.getPageName();
-                    Task.callInBackground(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            mDataModel.removePage(pageName);
-                            return null;
-                        }
-                    });
-                }
-            }
-        });
-    }
-
     private void loadPageFragments() {
         Task.callInBackground(new Callable<List<String>>() {
             @Override
@@ -211,6 +154,18 @@ public class ApplistActivity
                 List<String> pageNames = task.getResult();
                 mPagerAdapter.setPageNames(pageNames);
                 mPagerAdapter.notifyDataSetChanged();
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPagerAdapter.forEachPageFragment(new RunnableWithArg<ApplistFragment>() {
+                            @Override
+                            public void run(ApplistFragment fragment) {
+                                Log.d(TAG, "ZIZI UPDATE " + fragment.getPageName());
+                                fragment.update();
+                            }
+                        });
+                    }
+                }, 1000);
                 hack();
                 return null;
             }
@@ -242,6 +197,101 @@ public class ApplistActivity
                 mTabLayout.setupWithViewPager(mViewPager);
             }
         });
+        mTabLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                LinearLayout tabStrip = (LinearLayout) mTabLayout.getChildAt(0);
+                final List<String> pageNames = mPagerAdapter.getPageNames();
+                for (int i = 0; i < tabStrip.getChildCount(); i++) {
+                    final int finalI = i;
+                    tabStrip.getChildAt(i).setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            onPageLongTapped(pageNames.get(finalI));
+                            return false;
+                        }
+                    });
+                }
+            }
+        }, 2000);
+    }
+
+    private static final int PAGE_MENU_RENAME = 0;
+    private static final int PAGE_MENU_DELETE = 1;
+    private static final int PAGE_MENU_CREATE = 2;
+
+    private void onPageLongTapped(final String pageName) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(pageName);
+        alertDialogBuilder.setItems(R.array.page_menu, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case PAGE_MENU_RENAME:
+                        renamePage(pageName);
+                        break;
+                    case PAGE_MENU_DELETE:
+                        deletePage(pageName);
+                        break;
+                    case PAGE_MENU_CREATE:
+                        createPage();
+                        break;
+                }
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private void renamePage(final String pageName) {
+        ApplistDialogs.textInputDialog(
+                this, R.string.page_name, pageName,
+                new RunnableWithArg<String>() {
+                    @Override
+                    public void run(final String newPageName) {
+                        Task.callInBackground(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                mDataModel.setPageName(pageName, newPageName);
+                                return null;
+                            }
+                        });
+                    }
+                });
+    }
+
+    private void deletePage(final String pageName) {
+        ApplistDialogs.questionDialog(
+                this, R.string.remove_page,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Task.callInBackground(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                mDataModel.removePage(pageName);
+                                return null;
+                            }
+                        });
+                    }
+                });
+    }
+
+    private void createPage() {
+        ApplistDialogs.textInputDialog(
+                this, R.string.page_name, "",
+                new RunnableWithArg<String>() {
+                    @Override
+                    public void run(final String pageName) {
+                        Task.callInBackground(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                mDataModel.addNewPage(pageName);
+                                return null;
+                            }
+                        });
+                    }
+                });
     }
 
 }

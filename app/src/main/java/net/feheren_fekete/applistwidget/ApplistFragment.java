@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 
 import net.feheren_fekete.applistwidget.model.AppData;
 import net.feheren_fekete.applistwidget.model.DataModel;
+import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
 import net.feheren_fekete.applistwidget.viewmodel.AppItem;
 import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
 
@@ -102,6 +103,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         EventBus.getDefault().unregister(mAdapter);
     }
 
+    public void update() {
+        mAdapter.loadAllItems();
+    }
+
     public String getPageName() {
         return getArguments().getString("pageName");
     }
@@ -113,6 +118,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     private static final int SECTION_ITEM_MENU_RENAME = 0;
     private static final int SECTION_ITEM_MENU_DELETE = 1;
+    private static final int SECTION_ITEM_MENU_CREATE = 2;
 
     private static final int APP_ITEM_MENU_MOVE_TO_SECTION = 0;
     private static final int APP_ITEM_MENU_SHOW_INFO = 1;
@@ -171,6 +177,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                         break;
                     case SECTION_ITEM_MENU_DELETE:
                         deleteSection(sectionItem);
+                        break;
+                    case SECTION_ITEM_MENU_CREATE:
+                        createSection();
                         break;
                 }
             }
@@ -246,7 +255,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         final String pageName = getPageName();
         ApplistDialogs.textInputDialog(
                 getActivity(), R.string.section_name, oldSectionName,
-                new ApplistDialogs.RunnableWithArg<String>() {
+                new RunnableWithArg<String>() {
                     @Override
                     public void run(final String newSectionName) {
                         Task.callInBackground(new Callable<Void>() {
@@ -277,6 +286,27 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                                 return null;
                             }
                         });
+                    }
+                });
+    }
+
+    private void createSection() {
+        final String pageName = getPageName();
+        ApplistDialogs.textInputDialog(
+                getActivity(), R.string.section_name, "",
+                new RunnableWithArg<String>() {
+                    @Override
+                    public void run(final String sectionName) {
+                        if (!sectionName.isEmpty()) {
+                            Task.callInBackground(new Callable<Void>() {
+                                @Override
+                                public Void call() throws Exception {
+                                    mDataModel.addNewSection(pageName, sectionName, true);
+                                    mDataModel.storePages();
+                                    return null;
+                                }
+                            });
+                        }
                     }
                 });
     }

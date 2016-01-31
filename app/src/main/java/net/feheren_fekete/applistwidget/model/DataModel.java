@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -85,13 +86,13 @@ public class DataModel {
         storeInstalledApps(mInstalledAppsFilePath);
     }
 
-    public PageData getPage(String pageName) {
+    public @Nullable PageData getPage(String pageName) {
         for (PageData page : mPages) {
             if (page.getName().equals(pageName)) {
                 return page;
             }
         }
-        return new PageData(pageName, new ArrayList<SectionData>());
+        return null;
     }
 
     public int getPageCount() {
@@ -113,6 +114,14 @@ public class DataModel {
             }
         }
         EventBus.getDefault().post(new SectionsChangedEvent());
+    }
+
+    public void setPageName(String oldPageName, String newPageName) {
+        PageData page = getPage(oldPageName);
+        if (page != null) {
+            page.setName(newPageName);
+            EventBus.getDefault().post(new PagesChangedEvent());
+        }
     }
 
     public void removePage(String pageName) {
@@ -163,26 +172,32 @@ public class DataModel {
     public List<String> getSectionNames(String pageName) {
         List<String> sectionNames = new ArrayList<>();
         PageData page = getPage(pageName);
-        for (SectionData section : page.getSections()) {
-            sectionNames.add(section.getName());
+        if (page != null) {
+            for (SectionData section : page.getSections()) {
+                sectionNames.add(section.getName());
+            }
         }
         return sectionNames;
     }
 
     public void setSectionName(String pageName, String oldSectionName, String newSectionName) {
         PageData page = getPage(pageName);
-        if (page.renameSection(oldSectionName, newSectionName)) {
-            EventBus.getDefault().post(new SectionsChangedEvent());
+        if (page != null) {
+            if (page.renameSection(oldSectionName, newSectionName)) {
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
         }
     }
 
     public void moveAppToSection(String pageName, String sectionName, AppData app) {
         PageData page = getPage(pageName);
-        page.removeApp(app);
-        SectionData section = page.getSection(sectionName);
-        if (section != null) {
-            section.addApp(app);
-            EventBus.getDefault().post(new SectionsChangedEvent());
+        if (page != null) {
+            page.removeApp(app);
+            SectionData section = page.getSection(sectionName);
+            if (section != null) {
+                section.addApp(app);
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
         }
     }
 

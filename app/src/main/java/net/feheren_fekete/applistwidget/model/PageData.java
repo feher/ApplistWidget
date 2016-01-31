@@ -19,6 +19,10 @@ public class PageData {
         return mName;
     }
 
+    public void setName(String name) {
+        mName = name;
+    }
+
     public List<SectionData> getSections() {
         return mSections;
     }

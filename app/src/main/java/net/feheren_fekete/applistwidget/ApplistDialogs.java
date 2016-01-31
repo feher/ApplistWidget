@@ -8,11 +8,9 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class ApplistDialogs {
-    public interface RunnableWithArg<T> {
-        void run(T arg);
-    }
+import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
 
+public class ApplistDialogs {
     public static void textInputDialog(Activity activity,
                                        int textId,
                                        String defaultInputText,

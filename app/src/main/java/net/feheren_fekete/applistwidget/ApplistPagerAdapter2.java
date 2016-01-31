@@ -1,19 +1,25 @@
 package net.feheren_fekete.applistwidget;
 
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
+import android.util.SparseArray;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applistwidget.model.DataModel;
+import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ApplistPagerAdapter2 extends FragmentStatePagerAdapter {
+
+    private static final String TAG = ApplistPagerAdapter2.class.getSimpleName();
+
     private List<String> mPageNames;
     private DataModel mDataModel;
-    private Fragment mCurrentPageFragment;
+    private ApplistFragment mCurrentPageFragment;
+    private SparseArray<ApplistFragment> mPageFragments;
 
     public ApplistPagerAdapter2(FragmentManager manager, DataModel dataModel) {
         super(manager);
@@ -21,11 +27,26 @@ public class ApplistPagerAdapter2 extends FragmentStatePagerAdapter {
         mPageNames = new ArrayList<>();
         mDataModel = dataModel;
         mCurrentPageFragment = null;
+        mPageFragments = new SparseArray<>();
     }
 
     @Override
-    public Fragment getItem(int position) {
+    public ApplistFragment getItem(int position) {
         return ApplistFragment.newInstance(mPageNames.get(position), mDataModel);
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        // FIXME: Fix this.
+        return POSITION_NONE;
+//        ApplistFragment fragment = (ApplistFragment) object;
+//        int position = mPageNames.indexOf(fragment.getPageName());
+//        Log.d(TAG, "ZIZI GET ITEM POS " + fragment.getPageName() + " at " + position);
+//        if (position >= 0) {
+//            return position;
+//        } else {
+//            return POSITION_NONE;
+//        }
     }
 
     @Override
@@ -40,8 +61,24 @@ public class ApplistPagerAdapter2 extends FragmentStatePagerAdapter {
 
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
-        mCurrentPageFragment = (Fragment) object;
+        mCurrentPageFragment = (ApplistFragment) object;
         super.setPrimaryItem(container, position, object);
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        Object o = super.instantiateItem(container, position);
+        ApplistFragment fragment = (ApplistFragment) o;
+        Log.d(TAG, "ZIZI INSTANTIATE FRAG " + fragment.getPageName());
+        mPageFragments.put(position, fragment);
+        return o;
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        Log.d(TAG, "ZIZI DESTROY FRAG " + mPageFragments.get(position).getPageName());
+        mPageFragments.remove(position);
+        super.destroyItem(container, position, object);
     }
 
     public void clearPageNames() {
@@ -52,8 +89,19 @@ public class ApplistPagerAdapter2 extends FragmentStatePagerAdapter {
         mPageNames = pageNames;
     }
 
-    public Fragment getCurrentPageFragment() {
+    public List<String> getPageNames() {
+        return mPageNames;
+    }
+
+    public ApplistFragment getCurrentPageFragment() {
         return mCurrentPageFragment;
+    }
+
+    public void forEachPageFragment(RunnableWithArg<ApplistFragment> runnable) {
+        for (int i = 0; i < mPageFragments.size(); ++i) {
+            ApplistFragment fragment = mPageFragments.valueAt(i);
+            runnable.run(fragment);
+        }
     }
 
 }
