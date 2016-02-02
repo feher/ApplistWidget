@@ -27,9 +27,7 @@ import bolts.Continuation;
 import bolts.Task;
 import de.greenrobot.event.EventBus;
 
-public class ApplistActivity
-        extends AppCompatActivity
-        implements SearchView.OnQueryTextListener {
+public class ApplistActivity extends AppCompatActivity {
 
     private static final String TAG = ApplistActivity.class.getSimpleName();
 
@@ -92,7 +90,8 @@ public class ApplistActivity
 
         MenuItem item = menu.findItem(R.id.action_search_app);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
-        searchView.setOnQueryTextListener(this);
+        searchView.setOnQueryTextListener(mSearchTextListener);
+        searchView.setOnCloseListener(mSearchCloseListener);
 
         return true;
     }
@@ -117,19 +116,32 @@ public class ApplistActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        return false;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        ApplistFragment fragment = (ApplistFragment) mPagerAdapter.getCurrentPageFragment();
-        if (fragment != null) {
-            fragment.setFilter(newText);
+    private SearchView.OnQueryTextListener mSearchTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            return false;
         }
-        return true;
-    }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+            if (fragment != null) {
+                fragment.setFilter(newText);
+            }
+            return true;
+        }
+    };
+
+    private SearchView.OnCloseListener mSearchCloseListener = new SearchView.OnCloseListener() {
+        @Override
+        public boolean onClose() {
+            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+            if (fragment != null) {
+                fragment.setFilter(null);
+            }
+            return false;
+        }
+    };
 
     @SuppressWarnings("unused")
     public void onEventMainThread(DataModel.DataLoadedEvent event) {

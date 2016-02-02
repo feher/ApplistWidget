@@ -162,7 +162,8 @@ public class DataModel {
     public void addNewSection(String pageName, String sectionName, boolean removable) {
         for (PageData page : mPages) {
             if (page.getName().equals(pageName)) {
-                page.addSection(new SectionData(sectionName, new ArrayList<AppData>(), removable));
+                page.addSection(new SectionData(
+                        sectionName, new ArrayList<AppData>(), removable, false));
                 EventBus.getDefault().post(new SectionsChangedEvent());
                 return;
             }
@@ -184,6 +185,17 @@ public class DataModel {
         PageData page = getPage(pageName);
         if (page != null) {
             if (page.renameSection(oldSectionName, newSectionName)) {
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
+        }
+    }
+
+    public void setSectionCollapsed(String pageName, String sectionName, boolean collapsed) {
+        PageData page = getPage(pageName);
+        if (page != null) {
+            SectionData section = page.getSection(sectionName);
+            if (section != null) {
+                section.setCollapsed(collapsed);
                 EventBus.getDefault().post(new SectionsChangedEvent());
             }
         }
@@ -215,6 +227,7 @@ public class DataModel {
                     JSONObject jsonSection = new JSONObject();
                     jsonSection.put("name", section.getName());
                     jsonSection.put("is-removable", section.isRemovable());
+                    jsonSection.put("is-collapsed", section.isCollapsed());
 
                     JSONArray jsonApps = new JSONArray();
                     for (AppData app : section.getApps()) {
@@ -280,7 +293,8 @@ public class DataModel {
             }
         });
 
-        SectionData uncategorizedSection = new SectionData(UNCATEGORIZED_SECTION_NAME, uncategorizedApps, false);
+        SectionData uncategorizedSection = new SectionData(
+                UNCATEGORIZED_SECTION_NAME, uncategorizedApps, false, false);
         page.addSection(uncategorizedSection);
     }
 
@@ -361,7 +375,8 @@ public class DataModel {
         return new SectionData(
                 jsonSection.getString("name"),
                 apps,
-                jsonSection.getBoolean("is-removable"));
+                loadJsonBoolean(jsonSection, "is-removable", true),
+                loadJsonBoolean(jsonSection, "is-collapsed", false));
     }
 
     private List<AppData> loadInstalledApps(String filePath) {
@@ -384,6 +399,22 @@ public class DataModel {
             return new ArrayList<>();
         }
         return installedApps;
+    }
+
+    private boolean loadJsonBoolean(JSONObject json, String name, boolean defaultValue) {
+        try {
+            return json.getBoolean(name);
+        } catch (JSONException e) {
+            return defaultValue;
+        }
+    }
+
+    private String loadJsonString(JSONObject json, String name, String defaultValue) {
+        try {
+            return json.getString(name);
+        } catch (JSONException e) {
+            return defaultValue;
+        }
     }
 
     private String readFile(String filePath) {

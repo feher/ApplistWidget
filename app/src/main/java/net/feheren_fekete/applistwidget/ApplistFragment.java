@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,6 +79,11 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.loadAllItems();
 
+        ItemTouchHelper.Callback callback =
+                new ApplistItemTouchHelperCallback(mAdapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(mRecyclerView);
+
         return view;
     }
 
@@ -125,8 +131,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private static final int APP_ITEM_MENU_UNINSTALL = 2;
 
     @Override
-    public void onAppLongTapped(int position) {
-        final AppItem appItem = (AppItem) mAdapter.getItem(position);
+    public void onAppLongTapped(final AppItem appItem) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setTitle(appItem.getName());
         alertDialogBuilder.setItems(R.array.app_item_menu, new DialogInterface.OnClickListener() {
@@ -150,9 +155,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     @Override
-    public void onAppTapped(int position) {
-        AppItem appItem = (AppItem) mAdapter.getItem(position);
-
+    public void onAppTapped(AppItem appItem) {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -164,8 +167,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     @Override
-    public void onSectionLongTapped(int position) {
-        final SectionItem sectionItem = (SectionItem) mAdapter.getItem(position);
+    public void onSectionLongTapped(final SectionItem sectionItem) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setTitle(sectionItem.getName());
         alertDialogBuilder.setItems(R.array.section_item_menu, new DialogInterface.OnClickListener() {
@@ -186,6 +188,23 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onSectionTapped(final SectionItem sectionItem) {
+        final String pageName = getPageName();
+        if (!mAdapter.isFiltered()) {
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    mDataModel.setSectionCollapsed(
+                            pageName,
+                            sectionItem.getName(),
+                            !sectionItem.isCollapsed());
+                    return null;
+                }
+            });
+        }
     }
 
     private void setDataModel(DataModel dataModel) {

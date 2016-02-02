@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import net.feheren_fekete.applistwidget.model.DataModel;
@@ -58,9 +59,10 @@ public class ApplistAdapter
     private int mNextPlaceholderColor;
 
     public interface ItemListener {
-        void onAppLongTapped(int position);
-        void onAppTapped(int position);
-        void onSectionLongTapped(int position);
+        void onAppTapped(AppItem appItem);
+        void onAppLongTapped(AppItem appItem);
+        void onSectionTapped(SectionItem sectionItem);
+        void onSectionLongTapped(SectionItem sectionItem);
     }
 
     public static class ViewHolderBase extends RecyclerView.ViewHolder {
@@ -78,17 +80,17 @@ public class ApplistAdapter
             super(view);
             this.layout = (LinearLayout) view.findViewById(R.id.layout);
             this.appIcon = (ImageView) view.findViewById(R.id.icon);
-            this.appName = (TextView) view.findViewById(R.id.name);
+            this.appName = (TextView) view.findViewById(R.id.app_name);
         }
     }
 
     public static class SectionItemHolder extends ViewHolderBase {
-        public final LinearLayout layout;
+        public final RelativeLayout layout;
         public final TextView sectionName;
         public SectionItemHolder(View view) {
             super(view);
-            this.layout = (LinearLayout) view.findViewById(R.id.layout);
-            this.sectionName = (TextView) view.findViewById(R.id.name);
+            this.layout = (RelativeLayout) view.findViewById(R.id.layout);
+            this.sectionName = (TextView) view.findViewById(R.id.app_name);
         }
     }
 
@@ -133,8 +135,8 @@ public class ApplistAdapter
         }
     }
 
-    private void bindAppItemHolder(final AppItemHolder holder, final int position) {
-        AppItem item = (AppItem) getItems().get(position);
+    private void bindAppItemHolder(AppItemHolder holder, int position) {
+        final AppItem item = (AppItem) getItems().get(position);
 
         Bitmap icon = mIconCache.getIcon(mIconCache.createKey(item));
         if (icon == null) {
@@ -165,28 +167,35 @@ public class ApplistAdapter
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mItemListener.onAppTapped(position);
+                mItemListener.onAppTapped(item);
             }
         });
 
         holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                mItemListener.onAppLongTapped(position);
+                mItemListener.onAppLongTapped(item);
                 return true;
             }
         });
     }
 
-    private void bindSectionItemHolder(SectionItemHolder holder, final int position) {
-        SectionItem item = (SectionItem) getItems().get(position);
+    private void bindSectionItemHolder(SectionItemHolder holder, int position) {
+        final SectionItem item = (SectionItem) getItems().get(position);
         holder.sectionName.setText(item.getName());
 
         holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                mItemListener.onSectionLongTapped(position);
+                mItemListener.onSectionLongTapped(item);
                 return true;
+            }
+        });
+
+        holder.layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mItemListener.onSectionTapped(item);
             }
         });
     }
@@ -195,6 +204,10 @@ public class ApplistAdapter
         mFilterText = filterText;
         mFilteredItems = filterItems();
         notifyDataSetChanged();
+    }
+
+    public boolean isFiltered() {
+        return mFilterText != null;
     }
 
     private List<BaseItem> getItems() {
@@ -206,7 +219,7 @@ public class ApplistAdapter
 
     private List<BaseItem> filterItems() {
         if (mFilterText == null) {
-            return mItems;
+            return null;
         }
         if (mFilterText.isEmpty()) {
             return mItems;
@@ -231,6 +244,31 @@ public class ApplistAdapter
         }
         return result;
     }
+
+//    public void collapseSection(SectionItem sectionItem) {
+//        int position = -1;
+//        for (int i = 0; i < mItems.size(); ++i) {
+//            BaseItem item = mItems.get(i);
+//            if (item instanceof SectionItem) {
+//                SectionItem s = (SectionItem) item;
+//                if (s.getName().equals(sectionItem.getName())) {
+//                    position = i;
+//                    break;
+//                }
+//            }
+//        }
+//        if (position == -1) {
+//            return;
+//        }
+//        for (int i = position + 1; i < mItems.size(); ) {
+//            if (mItems.get(i) instanceof AppItem) {
+//                mItems.remove(i);
+//                notifyItemRemoved(i);
+//            } else {
+//                break;
+//            }
+//        }
+//    }
 
     public BaseItem getItem(int position) {
         return getItems().get(position);

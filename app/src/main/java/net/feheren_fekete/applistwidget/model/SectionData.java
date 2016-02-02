@@ -8,13 +8,16 @@ public class SectionData {
     private String mName;
     private List<AppData> mApps;
     private boolean mIsRemovable;
+    private boolean mIsCollapsed;
 
     public SectionData(String name,
                        List<AppData> apps,
-                       boolean isRemovable) {
+                       boolean isRemovable,
+                       boolean isCollapsed) {
         mName = name;
         mApps = apps;
         mIsRemovable = isRemovable;
+        mIsCollapsed = isCollapsed;
     }
 
     public String getName() {
@@ -27,6 +30,14 @@ public class SectionData {
 
     public boolean isRemovable() {
         return mIsRemovable;
+    }
+
+    public void setCollapsed(boolean collapsed) {
+        mIsCollapsed = collapsed;
+    }
+
+    public boolean isCollapsed() {
+        return mIsCollapsed;
     }
 
     public List<AppData> getApps() {

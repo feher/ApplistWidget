@@ -12,12 +12,17 @@ public class ViewModelUtils {
     public static List<BaseItem> modelToView(PageData pageData) {
         List<BaseItem> result = new ArrayList<>();
         for (SectionData sectionData : pageData.getSections()) {
-            result.add(new SectionItem(sectionData.getName(), sectionData.isRemovable()));
-            for (AppData appData : sectionData.getApps()) {
-                result.add(new AppItem(
-                        appData.getPackageName(),
-                        appData.getComponentName(),
-                        appData.getAppName()));
+            result.add(new SectionItem(
+                    sectionData.getName(),
+                    sectionData.isRemovable(),
+                    sectionData.isCollapsed()));
+            if (!sectionData.isCollapsed()) {
+                for (AppData appData : sectionData.getApps()) {
+                    result.add(new AppItem(
+                            appData.getPackageName(),
+                            appData.getComponentName(),
+                            appData.getAppName()));
+                }
             }
         }
         return result;
@@ -35,7 +40,11 @@ public class ViewModelUtils {
                 }
                 // Start a new section
                 appDatas = new ArrayList<>();
-                sectionData = new SectionData(sectionItem.getName(), appDatas, sectionItem.isRemovable());
+                sectionData = new SectionData(
+                        sectionItem.getName(),
+                        appDatas,
+                        sectionItem.isRemovable(),
+                        sectionItem.isCollapsed());
             } else if (item instanceof AppItem) {
                 AppItem appItem = (AppItem) item;
                 appDatas.add(new AppData(
