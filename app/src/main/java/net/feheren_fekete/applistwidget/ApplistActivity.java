@@ -90,6 +90,7 @@ public class ApplistActivity extends AppCompatActivity {
 
         MenuItem item = menu.findItem(R.id.action_search_app);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnSearchClickListener(mSearchStartListener);
         searchView.setOnQueryTextListener(mSearchTextListener);
         searchView.setOnCloseListener(mSearchCloseListener);
 
@@ -140,6 +141,16 @@ public class ApplistActivity extends AppCompatActivity {
                 fragment.setFilter(null);
             }
             return false;
+        }
+    };
+
+    private View.OnClickListener mSearchStartListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+            if (fragment != null) {
+                fragment.setFilter("");
+            }
         }
     };
 

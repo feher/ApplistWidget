@@ -35,6 +35,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private RecyclerView mRecyclerView;
     private ApplistAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
+    private boolean mIsChangingSectionOrder;
 
     public static ApplistFragment newInstance(String pageName, DataModel dataModel) {
         ApplistFragment fragment = new ApplistFragment();
@@ -125,6 +126,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private static final int SECTION_ITEM_MENU_RENAME = 0;
     private static final int SECTION_ITEM_MENU_DELETE = 1;
     private static final int SECTION_ITEM_MENU_CREATE = 2;
+    private static final int SECTION_ITEM_MENU_CHANGE_ORDER = 3;
 
     private static final int APP_ITEM_MENU_MOVE_TO_SECTION = 0;
     private static final int APP_ITEM_MENU_SHOW_INFO = 1;
@@ -183,6 +185,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                     case SECTION_ITEM_MENU_CREATE:
                         createSection();
                         break;
+                    case SECTION_ITEM_MENU_CHANGE_ORDER:
+                        changeSectionOrder();
+                        break;
                 }
             }
         });
@@ -193,17 +198,20 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     @Override
     public void onSectionTapped(final SectionItem sectionItem) {
         final String pageName = getPageName();
-        if (!mAdapter.isFiltered()) {
-            Task.callInBackground(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    mDataModel.setSectionCollapsed(
-                            pageName,
-                            sectionItem.getName(),
-                            !sectionItem.isCollapsed());
-                    return null;
-                }
-            });
+        if (mIsChangingSectionOrder) {
+        } else {
+            if (!mAdapter.isFiltered()) {
+                Task.callInBackground(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        mDataModel.setSectionCollapsed(
+                                pageName,
+                                sectionItem.getName(),
+                                !sectionItem.isCollapsed());
+                        return null;
+                    }
+                });
+            }
         }
     }
 
@@ -328,6 +336,21 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                         }
                     }
                 });
+    }
+
+    private void changeSectionOrder() {
+        final String pageName = getPageName();
+        mIsChangingSectionOrder = true;
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                List<String> sectionNames = mDataModel.getSectionNames(pageName);
+                for (String sectionName : sectionNames) {
+                    mDataModel.setSectionCollapsed(pageName, sectionName, true);
+                }
+                return null;
+            }
+        });
     }
 
 }

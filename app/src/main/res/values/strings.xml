@@ -35,6 +35,7 @@
         <item>Rename</item>
         <item>Delete</item>
         <item>Create new section</item>
+        <item>Change section order</item>
     </string-array>
 
     <string name="dialog_move_to_section_title">Move to section</string>
