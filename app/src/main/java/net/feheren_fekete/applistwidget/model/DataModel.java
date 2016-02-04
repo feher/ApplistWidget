@@ -14,8 +14,12 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -198,6 +202,18 @@ public class DataModel {
                 section.setCollapsed(collapsed);
                 EventBus.getDefault().post(new SectionsChangedEvent());
             }
+        }
+    }
+
+    public void setSectionOrder(String pageName, List<String> orderedSectionNames) {
+        PageData page = getPage(pageName);
+        if (page != null) {
+            List<SectionData> orderedSections = new ArrayList<>();
+            for (String sectionName : orderedSectionNames) {
+                orderedSections.add(page.getSection(sectionName));
+            }
+            page.setSections(orderedSections);
+            EventBus.getDefault().post(new SectionsChangedEvent());
         }
     }
 
@@ -425,12 +441,18 @@ public class DataModel {
         } catch (FileNotFoundException e) {
             return fileContent;
         }
+        InputStreamReader isr = null;
+        try {
+            isr = new InputStreamReader(fis, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return fileContent;
+        }
 
         try {
             StringBuilder stringBuilder = new StringBuilder("");
-            byte[] buffer = new byte[1024];
+            char[] buffer = new char[1024];
             int n;
-            while ((n = fis.read(buffer)) != -1) {
+            while ((n = isr.read(buffer)) != -1) {
                 stringBuilder.append(new String(buffer, 0, n));
             }
             fileContent = stringBuilder.toString();
@@ -438,7 +460,7 @@ public class DataModel {
             // Ignore
         } finally {
             try {
-                fis.close();
+                isr.close();
             } catch (IOException e) {
                 // Ignore
             }
@@ -450,8 +472,9 @@ public class DataModel {
     private void writeFile(String filePath, String content) {
         BufferedWriter bw = null;
         try {
-            FileWriter fw = new FileWriter(filePath);
-            bw = new BufferedWriter(fw);
+            FileOutputStream fw = new FileOutputStream(filePath);
+            OutputStreamWriter osw = new OutputStreamWriter(fw, "UTF-8");
+            bw = new BufferedWriter(osw);
             bw.write(content);
         } catch (IOException e) {
             // TODO: Report error.

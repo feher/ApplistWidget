@@ -2,6 +2,7 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/action_search_app"
         android:title="@string/action_search_app"
@@ -9,11 +10,8 @@
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_test_reset"
-        android:title="TEST: Reset"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/action_test_save"
-        android:title="TEST: Save"
-        app:showAsAction="never"/>
+        android:id="@+id/action_done"
+        android:title="@string/action_done"
+        android:icon="@drawable/ic_done_white_24px"
+        app:showAsAction="ifRoom"/>
 </menu>

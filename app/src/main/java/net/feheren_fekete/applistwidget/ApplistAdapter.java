@@ -11,8 +11,11 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v4.util.LruCache;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -52,8 +55,10 @@ public class ApplistAdapter
     private List<BaseItem> mItems;
     private @Nullable String mFilterText;
     private @Nullable List<BaseItem> mFilteredItems;
+    private boolean mIsChangingOrder;
     private boolean mIsItemMoved;
     private ItemListener mItemListener;
+    private ItemTouchHelper mItemTouchHelper;
     private IconCache mIconCache;
     private int[] mIconPlaceholderColors;
     private int mNextPlaceholderColor;
@@ -180,7 +185,7 @@ public class ApplistAdapter
         });
     }
 
-    private void bindSectionItemHolder(SectionItemHolder holder, int position) {
+    private void bindSectionItemHolder(final SectionItemHolder holder, int position) {
         final SectionItem item = (SectionItem) getItems().get(position);
         holder.sectionName.setText(item.getName());
 
@@ -198,6 +203,40 @@ public class ApplistAdapter
                 mItemListener.onSectionTapped(item);
             }
         });
+
+        holder.layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN
+                        && mIsChangingOrder) {
+                    mItemTouchHelper.startDrag(holder);
+                }
+                return false;
+            }
+        });
+    }
+
+    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper) {
+        mItemTouchHelper = itemTouchHelper;
+    }
+
+    public void setChangingOrder(boolean changing) {
+        mIsChangingOrder = changing;
+    }
+
+    public boolean isChangingOrder() {
+        return mIsChangingOrder;
+    }
+
+    public List<String> getSectionNames() {
+        List<String> result = new ArrayList<>();
+        for (BaseItem item : getItems()) {
+            if (item instanceof SectionItem) {
+                SectionItem sectionItem = (SectionItem) item;
+                result.add(sectionItem.getName());
+            }
+        }
+        return result;
     }
 
     public void setFilter(@Nullable String filterText) {
@@ -334,17 +373,17 @@ public class ApplistAdapter
 
     @Override
     public void onItemMoveEnd() {
-        if (mIsItemMoved) {
-            mIsItemMoved = false;
-            final PageData pageData = ViewModelUtils.viewToModel(mPageName, getItems());
-            Task.callInBackground(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    mModel.setPage(pageData);
-                    return null;
-                }
-            });
-        }
+//        if (mIsItemMoved) {
+//            mIsItemMoved = false;
+//            final PageData pageData = ViewModelUtils.viewToModel(mPageName, getItems());
+//            Task.callInBackground(new Callable<Void>() {
+//                @Override
+//                public Void call() throws Exception {
+//                    mModel.setPage(pageData);
+//                    return null;
+//                }
+//            });
+//        }
     }
 
     @SuppressWarnings("unused")

@@ -35,7 +35,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private RecyclerView mRecyclerView;
     private ApplistAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
-    private boolean mIsChangingSectionOrder;
+    private ItemTouchHelper mTouchHelper;
 
     public static ApplistFragment newInstance(String pageName, DataModel dataModel) {
         ApplistFragment fragment = new ApplistFragment();
@@ -82,8 +82,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
         ItemTouchHelper.Callback callback =
                 new ApplistItemTouchHelperCallback(mAdapter);
-        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        touchHelper.attachToRecyclerView(mRecyclerView);
+        mTouchHelper = new ItemTouchHelper(callback);
+        mTouchHelper.attachToRecyclerView(mRecyclerView);
+        mAdapter.setItemTouchHelper(mTouchHelper);
 
         return view;
     }
@@ -121,6 +122,21 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     public void setFilter(String filterText) {
         mAdapter.setFilter(filterText);
         mRecyclerView.scrollToPosition(0);
+    }
+
+    public boolean isChangingOrder() {
+        return mAdapter.isChangingOrder();
+    }
+
+    public boolean handleMenuItem(int itemId) {
+        boolean isHandled = false;
+        switch (itemId) {
+            case R.id.action_done:
+                finishChangingOrder();
+                isHandled = true;
+                break;
+        }
+        return isHandled;
     }
 
     private static final int SECTION_ITEM_MENU_RENAME = 0;
@@ -198,20 +214,17 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     @Override
     public void onSectionTapped(final SectionItem sectionItem) {
         final String pageName = getPageName();
-        if (mIsChangingSectionOrder) {
-        } else {
-            if (!mAdapter.isFiltered()) {
-                Task.callInBackground(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        mDataModel.setSectionCollapsed(
-                                pageName,
-                                sectionItem.getName(),
-                                !sectionItem.isCollapsed());
-                        return null;
-                    }
-                });
-            }
+        if (!mAdapter.isFiltered()) {
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    mDataModel.setSectionCollapsed(
+                            pageName,
+                            sectionItem.getName(),
+                            !sectionItem.isCollapsed());
+                    return null;
+                }
+            });
         }
     }
 
@@ -340,13 +353,37 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     private void changeSectionOrder() {
         final String pageName = getPageName();
-        mIsChangingSectionOrder = true;
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 List<String> sectionNames = mDataModel.getSectionNames(pageName);
                 for (String sectionName : sectionNames) {
                     mDataModel.setSectionCollapsed(pageName, sectionName, true);
+                }
+                return null;
+            }
+        }).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                mAdapter.setChangingOrder(true);
+                getActivity().invalidateOptionsMenu();
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
+    }
+
+    private void finishChangingOrder() {
+        final String pageName = getPageName();
+        final List<String> sectionNames = mAdapter.getSectionNames();
+        mAdapter.setChangingOrder(false);
+        getActivity().invalidateOptionsMenu();
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mDataModel.setSectionOrder(pageName, sectionNames);
+                List<String> sectionNames = mDataModel.getSectionNames(pageName);
+                for (String sectionName : sectionNames) {
+                    mDataModel.setSectionCollapsed(pageName, sectionName, false);
                 }
                 return null;
             }

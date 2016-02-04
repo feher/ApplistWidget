@@ -98,23 +98,36 @@ public class ApplistActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean isChangingOrder = false;
+        ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+        if (fragment != null) {
+            isChangingOrder = fragment.isChangingOrder();
+        }
+        if (isChangingOrder) {
+            menu.findItem(R.id.action_search_app).setVisible(false);
+            menu.findItem(R.id.action_done).setVisible(true);
+        } else {
+            menu.findItem(R.id.action_search_app).setVisible(true);
+            menu.findItem(R.id.action_done).setVisible(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isHandled = false;
         int id = item.getItemId();
 
-        switch (id) {
-            case R.id.action_test_reset: {
-                mDataModel.removeAllPages();
-                mDataModel.storeData();
-                finish();
-                break;
-            }
-            case R.id.action_test_save: {
-                //((ApplistApp)getApplication()).getDataModel().storeData("/sdcard/Download/applist.saved.json");
-                break;
-            }
+        ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+        if (fragment != null) {
+            isHandled = fragment.handleMenuItem(id);
         }
 
-        return super.onOptionsItemSelected(item);
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
+        }
+        return isHandled;
     }
 
     private SearchView.OnQueryTextListener mSearchTextListener = new SearchView.OnQueryTextListener() {
