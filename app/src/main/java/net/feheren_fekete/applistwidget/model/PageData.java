@@ -44,6 +44,15 @@ public class PageData extends BaseData {
         return null;
     }
 
+    public @Nullable SectionData getSectionByRemovable(boolean removable) {
+        for (SectionData section : mSections) {
+            if (section.isRemovable() == removable) {
+                return section;
+            }
+        }
+        return null;
+    }
+
     public boolean renameSection(String oldSectionName, String newSectionName) {
         SectionData section = getSection(oldSectionName);
         if (section != null) {

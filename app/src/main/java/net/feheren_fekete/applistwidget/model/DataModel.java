@@ -347,16 +347,16 @@ public class DataModel {
                 }
             }
             if (section.getApps().size() != installedAppsInSection.size()) {
-                isSectionChanged = true;
                 section.setApps(installedAppsInSection);
+                isSectionChanged = true;
             }
         }
 
-        SectionData uncategorizedSection = page.getSection(UNCATEGORIZED_SECTION_NAME);
+        SectionData uncategorizedSection = page.getSectionByRemovable(false);
         if (uncategorizedSection != null) {
+            uncategorizedSection.addApps(uncategorizedApps);
             // TODO: Compare the old and new uncategorized section app-by-app.
             isSectionChanged = true;
-            uncategorizedSection.addApps(uncategorizedApps);
         }
 
         return isSectionChanged;
