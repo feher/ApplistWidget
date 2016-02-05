@@ -372,7 +372,10 @@ public class ApplistAdapter
 
     private void bindSectionItemHolder(final SectionItemHolder holder, int position) {
         final SectionItem item = (SectionItem) getItems().get(position);
-        holder.sectionName.setText(item.getName());
+        holder.sectionName.setText(
+                item.isCollapsed()
+                        ? item.getName() + " ..."
+                        : item.getName());
 
         holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
