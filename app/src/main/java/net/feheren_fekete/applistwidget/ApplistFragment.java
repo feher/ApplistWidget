@@ -139,10 +139,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         return isHandled;
     }
 
-    private static final int SECTION_ITEM_MENU_RENAME = 0;
-    private static final int SECTION_ITEM_MENU_DELETE = 1;
-    private static final int SECTION_ITEM_MENU_CREATE = 2;
-    private static final int SECTION_ITEM_MENU_CHANGE_ORDER = 3;
+    private static final int SECTION_ITEM_MENU_CHANGE_ORDER = 0;
+    private static final int SECTION_ITEM_MENU_RENAME = 1;
+    private static final int SECTION_ITEM_MENU_DELETE = 2;
+    private static final int SECTION_ITEM_MENU_CREATE = 3;
 
     private static final int APP_ITEM_MENU_MOVE_TO_SECTION = 0;
     private static final int APP_ITEM_MENU_SHOW_INFO = 1;

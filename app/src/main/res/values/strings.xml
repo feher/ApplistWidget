@@ -17,20 +17,20 @@
     <string-array name="page_menu">
         <item>Rename</item>
         <item>Delete</item>
-        <item>Create new page</item>
+        <item>New page</item>
     </string-array>
 
     <string-array name="app_item_menu">
         <item>Move to section</item>
-        <item>Show information</item>
+        <item>Information</item>
         <item>Uninstall</item>
     </string-array>
 
     <string-array name="section_item_menu">
+        <item>Move</item>
         <item>Rename</item>
         <item>Delete</item>
-        <item>Create new section</item>
-        <item>Change section order</item>
+        <item>New section</item>
     </string-array>
 
     <string name="dialog_move_to_section_title">Move to section</string>
