@@ -14,6 +14,7 @@ import android.support.v4.util.LruCache;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,6 +45,8 @@ import bolts.Task;
 public class ApplistAdapter
         extends RecyclerView.Adapter<ApplistAdapter.ViewHolderBase>
         implements ApplistItemTouchHelperCallback.OnMoveListener {
+
+    private static final String TAG = ApplistAdapter.class.getSimpleName();
 
     public static final int APP_ITEM_VIEW = 1;
     public static final int SECTION_ITEM_VIEW = 2;
@@ -140,6 +143,226 @@ public class ApplistAdapter
         }
     }
 
+    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper) {
+        mItemTouchHelper = itemTouchHelper;
+    }
+
+    public void setChangingOrder(boolean changing) {
+        mIsChangingOrder = changing;
+    }
+
+    public boolean isChangingOrder() {
+        return mIsChangingOrder;
+    }
+
+    public List<String> getSectionNames() {
+        List<String> result = new ArrayList<>();
+        for (BaseItem item : getItems()) {
+            if (item instanceof SectionItem) {
+                SectionItem sectionItem = (SectionItem) item;
+                result.add(sectionItem.getName());
+            }
+        }
+        return result;
+    }
+
+    public void setFilter(@Nullable String filterText) {
+        mFilterText = filterText;
+        mFilteredItems = filterItems();
+        notifyDataSetChanged();
+    }
+
+    public boolean isFiltered() {
+        return mFilterText != null;
+    }
+
+//    public void collapseSection(SectionItem sectionItem) {
+//        int position = -1;
+//        for (int i = 0; i < mItems.size(); ++i) {
+//            BaseItem item = mItems.get(i);
+//            if (item instanceof SectionItem) {
+//                SectionItem s = (SectionItem) item;
+//                if (s.getName().equals(sectionItem.getName())) {
+//                    position = i;
+//                    break;
+//                }
+//            }
+//        }
+//        if (position == -1) {
+//            return;
+//        }
+//        for (int i = position + 1; i < mItems.size(); ) {
+//            if (mItems.get(i) instanceof AppItem) {
+//                mItems.remove(i);
+//                notifyItemRemoved(i);
+//            } else {
+//                break;
+//            }
+//        }
+//    }
+
+    public BaseItem getItem(int position) {
+        return getItems().get(position);
+    }
+
+    @Override
+    public int getItemCount() {
+        return getItems().size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        BaseItem item = getItems().get(position);
+        if (item instanceof AppItem) {
+            return APP_ITEM_VIEW;
+        }
+        if (item instanceof SectionItem) {
+            return SECTION_ITEM_VIEW;
+        }
+        return super.getItemViewType(position);
+    }
+
+    public void loadAllItems() {
+        Task.callInBackground(new Callable<List<BaseItem>>() {
+            @Override
+            public List<BaseItem> call() throws Exception {
+                PageData pageData = mModel.getPage(mPageName);
+                if (pageData == null) {
+                    pageData = new PageData(mPageName, new ArrayList<SectionData>());
+                }
+                return ViewModelUtils.modelToView(pageData);
+            }
+        }).continueWith(new Continuation<List<BaseItem>, Void>() {
+            @Override
+            public Void then(Task<List<BaseItem>> task) throws Exception {
+                List<BaseItem> items = task.getResult();
+                if (items != null) {
+                    if (mFilterText == null) {
+                        List<BaseItem> oldItems = mItems;
+                        mItems = items;
+                        notifyDifference(oldItems, mItems);
+                    } else {
+                        List<BaseItem> oldFilteredItems = mFilteredItems;
+                        mItems = items;
+                        mFilteredItems = filterItems();
+                        notifyDifference(oldFilteredItems, mFilteredItems);
+                    }
+                }
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
+    }
+
+    private void notifyDifference(List<BaseItem> oldItems, List<BaseItem> newItems) {
+        notifyDataSetChanged();
+//        final int oldItemCount = oldItems.size();
+//        final int newItemCount = newItems.size();
+//        for (int o = 0; o < oldItemCount; ++o) {
+//            BaseItem oldItem = oldItems.get(o);
+//            boolean oldExists = false;
+//            for (int n = 0; n < newItemCount; ++n) {
+//                BaseItem newItem = newItems.get(n);
+//                if (oldItem.equals(newItem)) {
+//                    oldExists = true;
+//                    if (o != n) {
+//                        Log.d(TAG, "ZIZI MOVED " + oldItem.getName() + " from " + o + " to "+ n);
+//                        notifyItemMoved(o, n);
+//                    }
+//                    break;
+//                }
+//            }
+//            if (!oldExists) {
+//                Log.d(TAG, "ZIZI REMOVED " + oldItem.getName() + " from " + o);
+//                notifyItemRemoved(o);
+//            }
+//        }
+//        for (int n = 0; n < newItemCount; ++n) {
+//            BaseItem newItem = newItems.get(n);
+//            boolean newIsNew = true;
+//            for (int o = 0; o < oldItemCount; ++o) {
+//                BaseItem oldItem = oldItems.get(o);
+//                if (newItem.equals(oldItem)) {
+//                    newIsNew = false;
+//                    break;
+//                }
+//            }
+//            if (newIsNew) {
+//                Log.d(TAG, "ZIZI ADDED " + newItem.getName() + " to " + n);
+//                notifyItemInserted(n);
+//            }
+//        }
+    }
+
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(getItems(), i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(getItems(), i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+        mIsItemMoved = true;
+    }
+
+    @Override
+    public void onItemMoveEnd() {
+//        if (mIsItemMoved) {
+//            mIsItemMoved = false;
+//            final PageData pageData = ViewModelUtils.viewToModel(mPageName, getItems());
+//            Task.callInBackground(new Callable<Void>() {
+//                @Override
+//                public Void call() throws Exception {
+//                    mModel.setPage(pageData);
+//                    return null;
+//                }
+//            });
+//        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(DataModel.SectionsChangedEvent event) {
+        loadAllItems();
+    }
+
+    private List<BaseItem> getItems() {
+        if (mFilterText != null) {
+            return mFilteredItems;
+        }
+        return mItems;
+    }
+
+    private List<BaseItem> filterItems() {
+        if (mFilterText == null) {
+            return null;
+        }
+        if (mFilterText.isEmpty()) {
+            return mItems;
+        }
+
+        List<BaseItem> result = new ArrayList<>();
+        String lowercaseFilterText = mFilterText.toLowerCase();
+        SectionItem currentSectionItem = null;
+        for (BaseItem item : mItems) {
+            if (item instanceof SectionItem) {
+                currentSectionItem = (SectionItem) item;
+            } else {
+                String lowercaseItemName = item.getName().toLowerCase();
+                if (lowercaseItemName.contains(lowercaseFilterText)) {
+                    if (currentSectionItem != null) {
+                        result.add(currentSectionItem);
+                        currentSectionItem = null;
+                    }
+                    result.add(item);
+                }
+            }
+        }
+        return result;
+    }
+
     private void bindAppItemHolder(AppItemHolder holder, int position) {
         final AppItem item = (AppItem) getItems().get(position);
 
@@ -214,181 +437,6 @@ public class ApplistAdapter
                 return false;
             }
         });
-    }
-
-    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper) {
-        mItemTouchHelper = itemTouchHelper;
-    }
-
-    public void setChangingOrder(boolean changing) {
-        mIsChangingOrder = changing;
-    }
-
-    public boolean isChangingOrder() {
-        return mIsChangingOrder;
-    }
-
-    public List<String> getSectionNames() {
-        List<String> result = new ArrayList<>();
-        for (BaseItem item : getItems()) {
-            if (item instanceof SectionItem) {
-                SectionItem sectionItem = (SectionItem) item;
-                result.add(sectionItem.getName());
-            }
-        }
-        return result;
-    }
-
-    public void setFilter(@Nullable String filterText) {
-        mFilterText = filterText;
-        mFilteredItems = filterItems();
-        notifyDataSetChanged();
-    }
-
-    public boolean isFiltered() {
-        return mFilterText != null;
-    }
-
-    private List<BaseItem> getItems() {
-        if (mFilterText != null) {
-            return mFilteredItems;
-        }
-        return mItems;
-    }
-
-    private List<BaseItem> filterItems() {
-        if (mFilterText == null) {
-            return null;
-        }
-        if (mFilterText.isEmpty()) {
-            return mItems;
-        }
-
-        List<BaseItem> result = new ArrayList<>();
-        String lowercaseFilterText = mFilterText.toLowerCase();
-        SectionItem currentSectionItem = null;
-        for (BaseItem item : mItems) {
-            if (item instanceof SectionItem) {
-                currentSectionItem = (SectionItem) item;
-            } else {
-                String lowercaseItemName = item.getName().toLowerCase();
-                if (lowercaseItemName.contains(lowercaseFilterText)) {
-                    if (currentSectionItem != null) {
-                        result.add(currentSectionItem);
-                        currentSectionItem = null;
-                    }
-                    result.add(item);
-                }
-            }
-        }
-        return result;
-    }
-
-//    public void collapseSection(SectionItem sectionItem) {
-//        int position = -1;
-//        for (int i = 0; i < mItems.size(); ++i) {
-//            BaseItem item = mItems.get(i);
-//            if (item instanceof SectionItem) {
-//                SectionItem s = (SectionItem) item;
-//                if (s.getName().equals(sectionItem.getName())) {
-//                    position = i;
-//                    break;
-//                }
-//            }
-//        }
-//        if (position == -1) {
-//            return;
-//        }
-//        for (int i = position + 1; i < mItems.size(); ) {
-//            if (mItems.get(i) instanceof AppItem) {
-//                mItems.remove(i);
-//                notifyItemRemoved(i);
-//            } else {
-//                break;
-//            }
-//        }
-//    }
-
-    public BaseItem getItem(int position) {
-        return getItems().get(position);
-    }
-
-    @Override
-    public int getItemCount() {
-        return getItems().size();
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        BaseItem item = getItems().get(position);
-        if (item instanceof AppItem) {
-            return APP_ITEM_VIEW;
-        }
-        if (item instanceof SectionItem) {
-            return SECTION_ITEM_VIEW;
-        }
-        return super.getItemViewType(position);
-    }
-
-    public void loadAllItems() {
-        Task.callInBackground(new Callable<List<BaseItem>>() {
-            @Override
-            public List<BaseItem> call() throws Exception {
-                PageData pageData = mModel.getPage(mPageName);
-                if (pageData == null) {
-                    pageData = new PageData(mPageName, new ArrayList<SectionData>());
-                }
-                return ViewModelUtils.modelToView(pageData);
-            }
-        }).continueWith(new Continuation<List<BaseItem>, Void>() {
-            @Override
-            public Void then(Task<List<BaseItem>> task) throws Exception {
-                List<BaseItem> items = task.getResult();
-                if (items != null) {
-                    mItems = items;
-                    if (mFilterText != null) {
-                        mFilteredItems = filterItems();
-                    }
-                    notifyDataSetChanged();
-                }
-                return null;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
-    }
-
-    @Override
-    public void onItemMove(int fromPosition, int toPosition) {
-        if (fromPosition < toPosition) {
-            for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(getItems(), i, i + 1);
-            }
-        } else {
-            for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(getItems(), i, i - 1);
-            }
-        }
-        notifyItemMoved(fromPosition, toPosition);
-        mIsItemMoved = true;
-    }
-
-    @Override
-    public void onItemMoveEnd() {
-//        if (mIsItemMoved) {
-//            mIsItemMoved = false;
-//            final PageData pageData = ViewModelUtils.viewToModel(mPageName, getItems());
-//            Task.callInBackground(new Callable<Void>() {
-//                @Override
-//                public Void call() throws Exception {
-//                    mModel.setPage(pageData);
-//                    return null;
-//                }
-//            });
-//        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(DataModel.SectionsChangedEvent event) {
-        loadAllItems();
     }
 
     private static Bitmap drawableToBitmap(Drawable drawable) {

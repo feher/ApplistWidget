@@ -24,4 +24,13 @@ public class SectionItem extends BaseItem {
     public boolean isCollapsed() {
         return mIsCollapsed;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof SectionItem)) {
+            return false;
+        }
+        SectionItem other = (SectionItem) o;
+        return mName.equals(other.getName());
+    }
 }
