@@ -356,10 +356,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                List<String> sectionNames = mDataModel.getSectionNames(pageName);
-                for (String sectionName : sectionNames) {
-                    mDataModel.setSectionCollapsed(pageName, sectionName, true);
-                }
+                mDataModel.setAllSectionsCollapsed(pageName, true);
                 return null;
             }
         }).continueWith(new Continuation<Void, Void>() {
@@ -381,10 +378,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
             @Override
             public Void call() throws Exception {
                 mDataModel.setSectionOrder(pageName, sectionNames);
-                List<String> sectionNames = mDataModel.getSectionNames(pageName);
-                for (String sectionName : sectionNames) {
-                    mDataModel.setSectionCollapsed(pageName, sectionName, false);
-                }
+                mDataModel.setAllSectionsCollapsed(pageName, false);
                 return null;
             }
         });

@@ -211,10 +211,26 @@ public class DataModel {
         PageData page = getPage(pageName);
         if (page != null) {
             SectionData section = page.getSection(sectionName);
-            if (section != null) {
+            if (section != null && !section.isEmpty()) {
                 section.setCollapsed(collapsed);
                 EventBus.getDefault().post(new SectionsChangedEvent());
             }
+        }
+    }
+
+    public void setAllSectionsCollapsed(String pageName, boolean collapsed) {
+        boolean isSectionChanged = false;
+        PageData page = getPage(pageName);
+        if (page != null) {
+            for (SectionData section : page.getSections()) {
+                if (!section.isEmpty()) {
+                    section.setCollapsed(collapsed);
+                    isSectionChanged = true;
+                }
+            }
+        }
+        if (isSectionChanged) {
+            EventBus.getDefault().post(new SectionsChangedEvent());
         }
     }
 

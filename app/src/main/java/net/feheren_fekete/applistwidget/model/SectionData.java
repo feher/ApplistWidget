@@ -42,6 +42,10 @@ public class SectionData extends BaseData {
         return mIsCollapsed;
     }
 
+    public boolean isEmpty() {
+        return mApps.isEmpty();
+    }
+
     public List<AppData> getApps() {
         return mApps;
     }
