@@ -30,7 +30,7 @@ public class ApplistDialogs {
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        final String sectionName = editText.getText().toString();
+                        final String sectionName = editText.getText().toString().trim();
                         onOk.run(sectionName);
                     }
                 })
