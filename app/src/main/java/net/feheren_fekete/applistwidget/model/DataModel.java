@@ -15,7 +15,6 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -32,7 +31,9 @@ public class DataModel {
 
     private static final String TAG = DataModel.class.getSimpleName();
 
+    public static final int INVALID_ID = 0;
     public static final String DEFAULT_PAGE_NAME = "Apps";
+
     private static final String UNCATEGORIZED_SECTION_NAME = "Uncategorized";
 
     private PackageManager mPackageManager;
@@ -103,8 +104,20 @@ public class DataModel {
         return mPages.size();
     }
 
+    public long createPageId() {
+        return String.valueOf(System.currentTimeMillis()).hashCode();
+    }
+
+    public long createSectionId() {
+        return String.valueOf(System.currentTimeMillis()).hashCode();
+    }
+
+    public long createAppId(String packageName, String componentName) {
+        return (packageName + componentName).hashCode();
+    }
+
     public void addNewPage(String pageName) {
-        PageData page = new PageData(pageName, new ArrayList<SectionData>());
+        PageData page = new PageData(createPageId(), pageName, new ArrayList<SectionData>());
         addUncategorizedSection(page);
         // Always add to the beginning of the list.
         mPages.add(0, page);
@@ -167,7 +180,7 @@ public class DataModel {
         for (PageData page : mPages) {
             if (page.getName().equals(pageName)) {
                 page.addSection(new SectionData(
-                        sectionName, new ArrayList<AppData>(), removable, false));
+                        createSectionId(), sectionName, new ArrayList<AppData>(), removable, false));
                 EventBus.getDefault().post(new SectionsChangedEvent());
                 return;
             }
@@ -236,11 +249,13 @@ public class DataModel {
             JSONArray jsonPages = new JSONArray();
             for (PageData page : mPages) {
                 JSONObject jsonPage = new JSONObject();
+                jsonPage.put("id", page.getId());
                 jsonPage.put("name", page.getName());
 
                 JSONArray jsonSections = new JSONArray();
                 for (SectionData section : page.getSections()) {
                     JSONObject jsonSection = new JSONObject();
+                    jsonSection.put("id", section.getId());
                     jsonSection.put("name", section.getName());
                     jsonSection.put("is-removable", section.isRemovable());
                     jsonSection.put("is-collapsed", section.isCollapsed());
@@ -248,6 +263,7 @@ public class DataModel {
                     JSONArray jsonApps = new JSONArray();
                     for (AppData app : section.getApps()) {
                         JSONObject jsonApp = new JSONObject();
+                        jsonApp.put("id", app.getId());
                         jsonApp.put("package-name", app.getPackageName());
                         jsonApp.put("component-name", app.getComponentName());
                         jsonApp.put("app-name", app.getAppName());
@@ -279,6 +295,7 @@ public class DataModel {
             JSONArray jsonApps = new JSONArray();
             for (AppData app : mInstalledApps) {
                 JSONObject jsonApp = new JSONObject();
+                jsonApp.put("id", app.getId());
                 jsonApp.put("package-name", app.getPackageName());
                 jsonApp.put("component-name", app.getComponentName());
                 jsonApp.put("app-name", app.getAppName());
@@ -310,7 +327,7 @@ public class DataModel {
         });
 
         SectionData uncategorizedSection = new SectionData(
-                UNCATEGORIZED_SECTION_NAME, uncategorizedApps, false, false);
+                createSectionId(), UNCATEGORIZED_SECTION_NAME, uncategorizedApps, false, false);
         page.addSection(uncategorizedSection);
     }
 
@@ -374,7 +391,7 @@ public class DataModel {
             sections.add(loadSection(jsonSection));
         }
 
-        return new PageData(jsonPage.getString("name"), sections);
+        return new PageData(INVALID_ID, jsonPage.getString("name"), sections);
     }
 
     private SectionData loadSection(JSONObject jsonSection) throws JSONException {
@@ -383,12 +400,14 @@ public class DataModel {
         for (int k = 0; k < jsonApps.length(); ++k) {
             JSONObject jsonApp = jsonApps.getJSONObject(k);
             AppData app = new AppData(
+                    jsonApp.getLong("id"),
                     jsonApp.getString("package-name"),
                     jsonApp.getString("component-name"),
                     jsonApp.getString("app-name"));
             apps.add(app);
         }
         return new SectionData(
+                jsonSection.getLong("id"),
                 jsonSection.getString("name"),
                 apps,
                 loadJsonBoolean(jsonSection, "is-removable", true),
@@ -405,6 +424,7 @@ public class DataModel {
             for (int k = 0; k < jsonInstalledApps.length(); ++k) {
                 JSONObject jsonApp = jsonInstalledApps.getJSONObject(k);
                 AppData app = new AppData(
+                        jsonApp.getLong("id"),
                         jsonApp.getString("package-name"),
                         jsonApp.getString("component-name"),
                         jsonApp.getString("app-name"));
@@ -498,6 +518,9 @@ public class DataModel {
         List<ResolveInfo> installedAppInfos = mPackageManager.queryIntentActivities(intent, 0);
         for (ResolveInfo resolveInfo : installedAppInfos) {
             installedApps.add(new AppData(
+                    createAppId(
+                            resolveInfo.activityInfo.applicationInfo.packageName,
+                            resolveInfo.activityInfo.name),
                     resolveInfo.activityInfo.applicationInfo.packageName,
                     resolveInfo.activityInfo.name,
                     resolveInfo.loadLabel(mPackageManager).toString()));

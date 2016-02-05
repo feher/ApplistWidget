@@ -5,11 +5,12 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PageData {
+public class PageData extends BaseData {
     private String mName;
     private List<SectionData> mSections;
 
-    public PageData(String name, List<SectionData> sections) {
+    public PageData(long id, String name, List<SectionData> sections) {
+        super(id);
         mName = name;
         mSections = sections;
     }

@@ -4,16 +4,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class SectionData {
+public class SectionData extends BaseData {
     private String mName;
     private List<AppData> mApps;
     private boolean mIsRemovable;
     private boolean mIsCollapsed;
 
-    public SectionData(String name,
+    public SectionData(long id,
+                       String name,
                        List<AppData> apps,
                        boolean isRemovable,
                        boolean isCollapsed) {
+        super(id);
         mName = name;
         mApps = apps;
         mIsRemovable = isRemovable;

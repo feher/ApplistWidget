@@ -6,7 +6,8 @@ public class SectionItem extends BaseItem {
     private boolean mIsRemovable;
     private boolean mIsCollapsed;
 
-    public SectionItem(String name, boolean isRemovable, boolean isCollapsed) {
+    public SectionItem(long id, String name, boolean isRemovable, boolean isCollapsed) {
+        super(id);
         mName = name;
         mIsRemovable = isRemovable;
         mIsCollapsed = isCollapsed;

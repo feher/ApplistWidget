@@ -6,9 +6,11 @@ public class AppItem extends BaseItem {
     private String mComponentName;
     private String mAppName;
 
-    public AppItem(String packageName,
+    public AppItem(long id,
+                   String packageName,
                    String componentName,
                    String appName) {
+        super(id);
         mPackageName = packageName;
         mComponentName = componentName;
         mAppName = appName;

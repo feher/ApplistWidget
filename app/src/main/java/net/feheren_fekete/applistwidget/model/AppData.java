@@ -4,18 +4,20 @@ import net.feheren_fekete.applistwidget.viewmodel.AppItem;
 
 import java.util.Comparator;
 
-public class AppData {
+public class AppData extends BaseData {
     private String mPackageName;
     private String mAppName;
     private String mComponentName;
 
-    public AppData(String packageName, String componentName, String appName) {
+    public AppData(long id, String packageName, String componentName, String appName) {
+        super(id);
         mPackageName = packageName;
         mComponentName = componentName;
         mAppName = appName;
     }
 
     public AppData(AppItem appItem) {
+        super(appItem.getId());
         mPackageName = appItem.getPackageName();
         mComponentName = appItem.getComponentName();
         mAppName = appItem.getName();

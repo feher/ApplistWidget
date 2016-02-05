@@ -116,6 +116,8 @@ public class ApplistAdapter
         mIconCache = new IconCache();
         mIconPlaceholderColors = mContext.getResources().getIntArray(R.array.icon_placeholders);
         mNextPlaceholderColor = 0;
+
+        setHasStableIds(true);
     }
 
     @Override
@@ -206,6 +208,11 @@ public class ApplistAdapter
     }
 
     @Override
+    public long getItemId(int position) {
+        return getItems().get(position).getId();
+    }
+
+    @Override
     public int getItemCount() {
         return getItems().size();
     }
@@ -228,7 +235,7 @@ public class ApplistAdapter
             public List<BaseItem> call() throws Exception {
                 PageData pageData = mModel.getPage(mPageName);
                 if (pageData == null) {
-                    pageData = new PageData(mPageName, new ArrayList<SectionData>());
+                    pageData = new PageData(DataModel.INVALID_ID, mPageName, new ArrayList<SectionData>());
                 }
                 return ViewModelUtils.modelToView(pageData);
             }
@@ -237,60 +244,15 @@ public class ApplistAdapter
             public Void then(Task<List<BaseItem>> task) throws Exception {
                 List<BaseItem> items = task.getResult();
                 if (items != null) {
+                    mItems = items;
                     if (mFilterText == null) {
-                        List<BaseItem> oldItems = mItems;
-                        mItems = items;
-                        notifyDifference(oldItems, mItems);
-                    } else {
-                        List<BaseItem> oldFilteredItems = mFilteredItems;
-                        mItems = items;
                         mFilteredItems = filterItems();
-                        notifyDifference(oldFilteredItems, mFilteredItems);
                     }
+                    notifyDataSetChanged();
                 }
                 return null;
             }
         }, Task.UI_THREAD_EXECUTOR);
-    }
-
-    private void notifyDifference(List<BaseItem> oldItems, List<BaseItem> newItems) {
-        notifyDataSetChanged();
-//        final int oldItemCount = oldItems.size();
-//        final int newItemCount = newItems.size();
-//        for (int o = 0; o < oldItemCount; ++o) {
-//            BaseItem oldItem = oldItems.get(o);
-//            boolean oldExists = false;
-//            for (int n = 0; n < newItemCount; ++n) {
-//                BaseItem newItem = newItems.get(n);
-//                if (oldItem.equals(newItem)) {
-//                    oldExists = true;
-//                    if (o != n) {
-//                        Log.d(TAG, "ZIZI MOVED " + oldItem.getName() + " from " + o + " to "+ n);
-//                        notifyItemMoved(o, n);
-//                    }
-//                    break;
-//                }
-//            }
-//            if (!oldExists) {
-//                Log.d(TAG, "ZIZI REMOVED " + oldItem.getName() + " from " + o);
-//                notifyItemRemoved(o);
-//            }
-//        }
-//        for (int n = 0; n < newItemCount; ++n) {
-//            BaseItem newItem = newItems.get(n);
-//            boolean newIsNew = true;
-//            for (int o = 0; o < oldItemCount; ++o) {
-//                BaseItem oldItem = oldItems.get(o);
-//                if (newItem.equals(oldItem)) {
-//                    newIsNew = false;
-//                    break;
-//                }
-//            }
-//            if (newIsNew) {
-//                Log.d(TAG, "ZIZI ADDED " + newItem.getName() + " to " + n);
-//                notifyItemInserted(n);
-//            }
-//        }
     }
 
     @Override
