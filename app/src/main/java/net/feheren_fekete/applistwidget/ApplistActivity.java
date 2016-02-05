@@ -203,6 +203,7 @@ public class ApplistActivity extends AppCompatActivity {
                     }
                 }, 1000);
                 hack();
+                mTabLayout.setVisibility((pageNames.size() == 1) ? View.GONE : View.VISIBLE);
                 return null;
             }
         }, Task.UI_THREAD_EXECUTOR);
