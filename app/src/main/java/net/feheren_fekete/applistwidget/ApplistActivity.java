@@ -37,6 +37,7 @@ public class ApplistActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private ApplistPagerAdapter2 mPagerAdapter;
+    private SearchView mSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +49,21 @@ public class ApplistActivity extends AppCompatActivity {
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        mSearchView = (SearchView) findViewById(R.id.search_view);
+        mSearchView.setFocusable(true);
+        mSearchView.setIconifiedByDefault(false);
+        mSearchView.setOnSearchClickListener(mSearchStartListener);
+        mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
+        mSearchView.setOnQueryTextListener(mSearchTextListener);
+        mSearchView.setOnCloseListener(mSearchCloseListener);
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         mPagerAdapter = new ApplistPagerAdapter2(getSupportFragmentManager(), mDataModel);
         mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.addOnPageChangeListener(mPageChangeListener);
+        mViewPager.requestFocus();
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         // WORKAROUND: We must post setupWithViewPager() due to a bug:
@@ -64,6 +74,15 @@ public class ApplistActivity extends AppCompatActivity {
                 mTabLayout.setupWithViewPager(mViewPager);
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "ZIZI ACTIVITY START");
+        if (mSearchView != null) {
+            mViewPager.requestFocus();
+        }
     }
 
     @Override
@@ -81,19 +100,16 @@ public class ApplistActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "ZIZI ACTIVITY STOP");
+        if (mSearchView != null) {
+            mSearchView.setFocusable(false);
+        }
         mDataModel.storeData();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.applist_menu, menu);
-
-        MenuItem item = menu.findItem(R.id.action_search_app);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
-        searchView.setOnSearchClickListener(mSearchStartListener);
-        searchView.setOnQueryTextListener(mSearchTextListener);
-        searchView.setOnCloseListener(mSearchCloseListener);
-
         return true;
     }
 
@@ -105,10 +121,10 @@ public class ApplistActivity extends AppCompatActivity {
             isChangingOrder = fragment.isChangingOrder();
         }
         if (isChangingOrder) {
-            menu.findItem(R.id.action_search_app).setVisible(false);
+            menu.findItem(R.id.action_create_section).setVisible(false);
             menu.findItem(R.id.action_done).setVisible(true);
         } else {
-            menu.findItem(R.id.action_search_app).setVisible(true);
+            menu.findItem(R.id.action_create_section).setVisible(true);
             menu.findItem(R.id.action_done).setVisible(false);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -130,6 +146,42 @@ public class ApplistActivity extends AppCompatActivity {
         return isHandled;
     }
 
+    private ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            Log.d(TAG, "ZIZI PAGE SELECTED " + position);
+            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+            if (fragment != null) {
+                fragment.deactivateFilter();
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    };
+
+    private SearchView.OnFocusChangeListener mSearchFocusListener = new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+            if (fragment != null) {
+                if (hasFocus) {
+                    Log.d(TAG, "ZIZI SEARCH ACTIVATE");
+                    fragment.activateFilter();
+                } else {
+                    Log.d(TAG, "ZIZI SEARCH DEACTIVATE");
+                    fragment.deactivateFilter();
+                }
+            }
+        }
+    };
+
     private SearchView.OnQueryTextListener mSearchTextListener = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String query) {
@@ -138,6 +190,7 @@ public class ApplistActivity extends AppCompatActivity {
 
         @Override
         public boolean onQueryTextChange(String newText) {
+            Log.d(TAG, "ZIZI SEARCH CHANGE");
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
                 fragment.setFilter(newText);
@@ -149,6 +202,7 @@ public class ApplistActivity extends AppCompatActivity {
     private SearchView.OnCloseListener mSearchCloseListener = new SearchView.OnCloseListener() {
         @Override
         public boolean onClose() {
+            Log.d(TAG, "ZIZI SEARCH CLOSE");
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
                 fragment.setFilter(null);
@@ -160,6 +214,7 @@ public class ApplistActivity extends AppCompatActivity {
     private View.OnClickListener mSearchStartListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Log.d(TAG, "ZIZI SEARCH START");
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
                 fragment.setFilter("");
@@ -169,12 +224,22 @@ public class ApplistActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(DataModel.DataLoadedEvent event) {
-        updatePageFragments();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                updatePageFragments();
+            }
+        });
     }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(DataModel.PagesChangedEvent event) {
-        updatePageFragments();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                updatePageFragments();
+            }
+        });
     }
 
     private void loadPageFragments() {

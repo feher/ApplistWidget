@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.util.LruCache;
 import android.support.v4.view.MotionEventCompat;
@@ -35,7 +36,9 @@ import net.feheren_fekete.applistwidget.viewmodel.ViewModelUtils;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
@@ -52,6 +55,7 @@ public class ApplistAdapter
     public static final int SECTION_ITEM_VIEW = 2;
 
     private Context mContext;
+    private Handler mHandler;
     private PackageManager mPackageManager;
     private DataModel mModel;
     private String mPageName;
@@ -108,6 +112,7 @@ public class ApplistAdapter
                           String pageName,
                           ItemListener itemListener) {
         mContext = context;
+        mHandler = new Handler();
         mPackageManager = packageManager;
         mModel = model;
         mPageName = pageName;
@@ -168,6 +173,17 @@ public class ApplistAdapter
         return result;
     }
 
+    public Map<String, Boolean> getSectionCollapsedStates() {
+        Map<String, Boolean> result = new HashMap<>();
+        for (BaseItem item : getItems()) {
+            if (item instanceof SectionItem) {
+                SectionItem sectionItem = (SectionItem) item;
+                result.put(sectionItem.getName(), sectionItem.isCollapsed());
+            }
+        }
+        return result;
+    }
+
     public void setFilter(@Nullable String filterText) {
         mFilterText = filterText;
         mFilteredItems = filterItems();
@@ -178,33 +194,15 @@ public class ApplistAdapter
         return mFilterText != null;
     }
 
-//    public void collapseSection(SectionItem sectionItem) {
-//        int position = -1;
-//        for (int i = 0; i < mItems.size(); ++i) {
-//            BaseItem item = mItems.get(i);
-//            if (item instanceof SectionItem) {
-//                SectionItem s = (SectionItem) item;
-//                if (s.getName().equals(sectionItem.getName())) {
-//                    position = i;
-//                    break;
-//                }
-//            }
-//        }
-//        if (position == -1) {
-//            return;
-//        }
-//        for (int i = position + 1; i < mItems.size(); ) {
-//            if (mItems.get(i) instanceof AppItem) {
-//                mItems.remove(i);
-//                notifyItemRemoved(i);
-//            } else {
-//                break;
-//            }
-//        }
-//    }
-
-    public BaseItem getItem(int position) {
-        return getItems().get(position);
+    public int getItemPosition(BaseItem item) {
+        List<BaseItem> items = getItems();
+        for (int i = 0; i < items.size(); ++i) {
+            BaseItem it = items.get(i);
+            if (it.getId() == item.getId()) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
     }
 
     @Override
@@ -245,7 +243,7 @@ public class ApplistAdapter
                 List<BaseItem> items = task.getResult();
                 if (items != null) {
                     mItems = items;
-                    if (mFilterText == null) {
+                    if (mFilterText != null) {
                         mFilteredItems = filterItems();
                     }
                     notifyDataSetChanged();
@@ -287,7 +285,12 @@ public class ApplistAdapter
 
     @SuppressWarnings("unused")
     public void onEventMainThread(DataModel.SectionsChangedEvent event) {
-        loadAllItems();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                loadAllItems();
+            }
+        });
     }
 
     private List<BaseItem> getItems() {

@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 
 // FIXME: Make th public methods synchronized? Can they be accesses from parallel threads?
 public class DataModel {
@@ -55,207 +57,289 @@ public class DataModel {
         mPages = new ArrayList<>();
     }
 
+    @DebugLog
     public void loadData() {
-        mInstalledApps = loadInstalledApps(mInstalledAppsFilePath);
-        List<PageData> pages = loadPages(mPagesFilePath);
-        for (PageData page : pages) {
-            updateSections(page);
+        synchronized (this) {
+            mInstalledApps = loadInstalledApps(mInstalledAppsFilePath);
+            List<PageData> pages = loadPages(mPagesFilePath);
+            for (PageData page : pages) {
+                updateSections(page);
+            }
+            mPages = pages;
+            EventBus.getDefault().postSticky(new DataLoadedEvent());
         }
-        mPages = pages;
-        EventBus.getDefault().postSticky(new DataLoadedEvent());
     }
 
+    @DebugLog
     public void updateInstalledApps() {
-        mInstalledApps = getInstalledApps();
-        boolean isSectionChanged = false;
-        for (PageData page : mPages) {
-            if (updateSections(page)) {
-                isSectionChanged = true;
+        synchronized (this) {
+            Log.d(TAG, "ZIZI UPDATE INSTALLED APPS START");
+            mInstalledApps = getInstalledApps();
+            boolean isSectionChanged = false;
+            for (PageData page : mPages) {
+                if (updateSections(page)) {
+                    isSectionChanged = true;
+                }
             }
-        }
-        if (isSectionChanged) {
-            EventBus.getDefault().post(new SectionsChangedEvent());
+            if (isSectionChanged) {
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
+            Log.d(TAG, "ZIZI UPDATE INSTALLED APPS END");
         }
     }
 
+    @DebugLog
     public void storeData() {
-        storePages(mPagesFilePath);
-        storeInstalledApps(mInstalledAppsFilePath);
+        synchronized (this) {
+            storePages(mPagesFilePath);
+            storeInstalledApps(mInstalledAppsFilePath);
+        }
     }
 
+    @DebugLog
     public void storePages() {
-        storePages(mPagesFilePath);
+        synchronized (this) {
+            storePages(mPagesFilePath);
+        }
     }
 
+    @DebugLog
     public void storeInstalledApps() {
-        storeInstalledApps(mInstalledAppsFilePath);
+        synchronized (this) {
+            storeInstalledApps(mInstalledAppsFilePath);
+        }
     }
 
+    @DebugLog
     public @Nullable PageData getPage(String pageName) {
-        for (PageData page : mPages) {
-            if (page.getName().equals(pageName)) {
-                return page;
+        synchronized (this) {
+            for (PageData page : mPages) {
+                if (page.getName().equals(pageName)) {
+                    return page;
+                }
             }
+            return null;
         }
-        return null;
     }
 
+    @DebugLog
     public int getPageCount() {
-        return mPages.size();
-    }
-
-    public long createPageId() {
-        return String.valueOf(System.currentTimeMillis()).hashCode();
-    }
-
-    public long createSectionId() {
-        return String.valueOf(System.currentTimeMillis()).hashCode();
-    }
-
-    public long createAppId(String packageName, String componentName) {
-        return (packageName + componentName).hashCode();
-    }
-
-    public void addNewPage(String pageName) {
-        PageData page = new PageData(createPageId(), pageName, new ArrayList<SectionData>());
-        addUncategorizedSection(page);
-        // Always add to the beginning of the list.
-        mPages.add(0, page);
-        EventBus.getDefault().post(new PagesChangedEvent());
-    }
-
-    public void setPage(PageData page) {
-        for (PageData p : mPages) {
-            if (p.getName().equals(page.getName())) {
-                p.setSections(page.getSections());
-            }
+        synchronized (this) {
+            return mPages.size();
         }
-        EventBus.getDefault().post(new SectionsChangedEvent());
     }
 
-    public void setPageName(String oldPageName, String newPageName) {
-        PageData page = getPage(oldPageName);
-        if (page != null) {
-            page.setName(newPageName);
+    @DebugLog
+    public void addNewPage(String pageName) {
+        synchronized (this) {
+            PageData page = new PageData(createPageId(), pageName, new ArrayList<SectionData>());
+            addUncategorizedSection(page);
+            // Always add to the beginning of the list.
+            mPages.add(0, page);
             EventBus.getDefault().post(new PagesChangedEvent());
         }
     }
 
+    @DebugLog
+    public void setPageName(String oldPageName, String newPageName) {
+        synchronized (this) {
+            PageData page = getPage(oldPageName);
+            if (page != null) {
+                page.setName(newPageName);
+                EventBus.getDefault().post(new PagesChangedEvent());
+            }
+        }
+    }
+
+    @DebugLog
     public void removePage(String pageName) {
-        List<PageData> remainingPages = new ArrayList<>();
-        for (PageData p : mPages) {
-            if (!p.getName().equals(pageName)) {
-                remainingPages.add(p);
+        synchronized (this) {
+            List<PageData> remainingPages = new ArrayList<>();
+            for (PageData p : mPages) {
+                if (!p.getName().equals(pageName)) {
+                    remainingPages.add(p);
+                }
             }
+            mPages = remainingPages;
+            EventBus.getDefault().post(new PagesChangedEvent());
         }
-        mPages = remainingPages;
-        EventBus.getDefault().post(new PagesChangedEvent());
     }
 
+    @DebugLog
     public void removeAllPages() {
-        mPages = new ArrayList<>();
-        EventBus.getDefault().post(new PagesChangedEvent());
+        synchronized (this) {
+            mPages = new ArrayList<>();
+            EventBus.getDefault().post(new PagesChangedEvent());
+        }
     }
 
+    @DebugLog
     public List<String> getPageNames() {
-        List<String> pageNames = new ArrayList<>();
-        for (PageData page : mPages) {
-            pageNames.add(page.getName());
+        synchronized (this) {
+            List<String> pageNames = new ArrayList<>();
+            for (PageData page : mPages) {
+                pageNames.add(page.getName());
+            }
+            return pageNames;
         }
-        return pageNames;
     }
 
+    @DebugLog
     public void removeSection(String pageName, String sectionName) {
-        for (PageData p : mPages) {
-            if (p.getName().equals(pageName)) {
-                p.removeSection(sectionName);
-                updateSections(p);
-                EventBus.getDefault().post(new SectionsChangedEvent());
-                return;
-            }
-        }
-    }
-
-    public void addNewSection(String pageName, String sectionName, boolean removable) {
-        for (PageData page : mPages) {
-            if (page.getName().equals(pageName)) {
-                page.addSection(new SectionData(
-                        createSectionId(), sectionName, new ArrayList<AppData>(), removable, false));
-                EventBus.getDefault().post(new SectionsChangedEvent());
-                return;
-            }
-        }
-    }
-
-    public List<String> getSectionNames(String pageName) {
-        List<String> sectionNames = new ArrayList<>();
-        PageData page = getPage(pageName);
-        if (page != null) {
-            for (SectionData section : page.getSections()) {
-                sectionNames.add(section.getName());
-            }
-        }
-        return sectionNames;
-    }
-
-    public void setSectionName(String pageName, String oldSectionName, String newSectionName) {
-        PageData page = getPage(pageName);
-        if (page != null) {
-            if (page.renameSection(oldSectionName, newSectionName)) {
-                EventBus.getDefault().post(new SectionsChangedEvent());
-            }
-        }
-    }
-
-    public void setSectionCollapsed(String pageName, String sectionName, boolean collapsed) {
-        PageData page = getPage(pageName);
-        if (page != null) {
-            SectionData section = page.getSection(sectionName);
-            if (section != null && !section.isEmpty()) {
-                section.setCollapsed(collapsed);
-                EventBus.getDefault().post(new SectionsChangedEvent());
-            }
-        }
-    }
-
-    public void setAllSectionsCollapsed(String pageName, boolean collapsed) {
-        boolean isSectionChanged = false;
-        PageData page = getPage(pageName);
-        if (page != null) {
-            for (SectionData section : page.getSections()) {
-                if (!section.isEmpty()) {
-                    section.setCollapsed(collapsed);
-                    isSectionChanged = true;
+        synchronized (this) {
+            for (PageData p : mPages) {
+                if (p.getName().equals(pageName)) {
+                    p.removeSection(sectionName);
+                    updateSections(p);
+                    EventBus.getDefault().post(new SectionsChangedEvent());
+                    return;
                 }
             }
         }
-        if (isSectionChanged) {
-            EventBus.getDefault().post(new SectionsChangedEvent());
-        }
     }
 
-    public void setSectionOrder(String pageName, List<String> orderedSectionNames) {
-        PageData page = getPage(pageName);
-        if (page != null) {
-            List<SectionData> orderedSections = new ArrayList<>();
-            for (String sectionName : orderedSectionNames) {
-                orderedSections.add(page.getSection(sectionName));
+    @DebugLog
+    public void addNewSection(String pageName, String sectionName, boolean removable) {
+        synchronized (this) {
+            for (PageData page : mPages) {
+                if (page.getName().equals(pageName)) {
+                    page.addSection(new SectionData(
+                            createSectionId(), sectionName, new ArrayList<AppData>(), removable, false));
+                    EventBus.getDefault().post(new SectionsChangedEvent());
+                    return;
+                }
             }
-            page.setSections(orderedSections);
-            EventBus.getDefault().post(new SectionsChangedEvent());
         }
     }
 
-    public void moveAppToSection(String pageName, String sectionName, AppData app) {
-        PageData page = getPage(pageName);
-        if (page != null) {
-            page.removeApp(app);
-            SectionData section = page.getSection(sectionName);
-            if (section != null) {
-                section.addApp(app);
+    @DebugLog
+    public List<String> getSectionNames(String pageName) {
+        synchronized (this) {
+            List<String> sectionNames = new ArrayList<>();
+            PageData page = getPage(pageName);
+            if (page != null) {
+                for (SectionData section : page.getSections()) {
+                    sectionNames.add(section.getName());
+                }
+            }
+            return sectionNames;
+        }
+    }
+
+    @DebugLog
+    public void setSectionName(String pageName, String oldSectionName, String newSectionName) {
+        synchronized (this) {
+            PageData page = getPage(pageName);
+            if (page != null) {
+                if (page.renameSection(oldSectionName, newSectionName)) {
+                    EventBus.getDefault().post(new SectionsChangedEvent());
+                }
+            }
+        }
+    }
+
+    @DebugLog
+    public void setSectionCollapsed(String pageName, String sectionName, boolean collapsed) {
+        synchronized (this) {
+            PageData page = getPage(pageName);
+            if (page != null) {
+                SectionData section = page.getSection(sectionName);
+                if (section != null && !section.isEmpty()) {
+                    boolean oldState = section.isCollapsed();
+                    if (oldState != collapsed) {
+                        section.setCollapsed(collapsed);
+                        EventBus.getDefault().post(new SectionsChangedEvent());
+                    }
+                }
+            }
+        }
+    }
+
+    @DebugLog
+    public void setAllSectionsCollapsed(String pageName, boolean collapsed) {
+        synchronized (this) {
+            boolean isSectionChanged = false;
+            PageData page = getPage(pageName);
+            if (page != null) {
+                for (SectionData section : page.getSections()) {
+                    if (!section.isEmpty()) {
+                        boolean oldState = section.isCollapsed();
+                        if (oldState != collapsed) {
+                            section.setCollapsed(collapsed);
+                            isSectionChanged = true;
+                        }
+                    }
+                }
+            }
+            if (isSectionChanged) {
                 EventBus.getDefault().post(new SectionsChangedEvent());
             }
         }
+    }
+
+    @DebugLog
+    public void setAllSectionsCollapsed(String pageName, Map<String, Boolean> collapsedStates) {
+        synchronized (this) {
+            boolean isSectionChanged = false;
+            PageData page = getPage(pageName);
+            if (page != null) {
+                for (SectionData section : page.getSections()) {
+                    if (!section.isEmpty()) {
+                        boolean oldState = section.isCollapsed();
+                        boolean newState = collapsedStates.get(section.getName());
+                        if (oldState != newState) {
+                            section.setCollapsed(newState);
+                            isSectionChanged = true;
+                        }
+                    }
+                }
+            }
+            if (isSectionChanged) {
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
+        }
+    }
+
+    @DebugLog
+    public void setSectionOrder(String pageName, List<String> orderedSectionNames) {
+        synchronized (this) {
+            PageData page = getPage(pageName);
+            if (page != null) {
+                List<SectionData> orderedSections = new ArrayList<>();
+                for (String sectionName : orderedSectionNames) {
+                    orderedSections.add(page.getSection(sectionName));
+                }
+                page.setSections(orderedSections);
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
+        }
+    }
+
+    @DebugLog
+    public void moveAppToSection(String pageName, String sectionName, AppData app) {
+        synchronized (this) {
+            PageData page = getPage(pageName);
+            if (page != null) {
+                page.removeApp(app);
+                SectionData section = page.getSection(sectionName);
+                if (section != null) {
+                    section.addApp(app);
+                    EventBus.getDefault().post(new SectionsChangedEvent());
+                }
+            }
+        }
+    }
+
+    private long createPageId() {
+        return String.valueOf(System.currentTimeMillis()).hashCode();
+    }
+
+    private long createSectionId() {
+        return String.valueOf(System.currentTimeMillis()).hashCode();
+    }
+
+    private long createAppId(String packageName, String componentName) {
+        return (packageName + componentName).hashCode();
     }
 
     private void storePages(String filePath) {
@@ -347,6 +431,7 @@ public class DataModel {
         page.addSection(uncategorizedSection);
     }
 
+    @DebugLog
     private boolean updateSections(PageData page) {
         if (mInstalledApps.isEmpty()) {
             return false;
@@ -527,6 +612,7 @@ public class DataModel {
         }
     }
 
+    @DebugLog
     private List<AppData> getInstalledApps() {
         List<AppData> installedApps = new ArrayList<>();
         Intent intent = new Intent(Intent.ACTION_MAIN, null);

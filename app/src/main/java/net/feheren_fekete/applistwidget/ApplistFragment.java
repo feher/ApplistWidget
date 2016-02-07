@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import net.feheren_fekete.applistwidget.viewmodel.AppItem;
 import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
@@ -31,11 +33,14 @@ import de.greenrobot.event.EventBus;
 
 public class ApplistFragment extends Fragment implements ApplistAdapter.ItemListener {
 
+    private static final String TAG = ApplistFragment.class.getSimpleName();
+
     private DataModel mDataModel;
     private RecyclerView mRecyclerView;
     private ApplistAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
     private ItemTouchHelper mTouchHelper;
+    private Map<String, Boolean> mSectionCollapsedStates;
 
     public static ApplistFragment newInstance(String pageName, DataModel dataModel) {
         ApplistFragment fragment = new ApplistFragment();
@@ -100,15 +105,35 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "ZIZI FRAG START");
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "ZIZI FRAG RESUME");
         EventBus.getDefault().register(mAdapter);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.d(TAG, "ZIZI FRAG PAUSE");
         EventBus.getDefault().unregister(mAdapter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "ZIZI FRAG STOP");
+        if (mAdapter.isChangingOrder()) {
+            finishChangingOrder();
+        }
+        if (mAdapter.isFiltered()) {
+            deactivateFilter();
+        }
     }
 
     public void update() {
@@ -117,6 +142,29 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     public String getPageName() {
         return getArguments().getString("pageName");
+    }
+
+    public void activateFilter() {
+        if (mAdapter.isFiltered()) {
+            return;
+        }
+
+        setSectionCollapsedStates(false, new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                setFilter("");
+                return null;
+            }
+        });
+    }
+
+    public void deactivateFilter() {
+        if (!mAdapter.isFiltered()) {
+            return;
+        }
+
+        setFilter(null);
+        restoreSectionCollapsedStates();
     }
 
     public void setFilter(String filterText) {
@@ -139,15 +187,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         return isHandled;
     }
 
-    private static final int SECTION_ITEM_MENU_CHANGE_ORDER = 0;
-    private static final int SECTION_ITEM_MENU_RENAME = 1;
-    private static final int SECTION_ITEM_MENU_DELETE = 2;
-    private static final int SECTION_ITEM_MENU_CREATE = 3;
-
-    private static final int APP_ITEM_MENU_MOVE_TO_SECTION = 0;
-    private static final int APP_ITEM_MENU_SHOW_INFO = 1;
-    private static final int APP_ITEM_MENU_UNINSTALL = 2;
-
     @Override
     public void onAppLongTapped(final AppItem appItem) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
@@ -156,13 +195,13 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
-                    case APP_ITEM_MENU_MOVE_TO_SECTION:
+                    case 0:
                         moveAppToSection(appItem);
                         break;
-                    case APP_ITEM_MENU_SHOW_INFO:
+                    case 1:
                         showAppInfo(appItem);
                         break;
-                    case APP_ITEM_MENU_UNINSTALL:
+                    case 2:
                         uninstallApp(appItem);
                         break;
                 }
@@ -174,39 +213,64 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     @Override
     public void onAppTapped(AppItem appItem) {
+        if (mAdapter.isFiltered()) {
+            mRecyclerView.requestFocus();
+        }
+
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         intent.setComponent(new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
-
         getContext().startActivity(intent);
-        getActivity().finish();
     }
 
     @Override
     public void onSectionLongTapped(final SectionItem sectionItem) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setTitle(sectionItem.getName());
-        alertDialogBuilder.setItems(R.array.section_item_menu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case SECTION_ITEM_MENU_RENAME:
-                        renameSection(sectionItem);
-                        break;
-                    case SECTION_ITEM_MENU_DELETE:
-                        deleteSection(sectionItem);
-                        break;
-                    case SECTION_ITEM_MENU_CREATE:
-                        createSection();
-                        break;
-                    case SECTION_ITEM_MENU_CHANGE_ORDER:
-                        changeSectionOrder();
-                        break;
-                }
-            }
-        });
+        if (sectionItem.isRemovable()) {
+            alertDialogBuilder.setItems(
+                    R.array.section_item_menu,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case 0:
+                                    changeSectionOrder();
+                                    break;
+                                case 1:
+                                    renameSection(sectionItem);
+                                    break;
+                                case 2:
+                                    deleteSection(sectionItem);
+                                    break;
+                                case 4:
+                                    createSection();
+                                    break;
+                            }
+                        }
+                    });
+        } else {
+            alertDialogBuilder.setItems(
+                    R.array.section_item_menu_readonly,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case 0:
+                                    changeSectionOrder();
+                                    break;
+                                case 1:
+                                    renameSection(sectionItem);
+                                    break;
+                                case 2:
+                                    createSection();
+                                    break;
+                            }
+                        }
+                    });
+        }
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
@@ -224,12 +288,48 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                             !sectionItem.isCollapsed());
                     return null;
                 }
-            });
+            }).continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    int position = mAdapter.getItemPosition(sectionItem);
+                    if (position != RecyclerView.NO_POSITION) {
+                        mRecyclerView.scrollToPosition(position);
+                    }
+                    return null;
+                }
+            }, Task.UI_THREAD_EXECUTOR);
         }
     }
 
     private void setDataModel(DataModel dataModel) {
         mDataModel = dataModel;
+    }
+
+    private void setSectionCollapsedStates(final boolean collapsed,
+                                           Continuation<Void, Void> andThen) {
+        mSectionCollapsedStates = mAdapter.getSectionCollapsedStates();
+
+        final String pageName = getPageName();
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Log.d(TAG, "ZIZI SET COLLAPSED " + collapsed);
+                mDataModel.setAllSectionsCollapsed(pageName, collapsed);
+                return null;
+            }
+        }).continueWith(andThen, Task.UI_THREAD_EXECUTOR);
+    }
+
+    private void restoreSectionCollapsedStates() {
+        final String pageName = getPageName();
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Log.d(TAG, "ZIZI RESTORE COLLAPSED STATE");
+                mDataModel.setAllSectionsCollapsed(pageName, mSectionCollapsedStates);
+                return null;
+            }
+        });
     }
 
     private void moveAppToSection(final AppItem appItem) {
@@ -352,36 +452,44 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     private void changeSectionOrder() {
+        if (mAdapter.isChangingOrder()) {
+            return;
+        }
+
+        setSectionCollapsedStates(
+                true,
+                new Continuation<Void, Void>() {
+                    @Override
+                    public Void then(Task<Void> task) throws Exception {
+                        mAdapter.setChangingOrder(true);
+                        getActivity().invalidateOptionsMenu();
+                        return null;
+                    }
+                });
+    }
+
+    private void finishChangingOrder() {
+        if (!mAdapter.isChangingOrder()) {
+            return;
+        }
+
         final String pageName = getPageName();
+        final List<String> sectionNames = mAdapter.getSectionNames();
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mDataModel.setAllSectionsCollapsed(pageName, true);
+                mDataModel.setSectionOrder(pageName, sectionNames);
                 return null;
             }
         }).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                mAdapter.setChangingOrder(true);
+                mAdapter.setChangingOrder(false);
                 getActivity().invalidateOptionsMenu();
+                restoreSectionCollapsedStates();
                 return null;
             }
         }, Task.UI_THREAD_EXECUTOR);
-    }
-
-    private void finishChangingOrder() {
-        final String pageName = getPageName();
-        final List<String> sectionNames = mAdapter.getSectionNames();
-        mAdapter.setChangingOrder(false);
-        getActivity().invalidateOptionsMenu();
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mDataModel.setSectionOrder(pageName, sectionNames);
-                mDataModel.setAllSectionsCollapsed(pageName, false);
-                return null;
-            }
-        });
     }
 
 }

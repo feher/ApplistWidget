@@ -2,6 +2,7 @@
     <string name="app_name">Applist</string>
 
     <string name="action_search_app">Search app</string>
+    <string name="action_create_section">Create section</string>
     <string name="action_done">Done</string>
 
     <string name="section_name">Section name</string>
@@ -27,10 +28,14 @@
     </string-array>
 
     <string-array name="section_item_menu">
-        <item>Move</item>
+        <item>Change position</item>
         <item>Rename</item>
         <item>Delete</item>
-        <item>New section</item>
+    </string-array>
+
+    <string-array name="section_item_menu_readonly">
+        <item>Change position</item>
+        <item>Rename</item>
     </string-array>
 
     <string name="dialog_move_to_section_title">Move to section</string>
