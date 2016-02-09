@@ -145,6 +145,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     public void activateFilter() {
+        Log.d(TAG, "ZIZI FILTER ACTIVATE");
         if (mAdapter.isFiltered()) {
             return;
         }
@@ -159,10 +160,12 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     public void deactivateFilter() {
+        Log.d(TAG, "ZIZI FILTER DEACTIVATE");
         if (!mAdapter.isFiltered()) {
             return;
         }
 
+        Log.d(TAG, "ZIZI FILTER DEACTIVATE REALLY");
         setFilter(null);
         restoreSectionCollapsedStates();
     }
@@ -181,6 +184,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         switch (itemId) {
             case R.id.action_done:
                 finishChangingOrder();
+                isHandled = true;
+                break;
+            case R.id.action_create_section:
+                createSection();
                 isHandled = true;
                 break;
         }
@@ -213,9 +220,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     @Override
     public void onAppTapped(AppItem appItem) {
-        if (mAdapter.isFiltered()) {
-            mRecyclerView.requestFocus();
-        }
+//        if (mAdapter.isFiltered()) {
+//            mRecyclerView.requestFocus();
+//        }
 
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -245,9 +252,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                                 case 2:
                                     deleteSection(sectionItem);
                                     break;
-                                case 4:
-                                    createSection();
-                                    break;
                             }
                         }
                     });
@@ -263,9 +267,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                                     break;
                                 case 1:
                                     renameSection(sectionItem);
-                                    break;
-                                case 2:
-                                    createSection();
                                     break;
                             }
                         }

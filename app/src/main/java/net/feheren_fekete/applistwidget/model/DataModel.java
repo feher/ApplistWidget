@@ -73,7 +73,6 @@ public class DataModel {
     @DebugLog
     public void updateInstalledApps() {
         synchronized (this) {
-            Log.d(TAG, "ZIZI UPDATE INSTALLED APPS START");
             mInstalledApps = getInstalledApps();
             boolean isSectionChanged = false;
             for (PageData page : mPages) {
@@ -84,7 +83,6 @@ public class DataModel {
             if (isSectionChanged) {
                 EventBus.getDefault().post(new SectionsChangedEvent());
             }
-            Log.d(TAG, "ZIZI UPDATE INSTALLED APPS END");
         }
     }
 

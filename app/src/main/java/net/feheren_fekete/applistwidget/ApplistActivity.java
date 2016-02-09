@@ -52,12 +52,12 @@ public class ApplistActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         mSearchView = (SearchView) findViewById(R.id.search_view);
-        mSearchView.setFocusable(true);
+//        mSearchView.setFocusable(true);
         mSearchView.setIconifiedByDefault(false);
-        mSearchView.setOnSearchClickListener(mSearchStartListener);
+//        mSearchView.setOnSearchClickListener(mSearchStartListener);
         mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
         mSearchView.setOnQueryTextListener(mSearchTextListener);
-        mSearchView.setOnCloseListener(mSearchCloseListener);
+//        mSearchView.setOnCloseListener(mSearchCloseListener);
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         mPagerAdapter = new ApplistPagerAdapter2(getSupportFragmentManager(), mDataModel);
@@ -80,20 +80,26 @@ public class ApplistActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "ZIZI ACTIVITY START");
-        if (mSearchView != null) {
-            mViewPager.requestFocus();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mViewPager.requestFocus();
+            }
+        }, 500);
         EventBus.getDefault().registerSticky(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (mSearchView != null) {
+            mViewPager.requestFocus();
+        }
         EventBus.getDefault().unregister(this);
     }
 
@@ -101,9 +107,6 @@ public class ApplistActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "ZIZI ACTIVITY STOP");
-        if (mSearchView != null) {
-            mSearchView.setFocusable(false);
-        }
         mDataModel.storeData();
     }
 
@@ -171,12 +174,10 @@ public class ApplistActivity extends AppCompatActivity {
         public void onFocusChange(View v, boolean hasFocus) {
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
-                if (hasFocus) {
-                    Log.d(TAG, "ZIZI SEARCH ACTIVATE");
-                    fragment.activateFilter();
-                } else {
-                    Log.d(TAG, "ZIZI SEARCH DEACTIVATE");
+                if (!hasFocus) {
+                    Log.d(TAG, "ZIZI NO FOCUS");
                     fragment.deactivateFilter();
+                    mSearchView.setQuery(null, false);
                 }
             }
         }
@@ -190,37 +191,42 @@ public class ApplistActivity extends AppCompatActivity {
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            Log.d(TAG, "ZIZI SEARCH CHANGE");
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
-                fragment.setFilter(newText);
+                Log.d(TAG, "ZIZI TEXT CHANGE");
+                if (newText == null || newText.isEmpty()) {
+                    fragment.deactivateFilter();
+                } else {
+                    fragment.activateFilter();
+                    fragment.setFilter(newText);
+                }
             }
             return true;
         }
     };
 
-    private SearchView.OnCloseListener mSearchCloseListener = new SearchView.OnCloseListener() {
-        @Override
-        public boolean onClose() {
-            Log.d(TAG, "ZIZI SEARCH CLOSE");
-            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
-            if (fragment != null) {
-                fragment.setFilter(null);
-            }
-            return false;
-        }
-    };
+//    private SearchView.OnCloseListener mSearchCloseListener = new SearchView.OnCloseListener() {
+//        @Override
+//        public boolean onClose() {
+//            Log.d(TAG, "ZIZI SEARCH CLOSE");
+//            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+//            if (fragment != null) {
+//                fragment.setFilter(null);
+//            }
+//            return false;
+//        }
+//    };
 
-    private View.OnClickListener mSearchStartListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Log.d(TAG, "ZIZI SEARCH START");
-            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
-            if (fragment != null) {
-                fragment.setFilter("");
-            }
-        }
-    };
+//    private View.OnClickListener mSearchStartListener = new View.OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//            Log.d(TAG, "ZIZI SEARCH START");
+//            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+//            if (fragment != null) {
+//                fragment.setFilter("");
+//            }
+//        }
+//    };
 
     @SuppressWarnings("unused")
     public void onEventMainThread(DataModel.DataLoadedEvent event) {
@@ -261,7 +267,6 @@ public class ApplistActivity extends AppCompatActivity {
                         mPagerAdapter.forEachPageFragment(new RunnableWithArg<ApplistFragment>() {
                             @Override
                             public void run(ApplistFragment fragment) {
-                                Log.d(TAG, "ZIZI UPDATE " + fragment.getPageName());
                                 fragment.update();
                             }
                         });
