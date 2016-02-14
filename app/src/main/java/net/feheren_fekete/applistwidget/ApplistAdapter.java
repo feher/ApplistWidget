@@ -1,21 +1,14 @@
 package net.feheren_fekete.applistwidget;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.util.LruCache;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +26,6 @@ import net.feheren_fekete.applistwidget.viewmodel.BaseItem;
 import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
 import net.feheren_fekete.applistwidget.viewmodel.ViewModelUtils;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -110,7 +102,8 @@ public class ApplistAdapter
                           PackageManager packageManager,
                           DataModel model,
                           String pageName,
-                          ItemListener itemListener) {
+                          ItemListener itemListener,
+                          IconCache iconCache) {
         mContext = context;
         mHandler = new Handler();
         mPackageManager = packageManager;
@@ -118,7 +111,7 @@ public class ApplistAdapter
         mPageName = pageName;
         mItems = Collections.emptyList();
         mItemListener = itemListener;
-        mIconCache = new IconCache();
+        mIconCache = iconCache;
         mIconPlaceholderColors = mContext.getResources().getIntArray(R.array.icon_placeholders);
         mNextPlaceholderColor = 0;
 
@@ -405,124 +398,6 @@ public class ApplistAdapter
                 return false;
             }
         });
-    }
-
-    private static Bitmap drawableToBitmap(Drawable drawable) {
-        Bitmap bitmap = null;
-
-        if (drawable instanceof BitmapDrawable) {
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-            if(bitmapDrawable.getBitmap() != null) {
-                return bitmapDrawable.getBitmap();
-            }
-        }
-
-        if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
-            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
-        } else {
-            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        }
-
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bitmap;
-    }
-
-    private static final class IconCache {
-        private LruCache<String, Bitmap> mCache;
-
-        public IconCache() {
-            // Get max available VM memory, exceeding this amount will throw an
-            // OutOfMemory exception. Stored in kilobytes as LruCache takes an
-            // int in its constructor.
-            final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-
-            // Use 1/8th of the available memory for this memory cache.
-            final int cacheSize = maxMemory / 8;
-
-            mCache = new LruCache<String, Bitmap>(cacheSize) {
-                @Override
-                protected int sizeOf(String key, Bitmap bitmap) {
-                    // The cache size will be measured in kilobytes rather than
-                    // number of items.
-                    return bitmap.getByteCount() / 1024;
-                }
-            };
-        }
-
-        public void addIcon(String key, Bitmap bitmap) {
-            if (getIcon(key) == null) {
-                mCache.put(key, bitmap);
-            }
-        }
-
-        public Bitmap getIcon(String key) {
-            return mCache.get(key);
-        }
-
-        public String createKey(AppItem appItem) {
-            return appItem.getPackageName() + "::" + appItem.getComponentName();
-        }
-    }
-
-    private static final class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
-        private AppItem appItem;
-        private WeakReference<AppItemHolder> appItemHolderRef;
-        private PackageManager packageManager;
-        private WeakReference<IconCache> iconCacheRef;
-
-        public IconLoaderTask(AppItem appItem,
-                              AppItemHolder appItemHolder,
-                              PackageManager packageManager,
-                              IconCache iconCache) {
-            this.appItem = appItem;
-            this.appItemHolderRef = new WeakReference<>(appItemHolder);
-            this.packageManager = packageManager;
-            this.iconCacheRef = new WeakReference<>(iconCache);
-        }
-
-        public boolean isLoadingFor(AppItem item) {
-            return appItem.equals(item);
-        }
-
-        @Override
-        protected Bitmap doInBackground(Void... params) {
-            try {
-                Drawable iconDrawable = null;
-                if (!isCancelled()) {
-                    iconDrawable = packageManager.getActivityIcon(
-                            new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
-                } else {
-                    return null;
-                }
-                if (!isCancelled() && iconDrawable != null) {
-                    return drawableToBitmap(iconDrawable);
-                } else {
-                    return null;
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap iconBitmap) {
-            AppItemHolder appItemHolder = appItemHolderRef.get();
-            IconCache iconCache = iconCacheRef.get();
-            if (iconBitmap != null
-                    && appItemHolder != null
-                    && iconCache != null
-                    && appItemHolder.iconLoader == this
-                    && !isCancelled()) {
-                String key = iconCache.createKey(appItem);
-                iconCache.addIcon(key, iconBitmap);
-                appItemHolder.appIcon.setBackgroundColor(Color.TRANSPARENT);
-                appItemHolder.appIcon.setImageBitmap(iconBitmap);
-                appItemHolder.iconLoader = null;
-            }
-
-        }
     }
 
 }

@@ -18,21 +18,25 @@ public class ApplistPagerAdapter2 extends FragmentStatePagerAdapter {
 
     private List<String> mPageNames;
     private DataModel mDataModel;
+    private IconCache mIconCache;
     private ApplistFragment mCurrentPageFragment;
     private SparseArray<ApplistFragment> mPageFragments;
 
-    public ApplistPagerAdapter2(FragmentManager manager, DataModel dataModel) {
+    public ApplistPagerAdapter2(FragmentManager manager,
+                                DataModel dataModel,
+                                IconCache iconCache) {
         super(manager);
 
         mPageNames = new ArrayList<>();
         mDataModel = dataModel;
+        mIconCache = iconCache;
         mCurrentPageFragment = null;
         mPageFragments = new SparseArray<>();
     }
 
     @Override
     public ApplistFragment getItem(int position) {
-        return ApplistFragment.newInstance(mPageNames.get(position), mDataModel);
+        return ApplistFragment.newInstance(mPageNames.get(position), mDataModel, mIconCache);
     }
 
     @Override

@@ -37,18 +37,22 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     private DataModel mDataModel;
     private RecyclerView mRecyclerView;
+    private IconCache mIconCache;
     private ApplistAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
     private ItemTouchHelper mTouchHelper;
     private Map<String, Boolean> mSectionCollapsedStates;
 
-    public static ApplistFragment newInstance(String pageName, DataModel dataModel) {
+    public static ApplistFragment newInstance(String pageName,
+                                              DataModel dataModel,
+                                              IconCache iconCache) {
         ApplistFragment fragment = new ApplistFragment();
 
         Bundle args = new Bundle();
         args.putString("pageName", pageName);
         fragment.setArguments(args);
         fragment.setDataModel(dataModel);
+        fragment.setIconCache(iconCache);
 
         return fragment;
     }
@@ -81,7 +85,8 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                 getContext().getPackageManager(),
                 mDataModel,
                 getPageName(),
-                this);
+                this,
+                mIconCache);
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.loadAllItems();
 
@@ -304,6 +309,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     private void setDataModel(DataModel dataModel) {
         mDataModel = dataModel;
+    }
+
+    private void setIconCache(IconCache iconCache) {
+        mIconCache = iconCache;
     }
 
     private void setSectionCollapsedStates(final boolean collapsed,

@@ -3,7 +3,6 @@ package net.feheren_fekete.applistwidget;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +17,6 @@ import android.widget.LinearLayout;
 
 import net.feheren_fekete.applistwidget.model.DataModel;
 import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
-import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -33,6 +31,7 @@ public class ApplistActivity extends AppCompatActivity {
 
     private Handler mHandler;
     private DataModel mDataModel;
+    private IconCache mIconCache;
     private Toolbar mToolbar;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
@@ -46,6 +45,7 @@ public class ApplistActivity extends AppCompatActivity {
 
         mHandler = new Handler();
         mDataModel = ((ApplistApp)getApplication()).getDataModel();
+        mIconCache = new IconCache();
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -60,7 +60,8 @@ public class ApplistActivity extends AppCompatActivity {
 //        mSearchView.setOnCloseListener(mSearchCloseListener);
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
-        mPagerAdapter = new ApplistPagerAdapter2(getSupportFragmentManager(), mDataModel);
+        mPagerAdapter = new ApplistPagerAdapter2(
+                getSupportFragmentManager(), mDataModel, mIconCache);
         mViewPager.setAdapter(mPagerAdapter);
         mViewPager.addOnPageChangeListener(mPageChangeListener);
         mViewPager.requestFocus();
