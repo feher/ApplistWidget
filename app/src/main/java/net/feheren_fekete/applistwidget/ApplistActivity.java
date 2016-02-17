@@ -1,6 +1,10 @@
 package net.feheren_fekete.applistwidget;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -86,21 +90,36 @@ public class ApplistActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 mViewPager.requestFocus();
             }
         }, 500);
+
         EventBus.getDefault().registerSticky(this);
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addDataScheme("package");
+        registerReceiver(mPackageStateReceiver, intentFilter);
+        mPackageStateReceiver.onReceive(this, null);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
         if (mSearchView != null) {
             mViewPager.requestFocus();
         }
+
+        unregisterReceiver(mPackageStateReceiver);
         EventBus.getDefault().unregister(this);
     }
 
@@ -148,6 +167,19 @@ public class ApplistActivity extends AppCompatActivity {
         }
         return isHandled;
     }
+
+    private BroadcastReceiver mPackageStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    mDataModel.updateInstalledApps();
+                    return null;
+                }
+            });
+        }
+    };
 
     private ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
