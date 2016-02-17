@@ -136,7 +136,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         if (mAdapter.isChangingOrder()) {
             cancelChangingOrder();
         }
-        if (mAdapter.isFiltered()) {
+        if (mAdapter.isFilteredByName()) {
             deactivateFilter();
         }
     }
@@ -151,7 +151,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     public void activateFilter() {
         Log.d(TAG, "ZIZI FILTER ACTIVATE");
-        if (mAdapter.isFiltered()) {
+        if (mAdapter.isFilteredByName()) {
             return;
         }
 
@@ -166,7 +166,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     public void deactivateFilter() {
         Log.d(TAG, "ZIZI FILTER DEACTIVATE");
-        if (!mAdapter.isFiltered()) {
+        if (!mAdapter.isFilteredByName()) {
             return;
         }
 
@@ -176,7 +176,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     public void setFilter(String filterText) {
-        mAdapter.setFilter(filterText);
+        mAdapter.setNameFilter(filterText);
         mRecyclerView.scrollToPosition(0);
     }
 
@@ -225,7 +225,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     @Override
     public void onAppTapped(AppItem appItem) {
-//        if (mAdapter.isFiltered()) {
+//        if (mAdapter.isFilteredByName()) {
 //            mRecyclerView.requestFocus();
 //        }
 
@@ -284,7 +284,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     @Override
     public void onSectionTapped(final SectionItem sectionItem) {
         final String pageName = getPageName();
-        if (!mAdapter.isFiltered()) {
+        if (!mAdapter.isFilteredByName()) {
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -462,20 +462,13 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     private void changeSectionOrder() {
-        if (mAdapter.isChangingOrder()) {
+        if (mAdapter.isChangingOrder() || mAdapter.isFilteredByName()) {
             return;
         }
 
-        setSectionCollapsedStates(
-                true,
-                new Continuation<Void, Void>() {
-                    @Override
-                    public Void then(Task<Void> task) throws Exception {
-                        mAdapter.setChangingOrder(true);
-                        getActivity().invalidateOptionsMenu();
-                        return null;
-                    }
-                });
+        mAdapter.setTypeFilter(SectionItem.class);
+        mAdapter.setChangingOrder(true);
+        getActivity().invalidateOptionsMenu();
     }
 
     private void finishChangingOrder() {
@@ -485,21 +478,17 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
         final String pageName = getPageName();
         final List<String> sectionNames = mAdapter.getSectionNames();
+        mAdapter.setChangingOrder(false);
+        mAdapter.setTypeFilter(null);
+        getActivity().invalidateOptionsMenu();
+
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mDataModel.setSectionOrder(pageName, sectionNames, false);
+                mDataModel.setSectionOrder(pageName, sectionNames, true);
                 return null;
             }
-        }).continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                mAdapter.setChangingOrder(false);
-                getActivity().invalidateOptionsMenu();
-                restoreSectionCollapsedStates(true);
-                return null;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
+        });
     }
 
     private void cancelChangingOrder() {
@@ -508,25 +497,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
             return;
         }
 
-        final String pageName = getPageName();
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                List<String> sectionNames = mDataModel.getSectionNames(pageName);
-                Log.d(TAG, "ZIZI CANCEL CHANGNIG ORDER 2");
-                mDataModel.setSectionOrder(pageName, sectionNames, false);
-                return null;
-            }
-        }).continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                Log.d(TAG, "ZIZI CANCEL CHANGNIG ORDER 3");
-                mAdapter.setChangingOrder(false);
-                getActivity().invalidateOptionsMenu();
-                restoreSectionCollapsedStates(false);
-                return null;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
+        mAdapter.setTypeFilter(null);
+        mAdapter.setChangingOrder(false);
+        getActivity().invalidateOptionsMenu();
     }
 
 }

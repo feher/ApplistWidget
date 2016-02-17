@@ -211,7 +211,7 @@ public class ApplistActivity extends AppCompatActivity {
 //            Log.d(TAG, "ZIZI SEARCH CLOSE");
 //            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
 //            if (fragment != null) {
-//                fragment.setFilter(null);
+//                fragment.setNameFilter(null);
 //            }
 //            return false;
 //        }
@@ -223,7 +223,7 @@ public class ApplistActivity extends AppCompatActivity {
 //            Log.d(TAG, "ZIZI SEARCH START");
 //            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
 //            if (fragment != null) {
-//                fragment.setFilter("");
+//                fragment.setNameFilter("");
 //            }
 //        }
 //    };

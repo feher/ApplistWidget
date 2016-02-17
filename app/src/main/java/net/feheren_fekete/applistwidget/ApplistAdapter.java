@@ -52,7 +52,8 @@ public class ApplistAdapter
     private DataModel mModel;
     private String mPageName;
     private List<BaseItem> mItems;
-    private @Nullable String mFilterText;
+    private @Nullable String mFilterName;
+    private @Nullable Class mFilterType;
     private @Nullable List<BaseItem> mFilteredItems;
     private boolean mIsChangingOrder;
     private boolean mIsItemMoved;
@@ -177,14 +178,24 @@ public class ApplistAdapter
         return result;
     }
 
-    public void setFilter(@Nullable String filterText) {
-        mFilterText = filterText;
-        mFilteredItems = filterItems();
+    public void setNameFilter(@Nullable String filterText) {
+        mFilterName = filterText;
+        mFilteredItems = filterItemsByName();
         notifyDataSetChanged();
     }
 
-    public boolean isFiltered() {
-        return mFilterText != null;
+    public void setTypeFilter(@Nullable Class filterType) {
+        mFilterType = filterType;
+        mFilteredItems = filterItemsByType();
+        notifyDataSetChanged();
+    }
+
+    public boolean isFilteredByName() {
+        return mFilterName != null;
+    }
+
+    public boolean isFilteredByType() {
+        return mFilterType != null;
     }
 
     public int getItemPosition(BaseItem item) {
@@ -236,8 +247,11 @@ public class ApplistAdapter
                 List<BaseItem> items = task.getResult();
                 if (items != null) {
                     mItems = items;
-                    if (mFilterText != null) {
-                        mFilteredItems = filterItems();
+                    if (mFilterName != null) {
+                        mFilteredItems = filterItemsByName();
+                    }
+                    if (mFilterType != null) {
+                        mFilteredItems = filterItemsByType();
                     }
                     notifyDataSetChanged();
                 }
@@ -287,22 +301,22 @@ public class ApplistAdapter
     }
 
     private List<BaseItem> getItems() {
-        if (mFilterText != null) {
+        if (mFilteredItems != null) {
             return mFilteredItems;
         }
         return mItems;
     }
 
-    private List<BaseItem> filterItems() {
-        if (mFilterText == null) {
+    private List<BaseItem> filterItemsByName() {
+        if (mFilterName == null) {
             return null;
         }
-        if (mFilterText.isEmpty()) {
+        if (mFilterName.isEmpty()) {
             return mItems;
         }
 
         List<BaseItem> result = new ArrayList<>();
-        String lowercaseFilterText = mFilterText.toLowerCase();
+        String lowercaseFilterText = mFilterName.toLowerCase();
         SectionItem currentSectionItem = null;
         for (BaseItem item : mItems) {
             if (item instanceof SectionItem) {
@@ -316,6 +330,19 @@ public class ApplistAdapter
                     }
                     result.add(item);
                 }
+            }
+        }
+        return result;
+    }
+
+    private List<BaseItem> filterItemsByType() {
+        if (mFilterType == null) {
+            return null;
+        }
+        List<BaseItem> result = new ArrayList<>();
+        for (BaseItem item : mItems) {
+            if (mFilterType.isInstance(item)) {
+                result.add(item);
             }
         }
         return result;
