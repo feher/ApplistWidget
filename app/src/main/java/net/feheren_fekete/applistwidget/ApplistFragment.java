@@ -155,13 +155,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
             return;
         }
 
-        setSectionCollapsedStates(false, new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                setFilter("");
-                return null;
-            }
-        });
+        setFilter("");
     }
 
     public void deactivateFilter() {
@@ -172,7 +166,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
         Log.d(TAG, "ZIZI FILTER DEACTIVATE REALLY");
         setFilter(null);
-        restoreSectionCollapsedStates(false);
     }
 
     public void setFilter(String filterText) {
@@ -225,10 +218,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     @Override
     public void onAppTapped(AppItem appItem) {
-//        if (mAdapter.isFilteredByName()) {
-//            mRecyclerView.requestFocus();
-//        }
-
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -313,34 +302,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     private void setIconCache(IconCache iconCache) {
         mIconCache = iconCache;
-    }
-
-    private void setSectionCollapsedStates(final boolean collapsed,
-                                           Continuation<Void, Void> andThen) {
-        mSectionCollapsedStates = mAdapter.getSectionCollapsedStates();
-
-        final String pageName = getPageName();
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Log.d(TAG, "ZIZI SET COLLAPSED " + collapsed);
-                mDataModel.setAllSectionsCollapsed(pageName, collapsed, false);
-                return null;
-            }
-        }).continueWith(andThen, Task.UI_THREAD_EXECUTOR);
-    }
-
-    private void restoreSectionCollapsedStates(final boolean saveData) {
-        final String pageName = getPageName();
-        Callable<Void> f = new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Log.d(TAG, "ZIZI RESTORE COLLAPSED STATE");
-                mDataModel.setAllSectionsCollapsed(pageName, mSectionCollapsedStates, saveData);
-                return null;
-            }
-        };
-        Task.callInBackground(f);
     }
 
     private void moveAppToSection(final AppItem appItem) {

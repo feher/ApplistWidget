@@ -17,14 +17,12 @@ public class ViewModelUtils {
                     sectionData.getName(),
                     sectionData.isRemovable(),
                     sectionData.isCollapsed()));
-            if (!sectionData.isCollapsed()) {
-                for (AppData appData : sectionData.getApps()) {
-                    result.add(new AppItem(
-                            appData.getId(),
-                            appData.getPackageName(),
-                            appData.getComponentName(),
-                            appData.getAppName()));
-                }
+            for (AppData appData : sectionData.getApps()) {
+                result.add(new AppItem(
+                        appData.getId(),
+                        appData.getPackageName(),
+                        appData.getComponentName(),
+                        appData.getAppName()));
             }
         }
         return result;

@@ -28,9 +28,7 @@ import net.feheren_fekete.applistwidget.viewmodel.ViewModelUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
@@ -51,7 +49,8 @@ public class ApplistAdapter
     private PackageManager mPackageManager;
     private DataModel mModel;
     private String mPageName;
-    private List<BaseItem> mItems;
+    private List<BaseItem> mCollapsedItems;
+    private List<BaseItem> mAllItems;
     private @Nullable String mFilterName;
     private @Nullable Class mFilterType;
     private @Nullable List<BaseItem> mFilteredItems;
@@ -110,7 +109,8 @@ public class ApplistAdapter
         mPackageManager = packageManager;
         mModel = model;
         mPageName = pageName;
-        mItems = Collections.emptyList();
+        mCollapsedItems = Collections.emptyList();
+        mAllItems = Collections.emptyList();
         mItemListener = itemListener;
         mIconCache = iconCache;
         mIconPlaceholderColors = mContext.getResources().getIntArray(R.array.icon_placeholders);
@@ -162,17 +162,6 @@ public class ApplistAdapter
             if (item instanceof SectionItem) {
                 SectionItem sectionItem = (SectionItem) item;
                 result.add(sectionItem.getName());
-            }
-        }
-        return result;
-    }
-
-    public Map<String, Boolean> getSectionCollapsedStates() {
-        Map<String, Boolean> result = new HashMap<>();
-        for (BaseItem item : getItems()) {
-            if (item instanceof SectionItem) {
-                SectionItem sectionItem = (SectionItem) item;
-                result.put(sectionItem.getName(), sectionItem.isCollapsed());
             }
         }
         return result;
@@ -246,7 +235,8 @@ public class ApplistAdapter
             public Void then(Task<List<BaseItem>> task) throws Exception {
                 List<BaseItem> items = task.getResult();
                 if (items != null) {
-                    mItems = items;
+                    mAllItems = items;
+                    mCollapsedItems = getCollapsedItems();
                     if (mFilterName != null) {
                         mFilteredItems = filterItemsByName();
                     }
@@ -304,7 +294,21 @@ public class ApplistAdapter
         if (mFilteredItems != null) {
             return mFilteredItems;
         }
-        return mItems;
+        return mCollapsedItems;
+    }
+
+    private List<BaseItem> getCollapsedItems() {
+        List<BaseItem> result = new ArrayList<>();
+        SectionItem currentSection = null;
+        for (BaseItem item : mAllItems) {
+            if (item instanceof SectionItem) {
+                result.add(item);
+                currentSection = (SectionItem) item;
+            } else if (!currentSection.isCollapsed()) {
+                result.add(item);
+            }
+        }
+        return result;
     }
 
     private List<BaseItem> filterItemsByName() {
@@ -312,13 +316,13 @@ public class ApplistAdapter
             return null;
         }
         if (mFilterName.isEmpty()) {
-            return mItems;
+            return mCollapsedItems;
         }
 
         List<BaseItem> result = new ArrayList<>();
         String lowercaseFilterText = mFilterName.toLowerCase();
         SectionItem currentSectionItem = null;
-        for (BaseItem item : mItems) {
+        for (BaseItem item : mAllItems) {
             if (item instanceof SectionItem) {
                 currentSectionItem = (SectionItem) item;
             } else {
@@ -340,7 +344,7 @@ public class ApplistAdapter
             return null;
         }
         List<BaseItem> result = new ArrayList<>();
-        for (BaseItem item : mItems) {
+        for (BaseItem item : mAllItems) {
             if (mFilterType.isInstance(item)) {
                 result.add(item);
             }
