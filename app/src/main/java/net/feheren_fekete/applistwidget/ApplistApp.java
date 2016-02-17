@@ -13,6 +13,8 @@ import bolts.Task;
 
 public class ApplistApp extends MultiDexApplication {
 
+    private static final String TAG = ApplistApp.class.getSimpleName();
+
     private DataModel mDataModel;
 
     @Override
@@ -36,7 +38,6 @@ public class ApplistApp extends MultiDexApplication {
             @Override
             public Void then(Task<Void> task) throws Exception {
                 mDataModel.updateInstalledApps();
-                mDataModel.storeInstalledApps();
                 return null;
             }
         });
@@ -45,4 +46,6 @@ public class ApplistApp extends MultiDexApplication {
     public DataModel getDataModel() {
         return mDataModel;
     }
+
 }
+

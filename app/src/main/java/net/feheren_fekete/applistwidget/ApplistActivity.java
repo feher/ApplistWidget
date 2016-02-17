@@ -108,7 +108,6 @@ public class ApplistActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "ZIZI ACTIVITY STOP");
-        mDataModel.storeData();
     }
 
     @Override

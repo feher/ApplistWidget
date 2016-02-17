@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -24,7 +25,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import bolts.Task;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
@@ -38,6 +41,7 @@ public class DataModel {
 
     private static final String UNCATEGORIZED_SECTION_NAME = "Uncategorized";
 
+    private Handler mHandler;
     private PackageManager mPackageManager;
     private String mPagesFilePath;
     private String mInstalledAppsFilePath;
@@ -49,6 +53,7 @@ public class DataModel {
     public static final class DataLoadedEvent {}
 
     public DataModel(Context context, PackageManager packageManager) {
+        mHandler = new Handler();
         mPackageManager = packageManager;
 //        mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist.json";
         mPagesFilePath = "/sdcard/Download/applist-pages.json";
@@ -83,6 +88,8 @@ public class DataModel {
             if (isSectionChanged) {
                 EventBus.getDefault().post(new SectionsChangedEvent());
             }
+
+            scheduleStoreData();
         }
     }
 
@@ -98,13 +105,6 @@ public class DataModel {
     public void storePages() {
         synchronized (this) {
             storePages(mPagesFilePath);
-        }
-    }
-
-    @DebugLog
-    public void storeInstalledApps() {
-        synchronized (this) {
-            storeInstalledApps(mInstalledAppsFilePath);
         }
     }
 
@@ -135,6 +135,7 @@ public class DataModel {
             // Always add to the beginning of the list.
             mPages.add(0, page);
             EventBus.getDefault().post(new PagesChangedEvent());
+            scheduleStoreData();
         }
     }
 
@@ -145,6 +146,7 @@ public class DataModel {
             if (page != null) {
                 page.setName(newPageName);
                 EventBus.getDefault().post(new PagesChangedEvent());
+                scheduleStoreData();
             }
         }
     }
@@ -160,6 +162,7 @@ public class DataModel {
             }
             mPages = remainingPages;
             EventBus.getDefault().post(new PagesChangedEvent());
+            scheduleStoreData();
         }
     }
 
@@ -168,6 +171,7 @@ public class DataModel {
         synchronized (this) {
             mPages = new ArrayList<>();
             EventBus.getDefault().post(new PagesChangedEvent());
+            scheduleStoreData();
         }
     }
 
@@ -190,6 +194,7 @@ public class DataModel {
                     p.removeSection(sectionName);
                     updateSections(p);
                     EventBus.getDefault().post(new SectionsChangedEvent());
+                    scheduleStoreData();
                     return;
                 }
             }
@@ -204,6 +209,7 @@ public class DataModel {
                     page.addSection(new SectionData(
                             createSectionId(), sectionName, new ArrayList<AppData>(), removable, false));
                     EventBus.getDefault().post(new SectionsChangedEvent());
+                    scheduleStoreData();
                     return;
                 }
             }
@@ -231,6 +237,7 @@ public class DataModel {
             if (page != null) {
                 if (page.renameSection(oldSectionName, newSectionName)) {
                     EventBus.getDefault().post(new SectionsChangedEvent());
+                    scheduleStoreData();
                 }
             }
         }
@@ -247,6 +254,7 @@ public class DataModel {
                     if (oldState != collapsed) {
                         section.setCollapsed(collapsed);
                         EventBus.getDefault().post(new SectionsChangedEvent());
+                        scheduleStoreData();
                     }
                 }
             }
@@ -254,7 +262,7 @@ public class DataModel {
     }
 
     @DebugLog
-    public void setAllSectionsCollapsed(String pageName, boolean collapsed) {
+    public void setAllSectionsCollapsed(String pageName, boolean collapsed, boolean save) {
         synchronized (this) {
             boolean isSectionChanged = false;
             PageData page = getPage(pageName);
@@ -271,12 +279,17 @@ public class DataModel {
             }
             if (isSectionChanged) {
                 EventBus.getDefault().post(new SectionsChangedEvent());
+                if (save) {
+                    scheduleStoreData();
+                }
             }
         }
     }
 
     @DebugLog
-    public void setAllSectionsCollapsed(String pageName, Map<String, Boolean> collapsedStates) {
+    public void setAllSectionsCollapsed(String pageName,
+                                        Map<String, Boolean> collapsedStates,
+                                        boolean save) {
         synchronized (this) {
             boolean isSectionChanged = false;
             PageData page = getPage(pageName);
@@ -294,12 +307,15 @@ public class DataModel {
             }
             if (isSectionChanged) {
                 EventBus.getDefault().post(new SectionsChangedEvent());
+                if (save) {
+                    scheduleStoreData();
+                }
             }
         }
     }
 
     @DebugLog
-    public void setSectionOrder(String pageName, List<String> orderedSectionNames) {
+    public void setSectionOrder(String pageName, List<String> orderedSectionNames, boolean save) {
         synchronized (this) {
             PageData page = getPage(pageName);
             if (page != null) {
@@ -309,6 +325,9 @@ public class DataModel {
                 }
                 page.setSections(orderedSections);
                 EventBus.getDefault().post(new SectionsChangedEvent());
+                if (save) {
+                    scheduleStoreData();
+                }
             }
         }
     }
@@ -323,6 +342,7 @@ public class DataModel {
                 if (section != null) {
                     section.addApp(app);
                     EventBus.getDefault().post(new SectionsChangedEvent());
+                    scheduleStoreData();
                 }
             }
         }
@@ -628,5 +648,23 @@ public class DataModel {
         return installedApps;
     }
 
+    private Runnable mStoreDataRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    Log.d(TAG, "ZIZI SAVING DATA");
+                    storeData();
+                    return null;
+                }
+            });
+        }
+    };
+
+    private void scheduleStoreData() {
+        mHandler.removeCallbacks(mStoreDataRunnable);
+        mHandler.postDelayed(mStoreDataRunnable, 500);
+    }
 
 }

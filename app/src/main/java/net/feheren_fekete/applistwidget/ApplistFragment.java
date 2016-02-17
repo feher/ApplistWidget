@@ -134,7 +134,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         super.onStop();
         Log.d(TAG, "ZIZI FRAG STOP");
         if (mAdapter.isChangingOrder()) {
-            finishChangingOrder();
+            cancelChangingOrder();
         }
         if (mAdapter.isFiltered()) {
             deactivateFilter();
@@ -172,7 +172,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
         Log.d(TAG, "ZIZI FILTER DEACTIVATE REALLY");
         setFilter(null);
-        restoreSectionCollapsedStates();
+        restoreSectionCollapsedStates(false);
     }
 
     public void setFilter(String filterText) {
@@ -324,22 +324,23 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
             @Override
             public Void call() throws Exception {
                 Log.d(TAG, "ZIZI SET COLLAPSED " + collapsed);
-                mDataModel.setAllSectionsCollapsed(pageName, collapsed);
+                mDataModel.setAllSectionsCollapsed(pageName, collapsed, false);
                 return null;
             }
         }).continueWith(andThen, Task.UI_THREAD_EXECUTOR);
     }
 
-    private void restoreSectionCollapsedStates() {
+    private void restoreSectionCollapsedStates(final boolean saveData) {
         final String pageName = getPageName();
-        Task.callInBackground(new Callable<Void>() {
+        Callable<Void> f = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Log.d(TAG, "ZIZI RESTORE COLLAPSED STATE");
-                mDataModel.setAllSectionsCollapsed(pageName, mSectionCollapsedStates);
+                mDataModel.setAllSectionsCollapsed(pageName, mSectionCollapsedStates, saveData);
                 return null;
             }
-        });
+        };
+        Task.callInBackground(f);
     }
 
     private void moveAppToSection(final AppItem appItem) {
@@ -374,7 +375,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                     public Void call() throws Exception {
                         AppData appData = new AppData(appItem);
                         mDataModel.moveAppToSection(pageName, sectionName, appData);
-                        mDataModel.storePages();
                         return null;
                     }
                 });
@@ -488,7 +488,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mDataModel.setSectionOrder(pageName, sectionNames);
+                mDataModel.setSectionOrder(pageName, sectionNames, false);
                 return null;
             }
         }).continueWith(new Continuation<Void, Void>() {
@@ -496,7 +496,34 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
             public Void then(Task<Void> task) throws Exception {
                 mAdapter.setChangingOrder(false);
                 getActivity().invalidateOptionsMenu();
-                restoreSectionCollapsedStates();
+                restoreSectionCollapsedStates(true);
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
+    }
+
+    private void cancelChangingOrder() {
+        Log.d(TAG, "ZIZI CANCEL CHANGNIG ORDER");
+        if (!mAdapter.isChangingOrder()) {
+            return;
+        }
+
+        final String pageName = getPageName();
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                List<String> sectionNames = mDataModel.getSectionNames(pageName);
+                Log.d(TAG, "ZIZI CANCEL CHANGNIG ORDER 2");
+                mDataModel.setSectionOrder(pageName, sectionNames, false);
+                return null;
+            }
+        }).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                Log.d(TAG, "ZIZI CANCEL CHANGNIG ORDER 3");
+                mAdapter.setChangingOrder(false);
+                getActivity().invalidateOptionsMenu();
+                restoreSectionCollapsedStates(false);
                 return null;
             }
         }, Task.UI_THREAD_EXECUTOR);
