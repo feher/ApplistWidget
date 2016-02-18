@@ -294,16 +294,17 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                             if (wasSectionCollapsed) {
                                 int position = mAdapter.getItemPosition(sectionItem);
                                 if (position != RecyclerView.NO_POSITION) {
-                                    View firstView = mRecyclerView.getChildAt(0);
-                                    int toY = firstView.getTop();
-                                    int firstPosition = mRecyclerView.getChildAdapterPosition(firstView);
+                                    int firstPosition = mLayoutManager.findFirstVisibleItemPosition();
+                                    int firstVisiblePosition = mLayoutManager.findFirstCompletelyVisibleItemPosition();
+                                    View firstVisibleView = mRecyclerView.getChildAt(firstVisiblePosition - firstPosition);
+                                    int toY = firstVisibleView.getTop();
                                     View thisView = mRecyclerView.getChildAt(position - firstPosition);
                                     int fromY = thisView.getTop();
                                     mRecyclerView.smoothScrollBy(0, fromY - toY);
                                 }
                             }
                         }
-                    }, 100);
+                    }, 200);
                     return null;
                 }
             }, Task.UI_THREAD_EXECUTOR);
