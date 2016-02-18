@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -41,7 +42,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private ApplistAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
     private ItemTouchHelper mTouchHelper;
-    private Map<String, Boolean> mSectionCollapsedStates;
 
     public static ApplistFragment newInstance(String pageName,
                                               DataModel dataModel,
@@ -65,10 +65,11 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
         mLayoutManager = new GridLayoutManager(getContext(), 4);
+        mLayoutManager.setSmoothScrollbarEnabled(true);
         mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                switch(mAdapter.getItemViewType(position)){
+                switch (mAdapter.getItemViewType(position)) {
                     case ApplistAdapter.APP_ITEM_VIEW:
                         return 1;
                     case ApplistAdapter.SECTION_ITEM_VIEW:
@@ -273,6 +274,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     @Override
     public void onSectionTapped(final SectionItem sectionItem) {
         final String pageName = getPageName();
+        final boolean wasSectionCollapsed = sectionItem.isCollapsed();
         if (!mAdapter.isFilteredByName()) {
             Task.callInBackground(new Callable<Void>() {
                 @Override
@@ -280,16 +282,28 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                     mDataModel.setSectionCollapsed(
                             pageName,
                             sectionItem.getName(),
-                            !sectionItem.isCollapsed());
+                            !wasSectionCollapsed);
                     return null;
                 }
             }).continueWith(new Continuation<Void, Void>() {
                 @Override
                 public Void then(Task<Void> task) throws Exception {
-                    int position = mAdapter.getItemPosition(sectionItem);
-                    if (position != RecyclerView.NO_POSITION) {
-                        mRecyclerView.scrollToPosition(position);
-                    }
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (wasSectionCollapsed) {
+                                int position = mAdapter.getItemPosition(sectionItem);
+                                if (position != RecyclerView.NO_POSITION) {
+                                    View firstView = mRecyclerView.getChildAt(0);
+                                    int toY = firstView.getTop();
+                                    int firstPosition = mRecyclerView.getChildAdapterPosition(firstView);
+                                    View thisView = mRecyclerView.getChildAt(position - firstPosition);
+                                    int fromY = thisView.getTop();
+                                    mRecyclerView.smoothScrollBy(0, fromY - toY);
+                                }
+                            }
+                        }
+                    }, 100);
                     return null;
                 }
             }, Task.UI_THREAD_EXECUTOR);
