@@ -93,8 +93,9 @@ public class DataModel {
 
     @DebugLog
     public void updateInstalledApps() {
+        List<AppData> installedApps = getInstalledApps();
         synchronized (this) {
-            mInstalledApps = getInstalledApps();
+            mInstalledApps = installedApps;
             boolean isSectionChanged = false;
             for (PageData page : mPages) {
                 if (updateSections(page)) {
