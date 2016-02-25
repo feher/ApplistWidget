@@ -1,6 +1,7 @@
 package net.feheren_fekete.applistwidget;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
@@ -15,8 +16,6 @@ public class ApplistApp extends MultiDexApplication {
 
     private static final String TAG = ApplistApp.class.getSimpleName();
 
-    private DataModel mDataModel;
-
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
@@ -27,24 +26,33 @@ public class ApplistApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        mDataModel = new DataModel(this, getPackageManager());
+        DataModel.initInstance(this, getPackageManager());
+
+        final DataModel dataModel = DataModel.getInstance();
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mDataModel.loadData();
+                dataModel.loadData();
                 return null;
             }
         }).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                mDataModel.updateInstalledApps();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Task.callInBackground(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                dataModel.updateInstalledApps();
+                                return null;
+                            }
+                        });
+                    }
+                }, 1000);
                 return null;
             }
-        });
-    }
-
-    public DataModel getDataModel() {
-        return mDataModel;
+        }, Task.UI_THREAD_EXECUTOR);
     }
 
 }

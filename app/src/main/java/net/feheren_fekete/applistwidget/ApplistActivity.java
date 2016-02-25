@@ -48,7 +48,7 @@ public class ApplistActivity extends AppCompatActivity {
         setContentView(R.layout.applists_activity);
 
         mHandler = new Handler();
-        mDataModel = ((ApplistApp)getApplication()).getDataModel();
+        mDataModel = DataModel.getInstance();
         mIconCache = new IconCache();
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);

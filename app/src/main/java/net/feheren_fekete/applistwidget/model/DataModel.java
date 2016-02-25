@@ -41,6 +41,8 @@ public class DataModel {
 
     private static final String UNCATEGORIZED_SECTION_NAME = "Uncategorized";
 
+    private static DataModel sInstance;
+
     private Handler mHandler;
     private PackageManager mPackageManager;
     private String mPagesFilePath;
@@ -52,7 +54,21 @@ public class DataModel {
     public static final class SectionsChangedEvent {}
     public static final class DataLoadedEvent {}
 
-    public DataModel(Context context, PackageManager packageManager) {
+    public static void initInstance(Context context, PackageManager packageManager) {
+        if (sInstance == null) {
+            sInstance = new DataModel(context, packageManager);
+        }
+    }
+
+    public static DataModel getInstance() {
+        if (sInstance != null) {
+            return sInstance;
+        } else {
+            throw new RuntimeException("DataModel singleton is not initialized");
+        }
+    }
+
+    private DataModel(Context context, PackageManager packageManager) {
         mHandler = new Handler();
         mPackageManager = packageManager;
 //        mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist.json";
