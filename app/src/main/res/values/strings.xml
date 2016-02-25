@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Applist</string>
+    <string name="app_name">Apper</string>
 
     <string name="action_search_app">Search app</string>
     <string name="action_create_section">Create section</string>
