@@ -87,7 +87,6 @@ public class ApplistActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(TAG, "ZIZI ACTIVITY START");
     }
 
     @Override
@@ -129,7 +128,6 @@ public class ApplistActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d(TAG, "ZIZI ACTIVITY STOP");
     }
 
     @Override
@@ -191,7 +189,6 @@ public class ApplistActivity extends AppCompatActivity {
 
         @Override
         public void onPageSelected(int position) {
-            Log.d(TAG, "ZIZI PAGE SELECTED " + position);
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
                 fragment.deactivateFilter();
@@ -210,7 +207,6 @@ public class ApplistActivity extends AppCompatActivity {
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
                 if (!hasFocus) {
-                    Log.d(TAG, "ZIZI NO FOCUS");
                     fragment.deactivateFilter();
                     mSearchView.setQuery(null, false);
                 }
@@ -228,7 +224,6 @@ public class ApplistActivity extends AppCompatActivity {
         public boolean onQueryTextChange(String newText) {
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
-                Log.d(TAG, "ZIZI TEXT CHANGE");
                 if (newText == null || newText.isEmpty()) {
                     fragment.deactivateFilter();
                 } else {
