@@ -36,12 +36,17 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     private static final String TAG = ApplistFragment.class.getSimpleName();
 
+    public interface Listener {
+        void onChangeSectionOrder();
+    }
+
     private DataModel mDataModel;
     private RecyclerView mRecyclerView;
     private IconCache mIconCache;
     private ApplistAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
     private ItemTouchHelper mTouchHelper;
+    private @Nullable Listener mListener;
 
     public static ApplistFragment newInstance(String pageName,
                                               DataModel dataModel,
@@ -140,6 +145,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         if (mAdapter.isFilteredByName()) {
             deactivateFilter();
         }
+    }
+
+    public void setListener(Listener listener) {
+        mListener = listener;
     }
 
     public void update() {
@@ -445,6 +454,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         mAdapter.setTypeFilter(SectionItem.class);
         mAdapter.setChangingOrder(true);
         getActivity().invalidateOptionsMenu();
+        if (mListener != null) {
+            mListener.onChangeSectionOrder();
+        }
     }
 
     private void finishChangingOrder() {

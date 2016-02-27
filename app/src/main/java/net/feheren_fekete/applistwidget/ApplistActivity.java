@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -36,6 +37,7 @@ public class ApplistActivity extends AppCompatActivity {
     private Handler mHandler;
     private DataModel mDataModel;
     private IconCache mIconCache;
+    private AppBarLayout mAppBarLayout;
     private Toolbar mToolbar;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
@@ -51,6 +53,7 @@ public class ApplistActivity extends AppCompatActivity {
         mDataModel = DataModel.getInstance();
         mIconCache = new IconCache();
 
+        mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -237,6 +240,13 @@ public class ApplistActivity extends AppCompatActivity {
         }
     };
 
+    private ApplistFragment.Listener mFragmentListener = new ApplistFragment.Listener() {
+        @Override
+        public void onChangeSectionOrder() {
+            mAppBarLayout.setExpanded(true);
+        }
+    };
+
 //    private SearchView.OnCloseListener mSearchCloseListener = new SearchView.OnCloseListener() {
 //        @Override
 //        public boolean onClose() {
@@ -299,6 +309,7 @@ public class ApplistActivity extends AppCompatActivity {
                         mPagerAdapter.forEachPageFragment(new RunnableWithArg<ApplistFragment>() {
                             @Override
                             public void run(ApplistFragment fragment) {
+                                fragment.setListener(mFragmentListener);
                                 fragment.update();
                             }
                         });
