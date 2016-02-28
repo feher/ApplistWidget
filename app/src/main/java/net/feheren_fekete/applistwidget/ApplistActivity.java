@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -42,6 +43,7 @@ public class ApplistActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private ApplistPagerAdapter2 mPagerAdapter;
+    private Menu mMenu;
     private SearchView mSearchView;
 
     @Override
@@ -57,14 +59,6 @@ public class ApplistActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-        mSearchView = (SearchView) findViewById(R.id.search_view);
-//        mSearchView.setFocusable(true);
-        mSearchView.setIconifiedByDefault(false);
-//        mSearchView.setOnSearchClickListener(mSearchStartListener);
-        mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
-        mSearchView.setOnQueryTextListener(mSearchTextListener);
-//        mSearchView.setOnCloseListener(mSearchCloseListener);
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         mPagerAdapter = new ApplistPagerAdapter2(
@@ -133,21 +127,41 @@ public class ApplistActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.applist_menu, menu);
+
+        mMenu = menu;
+
+        MenuItem searchItem = menu.findItem(R.id.action_search_app);
+        mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchView.setIconifiedByDefault(true);
+//        mSearchView.setOnSearchClickListener(mSearchOpenListener);
+        mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
+        mSearchView.setOnQueryTextListener(mSearchTextListener);
+//        mSearchView.setOnCloseListener(mSearchCloseListener);
+
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean isChangingOrder = false;
+        boolean isFilteredByName = false;
         ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
         if (fragment != null) {
             isChangingOrder = fragment.isChangingOrder();
+            isFilteredByName = fragment.isFilteredByName();
         }
         if (isChangingOrder) {
+            menu.findItem(R.id.action_search_app).setVisible(false);
             menu.findItem(R.id.action_create_section).setVisible(false);
             menu.findItem(R.id.action_create_page).setVisible(false);
             menu.findItem(R.id.action_done).setVisible(true);
+        } if (isFilteredByName) {
+            menu.findItem(R.id.action_search_app).setVisible(true);
+            menu.findItem(R.id.action_create_section).setVisible(false);
+            menu.findItem(R.id.action_create_page).setVisible(false);
+            menu.findItem(R.id.action_done).setVisible(false);
         } else {
+            menu.findItem(R.id.action_search_app).setVisible(true);
             menu.findItem(R.id.action_create_section).setVisible(true);
             menu.findItem(R.id.action_create_page).setVisible(true);
             menu.findItem(R.id.action_done).setVisible(false);
@@ -202,13 +216,14 @@ public class ApplistActivity extends AppCompatActivity {
         public void onPageSelected(int position) {
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
-                fragment.deactivateFilter();
+                if (fragment.isFilteredByName()) {
+                    stopFilteringByName(fragment);
+                }
             }
         }
 
         @Override
         public void onPageScrollStateChanged(int state) {
-
         }
     };
 
@@ -218,8 +233,9 @@ public class ApplistActivity extends AppCompatActivity {
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
                 if (!hasFocus) {
-                    fragment.deactivateFilter();
-                    mSearchView.setQuery(null, false);
+                    stopFilteringByName(fragment);
+                } else {
+                    startFilteringByName(fragment);
                 }
             }
         }
@@ -236,15 +252,37 @@ public class ApplistActivity extends AppCompatActivity {
             ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
             if (fragment != null) {
                 if (newText == null || newText.isEmpty()) {
-                    fragment.deactivateFilter();
+                    fragment.setNameFilter("");
                 } else {
-                    fragment.activateFilter();
-                    fragment.setFilter(newText);
+                    fragment.setNameFilter(newText);
                 }
             }
             return true;
         }
     };
+
+//    private View.OnClickListener mSearchOpenListener = new View.OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//            Log.d(TAG, "ZIZI SEARCH START");
+//            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+//            if (fragment != null) {
+//                startFilteringByName(fragment);
+//            }
+//        }
+//    };
+//
+//    private SearchView.OnCloseListener mSearchCloseListener = new SearchView.OnCloseListener() {
+//        @Override
+//        public boolean onClose() {
+//            Log.d(TAG, "ZIZI SEARCH CLOSE");
+//            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+//            if (fragment != null) {
+//                stopFilteringByName(fragment);
+//            }
+//            return false;
+//        }
+//    };
 
     private ApplistFragment.Listener mFragmentListener = new ApplistFragment.Listener() {
         @Override
@@ -253,28 +291,16 @@ public class ApplistActivity extends AppCompatActivity {
         }
     };
 
-//    private SearchView.OnCloseListener mSearchCloseListener = new SearchView.OnCloseListener() {
-//        @Override
-//        public boolean onClose() {
-//            Log.d(TAG, "ZIZI SEARCH CLOSE");
-//            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
-//            if (fragment != null) {
-//                fragment.setNameFilter(null);
-//            }
-//            return false;
-//        }
-//    };
+    private void startFilteringByName(ApplistFragment fragment) {
+        fragment.activateNameFilter();
+        onPrepareOptionsMenu(mMenu);
+    }
 
-//    private View.OnClickListener mSearchStartListener = new View.OnClickListener() {
-//        @Override
-//        public void onClick(View v) {
-//            Log.d(TAG, "ZIZI SEARCH START");
-//            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
-//            if (fragment != null) {
-//                fragment.setNameFilter("");
-//            }
-//        }
-//    };
+    private void stopFilteringByName(ApplistFragment fragment) {
+        fragment.deactivateNameFilter();
+        mSearchView.setIconified(true);
+        onPrepareOptionsMenu(mMenu);
+    }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(DataModel.DataLoadedEvent event) {

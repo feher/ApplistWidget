@@ -25,7 +25,6 @@ import net.feheren_fekete.applistwidget.viewmodel.AppItem;
 import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
@@ -143,7 +142,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
             cancelChangingOrder();
         }
         if (mAdapter.isFilteredByName()) {
-            deactivateFilter();
+            deactivateNameFilter();
         }
     }
 
@@ -159,26 +158,30 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         return getArguments().getString("pageName");
     }
 
-    public void activateFilter() {
+    public boolean isFilteredByName() {
+        return mAdapter.isFilteredByName();
+    }
+
+    public void activateNameFilter() {
         Log.d(TAG, "ZIZI FILTER ACTIVATE");
         if (mAdapter.isFilteredByName()) {
             return;
         }
 
-        setFilter("");
+        setNameFilter("");
     }
 
-    public void deactivateFilter() {
+    public void deactivateNameFilter() {
         Log.d(TAG, "ZIZI FILTER DEACTIVATE");
         if (!mAdapter.isFilteredByName()) {
             return;
         }
 
         Log.d(TAG, "ZIZI FILTER DEACTIVATE REALLY");
-        setFilter(null);
+        setNameFilter(null);
     }
 
-    public void setFilter(String filterText) {
+    public void setNameFilter(String filterText) {
         mAdapter.setNameFilter(filterText);
         mRecyclerView.scrollToPosition(0);
     }
