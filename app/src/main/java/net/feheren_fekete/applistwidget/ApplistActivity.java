@@ -145,9 +145,11 @@ public class ApplistActivity extends AppCompatActivity {
         }
         if (isChangingOrder) {
             menu.findItem(R.id.action_create_section).setVisible(false);
+            menu.findItem(R.id.action_create_page).setVisible(false);
             menu.findItem(R.id.action_done).setVisible(true);
         } else {
             menu.findItem(R.id.action_create_section).setVisible(true);
+            menu.findItem(R.id.action_create_page).setVisible(true);
             menu.findItem(R.id.action_done).setVisible(false);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -161,6 +163,15 @@ public class ApplistActivity extends AppCompatActivity {
         ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
         if (fragment != null) {
             isHandled = fragment.handleMenuItem(id);
+        }
+
+        if (!isHandled) {
+            switch (id) {
+                case R.id.action_create_page:
+                    createPage();
+                    isHandled = true;
+                    break;
+            }
         }
 
         if (!isHandled) {

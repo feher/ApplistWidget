@@ -2,7 +2,8 @@
     <string name="app_name">Apper</string>
 
     <string name="action_search_app">Search app</string>
-    <string name="action_create_section">Create section</string>
+    <string name="action_create_section">New section</string>
+    <string name="action_create_page">New page</string>
     <string name="action_done">Done</string>
 
     <string name="section_name">Section name</string>
