@@ -374,7 +374,6 @@ public class ApplistActivity extends AppCompatActivity {
 
     private static final int PAGE_MENU_RENAME = 0;
     private static final int PAGE_MENU_DELETE = 1;
-    private static final int PAGE_MENU_CREATE = 2;
 
     private void onPageLongTapped(final String pageName) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -388,9 +387,6 @@ public class ApplistActivity extends AppCompatActivity {
                         break;
                     case PAGE_MENU_DELETE:
                         deletePage(pageName);
-                        break;
-                    case PAGE_MENU_CREATE:
-                        createPage();
                         break;
                 }
             }
