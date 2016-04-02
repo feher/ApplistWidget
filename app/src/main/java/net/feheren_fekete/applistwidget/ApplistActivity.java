@@ -76,6 +76,8 @@ public class ApplistActivity extends AppCompatActivity {
                 mTabLayout.setupWithViewPager(mViewPager);
             }
         });
+
+        loadData();
     }
 
     @Override
@@ -320,6 +322,34 @@ public class ApplistActivity extends AppCompatActivity {
                 updatePageFragments();
             }
         });
+    }
+
+    private void loadData() {
+        final DataModel dataModel = DataModel.getInstance();
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                dataModel.loadData();
+                return null;
+            }
+        }).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Task.callInBackground(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                dataModel.updateInstalledApps();
+                                return null;
+                            }
+                        });
+                    }
+                }, 1000);
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
     }
 
     private void loadPageFragments() {
