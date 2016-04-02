@@ -162,7 +162,7 @@ public class ApplistActivity extends AppCompatActivity {
             menu.findItem(R.id.action_create_section).setVisible(false);
             menu.findItem(R.id.action_create_page).setVisible(false);
             menu.findItem(R.id.action_done).setVisible(true);
-        } if (isFilteredByName) {
+        } else if (isFilteredByName) {
             menu.findItem(R.id.action_search_app).setVisible(true);
             menu.findItem(R.id.action_create_section).setVisible(false);
             menu.findItem(R.id.action_create_page).setVisible(false);
