@@ -23,6 +23,5 @@
     <item
         android:id="@+id/action_done"
         android:title="@string/action_done"
-        android:icon="@drawable/ic_done_white_24px"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
 </menu>

@@ -36,7 +36,8 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private static final String TAG = ApplistFragment.class.getSimpleName();
 
     public interface Listener {
-        void onChangeSectionOrder();
+        void onChangeSectionOrderStart();
+        void onChangeSectionOrderEnd();
     }
 
     private DataModel mDataModel;
@@ -451,7 +452,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         mAdapter.setChangingOrder(true);
         getActivity().invalidateOptionsMenu();
         if (mListener != null) {
-            mListener.onChangeSectionOrder();
+            mListener.onChangeSectionOrderStart();
         }
     }
 
@@ -473,10 +474,13 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                 return null;
             }
         });
+
+        if (mListener != null) {
+            mListener.onChangeSectionOrderEnd();
+        }
     }
 
-    private void cancelChangingOrder() {
-        Log.d(TAG, "ZIZI CANCEL CHANGNIG ORDER");
+    public void cancelChangingOrder() {
         if (!mAdapter.isChangingOrder()) {
             return;
         }
@@ -484,6 +488,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         mAdapter.setTypeFilter(null);
         mAdapter.setChangingOrder(false);
         getActivity().invalidateOptionsMenu();
+
+        if (mListener != null) {
+            mListener.onChangeSectionOrderEnd();
+        }
     }
 
 }

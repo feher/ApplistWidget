@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,6 +56,8 @@ public class ApplistActivity extends AppCompatActivity {
 
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setOnClickListener(mToolbarClickListener);
+        mToolbar.setTitle(R.string.toolbar_title);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
@@ -137,13 +138,6 @@ public class ApplistActivity extends AppCompatActivity {
         mSearchView.setIconifiedByDefault(true);
         mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
         mSearchView.setOnQueryTextListener(mSearchTextListener);
-
-        mToolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSearchView.setIconified(false);
-            }
-        });
 
         return true;
     }
@@ -268,10 +262,38 @@ public class ApplistActivity extends AppCompatActivity {
         }
     };
 
+    private View.OnClickListener mToolbarClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mSearchView != null) {
+                mSearchView.setIconified(false);
+            }
+        }
+    };
+
     private ApplistFragment.Listener mFragmentListener = new ApplistFragment.Listener() {
         @Override
-        public void onChangeSectionOrder() {
+        public void onChangeSectionOrderStart() {
             mAppBarLayout.setExpanded(true);
+            mToolbar.setOnClickListener(null);
+            mToolbar.setTitle("");
+            mToolbar.setNavigationIcon(R.drawable.ic_close);
+            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
+                    if (fragment != null) {
+                        fragment.cancelChangingOrder();
+                    }
+                }
+            });
+        }
+        @Override
+        public void onChangeSectionOrderEnd() {
+            mToolbar.setOnClickListener(mToolbarClickListener);
+            mToolbar.setTitle(R.string.toolbar_title);
+            mToolbar.setNavigationIcon(null);
+            mToolbar.setNavigationOnClickListener(null);
         }
     };
 
