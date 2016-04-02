@@ -140,6 +140,13 @@ public class ApplistActivity extends AppCompatActivity {
         mSearchView.setOnQueryTextListener(mSearchTextListener);
 //        mSearchView.setOnCloseListener(mSearchCloseListener);
 
+        mToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSearchView.setIconified(false);
+            }
+        });
+
         return true;
     }
 
