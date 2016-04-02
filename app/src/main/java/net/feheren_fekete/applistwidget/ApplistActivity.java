@@ -135,10 +135,8 @@ public class ApplistActivity extends AppCompatActivity {
         MenuItem searchItem = menu.findItem(R.id.action_search_app);
         mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         mSearchView.setIconifiedByDefault(true);
-//        mSearchView.setOnSearchClickListener(mSearchOpenListener);
         mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
         mSearchView.setOnQueryTextListener(mSearchTextListener);
-//        mSearchView.setOnCloseListener(mSearchCloseListener);
 
         mToolbar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -269,29 +267,6 @@ public class ApplistActivity extends AppCompatActivity {
             return true;
         }
     };
-
-//    private View.OnClickListener mSearchOpenListener = new View.OnClickListener() {
-//        @Override
-//        public void onClick(View v) {
-//            Log.d(TAG, "ZIZI SEARCH START");
-//            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
-//            if (fragment != null) {
-//                startFilteringByName(fragment);
-//            }
-//        }
-//    };
-//
-//    private SearchView.OnCloseListener mSearchCloseListener = new SearchView.OnCloseListener() {
-//        @Override
-//        public boolean onClose() {
-//            Log.d(TAG, "ZIZI SEARCH CLOSE");
-//            ApplistFragment fragment = mPagerAdapter.getCurrentPageFragment();
-//            if (fragment != null) {
-//                stopFilteringByName(fragment);
-//            }
-//            return false;
-//        }
-//    };
 
     private ApplistFragment.Listener mFragmentListener = new ApplistFragment.Listener() {
         @Override
