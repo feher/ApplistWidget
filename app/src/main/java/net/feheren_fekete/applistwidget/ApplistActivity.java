@@ -15,10 +15,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import net.feheren_fekete.applistwidget.model.DataModel;
 import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
@@ -287,6 +289,12 @@ public class ApplistActivity extends AppCompatActivity {
                     }
                 }
             });
+            Toast toast = Toast.makeText(
+                    ApplistActivity.this,
+                    R.string.toast_change_section_position,
+                    Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
         }
         @Override
         public void onChangeSectionOrderEnd() {
