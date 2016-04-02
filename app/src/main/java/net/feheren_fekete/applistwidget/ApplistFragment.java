@@ -117,27 +117,23 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(TAG, "ZIZI FRAG START");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "ZIZI FRAG RESUME");
         EventBus.getDefault().register(mAdapter);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "ZIZI FRAG PAUSE");
         EventBus.getDefault().unregister(mAdapter);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(TAG, "ZIZI FRAG STOP");
         if (mAdapter.isChangingOrder()) {
             cancelChangingOrder();
         }
@@ -163,7 +159,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     public void activateNameFilter() {
-        Log.d(TAG, "ZIZI FILTER ACTIVATE");
         if (mAdapter.isFilteredByName()) {
             return;
         }
@@ -172,12 +167,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     public void deactivateNameFilter() {
-        Log.d(TAG, "ZIZI FILTER DEACTIVATE");
         if (!mAdapter.isFilteredByName()) {
             return;
         }
 
-        Log.d(TAG, "ZIZI FILTER DEACTIVATE REALLY");
         setNameFilter(null);
     }
 
