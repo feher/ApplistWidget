@@ -1,7 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="MyMaterialTheme" parent="MyMaterialTheme.Base">
+    <style name="MyThemeBrown" parent="MyThemeBase">
+        <item name="primaryColor">#795548</item>
+        <item name="primaryDarkColor">#5D4037</item>
+        <item name="primaryLightColor">#D7CCC8</item>
+        <item name="accentColor">#9E9E9E</item>
+        <item name="primaryTextColor">#212121</item>
+        <item name="secondaryTextColor">#727272</item>
+        <item name="iconsColor">#FFFFFF</item>
+        <item name="dividerColor">#B6B6B6</item>
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">?attr/primaryColor</item>
+        <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
+        <item name="colorAccent">?attr/accentColor</item>
+    </style>
+
+    <style name="MyThemeGreen" parent="MyThemeBase">
+        <item name="primaryColor">#4CAF50</item>
+        <item name="primaryDarkColor">#388E3C</item>
+        <item name="primaryLightColor">#C8E6C9</item>
+        <item name="accentColor">#FFC107</item>
+        <item name="primaryTextColor">#212121</item>
+        <item name="secondaryTextColor">#727272</item>
+        <item name="iconsColor">#FFFFFF</item>
+        <item name="dividerColor">#B6B6B6</item>
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">?attr/primaryColor</item>
+        <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
+        <item name="colorAccent">?attr/accentColor</item>
+    </style>
+
+    <style name="MyThemeBase" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowContentTransitions">true</item>
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
@@ -10,5 +44,4 @@
 
         <item name="android:windowActivityTransitions">true</item>
     </style>
-
 </resources>

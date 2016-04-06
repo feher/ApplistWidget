@@ -113,7 +113,7 @@ public class ApplistAdapter
         mAllItems = Collections.emptyList();
         mItemListener = itemListener;
         mIconCache = iconCache;
-        mIconPlaceholderColors = mContext.getResources().getIntArray(R.array.icon_placeholders);
+        mIconPlaceholderColors = ((ApplistApp)context.getApplicationContext()).getThemeColors();
         mNextPlaceholderColor = 0;
 
         setHasStableIds(true);

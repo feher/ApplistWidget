@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="primaryColor" format="reference|color" />
+    <attr name="primaryDarkColor" format="reference|color" />
+    <attr name="primaryLightColor" format="reference|color" />
+    <attr name="primaryTextColor" format="reference|color" />
+    <attr name="secondaryTextColor" format="reference|color" />
+    <attr name="accentColor" format="reference|color" />
+    <attr name="iconsColor" format="reference|color" />
+    <attr name="dividerColor" format="reference|color" />
+</resources>
