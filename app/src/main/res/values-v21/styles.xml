@@ -74,15 +74,15 @@
     </style>
 
     <style name="MyThemeGreen" parent="MyThemeBase">
-        <item name="primaryColor">#4CAF50</item>
-        <item name="primaryDarkColor">#388E3C</item>
-        <item name="primaryLightColor">#C8E6C9</item>
+        <item name="primaryColor">#5d7d62</item>
+        <item name="primaryDarkColor">#4a634e</item>
+        <item name="primaryLightColor">#d1e3b1</item>
         <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
-        <item name="listBackgroundColor">#FFFFFF</item>
+        <item name="listBackgroundColor">#e6eadf</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
