@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.MenuItemCompat;
@@ -49,6 +51,9 @@ public class ApplistActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        SettingsUtils.applyColorTheme(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.applists_activity);
 
@@ -158,16 +163,19 @@ public class ApplistActivity extends AppCompatActivity {
             menu.findItem(R.id.action_create_section).setVisible(false);
             menu.findItem(R.id.action_create_page).setVisible(false);
             menu.findItem(R.id.action_done).setVisible(true);
+            menu.findItem(R.id.action_settings).setVisible(false);
         } else if (isFilteredByName) {
             menu.findItem(R.id.action_search_app).setVisible(true);
             menu.findItem(R.id.action_create_section).setVisible(false);
             menu.findItem(R.id.action_create_page).setVisible(false);
             menu.findItem(R.id.action_done).setVisible(false);
+            menu.findItem(R.id.action_settings).setVisible(false);
         } else {
             menu.findItem(R.id.action_search_app).setVisible(true);
             menu.findItem(R.id.action_create_section).setVisible(true);
             menu.findItem(R.id.action_create_page).setVisible(true);
             menu.findItem(R.id.action_done).setVisible(false);
+            menu.findItem(R.id.action_settings).setVisible(true);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -188,6 +196,10 @@ public class ApplistActivity extends AppCompatActivity {
                     createPage();
                     isHandled = true;
                     break;
+                case R.id.action_settings:
+                    showSettings();
+                    isHandled = true;
+                    break;
             }
         }
 
@@ -195,6 +207,11 @@ public class ApplistActivity extends AppCompatActivity {
             isHandled = super.onOptionsItemSelected(item);
         }
         return isHandled;
+    }
+
+    private void showSettings() {
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        startActivity(settingsIntent);
     }
 
     private BroadcastReceiver mPackageStateReceiver = new BroadcastReceiver() {

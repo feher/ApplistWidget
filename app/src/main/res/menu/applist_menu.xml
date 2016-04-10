@@ -24,4 +24,9 @@
         android:id="@+id/action_done"
         android:title="@string/action_done"
         app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        app:showAsAction="never"/>
 </menu>

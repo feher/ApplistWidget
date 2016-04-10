@@ -8,4 +8,5 @@
     <attr name="accentColor" format="reference|color" />
     <attr name="iconsColor" format="reference|color" />
     <attr name="dividerColor" format="reference|color" />
+    <attr name="listBackgroundColor" format="reference|color" />
 </resources>
