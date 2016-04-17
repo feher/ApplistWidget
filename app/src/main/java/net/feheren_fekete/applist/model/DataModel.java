@@ -78,7 +78,6 @@ public class DataModel {
         mPages = new ArrayList<>();
     }
 
-    @DebugLog
     public void loadData() {
         synchronized (this) {
             mInstalledApps = loadInstalledApps(mInstalledAppsFilePath);
@@ -91,7 +90,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void updateInstalledApps() {
         List<AppData> installedApps = getInstalledApps();
         synchronized (this) {
@@ -110,7 +108,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void storeData() {
         synchronized (this) {
             storePages(mPagesFilePath);
@@ -118,14 +115,12 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void storePages() {
         synchronized (this) {
             storePages(mPagesFilePath);
         }
     }
 
-    @DebugLog
     public @Nullable PageData getPage(String pageName) {
         synchronized (this) {
             for (PageData page : mPages) {
@@ -137,14 +132,12 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public int getPageCount() {
         synchronized (this) {
             return mPages.size();
         }
     }
 
-    @DebugLog
     public void addNewPage(String pageName) {
         synchronized (this) {
             PageData page = new PageData(createPageId(), pageName, new ArrayList<SectionData>());
@@ -156,7 +149,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void setPageName(String oldPageName, String newPageName) {
         synchronized (this) {
             PageData page = getPage(oldPageName);
@@ -168,7 +160,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void removePage(String pageName) {
         synchronized (this) {
             List<PageData> remainingPages = new ArrayList<>();
@@ -183,7 +174,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void removeAllPages() {
         synchronized (this) {
             mPages = new ArrayList<>();
@@ -192,7 +182,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public List<String> getPageNames() {
         synchronized (this) {
             List<String> pageNames = new ArrayList<>();
@@ -203,7 +192,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void removeSection(String pageName, String sectionName) {
         synchronized (this) {
             for (PageData p : mPages) {
@@ -218,7 +206,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void addNewSection(String pageName, String sectionName, boolean removable) {
         synchronized (this) {
             for (PageData page : mPages) {
@@ -233,7 +220,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public List<String> getSectionNames(String pageName) {
         synchronized (this) {
             List<String> sectionNames = new ArrayList<>();
@@ -247,7 +233,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void setSectionName(String pageName, String oldSectionName, String newSectionName) {
         synchronized (this) {
             PageData page = getPage(pageName);
@@ -260,7 +245,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void setSectionCollapsed(String pageName, String sectionName, boolean collapsed) {
         synchronized (this) {
             PageData page = getPage(pageName);
@@ -278,7 +262,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void setAllSectionsCollapsed(String pageName, boolean collapsed, boolean save) {
         synchronized (this) {
             boolean isSectionChanged = false;
@@ -303,7 +286,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void setAllSectionsCollapsed(String pageName,
                                         Map<String, Boolean> collapsedStates,
                                         boolean save) {
@@ -331,7 +313,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void setSectionOrder(String pageName, List<String> orderedSectionNames, boolean save) {
         synchronized (this) {
             PageData page = getPage(pageName);
@@ -349,7 +330,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     public void moveAppToSection(String pageName, String sectionName, AppData app) {
         synchronized (this) {
             PageData page = getPage(pageName);
@@ -466,7 +446,6 @@ public class DataModel {
         page.addSection(uncategorizedSection);
     }
 
-    @DebugLog
     private boolean updateSections(PageData page) {
         if (mInstalledApps.isEmpty()) {
             return false;
@@ -647,7 +626,6 @@ public class DataModel {
         }
     }
 
-    @DebugLog
     private List<AppData> getInstalledApps() {
         List<AppData> installedApps = new ArrayList<>();
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
