@@ -26,6 +26,15 @@
             android:layout_height="wrap_content"
             app:tabMode="scrollable"
             app:tabGravity="center"/>
+
+        <!-- HACK: Without this, the appbar content is missing
+             when it is scrolled out and back to the screen.
+             http://stackoverflow.com/a/33769905/3577903
+        -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height=".3dp"
+            android:visibility="visible"/>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
