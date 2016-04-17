@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,6 +21,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -121,6 +123,8 @@ public class ApplistActivity extends AppCompatActivity {
         super.onPause();
 
         if (mSearchView != null) {
+            hideKeyboardFrom(this, mSearchView);
+            mSearchView.setIconified(true);
             mViewPager.requestFocus();
         }
 
@@ -320,6 +324,11 @@ public class ApplistActivity extends AppCompatActivity {
             mToolbar.setNavigationOnClickListener(null);
         }
     };
+
+    private void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 
     private void startFilteringByName(ApplistFragment fragment) {
         fragment.activateNameFilter();
