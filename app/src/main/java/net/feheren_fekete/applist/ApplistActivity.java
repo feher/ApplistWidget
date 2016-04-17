@@ -176,7 +176,7 @@ public class ApplistActivity extends AppCompatActivity {
         } else {
             menu.findItem(R.id.action_search_app).setVisible(true);
             menu.findItem(R.id.action_create_section).setVisible(true);
-            menu.findItem(R.id.action_create_page).setVisible(true);
+            menu.findItem(R.id.action_create_page).setVisible(false);
             menu.findItem(R.id.action_done).setVisible(false);
             menu.findItem(R.id.action_settings).setVisible(true);
         }
