@@ -11,6 +11,8 @@
     <string name="section_name">Section name</string>
     <string name="page_name">Page name</string>
 
+    <string name="menu_item_move_to_new_new_section">New section...</string>
+
     <string name="remove_page">Are you sure you want to\nremove this page?</string>
     <string name="remove_section">Are you sure you want\nto remove this section?</string>
     <string name="uninstall_app">Are you sure you want to\nuninstall %1$s?</string>

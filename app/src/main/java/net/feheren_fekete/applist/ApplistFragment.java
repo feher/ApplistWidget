@@ -191,7 +191,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                 isHandled = true;
                 break;
             case R.id.action_create_section:
-                createSection();
+                createSection(null);
                 isHandled = true;
                 break;
         }
@@ -342,23 +342,30 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     private void chooseSectionAndMoveApp(final List<String> sectionNames,
                                          final AppItem appItem) {
+        final int newSectionIndex = sectionNames.size();
+        sectionNames.add(getResources().getString(R.string.menu_item_move_to_new_new_section));
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         String[] sections = new String[sectionNames.size()];
         sectionNames.toArray(sections);
         alertDialogBuilder.setTitle(R.string.dialog_move_to_section_title);
         alertDialogBuilder.setItems(sections, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, final int which) {
-                final String pageName = getPageName();
-                final String sectionName = sectionNames.get(which);
-                Task.callInBackground(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        AppData appData = new AppData(appItem);
-                        mDataModel.moveAppToSection(pageName, sectionName, appData);
-                        return null;
-                    }
-                });
+            public void onClick(DialogInterface dialog, final int index) {
+                if (index == newSectionIndex) {
+                    createSection(appItem);
+                } else {
+                    final String pageName = getPageName();
+                    final String sectionName = sectionNames.get(index);
+                    Task.callInBackground(new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            AppData appData = new AppData(appItem);
+                            mDataModel.moveAppToSection(pageName, sectionName, appData);
+                            return null;
+                        }
+                    });
+                }
             }
         });
         AlertDialog alertDialog = alertDialogBuilder.create();
@@ -421,7 +428,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                 });
     }
 
-    private void createSection() {
+    private void createSection(@Nullable final AppItem appToMove) {
         final String pageName = getPageName();
         ApplistDialogs.textInputDialog(
                 getActivity(), R.string.section_name, "",
@@ -433,6 +440,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                                 @Override
                                 public Void call() throws Exception {
                                     mDataModel.addNewSection(pageName, sectionName, true);
+                                    if (appToMove != null) {
+                                        AppData appData = new AppData(appToMove);
+                                        mDataModel.moveAppToSection(pageName, sectionName, appData);
+                                    }
                                     mDataModel.storePages();
                                     return null;
                                 }
