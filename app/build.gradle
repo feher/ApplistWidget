@@ -16,7 +16,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "net.feheren_fekete.applistwidget"
+        applicationId "net.feheren_fekete.applist"
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
