@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

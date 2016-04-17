@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.content.Intent;
 import android.content.SharedPreferences;

@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -8,7 +8,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
+import net.feheren_fekete.applist.utils.RunnableWithArg;
 
 public class ApplistDialogs {
     public static void textInputDialog(Activity activity,

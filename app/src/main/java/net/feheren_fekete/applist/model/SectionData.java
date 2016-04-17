@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget.model;
+package net.feheren_fekete.applist.model;
 
 import java.util.Collections;
 import java.util.Comparator;

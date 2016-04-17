@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -6,8 +6,8 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import net.feheren_fekete.applistwidget.model.DataModel;
-import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
+import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.utils.RunnableWithArg;
 
 import java.util.ArrayList;
 import java.util.List;

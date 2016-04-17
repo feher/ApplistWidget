@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
@@ -9,7 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
-import net.feheren_fekete.applistwidget.viewmodel.AppItem;
+import net.feheren_fekete.applist.viewmodel.AppItem;
 
 import java.lang.ref.WeakReference;
 

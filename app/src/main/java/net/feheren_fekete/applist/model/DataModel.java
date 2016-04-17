@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget.model;
+package net.feheren_fekete.applist.model;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -71,9 +72,8 @@ public class DataModel {
     private DataModel(Context context, PackageManager packageManager) {
         mHandler = new Handler();
         mPackageManager = packageManager;
-//        mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist.json";
-        mPagesFilePath = "/sdcard/Download/applist-pages.json";
-        mInstalledAppsFilePath = "/sdcard/Download/applist-installed-apps.json";
+        mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-pages.json";
+        mInstalledAppsFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-installed-apps.json";
         mInstalledApps = new ArrayList<>();
         mPages = new ArrayList<>();
     }

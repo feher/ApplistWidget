@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -18,13 +18,13 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import net.feheren_fekete.applistwidget.model.DataModel;
-import net.feheren_fekete.applistwidget.model.PageData;
-import net.feheren_fekete.applistwidget.model.SectionData;
-import net.feheren_fekete.applistwidget.viewmodel.AppItem;
-import net.feheren_fekete.applistwidget.viewmodel.BaseItem;
-import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
-import net.feheren_fekete.applistwidget.viewmodel.ViewModelUtils;
+import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.model.PageData;
+import net.feheren_fekete.applist.model.SectionData;
+import net.feheren_fekete.applist.viewmodel.AppItem;
+import net.feheren_fekete.applist.viewmodel.BaseItem;
+import net.feheren_fekete.applist.viewmodel.SectionItem;
+import net.feheren_fekete.applist.viewmodel.ViewModelUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;

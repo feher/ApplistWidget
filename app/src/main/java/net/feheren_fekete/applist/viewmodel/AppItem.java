@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget.viewmodel;
+package net.feheren_fekete.applist.viewmodel;
 
 
 public class AppItem extends BaseItem {

@@ -1,11 +1,10 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
@@ -24,8 +23,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import net.feheren_fekete.applistwidget.model.DataModel;
-import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
+import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.utils.RunnableWithArg;
 
 import java.util.List;
 import java.util.concurrent.Callable;

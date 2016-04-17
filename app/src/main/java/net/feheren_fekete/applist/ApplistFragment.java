@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.content.ComponentName;
 import android.content.DialogInterface;
@@ -13,16 +13,15 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import net.feheren_fekete.applistwidget.model.AppData;
-import net.feheren_fekete.applistwidget.model.DataModel;
-import net.feheren_fekete.applistwidget.utils.RunnableWithArg;
-import net.feheren_fekete.applistwidget.viewmodel.AppItem;
-import net.feheren_fekete.applistwidget.viewmodel.SectionItem;
+import net.feheren_fekete.applist.model.AppData;
+import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.utils.RunnableWithArg;
+import net.feheren_fekete.applist.viewmodel.AppItem;
+import net.feheren_fekete.applist.viewmodel.SectionItem;
 
 import java.util.List;
 import java.util.concurrent.Callable;

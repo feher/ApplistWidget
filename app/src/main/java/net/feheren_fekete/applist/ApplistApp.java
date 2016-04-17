@@ -1,12 +1,10 @@
-package net.feheren_fekete.applistwidget;
+package net.feheren_fekete.applist;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
-import net.feheren_fekete.applistwidget.model.DataModel;
+import net.feheren_fekete.applist.model.DataModel;
 
 
 public class ApplistApp extends MultiDexApplication {

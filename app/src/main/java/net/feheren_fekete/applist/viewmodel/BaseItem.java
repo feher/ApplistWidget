@@ -1,4 +1,4 @@
-package net.feheren_fekete.applistwidget.viewmodel;
+package net.feheren_fekete.applist.viewmodel;
 
 public abstract class BaseItem {
     private long mId;
