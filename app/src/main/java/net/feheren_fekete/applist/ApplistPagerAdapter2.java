@@ -73,14 +73,12 @@ public class ApplistPagerAdapter2 extends FragmentStatePagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         Object o = super.instantiateItem(container, position);
         ApplistFragment fragment = (ApplistFragment) o;
-        Log.d(TAG, "ZIZI INSTANTIATE FRAG " + fragment.getPageName());
         mPageFragments.put(position, fragment);
         return o;
     }
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        Log.d(TAG, "ZIZI DESTROY FRAG " + mPageFragments.get(position).getPageName());
         mPageFragments.remove(position);
         super.destroyItem(container, position, object);
     }

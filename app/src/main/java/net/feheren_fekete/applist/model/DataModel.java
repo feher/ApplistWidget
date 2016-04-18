@@ -649,7 +649,6 @@ public class DataModel {
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    Log.d(TAG, "ZIZI SAVING DATA");
                     storeData();
                     return null;
                 }
