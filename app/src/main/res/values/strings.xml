@@ -47,20 +47,22 @@
 
     <string name="color_theme_default">Brown</string>
     <string-array name="color_themes">
+        <item>Black</item>
         <item>Brown</item>
+        <item>Red</item>
         <item>Green</item>
         <item>Blue Grey</item>
         <item>Deep Purple</item>
         <item>Indigo</item>
-        <item>Orange</item>
     </string-array>
     <string-array name="color_themes_values">
+        <item>Black</item>
         <item>Brown</item>
+        <item>Red</item>
         <item>Green</item>
         <item>Blue Grey</item>
         <item>Deep Purple</item>
         <item>Indigo</item>
-        <item>Orange</item>
     </string-array>
 
 </resources>

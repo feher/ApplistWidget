@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="MyThemeBlack" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="primaryColor">#555555</item>
+        <item name="primaryDarkColor">#000000</item>
+        <item name="primaryLightColor">#AAAAAA</item>
+        <item name="accentColor">#9E9E9E</item>
+        <item name="primaryTextColor">#212121</item>
+        <item name="secondaryTextColor">#727272</item>
+        <item name="iconsColor">#FFFFFF</item>
+        <item name="dividerColor">#B6B6B6</item>
+        <item name="listBackgroundColor">#EEEEEE</item>
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">?attr/primaryColor</item>
+        <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
+        <item name="colorAccent">?attr/accentColor</item>
+    </style>
+
     <style name="MyThemeBrown" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="primaryColor">#795548</item>
         <item name="primaryDarkColor">#5D4037</item>
@@ -55,10 +73,10 @@
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeOrange" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="primaryColor">#FF9800</item>
-        <item name="primaryDarkColor">#F57C00</item>
-        <item name="primaryLightColor">#FFE0B2</item>
+    <style name="MyThemeRed" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="primaryColor">#BB2200</item>
+        <item name="primaryDarkColor">#882200</item>
+        <item name="primaryLightColor">#FFEEEE</item>
         <item name="accentColor">#FF5722</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
@@ -76,7 +94,7 @@
     <style name="MyThemeGreen" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="primaryColor">#5d7d62</item>
         <item name="primaryDarkColor">#4a634e</item>
-        <item name="primaryLightColor">#d1e3b1</item>
+        <item name="primaryLightColor">#dde3d0</item>
         <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>

@@ -9,6 +9,9 @@ public class SettingsUtils {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
         String colorThemeName = sharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, "Brown");
         switch (colorThemeName) {
+            case "Black":
+                activity.setTheme(R.style.MyThemeBlack);
+                break;
             case "Brown":
                 activity.setTheme(R.style.MyThemeBrown);
                 break;
@@ -21,8 +24,8 @@ public class SettingsUtils {
             case "Indigo":
                 activity.setTheme(R.style.MyThemeIndigo);
                 break;
-            case "Orange":
-                activity.setTheme(R.style.MyThemeOrange);
+            case "Red":
+                activity.setTheme(R.style.MyThemeRed);
                 break;
             case "Green":
                 activity.setTheme(R.style.MyThemeGreen);
