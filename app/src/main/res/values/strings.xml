@@ -12,6 +12,7 @@
     <string name="page_name">Page name</string>
 
     <string name="menu_item_move_to_new_new_section">New section...</string>
+    <string name="dialog_error_section_exists">This section already exists</string>
 
     <string name="remove_page">Are you sure you want to\nremove this page?</string>
     <string name="remove_section">Are you sure you want\nto remove this section?</string>

@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import net.feheren_fekete.applist.model.AppData;
 import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
+import net.feheren_fekete.applist.utils.RunnableWithRetArg;
 import net.feheren_fekete.applist.viewmodel.AppItem;
 import net.feheren_fekete.applist.viewmodel.SectionItem;
 
@@ -389,10 +390,20 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     private void renameSection(SectionItem sectionItem) {
-        final String oldSectionName = sectionItem.getName();
         final String pageName = getPageName();
+        final String oldSectionName = sectionItem.getName();
+        final List<String> sectionNames = mAdapter.getSectionNames();
         ApplistDialogs.textInputDialog(
                 getActivity(), R.string.section_name, oldSectionName,
+                new RunnableWithRetArg<String, String>() {
+                     @Override
+                    public String run(String sectionName) {
+                        if (sectionNames.contains(sectionName)) {
+                            return getResources().getString(R.string.dialog_error_section_exists);
+                        }
+                        return null;
+                    }
+                },
                 new RunnableWithArg<String>() {
                     @Override
                     public void run(final String newSectionName) {
@@ -430,12 +441,23 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     private void createSection(@Nullable final AppItem appToMove) {
         final String pageName = getPageName();
+        final List<String> sectionNames = mAdapter.getSectionNames();
         ApplistDialogs.textInputDialog(
                 getActivity(), R.string.section_name, "",
+                new RunnableWithRetArg<String, String>() {
+                    @Override
+                    public String run(String sectionName) {
+                        if (sectionNames.contains(sectionName)) {
+                            return getResources().getString(R.string.dialog_error_section_exists);
+                        }
+                        return null;
+                    }
+                },
                 new RunnableWithArg<String>() {
                     @Override
                     public void run(final String sectionName) {
                         if (!sectionName.isEmpty()) {
+                            mAdapter.getSectionNames();
                             Task.callInBackground(new Callable<Void>() {
                                 @Override
                                 public Void call() throws Exception {

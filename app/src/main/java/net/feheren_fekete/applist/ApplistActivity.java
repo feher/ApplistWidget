@@ -490,7 +490,7 @@ public class ApplistActivity extends AppCompatActivity {
 
     private void renamePage(final String pageName) {
         ApplistDialogs.textInputDialog(
-                this, R.string.page_name, pageName,
+                this, R.string.page_name, pageName, null,
                 new RunnableWithArg<String>() {
                     @Override
                     public void run(final String newPageName) {
@@ -524,7 +524,7 @@ public class ApplistActivity extends AppCompatActivity {
 
     private void createPage() {
         ApplistDialogs.textInputDialog(
-                this, R.string.page_name, "",
+                this, R.string.page_name, "", null,
                 new RunnableWithArg<String>() {
                     @Override
                     public void run(final String pageName) {
