@@ -39,6 +39,9 @@ public class ApplistActivity extends AppCompatActivity {
 
     private static final String TAG = ApplistActivity.class.getSimpleName();
 
+    public static final String ACTION_RESTART =
+            ApplistActivity.class.getCanonicalName()+ "ACTION_RESTART";
+
     private Handler mHandler;
     private DataModel mDataModel;
     private IconCache mIconCache;
@@ -87,6 +90,17 @@ public class ApplistActivity extends AppCompatActivity {
         });
 
         loadData();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (ACTION_RESTART.equals(intent.getAction())) {
+            finish();
+            startActivity(intent);
+        } else {
+            loadData();
+        }
     }
 
     @Override

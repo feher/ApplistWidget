@@ -231,6 +231,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         intent.setComponent(new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
         getContext().startActivity(intent);
+        if (getActivity() != null) {
+            getActivity().finish();
+        }
     }
 
     @Override

@@ -63,7 +63,8 @@ public class SettingsActivity extends PreferenceActivity {
 
         private void restartMainActivity() {
             Intent i = new Intent(getActivity(), ApplistActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            i.setAction(ApplistActivity.ACTION_RESTART);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
             startActivity(i);
             getActivity().finish();
         }
