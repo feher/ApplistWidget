@@ -26,6 +26,7 @@ import net.feheren_fekete.applist.viewmodel.BaseItem;
 import net.feheren_fekete.applist.viewmodel.SectionItem;
 import net.feheren_fekete.applist.viewmodel.ViewModelUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -357,7 +358,11 @@ public class ApplistAdapter
                 }
             }
             if (holder.iconLoader == null) {
-                holder.iconLoader = new IconLoaderTask(item, holder, mPackageManager, mIconCache);
+                String iconCacheDirPath = mContext.getCacheDir().toString()
+                        + File.separator
+                        + "IconCache";
+                holder.iconLoader = new IconLoaderTask(
+                        item, holder, mPackageManager, mIconCache, iconCacheDirPath);
                 holder.iconLoader.execute();
                 holder.appIcon.setImageBitmap(null);
                 holder.appIcon.setBackgroundColor(mIconPlaceholderColors[mNextPlaceholderColor]);

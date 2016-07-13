@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 
 import net.feheren_fekete.applist.viewmodel.AppItem;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 
 public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
@@ -18,15 +19,18 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
     private WeakReference<ApplistAdapter.AppItemHolder> appItemHolderRef;
     private PackageManager packageManager;
     private WeakReference<IconCache> iconCacheRef;
+    private String iconCacheDirPath;
 
     public IconLoaderTask(AppItem appItem,
                           ApplistAdapter.AppItemHolder appItemHolder,
                           PackageManager packageManager,
-                          IconCache iconCache) {
+                          IconCache iconCache,
+                          String iconCacheDirPath) {
         this.appItem = appItem;
         this.appItemHolderRef = new WeakReference<>(appItemHolder);
         this.packageManager = packageManager;
         this.iconCacheRef = new WeakReference<>(iconCache);
+        this.iconCacheDirPath = iconCacheDirPath;
     }
 
     public boolean isLoadingFor(AppItem item) {
@@ -38,13 +42,26 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
         try {
             Drawable iconDrawable = null;
             if (!isCancelled()) {
-                iconDrawable = packageManager.getActivityIcon(
-                        new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
-            } else {
-                return null;
-            }
-            if (!isCancelled() && iconDrawable != null) {
-                return drawableToBitmap(iconDrawable);
+                String iconFilePath = iconCacheDirPath
+                        + File.separator
+                        + appItem.getPackageName() + "_" + appItem.getComponentName() + ".png";
+                Bitmap iconBitmap = ImageUtils.loadBitmap(iconFilePath);
+                if (iconBitmap != null) {
+                    return iconBitmap;
+                } else {
+                    ComponentName componentName = new ComponentName(
+                            appItem.getPackageName(), appItem.getComponentName());
+                    iconDrawable = packageManager.getActivityIcon(componentName);
+                    if (!isCancelled() && iconDrawable != null) {
+                        iconBitmap = ImageUtils.drawableToBitmap(iconDrawable);
+                        if (isStillValid()) {
+                            ImageUtils.saveBitmap(iconBitmap, iconFilePath);
+                        }
+                        return iconBitmap;
+                    } else {
+                        return null;
+                    }
+                }
             } else {
                 return null;
             }
@@ -58,38 +75,21 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
         ApplistAdapter.AppItemHolder appItemHolder = appItemHolderRef.get();
         IconCache iconCache = iconCacheRef.get();
         if (iconBitmap != null
-                && appItemHolder != null
-                && iconCache != null
-                && appItemHolder.iconLoader == this
-                && !isCancelled()) {
+                && isStillValid()
+                && iconCache != null) {
             String key = iconCache.createKey(appItem);
             iconCache.addIcon(key, iconBitmap);
             appItemHolder.appIcon.setBackgroundColor(Color.TRANSPARENT);
             appItemHolder.appIcon.setImageBitmap(iconBitmap);
             appItemHolder.iconLoader = null;
         }
-
     }
 
-    private static Bitmap drawableToBitmap(Drawable drawable) {
-        Bitmap bitmap = null;
-
-        if (drawable instanceof BitmapDrawable) {
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-            if(bitmapDrawable.getBitmap() != null) {
-                return bitmapDrawable.getBitmap();
-            }
-        }
-
-        if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
-            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
-        } else {
-            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        }
-
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bitmap;
+    private boolean isStillValid() {
+        ApplistAdapter.AppItemHolder appItemHolder = appItemHolderRef.get();
+        return (!isCancelled()
+                && appItemHolder != null
+                && appItemHolder.iconLoader == this);
     }
+
 }
