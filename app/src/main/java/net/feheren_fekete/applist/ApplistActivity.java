@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
@@ -17,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,8 +28,10 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -89,6 +93,15 @@ public class ApplistActivity extends AppCompatActivity {
             }
         });
 
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addDataScheme("package");
+        registerReceiver(mPackageStateReceiver, intentFilter);
+
         loadData();
     }
 
@@ -121,14 +134,6 @@ public class ApplistActivity extends AppCompatActivity {
 
         EventBus.getDefault().registerSticky(this);
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        intentFilter.addDataScheme("package");
-        registerReceiver(mPackageStateReceiver, intentFilter);
         mPackageStateReceiver.onReceive(this, null);
     }
 
@@ -142,13 +147,18 @@ public class ApplistActivity extends AppCompatActivity {
             mViewPager.requestFocus();
         }
 
-        unregisterReceiver(mPackageStateReceiver);
         EventBus.getDefault().unregister(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mPackageStateReceiver);
     }
 
     @Override
@@ -234,9 +244,15 @@ public class ApplistActivity extends AppCompatActivity {
     private BroadcastReceiver mPackageStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            final Uri uri = (intent != null) ? intent.getData() : null;
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
+                    if (uri != null) {
+                        FileUtils.deleteFiles(
+                                FileUtils.getIconCacheDirPath(ApplistActivity.this),
+                                uri.getSchemeSpecificPart());
+                    }
                     mDataModel.updateInstalledApps();
                     return null;
                 }

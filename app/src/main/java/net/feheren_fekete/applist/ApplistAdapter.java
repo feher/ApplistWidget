@@ -21,6 +21,7 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.model.PageData;
 import net.feheren_fekete.applist.model.SectionData;
+import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.viewmodel.AppItem;
 import net.feheren_fekete.applist.viewmodel.BaseItem;
 import net.feheren_fekete.applist.viewmodel.SectionItem;
@@ -358,11 +359,9 @@ public class ApplistAdapter
                 }
             }
             if (holder.iconLoader == null) {
-                String iconCacheDirPath = mContext.getCacheDir().toString()
-                        + File.separator
-                        + "IconCache";
                 holder.iconLoader = new IconLoaderTask(
-                        item, holder, mPackageManager, mIconCache, iconCacheDirPath);
+                        item, holder, mPackageManager,
+                        mIconCache, FileUtils.getIconCacheDirPath(mContext));
                 holder.iconLoader.execute();
                 holder.appIcon.setImageBitmap(null);
                 holder.appIcon.setBackgroundColor(mIconPlaceholderColors[mNextPlaceholderColor]);
