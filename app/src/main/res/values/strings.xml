@@ -47,7 +47,7 @@
     <string name="dialog_move_to_section_title">Move to section</string>
     <string name="toast_change_section_position">Drag and drop sections\nto change position</string>
 
-    <string name="color_theme_default">Brown</string>
+    <string name="color_theme_default">Black</string>
     <string-array name="color_themes">
         <item>Black</item>
         <item>Brown</item>
