@@ -3,9 +3,7 @@ package net.feheren_fekete.applist;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
@@ -13,13 +11,16 @@ import net.feheren_fekete.applist.viewmodel.AppItem;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.Callable;
+
+import bolts.Task;
 
 public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
     private AppItem appItem;
     private WeakReference<ApplistAdapter.AppItemHolder> appItemHolderRef;
     private PackageManager packageManager;
     private WeakReference<IconCache> iconCacheRef;
-    private String iconCacheDirPath;
+    private String cachedIconPath;
 
     public IconLoaderTask(AppItem appItem,
                           ApplistAdapter.AppItemHolder appItemHolder,
@@ -30,7 +31,9 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
         this.appItemHolderRef = new WeakReference<>(appItemHolder);
         this.packageManager = packageManager;
         this.iconCacheRef = new WeakReference<>(iconCache);
-        this.iconCacheDirPath = iconCacheDirPath;
+        this.cachedIconPath = iconCacheDirPath
+                + File.separator
+                + appItem.getPackageName() + "_" + appItem.getComponentName() + ".png";
     }
 
     public boolean isLoadingFor(AppItem item) {
@@ -42,10 +45,7 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
         try {
             Drawable iconDrawable = null;
             if (!isCancelled()) {
-                String iconFilePath = iconCacheDirPath
-                        + File.separator
-                        + appItem.getPackageName() + "_" + appItem.getComponentName() + ".png";
-                Bitmap iconBitmap = ImageUtils.loadBitmap(iconFilePath);
+                Bitmap iconBitmap = ImageUtils.loadBitmap(cachedIconPath);
                 if (iconBitmap != null) {
                     return iconBitmap;
                 } else {
@@ -55,7 +55,14 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
                     if (!isCancelled() && iconDrawable != null) {
                         iconBitmap = ImageUtils.drawableToBitmap(iconDrawable);
                         if (isStillValid()) {
-                            ImageUtils.saveBitmap(iconBitmap, iconFilePath);
+                            final Bitmap finalIconBitmap = iconBitmap;
+                            Task.callInBackground(new Callable<Void>() {
+                                @Override
+                                public Void call() throws Exception {
+                                    ImageUtils.saveBitmap(finalIconBitmap, cachedIconPath);
+                                    return null;
+                                }
+                            });
                         }
                         return iconBitmap;
                     } else {
