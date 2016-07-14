@@ -4,7 +4,6 @@
     <string name="action_search_app">Keresés</string>
     <string name="action_settings">Beállítások</string>
     <string name="cancel">Mégse</string>
-    <string name="color_theme_value_default">Fekete</string>
     <string name="dialog_error_section_exists">Ez a csoport már létezik</string>
     <string name="dialog_move_to_section_title">Áthelyezés másik csoportba</string>
     <string name="menu_item_move_to_new_new_section">Új csoport…</string>

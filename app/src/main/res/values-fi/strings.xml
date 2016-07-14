@@ -7,7 +7,6 @@
     <string name="action_search_app">Haku</string>
     <string name="action_settings">Asetukset</string>
     <string name="cancel">Peruuta</string>
-    <string name="color_theme_value_default">Musta</string>
     <string name="dialog_error_section_exists">Ryhmä on jo olemassa</string>
     <string name="dialog_move_to_section_title">Siirrä toiseen ryhmään</string>
     <string name="menu_item_move_to_new_new_section">Uusi ryhmä…</string>

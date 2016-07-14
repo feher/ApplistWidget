@@ -79,9 +79,9 @@
         <item>@string/color_theme_indigo</item>
     </string-array>
 
-    <string name="color_theme_value_default">Black</string>
+    <string name="color_theme_value_default" translatable="false">Black</string>
 
-    <string-array name="color_theme_values">
+    <string-array name="color_theme_values" translatable="false">
         <item>Black</item>
         <item>Brown</item>
         <item>Red</item>
