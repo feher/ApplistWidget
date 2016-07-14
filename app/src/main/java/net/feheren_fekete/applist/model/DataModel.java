@@ -8,6 +8,8 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import net.feheren_fekete.applist.R;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +32,6 @@ import java.util.concurrent.Callable;
 
 import bolts.Task;
 import de.greenrobot.event.EventBus;
-import hugo.weaving.DebugLog;
 
 // FIXME: Make th public methods synchronized? Can they be accesses from parallel threads?
 public class DataModel {
@@ -40,12 +41,11 @@ public class DataModel {
     public static final int INVALID_ID = 0;
     public static final String DEFAULT_PAGE_NAME = "Apps";
 
-    private static final String UNCATEGORIZED_SECTION_NAME = "Uncategorized";
-
     private static DataModel sInstance;
 
     private Handler mHandler;
     private PackageManager mPackageManager;
+    private String mUncategorizedSectionName;
     private String mPagesFilePath;
     private String mInstalledAppsFilePath;
     private List<AppData> mInstalledApps;
@@ -72,6 +72,7 @@ public class DataModel {
     private DataModel(Context context, PackageManager packageManager) {
         mHandler = new Handler();
         mPackageManager = packageManager;
+        mUncategorizedSectionName = context.getResources().getString(R.string.uncategorized_group);
         mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-pages.json";
         mInstalledAppsFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-installed-apps.json";
         mInstalledApps = new ArrayList<>();
@@ -442,7 +443,7 @@ public class DataModel {
         });
 
         SectionData uncategorizedSection = new SectionData(
-                createSectionId(), UNCATEGORIZED_SECTION_NAME, uncategorizedApps, false, false);
+                createSectionId(), mUncategorizedSectionName, uncategorizedApps, false, false);
         page.addSection(uncategorizedSection);
     }
 
