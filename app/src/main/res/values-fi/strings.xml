@@ -37,4 +37,5 @@
     <string name="settings_color_theme">Väri</string>
     <string name="uncategorized_group">Muut</string>
     <string name="color_theme_default">@string/color_theme_black</string>
+    <string name="default_page_name">Appit</string>
 </resources>

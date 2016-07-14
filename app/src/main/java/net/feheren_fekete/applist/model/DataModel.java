@@ -39,7 +39,6 @@ public class DataModel {
     private static final String TAG = DataModel.class.getSimpleName();
 
     public static final int INVALID_ID = 0;
-    public static final String DEFAULT_PAGE_NAME = "Apps";
 
     private static DataModel sInstance;
 

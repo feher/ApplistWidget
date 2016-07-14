@@ -452,10 +452,11 @@ public class ApplistActivity extends AppCompatActivity {
     }
 
     private void addDefaultPage() {
+        final String defaultPageName = getResources().getString(R.string.default_page_name);
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mDataModel.addNewPage(DataModel.DEFAULT_PAGE_NAME);
+                mDataModel.addNewPage(defaultPageName);
                 return null;
             }
         });

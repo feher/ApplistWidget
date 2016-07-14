@@ -15,6 +15,7 @@
 
     <string name="dialog_error_section_exists">This group already exists</string>
 
+    <string name="default_page_name">Apps</string>
     <string name="uncategorized_group">Uncategorized</string>
 
     <string name="remove_page">Are you sure you want to\nremove this page?</string>
