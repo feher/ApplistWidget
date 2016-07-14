@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="Appearance"
+        android:title="@string/settings_appearance"
         android:key="pref_key_appearance">
         <ListPreference
             android:key="pref_key_color_theme"
-            android:title="Color theme"
-            android:summary="Brown"
-            android:dialogTitle="Color theme"
+            android:title="@string/settings_color_theme"
+            android:summary="@string/color_theme_default"
+            android:dialogTitle="@string/settings_color_theme"
             android:entries="@array/color_themes"
-            android:entryValues="@array/color_themes_values"
-            android:defaultValue="Brown" />
+            android:entryValues="@array/color_theme_values"
+            android:defaultValue="@string/color_theme_value_default" />
     </PreferenceCategory>
 </PreferenceScreen>

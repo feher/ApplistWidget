@@ -3,61 +3,85 @@
     <string name="toolbar_title">Apper</string>
 
     <string name="action_search_app">Search app</string>
-    <string name="action_create_section">New section</string>
+    <string name="action_create_section">New group</string>
     <string name="action_create_page">New page</string>
     <string name="action_done">Done</string>
     <string name="action_settings">Settings</string>
 
-    <string name="section_name">Section name</string>
+    <string name="section_name">Group name</string>
     <string name="page_name">Page name</string>
 
-    <string name="menu_item_move_to_new_new_section">New section&#8230;</string>
+    <string name="menu_item_move_to_new_new_section">New group…</string>
 
-    <string name="dialog_error_section_exists">This section already exists</string>
+    <string name="dialog_error_section_exists">This group already exists</string>
+
+    <string name="uncategorized_group">Uncategorized</string>
 
     <string name="remove_page">Are you sure you want to\nremove this page?</string>
-    <string name="remove_section">Are you sure you want\nto remove this section?</string>
+    <string name="remove_section">Are you sure you want\nto remove this group?</string>
     <string name="uninstall_app">Are you sure you want to\nuninstall %1$s?</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 
+    <string name="page_menu_rename">Rename</string>
+    <string name="page_menu_delete">Delete</string>
     <string-array name="page_menu">
-        <item>Rename</item>
-        <item>Delete</item>
+        <item>@string/page_menu_rename</item>
+        <item>@string/page_menu_delete</item>
     </string-array>
 
+    <string name="app_item_menu_move_to_section">Move to group</string>
+    <string name="app_item_menu_information">Information</string>
+    <string name="app_item_menu_uninstall">Uninstall</string>
     <string-array name="app_item_menu">
-        <item>Move to section</item>
-        <item>Information</item>
-        <item>Uninstall</item>
+        <item>@string/app_item_menu_move_to_section</item>
+        <item>@string/app_item_menu_information</item>
+        <item>@string/app_item_menu_uninstall</item>
     </string-array>
 
+    <string name="section_item_menu_change_position">Change position</string>
+    <string name="section_item_menu_rename">Rename</string>
+    <string name="section_item_menu_delete">Delete</string>
     <string-array name="section_item_menu">
-        <item>Change position</item>
-        <item>Rename</item>
-        <item>Delete</item>
+        <item>@string/section_item_menu_change_position</item>
+        <item>@string/section_item_menu_rename</item>
+        <item>@string/section_item_menu_delete</item>
     </string-array>
 
     <string-array name="section_item_menu_readonly">
-        <item>Change position</item>
-        <item>Rename</item>
+        <item>@string/section_item_menu_change_position</item>
+        <item>@string/section_item_menu_rename</item>
     </string-array>
 
-    <string name="dialog_move_to_section_title">Move to section</string>
-    <string name="toast_change_section_position">Drag and drop sections\nto change position</string>
+    <string name="dialog_move_to_section_title">Move to group</string>
+    <string name="toast_change_section_position">Drag and drop groups\nto change position</string>
 
-    <string name="color_theme_default">Black</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_color_theme">Color theme</string>
+
+    <string name="color_theme_default">@string/color_theme_black</string>
+    <string name="color_theme_black">Black</string>
+    <string name="color_theme_brown">Brown</string>
+    <string name="color_theme_red">Red</string>
+    <string name="color_theme_green">Green</string>
+    <string name="color_theme_blue_grey">Blue Grey</string>
+    <string name="color_theme_deep_purple">Deep Purple</string>
+    <string name="color_theme_indigo">Indigo</string>
+
     <string-array name="color_themes">
-        <item>Black</item>
-        <item>Brown</item>
-        <item>Red</item>
-        <item>Green</item>
-        <item>Blue Grey</item>
-        <item>Deep Purple</item>
-        <item>Indigo</item>
+        <item>@string/color_theme_black</item>
+        <item>@string/color_theme_brown</item>
+        <item>@string/color_theme_red</item>
+        <item>@string/color_theme_green</item>
+        <item>@string/color_theme_blue_grey</item>
+        <item>@string/color_theme_deep_purple</item>
+        <item>@string/color_theme_indigo</item>
     </string-array>
-    <string-array name="color_themes_values">
+
+    <string name="color_theme_value_default">Black</string>
+
+    <string-array name="color_theme_values">
         <item>Black</item>
         <item>Brown</item>
         <item>Red</item>

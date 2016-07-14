@@ -26,12 +26,12 @@ public class SettingsActivity extends PreferenceActivity {
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-        private String mDefaultThemeName;
+        private String mDefaultThemeValue;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mDefaultThemeName = getResources().getString(R.string.color_theme_default);
+            mDefaultThemeValue = getResources().getString(R.string.color_theme_value_default);
             addPreferencesFromResource(R.xml.preferences);
         }
 
@@ -41,8 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
             getPreferenceScreen().getSharedPreferences()
                     .registerOnSharedPreferenceChangeListener(this);
             Preference preference = findPreference(PREF_KEY_COLOR_THEME);
-            preference.setSummary(
-                    getPreferenceScreen().getSharedPreferences().getString(PREF_KEY_COLOR_THEME, mDefaultThemeName));
+            preference.setSummary(getColorTheme());
         }
 
         @Override
@@ -56,7 +55,7 @@ public class SettingsActivity extends PreferenceActivity {
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (key.equals(PREF_KEY_COLOR_THEME)) {
                 Preference preference = findPreference(PREF_KEY_COLOR_THEME);
-                preference.setSummary(sharedPreferences.getString(PREF_KEY_COLOR_THEME, mDefaultThemeName));
+                preference.setSummary(getColorTheme());
                 restartMainActivity();
             }
         }
@@ -67,6 +66,18 @@ public class SettingsActivity extends PreferenceActivity {
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
             startActivity(i);
             getActivity().finish();
+        }
+
+        private String getColorTheme() {
+            String colorThemeValue = getPreferenceScreen().getSharedPreferences().getString(PREF_KEY_COLOR_THEME, mDefaultThemeValue);
+            String[] colorThemeValues = getResources().getStringArray(R.array.color_theme_values);
+            String[] colorThemes = getResources().getStringArray(R.array.color_themes);
+            for (int i = 0; i < colorThemeValues.length; ++i) {
+                if (colorThemeValues[i].equals(colorThemeValue)) {
+                    return colorThemes[i];
+                }
+            }
+            return "";
         }
     }
 
