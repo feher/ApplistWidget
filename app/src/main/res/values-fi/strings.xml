@@ -26,7 +26,7 @@
     <string name="color_theme_green">Vihreä</string>
     <string name="color_theme_indigo">Indigo</string>
     <string name="color_theme_red">Punainen</string>
-    <string name="app_item_menu_information">Tiedotus</string>
+    <string name="app_item_menu_information">Tiedot</string>
     <string name="app_item_menu_move_to_section">Siirrä toiseen ryhmään</string>
     <string name="app_item_menu_uninstall">Poista</string>
     <string name="page_menu_delete">Poista</string>
