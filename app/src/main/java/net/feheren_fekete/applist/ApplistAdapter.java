@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -14,20 +16,23 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.model.PageData;
 import net.feheren_fekete.applist.model.SectionData;
+import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.viewmodel.AppItem;
 import net.feheren_fekete.applist.viewmodel.BaseItem;
 import net.feheren_fekete.applist.viewmodel.SectionItem;
 import net.feheren_fekete.applist.viewmodel.ViewModelUtils;
 
-import java.io.File;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,9 +52,11 @@ public class ApplistAdapter
     public static final int SECTION_ITEM_VIEW = 2;
 
     private Context mContext;
+    private Fragment mFragment;
     private Handler mHandler;
     private PackageManager mPackageManager;
     private DataModel mModel;
+    private BadgeStore mBadgeStore;
     private String mPageName;
     private List<BaseItem> mCollapsedItems;
     private List<BaseItem> mAllItems;
@@ -78,15 +85,17 @@ public class ApplistAdapter
     }
 
     public static class AppItemHolder extends ViewHolderBase {
-        public final LinearLayout layout;
+        public final ConstraintLayout layout;
         public final ImageView appIcon;
         public final TextView appName;
+        public final TextView badgeCount;
         public IconLoaderTask iconLoader;
         public AppItemHolder(View view) {
             super(view);
-            this.layout = (LinearLayout) view.findViewById(R.id.layout);
+            this.layout = (ConstraintLayout) view.findViewById(R.id.layout);
             this.appIcon = (ImageView) view.findViewById(R.id.icon);
             this.appName = (TextView) view.findViewById(R.id.app_name);
+            this.badgeCount = (TextView) view.findViewById(R.id.badge_count);
         }
     }
 
@@ -101,15 +110,19 @@ public class ApplistAdapter
     }
 
     public ApplistAdapter(Context context,
+                          Fragment fragment,
                           PackageManager packageManager,
                           DataModel model,
+                          BadgeStore badgeStore,
                           String pageName,
                           ItemListener itemListener,
                           IconCache iconCache) {
         mContext = context;
+        mFragment = fragment;
         mHandler = new Handler();
         mPackageManager = packageManager;
         mModel = model;
+        mBadgeStore = badgeStore;
         mPageName = pageName;
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();
@@ -283,7 +296,19 @@ public class ApplistAdapter
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(DataModel.SectionsChangedEvent event) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSectionsChangedEvent(DataModel.SectionsChangedEvent event) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                loadAllItems();
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onBadgeEvent(BadgeStore.BadgeEvent event) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -377,6 +402,21 @@ public class ApplistAdapter
         }
 
         holder.appName.setText(item.getName());
+        if (SettingsUtils.getShowBadge(mFragment.getActivity())) {
+            int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getComponentName());
+            if (badgeCount > 0) {
+                holder.badgeCount.setVisibility(View.VISIBLE);
+                if (badgeCount != BadgeUtils.NOT_NUMBERED_BADGE_COUNT) {
+                    holder.badgeCount.setText(String.valueOf(badgeCount));
+                } else {
+                    holder.badgeCount.setText("\u2022");
+                }
+            } else {
+                holder.badgeCount.setVisibility(View.GONE);
+            }
+        } else {
+            holder.badgeCount.setVisibility(View.GONE);
+        }
 
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -12,4 +12,23 @@
             android:entryValues="@array/color_theme_values"
             android:defaultValue="@string/color_theme_value_default" />
     </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/settings_badges"
+        android:key="pref_key_options">
+        <SwitchPreference
+            android:key="pref_key_show_phone_badge"
+            android:title="@string/settings_show_phone_badge"
+            android:summary="@string/settings_show_phone_badge_summary"
+            android:defaultValue="false"/>
+        <SwitchPreference
+            android:key="pref_key_show_sms_badge"
+            android:title="@string/settings_show_sms_badge"
+            android:summary="@string/settings_show_sms_badge_summary"
+            android:defaultValue="false"/>
+        <SwitchPreference
+            android:key="pref_key_show_badge"
+            android:title="@string/settings_show_badge"
+            android:summary="@string/settings_show_badge_summary"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
 </PreferenceScreen>

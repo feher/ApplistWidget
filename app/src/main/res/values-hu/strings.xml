@@ -38,4 +38,12 @@
     <string name="uncategorized_group">Egyéb</string>
     <string name="color_theme_default">@string/color_theme_black</string>
     <string name="default_page_name">Appok</string>
+    <string name="settings_badges">Űzenetjelzések</string>
+    <string name="settings_show_badge">Új tartalom</string>
+    <string name="settings_show_badge_summary">Új tartalom jelzése támogatott alkalmazások esetén (pl. Facebook)</string>
+    <string name="settings_show_phone_badge">Fogadatlan hívás</string>
+    <string name="settings_show_sms_badge">Olvasatlan SMS</string>
+    <string name="settings_show_phone_badge_summary">Fogadatlan hívás jelzése a telefon app-on</string>
+    <string name="settings_show_sms_badge_summary">Olvasatlan üzenet jelzése az SMS app-on</string>
+    <string name="settings_show_phone_badge_select_default_app">Válaszd ki az alapértelmezett telefon app-ot</string>
 </resources>

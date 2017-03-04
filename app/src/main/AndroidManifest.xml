@@ -2,6 +2,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.feheren_fekete.applist">
 
+    <!-- For app badges -->
+    <uses-permission android:name="com.sec.android.provider.badge.permission.READ"/>
+    <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS"/>
+    <!--
+     Querying badges in BadgeUtils does not work for Sony and Nova.
+     We don't have permission to do so.
+    -->
+    <!--<uses-permission android:name="com.sonymobile.home.permission.PROVIDER_READ_BADGE"/>-->
+    <!--<uses-permission android:name="com.sonyericsson.home.permission.READ_SETTINGS"/>-->
+
+    <!-- For SMS badges -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+
+    <!-- For Phone badges -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <application
         android:name="net.feheren_fekete.applist.ApplistApp"
         android:allowBackup="true"
@@ -28,6 +44,46 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="net.feheren_fekete.applist.ApplistActivity" />
         </activity>
+
+        <receiver android:name=".shortcutbadge.BadgeReceiver">
+            <!-- Samsung, LG, Asus -->
+            <intent-filter>
+                <action android:name="android.intent.action.BADGE_COUNT_UPDATE" />
+            </intent-filter>
+            <!-- Sony -->
+            <intent-filter>
+                <action android:name="com.sonyericsson.home.action.UPDATE_BADGE" />
+            </intent-filter>
+            <!-- ADW launcher -->
+            <intent-filter>
+                <action android:name="org.adw.launcher.counter.SEND" />
+            </intent-filter>
+            <!-- Apex launcher -->
+            <intent-filter>
+                <action android:name="com.anddoes.launcher.COUNTER_CHANGED" />
+            </intent-filter>
+            <!-- HTC -->
+            <intent-filter>
+                <action android:name="com.htc.launcher.action.SET_NOTIFICATION" />
+            </intent-filter>
+            <!-- HTC -->
+            <intent-filter>
+                <action android:name="com.htc.launcher.action.UPDATE_SHORTCUT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".shortcutbadge.SmsReceiver"
+                  android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".shortcutbadge.CallStateReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

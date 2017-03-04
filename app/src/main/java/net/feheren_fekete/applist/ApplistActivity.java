@@ -27,9 +27,15 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.List;
@@ -37,7 +43,6 @@ import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
-import de.greenrobot.event.EventBus;
 
 public class ApplistActivity extends AppCompatActivity {
 
@@ -49,6 +54,7 @@ public class ApplistActivity extends AppCompatActivity {
     private Handler mHandler;
     private DataModel mDataModel;
     private IconCache mIconCache;
+    private BadgeStore mBadgeStore;
     private AppBarLayout mAppBarLayout;
     private Toolbar mToolbar;
     private ViewPager mViewPager;
@@ -59,7 +65,7 @@ public class ApplistActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
         SettingsUtils.applyColorTheme(this);
 
         super.onCreate(savedInstanceState);
@@ -68,6 +74,7 @@ public class ApplistActivity extends AppCompatActivity {
         mHandler = new Handler();
         mDataModel = DataModel.getInstance();
         mIconCache = new IconCache();
+        mBadgeStore = new BadgeStore(this, getPackageManager(), new BadgeUtils(this));
 
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -119,6 +126,15 @@ public class ApplistActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (SettingsUtils.getShowBadge(this)) {
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    mBadgeStore.updateBadgesFromLauncher();
+                    return null;
+                }
+            });
+        }
     }
 
     @Override
@@ -132,7 +148,7 @@ public class ApplistActivity extends AppCompatActivity {
             }
         }, 500);
 
-        EventBus.getDefault().registerSticky(this);
+        EventBus.getDefault().register(this);
 
         mPackageStateReceiver.onReceive(this, null);
     }
@@ -254,6 +270,7 @@ public class ApplistActivity extends AppCompatActivity {
                                 uri.getSchemeSpecificPart());
                     }
                     mDataModel.updateInstalledApps();
+                    mBadgeStore.cleanup();
                     return null;
                 }
             });
@@ -372,7 +389,8 @@ public class ApplistActivity extends AppCompatActivity {
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(DataModel.DataLoadedEvent event) {
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onDataLoadedEvent(DataModel.DataLoadedEvent event) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -382,7 +400,8 @@ public class ApplistActivity extends AppCompatActivity {
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(DataModel.PagesChangedEvent event) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPagesChangedEvent(DataModel.PagesChangedEvent event) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {

@@ -1,12 +1,14 @@
 package net.feheren_fekete.applist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 public class SettingsUtils {
+
     public static void applyColorTheme(Activity activity) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
         String colorThemeName = sharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, "Brown");
         switch (colorThemeName) {
             case "Black":
@@ -32,4 +34,10 @@ public class SettingsUtils {
                 break;
         }
     }
+
+    public static boolean getShowBadge(Context context) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        return sharedPref.getBoolean(SettingsActivity.PREF_KEY_SHOW_BADGE, false);
+    }
+
 }

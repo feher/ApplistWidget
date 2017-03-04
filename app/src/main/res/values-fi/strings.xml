@@ -38,4 +38,12 @@
     <string name="uncategorized_group">Muut</string>
     <string name="color_theme_default">@string/color_theme_black</string>
     <string name="default_page_name">Appit</string>
+    <string name="settings_badges">Viestimerkkejä</string>
+    <string name="settings_show_sms_badge">Lukematon tekstiviesti</string>
+    <string name="settings_show_phone_badge">Vastaamaton puhelu</string>
+    <string name="settings_show_badge">Uutta sisältöä</string>
+    <string name="settings_show_badge_summary">Näytä merkki uudesta sisällöstä (esim. Facebook)</string>
+    <string name="settings_show_phone_badge_summary">Näytä merkki vastaamattomasta puhelusta puhelinappin päällä</string>
+    <string name="settings_show_sms_badge_summary">Näytä merkki lukemattomista viestistä tekstiviestiappin päällä</string>
+    <string name="settings_show_phone_badge_select_default_app">Valitse oletuspuhelinappi</string>
 </resources>

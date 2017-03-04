@@ -18,18 +18,20 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.model.AppData;
+import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
-import net.feheren_fekete.applist.utils.RunnableWithArg;
-import net.feheren_fekete.applist.utils.RunnableWithRetArg;
+import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
+import net.feheren_fekete.applist.utils.*;
 import net.feheren_fekete.applist.viewmodel.AppItem;
 import net.feheren_fekete.applist.viewmodel.SectionItem;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
-import de.greenrobot.event.EventBus;
 
 public class ApplistFragment extends Fragment implements ApplistAdapter.ItemListener {
 
@@ -40,6 +42,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         void onChangeSectionOrderEnd();
     }
 
+    private BadgeStore mBadgeStore;
     private DataModel mDataModel;
     private RecyclerView mRecyclerView;
     private IconCache mIconCache;
@@ -69,7 +72,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
-        mLayoutManager = new GridLayoutManager(getContext(), 4);
+        final int columnSize = getResources().getDimensionPixelSize(R.dimen.appitem_width);
+        final int screenWidth = ScreenUtils.getScreenWidth(getContext());
+        final int columnCount = screenWidth / columnSize;
+        mLayoutManager = new GridLayoutManager(getContext(), columnCount);
         mLayoutManager.setSmoothScrollbarEnabled(true);
         mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -78,7 +84,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                     case ApplistAdapter.APP_ITEM_VIEW:
                         return 1;
                     case ApplistAdapter.SECTION_ITEM_VIEW:
-                        return 4;
+                        return columnCount;
                     default:
                         return -1;
                 }
@@ -88,8 +94,13 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
         mAdapter = new ApplistAdapter(
                 getContext(),
+                this,
                 getContext().getPackageManager(),
                 mDataModel,
+                new BadgeStore(
+                        getContext(),
+                        getContext().getPackageManager(),
+                        new BadgeUtils(getContext())),
                 getPageName(),
                 this,
                 mIconCache);
@@ -108,6 +119,10 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mBadgeStore = new BadgeStore(
+                getContext(),
+                getContext().getPackageManager(),
+                new BadgeUtils(getContext()));
     }
 
     @Override
@@ -229,8 +244,26 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        intent.setComponent(new ComponentName(appItem.getPackageName(), appItem.getComponentName()));
+        ComponentName appComponentName = new ComponentName(
+                appItem.getPackageName(), appItem.getComponentName());
+        intent.setComponent(appComponentName);
         getContext().startActivity(intent);
+
+        ComponentName smsAppComponentName = AppUtils.getSmsApp(getContext());
+        if (appComponentName.equals(smsAppComponentName)) {
+            mBadgeStore.setBadgeCount(
+                    smsAppComponentName.getPackageName(),
+                    smsAppComponentName.getClassName(),
+                    0);
+        }
+        ComponentName phoneAppComponentName = AppUtils.getPhoneApp(getContext());
+        if (appComponentName.equals(phoneAppComponentName)) {
+            mBadgeStore.setBadgeCount(
+                    phoneAppComponentName.getPackageName(),
+                    phoneAppComponentName.getClassName(),
+                    0);
+        }
+
         if (getActivity() != null) {
             getActivity().finish();
         }

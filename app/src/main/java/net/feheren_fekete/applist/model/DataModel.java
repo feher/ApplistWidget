@@ -9,7 +9,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.utils.AppUtils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +33,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import bolts.Task;
-import de.greenrobot.event.EventBus;
 
 // FIXME: Make th public methods synchronized? Can they be accesses from parallel threads?
 public class DataModel {
@@ -91,7 +92,7 @@ public class DataModel {
     }
 
     public void updateInstalledApps() {
-        List<AppData> installedApps = getInstalledApps();
+        List<AppData> installedApps = AppUtils.getInstalledApps(mPackageManager);
         synchronized (this) {
             mInstalledApps = installedApps;
             boolean isSectionChanged = false;
@@ -351,10 +352,6 @@ public class DataModel {
 
     private long createSectionId() {
         return String.valueOf(System.currentTimeMillis()).hashCode();
-    }
-
-    private long createAppId(String packageName, String componentName) {
-        return (packageName + componentName).hashCode();
     }
 
     private void storePages(String filePath) {
@@ -624,23 +621,6 @@ public class DataModel {
                 }
             }
         }
-    }
-
-    private List<AppData> getInstalledApps() {
-        List<AppData> installedApps = new ArrayList<>();
-        Intent intent = new Intent(Intent.ACTION_MAIN, null);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> installedAppInfos = mPackageManager.queryIntentActivities(intent, 0);
-        for (ResolveInfo resolveInfo : installedAppInfos) {
-            installedApps.add(new AppData(
-                    createAppId(
-                            resolveInfo.activityInfo.applicationInfo.packageName,
-                            resolveInfo.activityInfo.name),
-                    resolveInfo.activityInfo.applicationInfo.packageName,
-                    resolveInfo.activityInfo.name,
-                    resolveInfo.loadLabel(mPackageManager).toString()));
-        }
-        return installedApps;
     }
 
     private Runnable mStoreDataRunnable = new Runnable() {
