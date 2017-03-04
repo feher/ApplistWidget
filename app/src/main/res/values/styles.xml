@@ -5,7 +5,7 @@
         <item name="primaryColor">#555555</item>
         <item name="primaryDarkColor">#000000</item>
         <item name="primaryLightColor">#AAAAAA</item>
-        <item name="accentColor">#9E9E9E</item>
+        <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
@@ -23,7 +23,7 @@
         <item name="primaryColor">#795548</item>
         <item name="primaryDarkColor">#5D4037</item>
         <item name="primaryLightColor">#D7CCC8</item>
-        <item name="accentColor">#9E9E9E</item>
+        <item name="accentColor">#DD6600</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
@@ -41,7 +41,7 @@
         <item name="primaryColor">#607D8B</item>
         <item name="primaryDarkColor">#455A64</item>
         <item name="primaryLightColor">#CFD8DC</item>
-        <item name="accentColor">#9E9E9E</item>
+        <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#ECEFF1</item>
