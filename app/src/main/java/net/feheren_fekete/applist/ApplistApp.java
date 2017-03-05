@@ -11,7 +11,7 @@ public class ApplistApp extends MultiDexApplication {
 
     private static final String TAG = ApplistApp.class.getSimpleName();
 
-    private static int[] mThemeColors;
+    private static int[] mIconPlaceholderColors;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -25,17 +25,17 @@ public class ApplistApp extends MultiDexApplication {
 
         DataModel.initInstance(this, getPackageManager());
 
-        mThemeColors = new int[6];
-        mThemeColors[0] = 0xffcdbbbb;
-        mThemeColors[1] = 0xffc6c5b1;
-        mThemeColors[2] = 0xff9eb5a1;
-        mThemeColors[3] = 0xff8688a1;
-        mThemeColors[4] = 0xff957b98;
-        mThemeColors[5] = 0xff937577;
+        mIconPlaceholderColors = new int[6];
+        mIconPlaceholderColors[0] = 0xffcdbbbb;
+        mIconPlaceholderColors[1] = 0xffc6c5b1;
+        mIconPlaceholderColors[2] = 0xff9eb5a1;
+        mIconPlaceholderColors[3] = 0xff8688a1;
+        mIconPlaceholderColors[4] = 0xff957b98;
+        mIconPlaceholderColors[5] = 0xff937577;
     }
 
-    public int[] getThemeColors() {
-        return mThemeColors;
+    public int[] getIconPlaceholderColors() {
+        return mIconPlaceholderColors;
     }
 
 }
