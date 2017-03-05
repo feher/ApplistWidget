@@ -8,7 +8,7 @@
     <string name="dialog_move_to_section_title">Áthelyezés másik csoportba</string>
     <string name="menu_item_move_to_new_new_section">Új csoport…</string>
     <string name="ok">OK</string>
-    <string name="remove_section">Biztos, hogy törlöd ezt a csoportot?</string>
+    <string name="remove_section">Biztos, hogy törlöd a \"%1$s\" csoportot?</string>
     <string name="section_name">Csoport név</string>
     <string name="toast_change_section_position">Húzd át csoportokat a kívánt sorrendbe</string>
     <string name="toolbar_title">Apper</string>

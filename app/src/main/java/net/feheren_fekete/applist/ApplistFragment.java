@@ -459,7 +459,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         final String sectionName = sectionItem.getName();
         final String pageName = getPageName();
         ApplistDialogs.questionDialog(
-                getActivity(), R.string.remove_section,
+                getActivity(), getResources().getString(R.string.remove_section, sectionName),
                 new Runnable() {
                     @Override
                     public void run() {

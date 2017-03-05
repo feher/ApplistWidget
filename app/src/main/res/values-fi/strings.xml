@@ -10,7 +10,7 @@
     <string name="dialog_move_to_section_title">Siirrä toiseen ryhmään</string>
     <string name="menu_item_move_to_new_new_section">Uusi ryhmä…</string>
     <string name="ok">OK</string>
-    <string name="remove_section">Poistatko tämän ryhmän?</string>
+    <string name="remove_section">Poistatko \"%1$s\" ryhmän?</string>
     <string name="section_name">Ryhmän nimi</string>
     <string name="toast_change_section_position">Raahaa ja uudelleenjärjestä ryhmiä</string>
     <string name="toolbar_title">Apper</string>

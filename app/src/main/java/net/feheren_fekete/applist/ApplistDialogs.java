@@ -83,11 +83,11 @@ public class ApplistDialogs {
     }
 
     public static void questionDialog(Activity activity,
-                                      int textId,
+                                      String text,
                                       final Runnable onOk) {
         View dialogView = activity.getLayoutInflater().inflate(R.layout.remove_item_dialog, null);
         TextView textView = (TextView) dialogView.findViewById(R.id.text);
-        textView.setText(activity.getResources().getString(textId));
+        textView.setText(text);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder
                 .setView(dialogView)
