@@ -182,6 +182,19 @@ public class ApplistAdapter
         return result;
     }
 
+    public String getUncategorizedSectionName() {
+        String result = "";
+        for (BaseItem item : getItems()) {
+            if (item instanceof SectionItem) {
+                SectionItem sectionItem = (SectionItem) item;
+                if (!sectionItem.isRemovable()) {
+                    result = sectionItem.getName();
+                }
+            }
+        }
+        return result;
+    }
+
     public void setNameFilter(@Nullable String filterText) {
         mFilterName = filterText;
         mFilteredItems = filterItemsByName();

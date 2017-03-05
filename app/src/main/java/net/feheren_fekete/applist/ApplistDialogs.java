@@ -14,8 +14,6 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 import net.feheren_fekete.applist.utils.RunnableWithRetArg;
 
-import java.util.List;
-
 public class ApplistDialogs {
     public static void textInputDialog(Activity activity,
                                        int textId,
@@ -83,15 +81,14 @@ public class ApplistDialogs {
     }
 
     public static void questionDialog(Activity activity,
-                                      String text,
+                                      String title,
+                                      String message,
                                       final Runnable onOk) {
-        View dialogView = activity.getLayoutInflater().inflate(R.layout.remove_item_dialog, null);
-        TextView textView = (TextView) dialogView.findViewById(R.id.text);
-        textView.setText(text);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder
-                .setView(dialogView)
-                .setCancelable(false)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(true)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

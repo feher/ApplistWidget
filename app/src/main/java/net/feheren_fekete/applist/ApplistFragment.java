@@ -458,8 +458,11 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private void deleteSection(SectionItem sectionItem) {
         final String sectionName = sectionItem.getName();
         final String pageName = getPageName();
+        final String uncategorizedSectionName = mAdapter.getUncategorizedSectionName();
         ApplistDialogs.questionDialog(
-                getActivity(), getResources().getString(R.string.remove_section, sectionName),
+                getActivity(),
+                getResources().getString(R.string.remove_section_title),
+                getResources().getString(R.string.remove_section_message, sectionName, uncategorizedSectionName),
                 new Runnable() {
                     @Override
                     public void run() {

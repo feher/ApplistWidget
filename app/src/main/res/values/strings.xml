@@ -16,7 +16,8 @@
     <string name="default_page_name">Apps</string>
     <string name="uncategorized_group">Uncategorized</string>
 
-    <string name="remove_section">Are you sure you want\nto remove the \"%1$s\" group?</string>
+    <string name="remove_section_title">Remove group</string>
+    <string name="remove_section_message">Do you want to remove the \"%1$s\" group?\nThe contained apps will be moved to the \"%2$s\" group</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
