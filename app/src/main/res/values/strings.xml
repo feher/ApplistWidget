@@ -4,12 +4,10 @@
 
     <string name="action_search_app">Search app</string>
     <string name="action_create_section">New group</string>
-    <string name="action_create_page">New page</string>
     <string name="action_done">Done</string>
     <string name="action_settings">Settings</string>
 
     <string name="section_name">Group name</string>
-    <string name="page_name">Page name</string>
 
     <string name="menu_item_move_to_new_new_section">New group…</string>
 
@@ -18,19 +16,10 @@
     <string name="default_page_name">Apps</string>
     <string name="uncategorized_group">Uncategorized</string>
 
-    <string name="remove_page">Are you sure you want to\nremove this page?</string>
     <string name="remove_section">Are you sure you want\nto remove this group?</string>
-    <string name="uninstall_app">Are you sure you want to\nuninstall %1$s?</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-
-    <string name="page_menu_rename">Rename</string>
-    <string name="page_menu_delete">Delete</string>
-    <string-array name="page_menu">
-        <item>@string/page_menu_rename</item>
-        <item>@string/page_menu_delete</item>
-    </string-array>
 
     <string name="app_item_menu_move_to_section">Move to group</string>
     <string name="app_item_menu_information">Information</string>

@@ -8,14 +8,10 @@
     <string name="dialog_move_to_section_title">Áthelyezés másik csoportba</string>
     <string name="menu_item_move_to_new_new_section">Új csoport…</string>
     <string name="ok">OK</string>
-    <string name="page_name">Oldal név</string>
-    <string name="remove_page">Biztos, hogy törlöd ezt az oldalt?</string>
     <string name="remove_section">Biztos, hogy törlöd ezt a csoportot?</string>
     <string name="section_name">Csoport név</string>
     <string name="toast_change_section_position">Húzd át csoportokat a kívánt sorrendbe</string>
     <string name="toolbar_title">Apper</string>
-    <string name="uninstall_app">Biztos, hogy törlöd a \n%1$s-ot?</string>
-    <string name="action_create_page">Új oldal</string>
     <string name="action_create_section">Új csoport</string>
     <string name="action_done">Kész</string>
     <string name="color_theme_black">Fekete</string>
@@ -28,8 +24,6 @@
     <string name="app_item_menu_information">Információ</string>
     <string name="app_item_menu_move_to_section">Áthelyezés másik csoportba</string>
     <string name="app_item_menu_uninstall">Törlés</string>
-    <string name="page_menu_delete">Törölés</string>
-    <string name="page_menu_rename">Átnevezés</string>
     <string name="section_item_menu_change_position">Sorrendváltoztatás</string>
     <string name="section_item_menu_delete">Törlés</string>
     <string name="section_item_menu_rename">Átnevezés</string>

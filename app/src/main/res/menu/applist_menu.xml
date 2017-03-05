@@ -16,11 +16,6 @@
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_create_page"
-        android:title="@string/action_create_page"
-        app:showAsAction="never"/>
-
-    <item
         android:id="@+id/action_done"
         android:title="@string/action_done"
         app:showAsAction="always"/>
