@@ -1,0 +1,3 @@
+* Let user re-arange apps.
+* Add sticky notification to invoke Apper
+** show on lock screen?
