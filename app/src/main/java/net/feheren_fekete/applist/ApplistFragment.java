@@ -256,7 +256,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                     smsAppComponentName.getClassName(),
                     0);
         }
-        ComponentName phoneAppComponentName = AppUtils.getPhoneApp(getContext());
+        ComponentName phoneAppComponentName = AppUtils.getPhoneApp(getContext().getApplicationContext());
         if (appComponentName.equals(phoneAppComponentName)) {
             mBadgeStore.setBadgeCount(
                     phoneAppComponentName.getPackageName(),

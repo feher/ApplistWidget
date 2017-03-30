@@ -1,8 +1,10 @@
 package net.feheren_fekete.applist.utils;
 
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -15,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppUtils {
+
+    private static final String APPLIST_PREFERENCES = "ApplistPreferences";
+    private static final String PREFERENCE_PHONE_APP = "phoneApp";
 
     public static List<AppData> getInstalledApps(PackageManager packageManager) {
         List<AppData> installedApps = new ArrayList<>();
@@ -45,9 +50,12 @@ public class AppUtils {
     }
 
     @Nullable
-    public static ComponentName getPhoneApp(Context context) {
+    public static ComponentName getPhoneApp(Context appContext) {
+        SharedPreferences sharedPreferences = appContext.getSharedPreferences(
+                APPLIST_PREFERENCES, Context.MODE_PRIVATE);
+
         Intent phoneIntent = getPhoneIntent();
-        PackageManager packageManager = context.getPackageManager();
+        PackageManager packageManager = appContext.getPackageManager();
         ResolveInfo candidateResolveInfo = packageManager.resolveActivity(phoneIntent, PackageManager.MATCH_DEFAULT_ONLY);
         List<ResolveInfo> availableResolveInfos = packageManager.queryIntentActivities(phoneIntent, PackageManager.MATCH_DEFAULT_ONLY);
         boolean hasDefaultPhoneApp = false;
@@ -58,13 +66,31 @@ public class AppUtils {
                 break;
             }
         }
+
         if (hasDefaultPhoneApp) {
+            sharedPreferences.edit().remove(PREFERENCE_PHONE_APP).apply();
             return new ComponentName(
                     candidateResolveInfo.activityInfo.packageName,
                     candidateResolveInfo.activityInfo.name);
         } else {
-            return null;
+            String phoneAppComponentString = sharedPreferences.getString(PREFERENCE_PHONE_APP, "");
+            if (!phoneAppComponentString.isEmpty()) {
+                return ComponentName.unflattenFromString(phoneAppComponentString);
+            } else {
+                return null;
+            }
         }
+    }
+
+    public static void savePhoneApp(Context appContext, ComponentName componentName) {
+        SharedPreferences sharedPreferences = appContext.getSharedPreferences(
+                APPLIST_PREFERENCES, Context.MODE_PRIVATE);
+        sharedPreferences.edit().putString(PREFERENCE_PHONE_APP, componentName.flattenToString()).apply();
+    }
+
+    public static List<ResolveInfo> getAvailableAppsForIntent(Context context, Intent intent) {
+        PackageManager packageManager = context.getPackageManager();
+        return packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
     }
 
     public static Intent getPhoneIntent() {

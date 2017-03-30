@@ -3,9 +3,12 @@ package net.feheren_fekete.applist;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -16,9 +19,9 @@ import android.preference.SwitchPreference;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import net.feheren_fekete.applist.utils.AppUtils;
+import net.feheren_fekete.applist.utils.RunnableWithArg;
 
 
 public class SettingsActivity extends PreferenceActivity {
@@ -108,31 +111,51 @@ public class SettingsActivity extends PreferenceActivity {
                 }
             } else if (key.equals(PREF_KEY_SHOW_PHONE_BADGE)) {
                 if (getShowPhoneBadge()) {
-                    ensurePermission(Manifest.permission.READ_PHONE_STATE, PHONE_PERMISSION_REQUEST_CODE);
-                    ensureDefaultPhoneApp();
+                    if (ensurePermission(Manifest.permission.READ_PHONE_STATE, PHONE_PERMISSION_REQUEST_CODE)) {
+                        ensureDefaultPhoneApp();
+                    }
                 }
             }
         }
 
-        private void ensurePermission(String permission, int requestCode) {
+        private boolean ensurePermission(String permission, int requestCode) {
             Activity activity = getActivity();
             if (activity == null) {
-                return;
+                return false;
             }
             int permissionState = ActivityCompat.checkSelfPermission(activity, permission);
             if (permissionState != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity, new String[]{ permission }, requestCode);
+                return false;
             } else {
                 Log.d(TAG, "Already has permission " + permission);
+                return true;
             }
         }
 
-        private void ensureDefaultPhoneApp() {
-            if (AppUtils.getPhoneApp(getActivity()) == null) {
+        private boolean ensureDefaultPhoneApp() {
+            final Context appContext = getActivity().getApplicationContext();
+            if (AppUtils.getPhoneApp(appContext) == null) {
                 SwitchPreference showPhoneBadge = (SwitchPreference) findPreference(PREF_KEY_SHOW_PHONE_BADGE);
                 showPhoneBadge.setChecked(false);
-                Toast.makeText(getActivity(), R.string.settings_show_phone_badge_select_default_app, Toast.LENGTH_LONG).show();
-                getActivity().startActivity(AppUtils.getPhoneIntent());
+                ApplistDialogs.chooseAppDialog(
+                        getActivity(),
+                        getString(R.string.settings_show_phone_badge_select_default_app),
+                        AppUtils.getAvailableAppsForIntent(getActivity(), AppUtils.getPhoneIntent()),
+                        new RunnableWithArg<ResolveInfo>() {
+                            @Override
+                            public void run(ResolveInfo selectedPhoneApp) {
+                                ComponentName componentName = new ComponentName(
+                                        selectedPhoneApp.activityInfo.packageName,
+                                        selectedPhoneApp.activityInfo.name);
+                                AppUtils.savePhoneApp(appContext, componentName);
+                                SwitchPreference showPhoneBadge = (SwitchPreference) findPreference(PREF_KEY_SHOW_PHONE_BADGE);
+                                showPhoneBadge.setChecked(true);
+                            }
+                        });
+                return false;
+            } else {
+                return true;
             }
         }
 
@@ -151,11 +174,14 @@ public class SettingsActivity extends PreferenceActivity {
                     }
                     break;
                 case PHONE_PERMISSION_REQUEST_CODE:
+                    SwitchPreference showPhoneBadge = (SwitchPreference) findPreference(PREF_KEY_SHOW_PHONE_BADGE);
                     if (grantResults.length > 0
                             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         Log.d(TAG, "Phone permission granted");
+                        if (!ensureDefaultPhoneApp()) {
+                            showPhoneBadge.setChecked(false);
+                        }
                     } else {
-                        SwitchPreference showPhoneBadge = (SwitchPreference) findPreference(PREF_KEY_SHOW_PHONE_BADGE);
                         showPhoneBadge.setChecked(false);
                     }
                     break;
