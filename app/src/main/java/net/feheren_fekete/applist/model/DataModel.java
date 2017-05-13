@@ -453,15 +453,23 @@ public class DataModel {
         for (SectionData section : page.getSections()) {
             List<AppData> installedAppsInSection = new ArrayList<>();
             for (AppData app : section.getApps()) {
-                if (isInstalled(app)) {
-                    installedAppsInSection.add(app);
-                    uncategorizedApps.remove(app);
+                final int installedAppPos = mInstalledApps.indexOf(app);
+                final boolean isInstalled = (installedAppPos != -1);
+                if (isInstalled) {
+                    // The app name may have changed. E.g. The user changed the system
+                    // language.
+                    AppData installedApp = mInstalledApps.get(installedAppPos);
+                    if (!app.getAppName().equals(installedApp.getAppName())) {
+                        isSectionChanged = true;
+                    }
+                    installedAppsInSection.add(installedApp);
+                    uncategorizedApps.remove(installedApp);
                 }
             }
             if (section.getApps().size() != installedAppsInSection.size()) {
-                section.setApps(installedAppsInSection);
                 isSectionChanged = true;
             }
+            section.setApps(installedAppsInSection);
         }
 
         SectionData uncategorizedSection = page.getSectionByRemovable(false);
@@ -472,10 +480,6 @@ public class DataModel {
         }
 
         return isSectionChanged;
-    }
-
-    private boolean isInstalled(AppData app) {
-        return mInstalledApps.contains(app);
     }
 
     private List<PageData> loadPages(String filePath) {

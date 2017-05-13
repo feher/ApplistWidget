@@ -32,6 +32,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
@@ -48,6 +49,7 @@ public class ApplistActivity extends AppCompatActivity {
     private DataModel mDataModel;
     private IconCache mIconCache;
     private BadgeStore mBadgeStore;
+    private ApplistPreferences mApplistPreferences;
     private AppBarLayout mAppBarLayout;
     private Toolbar mToolbar;
     private Menu mMenu;
@@ -65,6 +67,7 @@ public class ApplistActivity extends AppCompatActivity {
         mDataModel = DataModel.getInstance();
         mIconCache = new IconCache();
         mBadgeStore = new BadgeStore(this, getPackageManager(), new BadgeUtils(this));
+        mApplistPreferences = new ApplistPreferences(this);
 
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -82,7 +85,7 @@ public class ApplistActivity extends AppCompatActivity {
         intentFilter.addDataScheme("package");
         registerReceiver(mPackageStateReceiver, intentFilter);
 
-        loadData();
+        loadAndUpdateData();
     }
 
     @Override
@@ -92,7 +95,7 @@ public class ApplistActivity extends AppCompatActivity {
             finish();
             startActivity(intent);
         } else {
-            loadData();
+            loadAndUpdateData();
         }
     }
 
@@ -115,6 +118,13 @@ public class ApplistActivity extends AppCompatActivity {
         super.onResume();
         EventBus.getDefault().register(this);
         mPackageStateReceiver.onReceive(this, null);
+
+        String currentDeviceLocale = Locale.getDefault().toString();
+        String savedDeviceLocale = mApplistPreferences.getDeviceLocale();
+        if (!currentDeviceLocale.equals(savedDeviceLocale)) {
+            mApplistPreferences.setDeviceLocale(currentDeviceLocale);
+            updateData();
+        }
     }
 
     @Override
@@ -344,7 +354,7 @@ public class ApplistActivity extends AppCompatActivity {
         });
     }
 
-    private void loadData() {
+    private void loadAndUpdateData() {
         final DataModel dataModel = DataModel.getInstance();
         Task.callInBackground(new Callable<Void>() {
             @Override
@@ -358,18 +368,23 @@ public class ApplistActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Task.callInBackground(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                dataModel.updateInstalledApps();
-                                return null;
-                            }
-                        });
+                        updateData();
                     }
                 }, 1000);
                 return null;
             }
         }, Task.UI_THREAD_EXECUTOR);
+    }
+
+    private void updateData() {
+        final DataModel dataModel = DataModel.getInstance();
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                dataModel.updateInstalledApps();
+                return null;
+            }
+        });
     }
 
     private void loadApplistFragment() {
