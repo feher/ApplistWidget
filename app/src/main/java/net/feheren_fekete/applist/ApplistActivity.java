@@ -174,18 +174,18 @@ public class ApplistActivity extends AppCompatActivity {
         }
         if (isChangingOrder) {
             menu.findItem(R.id.action_search_app).setVisible(false);
-            menu.findItem(R.id.action_create_section).setVisible(false);
-            menu.findItem(R.id.action_done).setVisible(true);
+            menu.findItem(R.id.action_edit_page).setVisible(false);
+            menu.findItem(R.id.action_create_section).setVisible(true);
             menu.findItem(R.id.action_settings).setVisible(false);
         } else if (isFilteredByName) {
             menu.findItem(R.id.action_search_app).setVisible(true);
+            menu.findItem(R.id.action_edit_page).setVisible(false);
             menu.findItem(R.id.action_create_section).setVisible(false);
-            menu.findItem(R.id.action_done).setVisible(false);
             menu.findItem(R.id.action_settings).setVisible(false);
         } else {
             menu.findItem(R.id.action_search_app).setVisible(true);
-            menu.findItem(R.id.action_create_section).setVisible(true);
-            menu.findItem(R.id.action_done).setVisible(false);
+            menu.findItem(R.id.action_edit_page).setVisible(true);
+            menu.findItem(R.id.action_create_section).setVisible(false);
             menu.findItem(R.id.action_settings).setVisible(true);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -286,33 +286,44 @@ public class ApplistActivity extends AppCompatActivity {
 
     private ApplistFragment.Listener mFragmentListener = new ApplistFragment.Listener() {
         @Override
-        public void onChangeSectionOrderStart() {
+        public void onChangeItemOrderStart() {
             mAppBarLayout.setExpanded(true);
             mToolbar.setOnClickListener(null);
             mToolbar.setTitle("");
-            mToolbar.setNavigationIcon(R.drawable.ic_close);
+            mToolbar.setNavigationIcon(R.drawable.ic_done);
             mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ApplistFragment fragment = getApplistFragment();
                     if (fragment != null) {
-                        fragment.cancelChangingOrder();
+                        fragment.finishChangingOrder();
                     }
                 }
             });
+
+            // Make the toolbar always visible. Don't scroll it out.
+            AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+            params.setScrollFlags(0);
+
             Toast toast = Toast.makeText(
                     ApplistActivity.this,
-                    R.string.toast_change_section_position,
+                    R.string.toast_change_item_positions,
                     Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
         }
         @Override
-        public void onChangeSectionOrderEnd() {
+        public void onChangeItemOrderEnd() {
             mToolbar.setOnClickListener(mToolbarClickListener);
             mToolbar.setTitle(R.string.toolbar_title);
             mToolbar.setNavigationIcon(null);
             mToolbar.setNavigationOnClickListener(null);
+
+            AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+            params.setScrollFlags(
+                    AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+                    | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+                    | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
         }
     };
 
@@ -354,26 +365,15 @@ public class ApplistActivity extends AppCompatActivity {
         });
     }
 
-    private void loadAndUpdateData() {
+    private Task<Void> loadData() {
         final DataModel dataModel = DataModel.getInstance();
-        Task.callInBackground(new Callable<Void>() {
+        return Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 dataModel.loadData();
                 return null;
             }
-        }).continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateData();
-                    }
-                }, 1000);
-                return null;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
+        });
     }
 
     private void updateData() {
@@ -385,6 +385,21 @@ public class ApplistActivity extends AppCompatActivity {
                 return null;
             }
         });
+    }
+
+    private void loadAndUpdateData() {
+        loadData().continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateData();
+                    }
+                }, 1000);
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
     }
 
     private void loadApplistFragment() {

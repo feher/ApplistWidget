@@ -43,8 +43,7 @@ import bolts.Task;
 
 
 public class ApplistAdapter
-        extends RecyclerView.Adapter<ApplistAdapter.ViewHolderBase>
-        implements ApplistItemTouchHelperCallback.OnMoveListener {
+        extends RecyclerView.Adapter<ApplistAdapter.ViewHolderBase> {
 
     private static final String TAG = ApplistAdapter.class.getSimpleName();
 
@@ -64,9 +63,7 @@ public class ApplistAdapter
     private @Nullable Class mFilterType;
     private @Nullable List<BaseItem> mFilteredItems;
     private boolean mIsChangingOrder;
-    private boolean mIsItemMoved;
     private ItemListener mItemListener;
-    private ItemTouchHelper mItemTouchHelper;
     private IconCache mIconCache;
     private int[] mIconPlaceholderColors;
     private int mNextPlaceholderColor;
@@ -74,8 +71,10 @@ public class ApplistAdapter
     public interface ItemListener {
         void onAppTapped(AppItem appItem);
         void onAppLongTapped(AppItem appItem);
+        void onAppTouched(AppItem appItem);
         void onSectionTapped(SectionItem sectionItem);
         void onSectionLongTapped(SectionItem sectionItem);
+        void onSectionTouched(SectionItem sectionItem);
     }
 
     public static class ViewHolderBase extends RecyclerView.ViewHolder {
@@ -157,10 +156,6 @@ public class ApplistAdapter
         } else if (holder instanceof SectionItemHolder) {
             bindSectionItemHolder((SectionItemHolder) holder, position);
         }
-    }
-
-    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper) {
-        mItemTouchHelper = itemTouchHelper;
     }
 
     public void setChangingOrder(boolean changing) {
@@ -278,8 +273,13 @@ public class ApplistAdapter
         }, Task.UI_THREAD_EXECUTOR);
     }
 
-    @Override
-    public void onItemMove(int fromPosition, int toPosition) {
+    public boolean moveItem(int fromPosition, int toPosition) {
+        BaseItem movedItem = getItems().get(fromPosition);
+        if (movedItem instanceof AppItem && toPosition == 0) {
+            // Cannot move app above the first section header.
+            return false;
+        }
+
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(getItems(), i, i + 1);
@@ -290,22 +290,45 @@ public class ApplistAdapter
             }
         }
         notifyItemMoved(fromPosition, toPosition);
-        mIsItemMoved = true;
-    }
 
-    @Override
-    public void onItemMoveEnd() {
-//        if (mIsItemMoved) {
-//            mIsItemMoved = false;
-//            final PageData pageData = ViewModelUtils.viewToModel(mPageName, getItems());
-//            Task.callInBackground(new Callable<Void>() {
-//                @Override
-//                public Void call() throws Exception {
-//                    mModel.setPage(pageData);
-//                    return null;
-//                }
-//            });
-//        }
+        // Move sections with all their apps.
+        if (movedItem instanceof SectionItem) {
+            List<BaseItem> sectionAndApps = new ArrayList<>();
+            for (BaseItem item : mAllItems) {
+                if (item instanceof SectionItem
+                        && item.getId() == movedItem.getId()) {
+                    sectionAndApps.add(item);
+                }
+                if (item instanceof AppItem
+                        && !sectionAndApps.isEmpty()) {
+                    sectionAndApps.add(item);
+                }
+                if (item instanceof SectionItem
+                        && !sectionAndApps.isEmpty()
+                        && item.getId() != movedItem.getId()) {
+                    break;
+                }
+            }
+            mAllItems.removeAll(sectionAndApps);
+
+            int itemCount = 0;
+            int sectionCount = 0;
+            for (BaseItem item : mAllItems) {
+                ++itemCount;
+                if (item instanceof SectionItem) {
+                    ++sectionCount;
+                }
+                if (sectionCount == toPosition + 1) {
+                    --itemCount;
+                    break;
+                }
+            }
+            mAllItems.addAll(itemCount, sectionAndApps);
+
+            mCollapsedItems = getCollapsedItems();
+        }
+
+        return true;
     }
 
     @SuppressWarnings("unused")
@@ -330,7 +353,7 @@ public class ApplistAdapter
         });
     }
 
-    private List<BaseItem> getItems() {
+    public List<BaseItem> getItems() {
         if (mFilteredItems != null) {
             return mFilteredItems;
         }
@@ -445,6 +468,16 @@ public class ApplistAdapter
                 return true;
             }
         });
+
+        holder.layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                    mItemListener.onAppTouched(item);
+                }
+                return false;
+            }
+        });
     }
 
     private void bindSectionItemHolder(final SectionItemHolder holder, int position) {
@@ -472,9 +505,8 @@ public class ApplistAdapter
         holder.layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN
-                        && mIsChangingOrder) {
-                    mItemTouchHelper.startDrag(holder);
+                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                    mItemListener.onSectionTouched(item);
                 }
                 return false;
             }

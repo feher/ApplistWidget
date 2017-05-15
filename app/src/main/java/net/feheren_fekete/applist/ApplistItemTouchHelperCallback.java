@@ -6,8 +6,9 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     public interface OnMoveListener {
-        void onItemMove(int fromPosition, int toPosition);
-        void onItemMoveEnd();
+        void onItemMoveStart(RecyclerView.ViewHolder viewHolder);
+        boolean onItemMove(RecyclerView.ViewHolder fromViewHolder, RecyclerView.ViewHolder targetViewHolder);
+        void onItemMoveEnd(RecyclerView.ViewHolder viewHolder);
     }
 
     private final OnMoveListener mOnMoveListener;
@@ -35,11 +36,18 @@ public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     @Override
+    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+        super.onSelectedChanged(viewHolder, actionState);
+        if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+            mOnMoveListener.onItemMoveStart(viewHolder);
+        }
+    }
+
+    @Override
     public boolean onMove(RecyclerView recyclerView,
                           RecyclerView.ViewHolder viewHolder,
                           RecyclerView.ViewHolder target) {
-        mOnMoveListener.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
-        return true;
+        return mOnMoveListener.onItemMove(viewHolder, target);
     }
 
     @Override
@@ -49,6 +57,6 @@ public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         super.clearView(recyclerView, viewHolder);
-        mOnMoveListener.onItemMoveEnd();
+        mOnMoveListener.onItemMoveEnd(viewHolder);
     }
 }

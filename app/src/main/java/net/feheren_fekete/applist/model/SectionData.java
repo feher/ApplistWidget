@@ -1,6 +1,5 @@
 package net.feheren_fekete.applist.model;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -52,17 +51,14 @@ public class SectionData extends BaseData {
 
     public void setApps(List<AppData> apps) {
         mApps = apps;
-        Collections.sort(mApps, new AppData.NameComparator());
     }
 
-    public void addApps(List<AppData> apps) {
-        mApps.addAll(apps);
-        Collections.sort(mApps, new AppData.NameComparator());
+    public void addApps(int index, List<AppData> apps) {
+        mApps.addAll(index, apps);
     }
 
     public void addApp(AppData app) {
         mApps.add(app);
-        Collections.sort(mApps, new AppData.NameComparator());
     }
 
     public boolean hasApp(AppData app) {

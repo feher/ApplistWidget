@@ -4,12 +4,13 @@
 
     <string name="action_search_app">Search app</string>
     <string name="action_create_section">New group</string>
+    <string name="action_edit_page">Edit</string>
     <string name="action_done">Done</string>
     <string name="action_settings">Settings</string>
 
     <string name="section_name">Group name</string>
 
-    <string name="menu_item_move_to_new_new_section">New group…</string>
+    <string name="menu_item_move_to_new_section">New group…</string>
 
     <string name="dialog_error_section_exists">This group already exists</string>
 
@@ -22,31 +23,25 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 
-    <string name="app_item_menu_move_to_section">Move to group</string>
     <string name="app_item_menu_information">Information</string>
     <string name="app_item_menu_uninstall">Uninstall</string>
     <string-array name="app_item_menu">
-        <item>@string/app_item_menu_move_to_section</item>
         <item>@string/app_item_menu_information</item>
         <item>@string/app_item_menu_uninstall</item>
     </string-array>
 
-    <string name="section_item_menu_change_position">Change position</string>
     <string name="section_item_menu_rename">Rename</string>
     <string name="section_item_menu_delete">Delete</string>
     <string-array name="section_item_menu">
-        <item>@string/section_item_menu_change_position</item>
         <item>@string/section_item_menu_rename</item>
         <item>@string/section_item_menu_delete</item>
     </string-array>
 
     <string-array name="section_item_menu_readonly">
-        <item>@string/section_item_menu_change_position</item>
         <item>@string/section_item_menu_rename</item>
     </string-array>
 
-    <string name="dialog_move_to_section_title">Move to group</string>
-    <string name="toast_change_section_position">Drag and drop groups\nto change position</string>
+    <string name="toast_change_item_positions">Drag and drop items\nto change position</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_color_theme">Color theme</string>

@@ -7,11 +7,10 @@
     <string name="action_settings">Asetukset</string>
     <string name="cancel">Peruuta</string>
     <string name="dialog_error_section_exists">Ryhmä on jo olemassa</string>
-    <string name="dialog_move_to_section_title">Siirrä toiseen ryhmään</string>
-    <string name="menu_item_move_to_new_new_section">Uusi ryhmä…</string>
+    <string name="menu_item_move_to_new_section">Uusi ryhmä…</string>
     <string name="ok">OK</string>
     <string name="section_name">Ryhmän nimi</string>
-    <string name="toast_change_section_position">Raahaa ja uudelleenjärjestä ryhmiä</string>
+    <string name="toast_change_item_positions">Raahaa ja uudelleenjärjestä</string>
     <string name="toolbar_title">Apper</string>
     <string name="color_theme_black">Musta</string>
     <string name="color_theme_blue_grey">Harmaan sininen</string>
@@ -21,9 +20,7 @@
     <string name="color_theme_indigo">Indigo</string>
     <string name="color_theme_red">Punainen</string>
     <string name="app_item_menu_information">Tiedot</string>
-    <string name="app_item_menu_move_to_section">Siirrä toiseen ryhmään</string>
     <string name="app_item_menu_uninstall">Poista</string>
-    <string name="section_item_menu_change_position">Vaihda järjestystä</string>
     <string name="section_item_menu_delete">Poista</string>
     <string name="section_item_menu_rename">Nimeä uudelleen</string>
     <string name="settings_appearance">Ulkonäkö</string>
@@ -41,4 +38,5 @@
     <string name="settings_show_phone_badge_select_default_app">Valitse oletuspuhelinappi</string>
     <string name="remove_section_message">Poistatko \"%1$s\" ryhmän?\n\nSisältävät appit siirretään \"%2$s\" ryhmiin.</string>
     <string name="remove_section_title">Poista ryhmä</string>
+    <string name="action_edit_page">Järjestä</string>
 </resources>

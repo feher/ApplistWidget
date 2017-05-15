@@ -1,9 +1,7 @@
 package net.feheren_fekete.applist.model;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -27,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -130,6 +127,21 @@ public class DataModel {
                 }
             }
             return null;
+        }
+    }
+
+    public void setPage(String pageName, PageData newPage) {
+        synchronized (this) {
+            for (PageData page : mPages) {
+                if (page.getName().equals(pageName)) {
+                    // We don't change the page ID.
+                    page.setName(newPage.getName());
+                    page.setSections(newPage.getSections());
+                    EventBus.getDefault().post(new SectionsChangedEvent());
+                    scheduleStoreData();
+                    return;
+                }
+            }
         }
     }
 
@@ -431,12 +443,7 @@ public class DataModel {
             }
         }
 
-        Collections.sort(uncategorizedApps, new Comparator<AppData>() {
-            @Override
-            public int compare(AppData lhs, AppData rhs) {
-                return lhs.getAppName().compareToIgnoreCase(rhs.getAppName());
-            }
-        });
+        Collections.sort(uncategorizedApps, new AppData.NameComparator());
 
         SectionData uncategorizedSection = new SectionData(
                 createSectionId(), mUncategorizedSectionName, uncategorizedApps, false, false);
@@ -449,36 +456,48 @@ public class DataModel {
         }
 
         boolean isSectionChanged = false;
-        List<AppData> uncategorizedApps = new ArrayList<>(mInstalledApps);
+        ArrayList<AppData> uncategorizedApps = new ArrayList<>(mInstalledApps);
+        SectionData uncategorizedSection = page.getSectionByRemovable(false);
         for (SectionData section : page.getSections()) {
-            List<AppData> installedAppsInSection = new ArrayList<>();
-            for (AppData app : section.getApps()) {
-                final int installedAppPos = mInstalledApps.indexOf(app);
-                final boolean isInstalled = (installedAppPos != -1);
-                if (isInstalled) {
-                    // The app name may have changed. E.g. The user changed the system
-                    // language.
-                    AppData installedApp = mInstalledApps.get(installedAppPos);
-                    if (!app.getAppName().equals(installedApp.getAppName())) {
-                        isSectionChanged = true;
-                    }
-                    installedAppsInSection.add(installedApp);
-                    uncategorizedApps.remove(installedApp);
-                }
+            if (section != uncategorizedSection) {
+                isSectionChanged |= updateSection(section, uncategorizedApps);
+                uncategorizedApps.removeAll(section.getApps());
             }
-            if (section.getApps().size() != installedAppsInSection.size()) {
+        }
+
+        if (uncategorizedSection != null) {
+            isSectionChanged |= updateSection(uncategorizedSection, uncategorizedApps);
+            uncategorizedApps.removeAll(uncategorizedSection.getApps());
+            if (!uncategorizedApps.isEmpty()) {
+                Collections.sort(uncategorizedApps, new AppData.NameComparator());
+                uncategorizedSection.addApps(0, uncategorizedApps);
                 isSectionChanged = true;
             }
-            section.setApps(installedAppsInSection);
         }
 
-        SectionData uncategorizedSection = page.getSectionByRemovable(false);
-        if (uncategorizedSection != null) {
-            uncategorizedSection.addApps(uncategorizedApps);
-            // TODO: Compare the old and new uncategorized section app-by-app.
+        return isSectionChanged;
+    }
+
+    private boolean updateSection(SectionData sectionData, List<AppData> availableApps) {
+        boolean isSectionChanged = false;
+        List<AppData> availableAppsInSection = new ArrayList<>();
+        for (AppData app : sectionData.getApps()) {
+            final int availableAppPos = availableApps.indexOf(app);
+            final boolean isAvailable = (availableAppPos != -1);
+            if (isAvailable) {
+                // The app name may have changed. E.g. The user changed the system
+                // language.
+                AppData installedApp = availableApps.get(availableAppPos);
+                if (!app.getAppName().equals(installedApp.getAppName())) {
+                    isSectionChanged = true;
+                }
+                availableAppsInSection.add(installedApp);
+            }
+        }
+        if (sectionData.getApps().size() != availableAppsInSection.size()) {
             isSectionChanged = true;
         }
-
+        sectionData.setApps(availableAppsInSection);
         return isSectionChanged;
     }
 

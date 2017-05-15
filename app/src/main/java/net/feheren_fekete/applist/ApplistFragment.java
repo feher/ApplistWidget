@@ -3,6 +3,7 @@ package net.feheren_fekete.applist;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,10 +21,13 @@ import android.view.ViewGroup;
 import net.feheren_fekete.applist.model.AppData;
 import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.model.PageData;
 import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.*;
 import net.feheren_fekete.applist.viewmodel.AppItem;
+import net.feheren_fekete.applist.viewmodel.BaseItem;
 import net.feheren_fekete.applist.viewmodel.SectionItem;
+import net.feheren_fekete.applist.viewmodel.ViewModelUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -33,13 +37,14 @@ import java.util.concurrent.Callable;
 import bolts.Continuation;
 import bolts.Task;
 
-public class ApplistFragment extends Fragment implements ApplistAdapter.ItemListener {
+public class ApplistFragment extends Fragment
+        implements ApplistAdapter.ItemListener, ApplistItemTouchHelperCallback.OnMoveListener {
 
     private static final String TAG = ApplistFragment.class.getSimpleName();
 
     public interface Listener {
-        void onChangeSectionOrderStart();
-        void onChangeSectionOrderEnd();
+        void onChangeItemOrderStart();
+        void onChangeItemOrderEnd();
     }
 
     private BadgeStore mBadgeStore;
@@ -50,6 +55,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     private GridLayoutManager mLayoutManager;
     private ItemTouchHelper mTouchHelper;
     private @Nullable Listener mListener;
+    private Handler mHandler = new Handler();
 
     public static ApplistFragment newInstance(String pageName,
                                               DataModel dataModel,
@@ -107,11 +113,9 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.loadAllItems();
 
-        ItemTouchHelper.Callback callback =
-                new ApplistItemTouchHelperCallback(mAdapter);
+        ItemTouchHelper.Callback callback = new ApplistItemTouchHelperCallback(this);
         mTouchHelper = new ItemTouchHelper(callback);
         mTouchHelper.attachToRecyclerView(mRecyclerView);
-        mAdapter.setItemTouchHelper(mTouchHelper);
 
         return view;
     }
@@ -151,7 +155,7 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     public void onStop() {
         super.onStop();
         if (mAdapter.isChangingOrder()) {
-            cancelChangingOrder();
+            finishChangingOrder();
         }
         if (mAdapter.isFilteredByName()) {
             deactivateNameFilter();
@@ -202,8 +206,8 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     public boolean handleMenuItem(int itemId) {
         boolean isHandled = false;
         switch (itemId) {
-            case R.id.action_done:
-                finishChangingOrder();
+            case R.id.action_edit_page:
+                changeItemOrder();
                 isHandled = true;
                 break;
             case R.id.action_create_section:
@@ -216,30 +220,38 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
 
     @Override
     public void onAppLongTapped(final AppItem appItem) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setTitle(appItem.getName());
-        alertDialogBuilder.setItems(R.array.app_item_menu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        moveAppToSection(appItem);
-                        break;
-                    case 1:
-                        showAppInfo(appItem);
-                        break;
-                    case 2:
-                        uninstallApp(appItem);
-                        break;
+        if (mAdapter.isChangingOrder()) {
+            ApplistAdapter.AppItemHolder appItemHolder =
+                    (ApplistAdapter.AppItemHolder) mRecyclerView.findViewHolderForItemId(
+                            appItem.getId());
+            mTouchHelper.startDrag(appItemHolder);
+        } else {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+            alertDialogBuilder.setTitle(appItem.getName());
+            alertDialogBuilder.setItems(R.array.app_item_menu, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                        case 0:
+                            showAppInfo(appItem);
+                            break;
+                        case 1:
+                            uninstallApp(appItem);
+                            break;
+                    }
                 }
-            }
-        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+            });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+        }
     }
 
     @Override
     public void onAppTapped(AppItem appItem) {
+        if (mAdapter.isChangingOrder()) {
+            return;
+        }
+
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -270,47 +282,58 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
     }
 
     @Override
+    public void onAppTouched(final AppItem appItem) {
+    }
+
+    @Override
     public void onSectionLongTapped(final SectionItem sectionItem) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setTitle(sectionItem.getName());
-        if (sectionItem.isRemovable()) {
-            alertDialogBuilder.setItems(
-                    R.array.section_item_menu,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case 0:
-                                    changeSectionOrder();
-                                    break;
-                                case 1:
-                                    renameSection(sectionItem);
-                                    break;
-                                case 2:
-                                    deleteSection(sectionItem);
-                                    break;
-                            }
-                        }
-                    });
+        if (mAdapter.isChangingOrder()) {
+            mAdapter.setTypeFilter(SectionItem.class);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    ApplistAdapter.SectionItemHolder sectionItemHolder =
+                            (ApplistAdapter.SectionItemHolder) mRecyclerView.findViewHolderForItemId(
+                                    sectionItem.getId());
+                    mTouchHelper.startDrag(sectionItemHolder);
+                }
+            });
         } else {
-            alertDialogBuilder.setItems(
-                    R.array.section_item_menu_readonly,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case 0:
-                                    changeSectionOrder();
-                                    break;
-                                case 1:
-                                    renameSection(sectionItem);
-                                    break;
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+            alertDialogBuilder.setTitle(sectionItem.getName());
+            if (sectionItem.isRemovable()) {
+                alertDialogBuilder.setItems(
+                        R.array.section_item_menu,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case 0:
+                                        renameSection(sectionItem);
+                                        break;
+                                    case 1:
+                                        deleteSection(sectionItem);
+                                        break;
+                                }
                             }
-                        }
-                    });
+                        });
+            } else {
+                alertDialogBuilder.setItems(
+                        R.array.section_item_menu_readonly,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case 0:
+                                        renameSection(sectionItem);
+                                        break;
+                                }
+                            }
+                        });
+            }
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
         }
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
     }
 
     @Override
@@ -353,60 +376,61 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
         }
     }
 
+    @Override
+    public void onSectionTouched(final SectionItem sectionItem) {
+    }
+
+    @Override
+    public void onItemMoveStart(RecyclerView.ViewHolder viewHolder) {
+        if (viewHolder instanceof ApplistAdapter.AppItemHolder) {
+            ApplistAdapter.AppItemHolder appItemHolder = (ApplistAdapter.AppItemHolder) viewHolder;
+            appItemHolder.appIcon.animate().scaleX(1.2f).scaleY(1.2f).setDuration(150).start();
+            appItemHolder.appName.setVisibility(View.GONE);
+        } else if (viewHolder instanceof ApplistAdapter.SectionItemHolder) {
+            ApplistAdapter.SectionItemHolder sectionItemHolder = (ApplistAdapter.SectionItemHolder) viewHolder;
+            sectionItemHolder.sectionName.setTypeface(null, Typeface.BOLD);
+        }
+    }
+
+    @Override
+    public boolean onItemMove(RecyclerView.ViewHolder fromViewHolder, RecyclerView.ViewHolder targetViewHolder) {
+        return mAdapter.moveItem(fromViewHolder.getAdapterPosition(), targetViewHolder.getAdapterPosition());
+    }
+
+    @Override
+    public void onItemMoveEnd(RecyclerView.ViewHolder viewHolder) {
+        if (viewHolder instanceof ApplistAdapter.AppItemHolder) {
+            ApplistAdapter.AppItemHolder appItemHolder = (ApplistAdapter.AppItemHolder) viewHolder;
+            appItemHolder.appIcon.animate().scaleX(1.0f).scaleY(1.0f).setDuration(150).start();
+            appItemHolder.appName.setVisibility(View.VISIBLE);
+        } else if (viewHolder instanceof ApplistAdapter.SectionItemHolder) {
+            ApplistAdapter.SectionItemHolder sectionItemHolder = (ApplistAdapter.SectionItemHolder) viewHolder;
+            sectionItemHolder.sectionName.setTypeface(null, Typeface.NORMAL);
+            mAdapter.setTypeFilter(null);
+        }
+        setPageToModel();
+    }
+
+    public void finishChangingOrder() {
+        if (!mAdapter.isChangingOrder()) {
+            return;
+        }
+
+        mAdapter.setChangingOrder(false);
+        mAdapter.setTypeFilter(null);
+        getActivity().invalidateOptionsMenu();
+
+        if (mListener != null) {
+            mListener.onChangeItemOrderEnd();
+        }
+    }
+
     private void setDataModel(DataModel dataModel) {
         mDataModel = dataModel;
     }
 
     private void setIconCache(IconCache iconCache) {
         mIconCache = iconCache;
-    }
-
-    private void moveAppToSection(final AppItem appItem) {
-        final String pageName = getPageName();
-        Task.callInBackground(new Callable<List<String>>() {
-            @Override
-            public List<String> call() throws Exception {
-                return mDataModel.getSectionNames(pageName);
-            }
-        }).continueWith(new Continuation<List<String>, Void>() {
-            @Override
-            public Void then(Task<List<String>> task) throws Exception {
-                chooseSectionAndMoveApp(task.getResult(), appItem);
-                return null;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
-    }
-
-    private void chooseSectionAndMoveApp(final List<String> sectionNames,
-                                         final AppItem appItem) {
-        final int newSectionIndex = sectionNames.size();
-        sectionNames.add(getResources().getString(R.string.menu_item_move_to_new_new_section));
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        String[] sections = new String[sectionNames.size()];
-        sectionNames.toArray(sections);
-        alertDialogBuilder.setTitle(R.string.dialog_move_to_section_title);
-        alertDialogBuilder.setItems(sections, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, final int index) {
-                if (index == newSectionIndex) {
-                    createSection(appItem);
-                } else {
-                    final String pageName = getPageName();
-                    final String sectionName = sectionNames.get(index);
-                    Task.callInBackground(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            AppData appData = new AppData(appItem);
-                            mDataModel.moveAppToSection(pageName, sectionName, appData);
-                            return null;
-                        }
-                    });
-                }
-            }
-        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
     }
 
     private void showAppInfo(AppItem appItem) {
@@ -496,7 +520,6 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                     @Override
                     public void run(final String sectionName) {
                         if (!sectionName.isEmpty()) {
-                            mAdapter.getSectionNames();
                             Task.callInBackground(new Callable<Void>() {
                                 @Override
                                 public Void call() throws Exception {
@@ -514,55 +537,29 @@ public class ApplistFragment extends Fragment implements ApplistAdapter.ItemList
                 });
     }
 
-    private void changeSectionOrder() {
+    private void changeItemOrder() {
         if (mAdapter.isChangingOrder() || mAdapter.isFilteredByName()) {
             return;
         }
 
-        mAdapter.setTypeFilter(SectionItem.class);
         mAdapter.setChangingOrder(true);
         getActivity().invalidateOptionsMenu();
         if (mListener != null) {
-            mListener.onChangeSectionOrderStart();
+            mListener.onChangeItemOrderStart();
         }
     }
 
-    private void finishChangingOrder() {
-        if (!mAdapter.isChangingOrder()) {
-            return;
-        }
-
+    private void setPageToModel() {
         final String pageName = getPageName();
-        final List<String> sectionNames = mAdapter.getSectionNames();
-        mAdapter.setChangingOrder(false);
-        mAdapter.setTypeFilter(null);
-        getActivity().invalidateOptionsMenu();
-
+        final List<BaseItem> items = mAdapter.getItems();
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mDataModel.setSectionOrder(pageName, sectionNames, true);
+                PageData pageData = ViewModelUtils.viewToModel(DataModel.INVALID_ID, pageName, items);
+                mDataModel.setPage(pageName, pageData);
                 return null;
             }
         });
-
-        if (mListener != null) {
-            mListener.onChangeSectionOrderEnd();
-        }
-    }
-
-    public void cancelChangingOrder() {
-        if (!mAdapter.isChangingOrder()) {
-            return;
-        }
-
-        mAdapter.setTypeFilter(null);
-        mAdapter.setChangingOrder(false);
-        getActivity().invalidateOptionsMenu();
-
-        if (mListener != null) {
-            mListener.onChangeSectionOrderEnd();
-        }
     }
 
 }
