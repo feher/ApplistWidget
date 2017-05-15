@@ -216,6 +216,11 @@ public class ApplistActivity extends AppCompatActivity {
         return isHandled;
     }
 
+    @Override
+    public void onBackPressed() {
+        // Don't exit on back-press. We are a launcher.
+    }
+
     private void showSettings() {
         Intent settingsIntent = new Intent(this, SettingsActivity.class);
         startActivity(settingsIntent);
