@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import net.feheren_fekete.applist.launcher.LauncherActivity;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 
@@ -189,8 +190,8 @@ public class SettingsActivity extends PreferenceActivity {
         }
 
         private void restartMainActivity() {
-            Intent i = new Intent(getActivity(), ApplistActivity.class);
-            i.setAction(ApplistActivity.ACTION_RESTART);
+            Intent i = new Intent(getActivity(), LauncherActivity.class);
+            i.setAction(LauncherActivity.ACTION_RESTART);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
             startActivity(i);
             getActivity().finish();

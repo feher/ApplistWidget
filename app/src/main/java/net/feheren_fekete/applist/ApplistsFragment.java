@@ -7,8 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,9 +16,12 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -37,12 +40,9 @@ import java.util.concurrent.Callable;
 import bolts.Continuation;
 import bolts.Task;
 
-public class ApplistActivity extends AppCompatActivity {
+public class ApplistsFragment extends Fragment {
 
-    private static final String TAG = ApplistActivity.class.getSimpleName();
-
-    public static final String ACTION_RESTART =
-            ApplistActivity.class.getCanonicalName()+ "ACTION_RESTART";
+    private static final String TAG = ApplistsFragment.class.getSimpleName();
 
     private Handler mHandler;
     private DataModel mDataModel;
@@ -54,24 +54,23 @@ public class ApplistActivity extends AppCompatActivity {
     private SearchView mSearchView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
-        SettingsUtils.applyColorTheme(this);
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.applists_activity);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.applists_fragment, container, false);
 
         mHandler = new Handler();
         mDataModel = DataModel.getInstance();
         mIconCache = new IconCache();
-        mBadgeStore = new BadgeStore(this, getPackageManager(), new BadgeUtils(this));
+        mBadgeStore = new BadgeStore(getContext(), getContext().getPackageManager(), new BadgeUtils(getContext()));
 
-        mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mAppBarLayout = (AppBarLayout) view.findViewById(R.id.appbar_layout);
+        mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
         mToolbar.setOnClickListener(mToolbarClickListener);
         mToolbar.setTitle(R.string.toolbar_title);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(mToolbar);
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        setHasOptionsMenu(true);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -80,26 +79,17 @@ public class ApplistActivity extends AppCompatActivity {
         intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         intentFilter.addDataScheme("package");
-        registerReceiver(mPackageStateReceiver, intentFilter);
+        getContext().registerReceiver(mPackageStateReceiver, intentFilter);
 
         loadData();
+
+        return view;
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (ACTION_RESTART.equals(intent.getAction())) {
-            finish();
-            startActivity(intent);
-        } else {
-            loadData();
-        }
-    }
-
-    @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
-        if (SettingsUtils.getShowBadge(this)) {
+        if (SettingsUtils.getShowBadge(getContext())) {
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -111,36 +101,37 @@ public class ApplistActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-        mPackageStateReceiver.onReceive(this, null);
+        mPackageStateReceiver.onReceive(getContext(), null);
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (mSearchView != null) {
-            hideKeyboardFrom(this, mSearchView);
+            hideKeyboardFrom(getContext(), mSearchView);
             mSearchView.setIconified(true);
         }
         EventBus.getDefault().unregister(this);
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mPackageStateReceiver);
+        getContext().unregisterReceiver(mPackageStateReceiver);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.applist_menu, menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.applist_menu, menu);
 
         mMenu = menu;
 
@@ -149,12 +140,11 @@ public class ApplistActivity extends AppCompatActivity {
         mSearchView.setIconifiedByDefault(true);
         mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
         mSearchView.setOnQueryTextListener(mSearchTextListener);
-
-        return true;
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
         boolean isChangingOrder = false;
         boolean isFilteredByName = false;
         ApplistFragment fragment = getApplistFragment();
@@ -163,22 +153,21 @@ public class ApplistActivity extends AppCompatActivity {
             isFilteredByName = fragment.isFilteredByName();
         }
         if (isChangingOrder) {
-            menu.findItem(R.id.action_search_app).setVisible(false);
-            menu.findItem(R.id.action_create_section).setVisible(false);
-            menu.findItem(R.id.action_done).setVisible(true);
-            menu.findItem(R.id.action_settings).setVisible(false);
+            setMenuItemVisibility(menu, R.id.action_search_app, false);
+            setMenuItemVisibility(menu, R.id.action_create_section, false);
+            setMenuItemVisibility(menu, R.id.action_done, true);
+            setMenuItemVisibility(menu, R.id.action_settings, false);
         } else if (isFilteredByName) {
-            menu.findItem(R.id.action_search_app).setVisible(true);
-            menu.findItem(R.id.action_create_section).setVisible(false);
-            menu.findItem(R.id.action_done).setVisible(false);
-            menu.findItem(R.id.action_settings).setVisible(false);
+            setMenuItemVisibility(menu, R.id.action_search_app, true);
+            setMenuItemVisibility(menu, R.id.action_create_section, false);
+            setMenuItemVisibility(menu, R.id.action_done, false);
+            setMenuItemVisibility(menu, R.id.action_settings, false);
         } else {
-            menu.findItem(R.id.action_search_app).setVisible(true);
-            menu.findItem(R.id.action_create_section).setVisible(true);
-            menu.findItem(R.id.action_done).setVisible(false);
-            menu.findItem(R.id.action_settings).setVisible(true);
+            setMenuItemVisibility(menu, R.id.action_search_app, true);
+            setMenuItemVisibility(menu, R.id.action_create_section, true);
+            setMenuItemVisibility(menu, R.id.action_done, false);
+            setMenuItemVisibility(menu, R.id.action_settings, true);
         }
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -206,8 +195,15 @@ public class ApplistActivity extends AppCompatActivity {
         return isHandled;
     }
 
+    private void setMenuItemVisibility(Menu menu, int menuItemId, boolean visible) {
+        MenuItem menuItem = menu.findItem(menuItemId);
+        if (menuItem != null) {
+            menuItem.setVisible(visible);
+        }
+    }
+
     private void showSettings() {
-        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        Intent settingsIntent = new Intent(getContext(), SettingsActivity.class);
         startActivity(settingsIntent);
     }
 
@@ -220,7 +216,7 @@ public class ApplistActivity extends AppCompatActivity {
                 public Void call() throws Exception {
                     if (uri != null) {
                         FileUtils.deleteFiles(
-                                FileUtils.getIconCacheDirPath(ApplistActivity.this),
+                                FileUtils.getIconCacheDirPath(ApplistsFragment.this.getContext()),
                                 uri.getSchemeSpecificPart());
                     }
                     mDataModel.updateInstalledApps();
@@ -291,7 +287,7 @@ public class ApplistActivity extends AppCompatActivity {
                 }
             });
             Toast toast = Toast.makeText(
-                    ApplistActivity.this,
+                    ApplistsFragment.this.getContext(),
                     R.string.toast_change_section_position,
                     Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -415,14 +411,14 @@ public class ApplistActivity extends AppCompatActivity {
     private void showApplistFragment(String pageName) {
         ApplistFragment fragment = ApplistFragment.newInstance(pageName, mDataModel, mIconCache);
         fragment.setListener(mFragmentListener);
-        getSupportFragmentManager()
+        getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment, ApplistFragment.class.getName())
                 .commit();
     }
 
     private ApplistFragment getApplistFragment() {
-        return (ApplistFragment) getSupportFragmentManager().findFragmentByTag(
+        return (ApplistFragment) getChildFragmentManager().findFragmentByTag(
                 ApplistFragment.class.getName());
     }
 
