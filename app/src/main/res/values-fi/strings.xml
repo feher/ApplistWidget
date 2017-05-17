@@ -2,12 +2,10 @@
 <resources>
     <string name="app_name">Apper</string>
     <string name="action_create_section">Uusi ryhmä</string>
-    <string name="action_done">Valmis</string>
     <string name="action_search_app">Haku</string>
     <string name="action_settings">Asetukset</string>
     <string name="cancel">Peruuta</string>
     <string name="dialog_error_section_exists">Ryhmä on jo olemassa</string>
-    <string name="menu_item_move_to_new_section">Uusi ryhmä…</string>
     <string name="ok">OK</string>
     <string name="section_name">Ryhmän nimi</string>
     <string name="toast_change_item_positions">Raahaa ja uudelleenjärjestä</string>
@@ -38,5 +36,4 @@
     <string name="settings_show_phone_badge_select_default_app">Valitse oletuspuhelinappi</string>
     <string name="remove_section_message">Poistatko \"%1$s\" ryhmän?\n\nSisältävät appit siirretään \"%2$s\" ryhmiin.</string>
     <string name="remove_section_title">Poista ryhmä</string>
-    <string name="action_edit_page">Järjestä</string>
 </resources>

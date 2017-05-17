@@ -5,13 +5,11 @@
     <string name="action_settings">Beállítások</string>
     <string name="cancel">Mégse</string>
     <string name="dialog_error_section_exists">Ez a csoport már létezik</string>
-    <string name="menu_item_move_to_new_section">Új csoport…</string>
     <string name="ok">OK</string>
     <string name="section_name">Csoport név</string>
     <string name="toast_change_item_positions">Húzd át az elemeket a kívánt sorrendbe</string>
     <string name="toolbar_title">Apper</string>
     <string name="action_create_section">Új csoport</string>
-    <string name="action_done">Kész</string>
     <string name="color_theme_black">Fekete</string>
     <string name="color_theme_red">Piros</string>
     <string name="color_theme_indigo">Indigó</string>
@@ -38,5 +36,4 @@
     <string name="settings_show_phone_badge_select_default_app">Válaszd ki az alapértelmezett telefon app-ot</string>
     <string name="remove_section_message">Biztos, hogy törlöd a \"%1$s\" csoportot?\n\nA tartalmazott app-ok áthelyeződnek a \"%2$s\" csoportba.</string>
     <string name="remove_section_title">Csoport törlése</string>
-    <string name="action_edit_page">Szerkeszt</string>
 </resources>

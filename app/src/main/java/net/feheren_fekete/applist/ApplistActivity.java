@@ -15,12 +15,10 @@ import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
@@ -165,27 +163,18 @@ public class ApplistActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean isChangingOrder = false;
         boolean isFilteredByName = false;
         ApplistFragment fragment = getApplistFragment();
         if (fragment != null) {
-            isChangingOrder = fragment.isChangingOrder();
             isFilteredByName = fragment.isFilteredByName();
         }
-        if (isChangingOrder) {
-            menu.findItem(R.id.action_search_app).setVisible(false);
-            menu.findItem(R.id.action_edit_page).setVisible(false);
-            menu.findItem(R.id.action_create_section).setVisible(true);
-            menu.findItem(R.id.action_settings).setVisible(false);
-        } else if (isFilteredByName) {
+        if (isFilteredByName) {
             menu.findItem(R.id.action_search_app).setVisible(true);
-            menu.findItem(R.id.action_edit_page).setVisible(false);
             menu.findItem(R.id.action_create_section).setVisible(false);
             menu.findItem(R.id.action_settings).setVisible(false);
         } else {
             menu.findItem(R.id.action_search_app).setVisible(true);
-            menu.findItem(R.id.action_edit_page).setVisible(true);
-            menu.findItem(R.id.action_create_section).setVisible(false);
+            menu.findItem(R.id.action_create_section).setVisible(true);
             menu.findItem(R.id.action_settings).setVisible(true);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -286,49 +275,6 @@ public class ApplistActivity extends AppCompatActivity {
             if (mSearchView != null) {
                 mSearchView.setIconified(false);
             }
-        }
-    };
-
-    private ApplistFragment.Listener mFragmentListener = new ApplistFragment.Listener() {
-        @Override
-        public void onChangeItemOrderStart() {
-            mAppBarLayout.setExpanded(true);
-            mToolbar.setOnClickListener(null);
-            mToolbar.setTitle("");
-            mToolbar.setNavigationIcon(R.drawable.ic_done);
-            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ApplistFragment fragment = getApplistFragment();
-                    if (fragment != null) {
-                        fragment.finishChangingOrder();
-                    }
-                }
-            });
-
-            // Make the toolbar always visible. Don't scroll it out.
-            AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-            params.setScrollFlags(0);
-
-            Toast toast = Toast.makeText(
-                    ApplistActivity.this,
-                    R.string.toast_change_item_positions,
-                    Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
-        }
-        @Override
-        public void onChangeItemOrderEnd() {
-            mToolbar.setOnClickListener(mToolbarClickListener);
-            mToolbar.setTitle(R.string.toolbar_title);
-            mToolbar.setNavigationIcon(null);
-            mToolbar.setNavigationOnClickListener(null);
-
-            AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-            params.setScrollFlags(
-                    AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                    | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-                    | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
         }
     };
 
@@ -449,7 +395,6 @@ public class ApplistActivity extends AppCompatActivity {
 
     private void showApplistFragment(String pageName) {
         ApplistFragment fragment = ApplistFragment.newInstance(pageName, mDataModel, mIconCache);
-        fragment.setListener(mFragmentListener);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment, ApplistFragment.class.getName())
