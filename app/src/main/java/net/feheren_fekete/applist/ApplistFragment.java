@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.GridLayoutManager;
@@ -45,6 +46,11 @@ public class ApplistFragment extends Fragment
 
     private static final String TAG = ApplistFragment.class.getSimpleName();
 
+    public interface Listener {
+        void onItemMoveStart();
+        void onItemMoveEnd();
+    }
+
     private BadgeStore mBadgeStore;
     private DataModel mDataModel;
     private RecyclerView mRecyclerView;
@@ -57,6 +63,7 @@ public class ApplistFragment extends Fragment
     private @Nullable PopupMenu mItemMenu;
     private @Nullable BaseItem mItemMenuTarget;
     private float mItemMoveThreshold;
+    private @Nullable Listener mListener;
 
     public static ApplistFragment newInstance(String pageName,
                                               DataModel dataModel,
@@ -70,6 +77,10 @@ public class ApplistFragment extends Fragment
         fragment.setIconCache(iconCache);
 
         return fragment;
+    }
+
+    public void setListener(Listener listener) {
+        mListener = listener;
     }
 
     @Nullable
@@ -198,10 +209,6 @@ public class ApplistFragment extends Fragment
         mRecyclerView.scrollToPosition(0);
     }
 
-    public boolean isChangingOrder() {
-        return mAdapter.isChangingOrder();
-    }
-
     public boolean handleMenuItem(int itemId) {
         boolean isHandled = false;
         switch (itemId) {
@@ -327,7 +334,7 @@ public class ApplistFragment extends Fragment
         if (viewHolder instanceof ApplistAdapter.AppItemHolder) {
             ApplistAdapter.AppItemHolder appItemHolder = (ApplistAdapter.AppItemHolder) viewHolder;
             appItemHolder.appIcon.animate().scaleX(1.2f).scaleY(1.2f).setDuration(150).start();
-            appItemHolder.appName.setVisibility(View.GONE);
+            appItemHolder.appName.setVisibility(View.INVISIBLE);
         } else if (viewHolder instanceof ApplistAdapter.SectionItemHolder) {
             ApplistAdapter.SectionItemHolder sectionItemHolder = (ApplistAdapter.SectionItemHolder) viewHolder;
             sectionItemHolder.sectionName.setTypeface(null, Typeface.BOLD);
@@ -350,7 +357,8 @@ public class ApplistFragment extends Fragment
             sectionItemHolder.sectionName.setTypeface(null, Typeface.NORMAL);
             mAdapter.setTypeFilter(null);
         }
-        setPageToModel();
+        finishItemMove();
+        savePageToModel();
     }
 
     private View.OnTouchListener mTouchOverlayListener = new View.OnTouchListener() {
@@ -376,23 +384,10 @@ public class ApplistFragment extends Fragment
                             if (Math.sqrt(a * a + b * b) > mItemMoveThreshold) {
                                 mItemMenu.dismiss();
                                 mItemMenu = null;
-                                if (mItemMenuTarget instanceof AppItem) {
-                                    RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForItemId(mItemMenuTarget.getId());
-                                    if (viewHolder != null) {
-                                        mTouchHelper.startDrag(viewHolder);
-                                    }
-                                } else {
+                                if (mItemMenuTarget instanceof SectionItem) {
                                     mAdapter.setTypeFilter(SectionItem.class);
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForItemId(mItemMenuTarget.getId());
-                                            if (viewHolder != null) {
-                                                mTouchHelper.startDrag(viewHolder);
-                                            }
-                                        }
-                                    });
                                 }
+                                initiateItemMove(mItemMenuTarget.getId());
                             }
                         }
                     }
@@ -411,6 +406,27 @@ public class ApplistFragment extends Fragment
             return true;
         }
     };
+
+    private void initiateItemMove(final long itemId) {
+        if (mListener != null) {
+            mListener.onItemMoveStart();
+        }
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForItemId(itemId);
+                if (viewHolder != null) {
+                    mTouchHelper.startDrag(viewHolder);
+                }
+            }
+        });
+    }
+
+    private void finishItemMove() {
+        if (mListener != null) {
+            mListener.onItemMoveEnd();
+        }
+    }
 
     private PopupMenu.OnMenuItemClickListener mItemMenuClickListener = new PopupMenu.OnMenuItemClickListener() {
         @Override
@@ -550,7 +566,7 @@ public class ApplistFragment extends Fragment
                 });
     }
 
-    private void setPageToModel() {
+    private void savePageToModel() {
         final String pageName = getPageName();
         final List<BaseItem> items = mAdapter.getItems();
         Task.callInBackground(new Callable<Void>() {

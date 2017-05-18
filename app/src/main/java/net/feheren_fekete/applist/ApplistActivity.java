@@ -36,7 +36,7 @@ import java.util.concurrent.Callable;
 import bolts.Continuation;
 import bolts.Task;
 
-public class ApplistActivity extends AppCompatActivity {
+public class ApplistActivity extends AppCompatActivity implements ApplistFragment.Listener {
 
     private static final String TAG = ApplistActivity.class.getSimpleName();
 
@@ -208,6 +208,23 @@ public class ApplistActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // Don't exit on back-press. We are a launcher.
+    }
+
+    @Override
+    public void onItemMoveStart() {
+        mAppBarLayout.setExpanded(true, true);
+//        AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+//        layoutParams.setScrollFlags(0);
+    }
+
+    @Override
+    public void onItemMoveEnd() {
+//        mAppBarLayout.setExpanded(false, true);
+//        AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+//        layoutParams.setScrollFlags(
+//                AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+//                        | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+//                        | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
     }
 
     private void showSettings() {
@@ -395,6 +412,7 @@ public class ApplistActivity extends AppCompatActivity {
 
     private void showApplistFragment(String pageName) {
         ApplistFragment fragment = ApplistFragment.newInstance(pageName, mDataModel, mIconCache);
+        fragment.setListener(this);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment, ApplistFragment.class.getName())

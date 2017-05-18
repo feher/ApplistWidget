@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,6 +41,7 @@ import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
+import hugo.weaving.DebugLog;
 
 
 public class ApplistAdapter
@@ -62,7 +64,6 @@ public class ApplistAdapter
     private @Nullable String mFilterName;
     private @Nullable Class mFilterType;
     private @Nullable List<BaseItem> mFilteredItems;
-    private boolean mIsChangingOrder;
     private ItemListener mItemListener;
     private IconCache mIconCache;
     private int[] mIconPlaceholderColors;
@@ -158,14 +159,6 @@ public class ApplistAdapter
         }
     }
 
-    public void setChangingOrder(boolean changing) {
-        mIsChangingOrder = changing;
-    }
-
-    public boolean isChangingOrder() {
-        return mIsChangingOrder;
-    }
-
     public List<String> getSectionNames() {
         List<String> result = new ArrayList<>();
         for (BaseItem item : getItems()) {
@@ -243,6 +236,7 @@ public class ApplistAdapter
         return super.getItemViewType(position);
     }
 
+    @DebugLog
     public void loadAllItems() {
         Task.callInBackground(new Callable<List<BaseItem>>() {
             @Override
@@ -266,6 +260,7 @@ public class ApplistAdapter
                     if (mFilterType != null) {
                         mFilteredItems = filterItemsByType();
                     }
+                    Log.d(TAG, "ITEMS " + mAllItems.size() + " " + mCollapsedItems.size() );
                     notifyDataSetChanged();
                 }
                 return null;
