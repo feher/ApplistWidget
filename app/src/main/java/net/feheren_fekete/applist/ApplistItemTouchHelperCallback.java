@@ -59,4 +59,24 @@ public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
         super.clearView(recyclerView, viewHolder);
         mOnMoveListener.onItemMoveEnd(viewHolder);
     }
+
+    @Override
+    public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+        int scrollBy;
+        final int maxScroll = 50;
+        final int direction = (int) Math.signum(viewSizeOutOfBounds);
+        final int cappedScroll = direction * maxScroll;
+        final float timeRatio;
+        if (msSinceStartScroll > DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS) {
+            timeRatio = 1f;
+        } else {
+            timeRatio = (float) msSinceStartScroll / DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS;
+        }
+        scrollBy = (int) (cappedScroll * Math.pow(timeRatio, 5));
+        if (scrollBy == 0) {
+            scrollBy = viewSizeOutOfBounds > 0 ? 1 : -1;
+        }
+        return scrollBy;
+    }
+
 }

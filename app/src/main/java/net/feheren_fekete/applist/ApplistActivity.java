@@ -212,19 +212,21 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
 
     @Override
     public void onItemMoveStart() {
-        mAppBarLayout.setExpanded(true, true);
-//        AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-//        layoutParams.setScrollFlags(0);
+        mAppBarLayout.setExpanded(true);
+        AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        layoutParams.setScrollFlags(0);
+        mToolbar.setLayoutParams(layoutParams);
     }
 
     @Override
     public void onItemMoveEnd() {
 //        mAppBarLayout.setExpanded(false, true);
-//        AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-//        layoutParams.setScrollFlags(
-//                AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-//                        | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-//                        | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
+        AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        layoutParams.setScrollFlags(
+                AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+                        | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+                        | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
+        mToolbar.setLayoutParams(layoutParams);
     }
 
     private void showSettings() {
