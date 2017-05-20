@@ -282,6 +282,12 @@ public class ApplistFragment extends Fragment
         mItemMenu = new PopupMenu(getContext(), sectionItemHolder.layout);
         mItemMenu.setOnMenuItemClickListener(mItemMenuClickListener);
         mItemMenu.inflate(R.menu.section_item_menu);
+        mItemMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
+                mItemMenu = null;
+            }
+        });
         if (!sectionItem.isRemovable()) {
             MenuItem deleteMenuItem = mItemMenu.getMenu().findItem(R.id.action_section_delete);
             deleteMenuItem.setVisible(false);
