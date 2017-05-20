@@ -269,7 +269,16 @@ public class ApplistAdapter
     }
 
     public boolean moveItem(int fromPosition, int toPosition) {
-        BaseItem movedItem = getItems().get(fromPosition);
+        List<BaseItem> items = getItems();
+        if (fromPosition < 0 || fromPosition >= items.size()) {
+            // TODO: report to Crashlytics.
+            return false;
+        }
+        if (toPosition < 0 || toPosition >= items.size()) {
+            // TODO: report to Crashlytics.
+            return false;
+        }
+        BaseItem movedItem = items.get(fromPosition);
         if (movedItem instanceof AppItem && toPosition == 0) {
             // Cannot move app above the first section header.
             return false;
