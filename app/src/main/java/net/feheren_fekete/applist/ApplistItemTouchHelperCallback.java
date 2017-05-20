@@ -5,6 +5,8 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
+    private static final float DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000;
+
     public interface OnMoveListener {
         void onItemMoveStart(RecyclerView.ViewHolder viewHolder);
         boolean onItemMove(RecyclerView.ViewHolder fromViewHolder, RecyclerView.ViewHolder targetViewHolder);
