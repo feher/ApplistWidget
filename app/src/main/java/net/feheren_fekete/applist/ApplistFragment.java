@@ -578,7 +578,7 @@ public class ApplistFragment extends Fragment
 
     private void savePageToModel() {
         final String pageName = getPageName();
-        final List<BaseItem> items = mAdapter.getItems();
+        final List<BaseItem> items = mAdapter.getAllItems();
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

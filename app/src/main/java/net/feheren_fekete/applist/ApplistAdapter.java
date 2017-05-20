@@ -357,7 +357,11 @@ public class ApplistAdapter
         });
     }
 
-    public List<BaseItem> getItems() {
+    public List<BaseItem> getAllItems() {
+        return new ArrayList<>(mAllItems);
+    }
+
+    private List<BaseItem> getItems() {
         if (mFilteredItems != null) {
             return mFilteredItems;
         }
