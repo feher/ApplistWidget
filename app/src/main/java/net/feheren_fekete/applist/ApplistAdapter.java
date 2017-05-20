@@ -253,14 +253,7 @@ public class ApplistAdapter
                 List<BaseItem> items = task.getResult();
                 if (items != null) {
                     mAllItems = items;
-                    mCollapsedItems = getCollapsedItems();
-                    if (mFilterName != null) {
-                        mFilteredItems = filterItemsByName();
-                    }
-                    if (mFilterType != null) {
-                        mFilteredItems = filterItemsByType();
-                    }
-                    Log.d(TAG, "ITEMS " + mAllItems.size() + " " + mCollapsedItems.size() );
+                    updateCollapsedAndFilteredItems();
                     notifyDataSetChanged();
                 }
                 return null;
@@ -278,36 +271,36 @@ public class ApplistAdapter
             // TODO: report to Crashlytics.
             return false;
         }
-        BaseItem movedItem = items.get(fromPosition);
-        if (movedItem instanceof AppItem && toPosition == 0) {
+
+        final int realFromPosition = getRealItemPosition(items.get(fromPosition));
+        final int realToPosition = getRealItemPosition(items.get(toPosition));
+
+        BaseItem movedItem = mAllItems.get(realFromPosition);
+        if (movedItem instanceof AppItem && realToPosition == 0) {
             // Cannot move app above the first section header.
             return false;
         }
 
-        if (fromPosition < toPosition) {
-            for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(getItems(), i, i + 1);
+        if (movedItem instanceof AppItem) {
+            if (realFromPosition < realToPosition) {
+                for (int i = realFromPosition; i < realToPosition; i++) {
+                    Collections.swap(mAllItems, i, i + 1);
+                }
+            } else {
+                for (int i = realFromPosition; i > realToPosition; i--) {
+                    Collections.swap(mAllItems, i, i - 1);
+                }
             }
-        } else {
-            for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(getItems(), i, i - 1);
-            }
-        }
-        notifyItemMoved(fromPosition, toPosition);
-
-        // Move sections with all their apps.
-        if (movedItem instanceof SectionItem) {
+        } else if (movedItem instanceof SectionItem) {
             List<BaseItem> sectionAndApps = new ArrayList<>();
             for (BaseItem item : mAllItems) {
                 if (item instanceof SectionItem
                         && item.getId() == movedItem.getId()) {
                     sectionAndApps.add(item);
-                }
-                if (item instanceof AppItem
+                } else if (item instanceof AppItem
                         && !sectionAndApps.isEmpty()) {
                     sectionAndApps.add(item);
-                }
-                if (item instanceof SectionItem
+                } else if (item instanceof SectionItem
                         && !sectionAndApps.isEmpty()
                         && item.getId() != movedItem.getId()) {
                     break;
@@ -328,9 +321,10 @@ public class ApplistAdapter
                 }
             }
             mAllItems.addAll(itemCount, sectionAndApps);
-
-            mCollapsedItems = getCollapsedItems();
         }
+
+        updateCollapsedAndFilteredItems();
+        notifyItemMoved(fromPosition, toPosition);
 
         return true;
     }
@@ -366,6 +360,25 @@ public class ApplistAdapter
             return mFilteredItems;
         }
         return mCollapsedItems;
+    }
+
+    private int getRealItemPosition(BaseItem item) {
+        for (int i = 0; i < mAllItems.size(); ++i) {
+            if (mAllItems.get(i).getId() == item.getId()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void updateCollapsedAndFilteredItems() {
+        mCollapsedItems = getCollapsedItems();
+        if (mFilterName != null) {
+            mFilteredItems = filterItemsByName();
+        }
+        if (mFilterType != null) {
+            mFilteredItems = filterItemsByType();
+        }
     }
 
     private List<BaseItem> getCollapsedItems() {
