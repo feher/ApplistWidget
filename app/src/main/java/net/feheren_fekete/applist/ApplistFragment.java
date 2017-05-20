@@ -383,7 +383,6 @@ public class ApplistFragment extends Fragment
                             final float b = event.getRawY() - fingerDownPos.y;
                             if (Math.sqrt(a * a + b * b) > mItemMoveThreshold) {
                                 mItemMenu.dismiss();
-                                mItemMenu = null;
                                 if (mItemMenuTarget instanceof SectionItem) {
                                     mAdapter.setTypeFilter(SectionItem.class);
                                 }
@@ -450,6 +449,7 @@ public class ApplistFragment extends Fragment
                     handled = true;
                     break;
             }
+            mItemMenu = null;
             return handled;
         }
     };
