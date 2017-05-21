@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.model.BadgeStore;
 
 public class BadgeReceiver extends BroadcastReceiver {
@@ -83,7 +84,7 @@ public class BadgeReceiver extends BroadcastReceiver {
                 try {
                     badgeCount = Integer.parseInt(badgeCountString);
                 } catch (NumberFormatException e) {
-                    // TODO: report error, log
+                    ApplistLog.getInstance().log(new RuntimeException("Bad badge count format: " + badgeCountString, e));
                 }
             }
             if (badgeCount < 0) {

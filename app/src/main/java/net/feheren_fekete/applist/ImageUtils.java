@@ -9,6 +9,8 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,8 +57,7 @@ public class ImageUtils {
             try {
                 parentDir.mkdirs();
             } catch (SecurityException e) {
-                // TODO: Report error.
-                Log.e(TAG, "Cannot create dir", e);
+                ApplistLog.getInstance().log("Cannot create dir", e);
             }
         }
 
@@ -65,8 +66,7 @@ public class ImageUtils {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
             outStream.flush();
         } catch (Exception e) {
-            // TODO: Report error.
-            Log.e(TAG, "Cannot save bitmap!", e);
+            ApplistLog.getInstance().log("Cannot save bitmap!", e);
         } finally {
             if (outStream != null) {
                 try {

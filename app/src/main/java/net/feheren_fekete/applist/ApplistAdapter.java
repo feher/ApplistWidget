@@ -10,8 +10,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -264,11 +262,11 @@ public class ApplistAdapter
     public boolean moveItem(int fromPosition, int toPosition) {
         List<BaseItem> items = getItems();
         if (fromPosition < 0 || fromPosition >= items.size()) {
-            // TODO: report to Crashlytics.
+            ApplistLog.getInstance().log(new RuntimeException("Bad fromPosition " + fromPosition));
             return false;
         }
         if (toPosition < 0 || toPosition >= items.size()) {
-            // TODO: report to Crashlytics.
+            ApplistLog.getInstance().log(new RuntimeException("Bad toPosition " + toPosition));
             return false;
         }
 

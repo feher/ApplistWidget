@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import net.feheren_fekete.applist.model.DataModel;
 
 
@@ -22,7 +24,9 @@ public class ApplistApp extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
 
+        ApplistLog.initInstance();
         DataModel.initInstance(this, getPackageManager());
 
         mIconPlaceholderColors = new int[6];

@@ -14,7 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -385,8 +384,7 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
                 if (!pageNames.isEmpty()) {
                     showApplistFragment(pageNames.get(0));
                 } else {
-                    // TODO: log: report
-                    Log.d(TAG, "No pages found!");
+                    ApplistLog.getInstance().log(new RuntimeException("No pages found!"));
                 }
                 return null;
             }

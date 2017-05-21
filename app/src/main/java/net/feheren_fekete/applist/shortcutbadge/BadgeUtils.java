@@ -8,7 +8,8 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.net.Uri;
-import android.util.Log;
+
+import net.feheren_fekete.applist.ApplistLog;
 
 import java.util.Arrays;
 import java.util.List;
@@ -102,8 +103,7 @@ public class BadgeUtils {
                 }
             }
         } catch (SecurityException | SQLException e) {
-            // TODO: report
-            Log.d(TAG, "Cannot get badge count" + e.getMessage());
+            ApplistLog.getInstance().log(new RuntimeException("Cannot get badge count", e));
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -135,8 +135,7 @@ public class BadgeUtils {
                 }
             }
         } catch (SecurityException | SQLException e) {
-            // TODO: report
-            Log.d(TAG, "Cannot get badge count" + e.getMessage());
+            ApplistLog.getInstance().log(new RuntimeException("Cannot get badge count", e));
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -169,8 +168,7 @@ public class BadgeUtils {
                 }
             }
         } catch (SecurityException | SQLException e) {
-            // TODO: report
-            Log.d(TAG, "Cannot get badge count" + e.getMessage());
+            ApplistLog.getInstance().log(new RuntimeException("Cannot get badge count", e));
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -203,8 +201,7 @@ public class BadgeUtils {
                 }
             }
         } catch (SecurityException | SQLException e) {
-            // TODO: report
-            Log.d(TAG, "Cannot get badge count" + e.getMessage());
+            ApplistLog.getInstance().log(new RuntimeException("Cannot get badge count", e));
         } finally {
             if (cursor != null) {
                 cursor.close();

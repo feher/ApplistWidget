@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.feheren_fekete.applist">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- For app badges -->
     <uses-permission android:name="com.sec.android.provider.badge.permission.READ"/>
@@ -86,6 +89,10 @@
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="e03a738384ba7bae3cd843a74fdddef07b259b32" />
 
     </application>
 

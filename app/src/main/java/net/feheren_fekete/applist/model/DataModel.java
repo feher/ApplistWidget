@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.utils.AppUtils;
 
@@ -405,7 +406,7 @@ public class DataModel {
             jsonObject.put("pages", jsonPages);
             data = jsonObject.toString(2);
         } catch (JSONException e) {
-            Log.e(TAG, "Cannot construct JSON", e);
+            ApplistLog.getInstance().log(e);
             return;
         }
 
@@ -428,7 +429,7 @@ public class DataModel {
             jsonObject.put("installed-apps", jsonApps);
             data = jsonObject.toString(2);
         } catch (JSONException e) {
-            Log.e(TAG, "Cannot construct JSON", e);
+            ApplistLog.getInstance().log(e);
             return;
         }
 
@@ -632,15 +633,13 @@ public class DataModel {
             bw = new BufferedWriter(osw);
             bw.write(content);
         } catch (IOException e) {
-            // TODO: Report error.
-            Log.e(TAG, "Cannot write file", e);
+            ApplistLog.getInstance().log(e);
         } finally {
             if (bw != null) {
                 try {
                     bw.close();
                 } catch (IOException e) {
-                    // TODO: Report error
-                    Log.e(TAG, "Cannot close file", e);
+                    ApplistLog.getInstance().log(e);
                 }
             }
         }
