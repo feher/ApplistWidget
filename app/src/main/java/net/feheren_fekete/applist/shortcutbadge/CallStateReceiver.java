@@ -1,13 +1,18 @@
 package net.feheren_fekete.applist.shortcutbadge;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.utils.AppUtils;
 
@@ -27,7 +32,17 @@ public class CallStateReceiver extends BroadcastReceiver {
         mSharedPreferences = context.getApplicationContext().getSharedPreferences(
                 SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-        String state = intent.getExtras().getString(TelephonyManager.EXTRA_STATE, "");
+        Bundle bundle = intent.getExtras();
+        if (bundle == null) {
+            final int permissionState = ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE);
+            ApplistLog.getInstance().log(new RuntimeException(
+                    "Intent has no extras: "
+                            + "Intent action = " + intent.getAction()
+                            + ", Permission " + Manifest.permission.READ_PHONE_STATE + " = " + (permissionState == PackageManager.PERMISSION_GRANTED)));
+            return;
+        }
+
+        String state = bundle.getString(TelephonyManager.EXTRA_STATE, "");
         if (TelephonyManager.EXTRA_STATE_RINGING.equals(state)) {
             mSharedPreferences.edit().putString(PREFERENCE_KEY_PREVIOUS_STATE, state).apply();
         } else if (TelephonyManager.EXTRA_STATE_OFFHOOK.equals(state)) {
