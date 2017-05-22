@@ -11,4 +11,5 @@
     <dimen name="appitem_badge_size">24dp</dimen>
 
     <dimen name="applist_fragment_item_move_threshold">20dp</dimen>
+    <dimen name="applist_fragment_item_drag_max_scroll">7dp</dimen>
 </resources>

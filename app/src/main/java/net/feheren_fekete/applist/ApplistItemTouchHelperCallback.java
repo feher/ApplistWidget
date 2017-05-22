@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
@@ -14,6 +15,7 @@ public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     private final OnMoveListener mOnMoveListener;
+    private int mDragMaxScroll = -1;
 
     public ApplistItemTouchHelperCallback(OnMoveListener onMoveListener) {
         mOnMoveListener = onMoveListener;
@@ -65,7 +67,7 @@ public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
         int scrollBy;
-        final int maxScroll = 50;
+        final int maxScroll = getDragMaxScroll(recyclerView.getContext());
         final int direction = (int) Math.signum(viewSizeOutOfBounds);
         final int cappedScroll = direction * maxScroll;
         final float timeRatio;
@@ -79,6 +81,13 @@ public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
             scrollBy = viewSizeOutOfBounds > 0 ? 1 : -1;
         }
         return scrollBy;
+    }
+
+    private int getDragMaxScroll(Context context) {
+        if (mDragMaxScroll == -1) {
+            mDragMaxScroll = context.getResources().getDimensionPixelSize(R.dimen.applist_fragment_item_drag_max_scroll);
+        }
+        return mDragMaxScroll;
     }
 
 }
