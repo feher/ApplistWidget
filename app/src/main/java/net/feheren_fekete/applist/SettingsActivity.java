@@ -29,6 +29,7 @@ public class SettingsActivity extends PreferenceActivity {
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
     public static final String PREF_KEY_COLOR_THEME = "pref_key_color_theme";
+    public static final String PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY = "pref_key_keep_apps_sorted_alphabetically";
     public static final String PREF_KEY_SHOW_BADGE = "pref_key_show_badge";
     public static final String PREF_KEY_SHOW_SMS_BADGE = "pref_key_show_sms_badge";
     public static final String PREF_KEY_SHOW_PHONE_BADGE = "pref_key_show_phone_badge";

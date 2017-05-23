@@ -28,6 +28,8 @@
     <string name="toast_change_item_positions">Drag items\nto rearrange</string>
 
     <string name="settings_appearance">Appearance</string>
+    <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>
+    <string name="settings_keep_apps_sorted_alphabetically_summary">Always sort apps alphabetically inside groups</string>
     <string name="settings_color_theme">Color theme</string>
     <string name="settings_badges">Message indicators</string>
     <string name="settings_show_badge">New content</string>

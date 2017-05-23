@@ -44,6 +44,11 @@ public class SettingsUtils {
         return colorThemeName.equals("Transparent");
     }
 
+    public static boolean getKeepAppsSortedAlphabetically(Context context) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        return sharedPref.getBoolean(SettingsActivity.PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY, false);
+    }
+
     public static boolean getShowBadge(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         return sharedPref.getBoolean(SettingsActivity.PREF_KEY_SHOW_BADGE, false);
