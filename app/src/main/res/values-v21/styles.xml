@@ -2,15 +2,18 @@
 <resources>
 
     <style name="MyThemeTransparent" parent="MyThemeBase">
-        <item name="primaryColor">#55333333</item>
-        <item name="primaryDarkColor">#55000000</item>
-        <item name="primaryLightColor">#55CCCCCC</item>
+        <item name="primaryColor">#88000000</item>
+        <item name="primaryDarkColor">#88000000</item>
+        <item name="primaryLightColor">#88000000</item>
         <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
-        <item name="dividerColor">#55B6B6B6</item>
-        <item name="listBackgroundColor">#55EEEEEE</item>
+        <item name="dividerColor">#55000000</item>
+        <item name="listBackgroundColor">#88000000</item>
+        <item name="sectionBackgroundColor">#88000000</item>
+        <item name="sectionTextColor">#DDDDDD</item>
+        <item name="appTextColor">#DDDDDD</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -29,6 +32,9 @@
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
         <item name="listBackgroundColor">#EEEEEE</item>
+        <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
+        <item name="sectionTextColor">?attr/secondaryTextColor</item>
+        <item name="appTextColor">?attr/secondaryTextColor</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -47,6 +53,9 @@
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
         <item name="listBackgroundColor">#EEEEEE</item>
+        <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
+        <item name="sectionTextColor">?attr/secondaryTextColor</item>
+        <item name="appTextColor">?attr/secondaryTextColor</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -65,6 +74,9 @@
         <item name="iconsColor">#ECEFF1</item>
         <item name="dividerColor">#B6B6B6</item>
         <item name="listBackgroundColor">#FFFFFF</item>
+        <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
+        <item name="sectionTextColor">?attr/secondaryTextColor</item>
+        <item name="appTextColor">?attr/secondaryTextColor</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -83,6 +95,9 @@
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
         <item name="listBackgroundColor">#FFFFFF</item>
+        <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
+        <item name="sectionTextColor">?attr/secondaryTextColor</item>
+        <item name="appTextColor">?attr/secondaryTextColor</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -101,6 +116,9 @@
         <item name="iconsColor">#212121</item>
         <item name="dividerColor">#B6B6B6</item>
         <item name="listBackgroundColor">#FFFFFF</item>
+        <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
+        <item name="sectionTextColor">?attr/secondaryTextColor</item>
+        <item name="appTextColor">?attr/secondaryTextColor</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -119,6 +137,9 @@
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
         <item name="listBackgroundColor">#FFFFFF</item>
+        <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
+        <item name="sectionTextColor">?attr/secondaryTextColor</item>
+        <item name="appTextColor">?attr/secondaryTextColor</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -137,6 +158,9 @@
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
         <item name="listBackgroundColor">#FFFFFF</item>
+        <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
+        <item name="sectionTextColor">?attr/secondaryTextColor</item>
+        <item name="appTextColor">?attr/secondaryTextColor</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>

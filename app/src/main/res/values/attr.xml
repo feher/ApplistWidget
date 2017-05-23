@@ -9,4 +9,7 @@
     <attr name="iconsColor" format="reference|color" />
     <attr name="dividerColor" format="reference|color" />
     <attr name="listBackgroundColor" format="reference|color" />
+    <attr name="sectionBackgroundColor" format="reference|color" />
+    <attr name="sectionTextColor" format="reference|color" />
+    <attr name="appTextColor" format="reference|color" />
 </resources>

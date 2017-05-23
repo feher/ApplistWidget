@@ -457,6 +457,11 @@ public class ApplistAdapter
         }
 
         holder.appName.setText(item.getName());
+        if (SettingsUtils.isThemeTransparent(mContext)) {
+            holder.appName.setShadowLayer(12, 2, 2, android.R.color.black);
+        } else {
+            holder.appName.setShadowLayer(0, 0, 0, 0);
+        }
         if (SettingsUtils.getShowBadge(mFragment.getActivity())) {
             int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getComponentName());
             if (badgeCount > 0) {
