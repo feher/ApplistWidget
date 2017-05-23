@@ -39,6 +39,7 @@
     <string name="settings_show_phone_badge_select_default_app">Select your default phone app</string>
 
     <string name="color_theme_default">@string/color_theme_black</string>
+    <string name="color_theme_transparent">Transparent</string>
     <string name="color_theme_black">Black</string>
     <string name="color_theme_brown">Brown</string>
     <string name="color_theme_red">Red</string>
@@ -48,6 +49,7 @@
     <string name="color_theme_indigo">Indigo</string>
 
     <string-array name="color_themes">
+        <item>@string/color_theme_transparent</item>
         <item>@string/color_theme_black</item>
         <item>@string/color_theme_brown</item>
         <item>@string/color_theme_red</item>
@@ -60,6 +62,7 @@
     <string name="color_theme_value_default" translatable="false">Black</string>
 
     <string-array name="color_theme_values" translatable="false">
+        <item>Transparent</item>
         <item>Black</item>
         <item>Brown</item>
         <item>Red</item>

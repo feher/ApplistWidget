@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="MyThemeTransparent" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="primaryColor">#55333333</item>
+        <item name="primaryDarkColor">#55000000</item>
+        <item name="primaryLightColor">#55CCCCCC</item>
+        <item name="accentColor">#FF9800</item>
+        <item name="primaryTextColor">#212121</item>
+        <item name="secondaryTextColor">#727272</item>
+        <item name="iconsColor">#FFFFFF</item>
+        <item name="dividerColor">#55B6B6B6</item>
+        <item name="listBackgroundColor">#55EEEEEE</item>
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">?attr/primaryColor</item>
+        <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
+        <item name="colorAccent">?attr/accentColor</item>
+    </style>
+
     <style name="MyThemeBlack" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="primaryColor">#555555</item>
+        <item name="primaryColor">#333333</item>
         <item name="primaryDarkColor">#000000</item>
-        <item name="primaryLightColor">#AAAAAA</item>
+        <item name="primaryLightColor">#CCCCCC</item>
         <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>

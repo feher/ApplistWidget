@@ -1,10 +1,12 @@
 package net.feheren_fekete.applist;
 
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -23,6 +25,7 @@ import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -68,6 +71,13 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
 
         mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (SettingsUtils.isThemeTransparent(this)) {
+            ScreenUtils.setStatusBarTranslucent(this, true);
+            AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+            layoutParams.height += ScreenUtils.getStatusBarHeight(this);
+            mToolbar.setLayoutParams(layoutParams);
+            mToolbar.setPadding(0, ScreenUtils.getStatusBarHeight(this), 0, 0);
+        }
         mToolbar.setOnClickListener(mToolbarClickListener);
         mToolbar.setTitle(R.string.toolbar_title);
         setSupportActionBar(mToolbar);
@@ -113,6 +123,13 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (SettingsUtils.isThemeTransparent(this)) {
+            final WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
+            final Drawable wallpaperDrawable = wallpaperManager.getDrawable();
+            findViewById(R.id.applists_activity_layout).setBackground(wallpaperDrawable);
+        }
+
         EventBus.getDefault().register(this);
         mPackageStateReceiver.onReceive(this, null);
 

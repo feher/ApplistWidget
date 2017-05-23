@@ -11,6 +11,9 @@ public class SettingsUtils {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
         String colorThemeName = sharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, "Brown");
         switch (colorThemeName) {
+            case "Transparent":
+                activity.setTheme(R.style.MyThemeTransparent);
+                break;
             case "Black":
                 activity.setTheme(R.style.MyThemeBlack);
                 break;
@@ -33,6 +36,12 @@ public class SettingsUtils {
                 activity.setTheme(R.style.MyThemeGreen);
                 break;
         }
+    }
+
+    public static boolean isThemeTransparent(Context context) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        String colorThemeName = sharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, "Brown");
+        return colorThemeName.equals("Transparent");
     }
 
     public static boolean getShowBadge(Context context) {
