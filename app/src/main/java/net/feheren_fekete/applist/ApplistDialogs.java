@@ -114,6 +114,12 @@ public class ApplistDialogs {
                     public void onClick(DialogInterface dialog, int which) {
                         onCancel.run();
                     }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        onCancel.run();
+                    }
                 });
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
