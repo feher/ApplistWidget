@@ -1,8 +1,10 @@
-package net.feheren_fekete.applist;
+package net.feheren_fekete.applist.applist;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+
+import net.feheren_fekete.applist.R;
 
 public class ApplistItemTouchHelperCallback extends ItemTouchHelper.Callback {
 

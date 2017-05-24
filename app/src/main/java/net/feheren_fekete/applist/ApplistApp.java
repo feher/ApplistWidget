@@ -6,6 +6,7 @@ import android.support.multidex.MultiDexApplication;
 
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
+
 import net.feheren_fekete.applist.model.DataModel;
 
 

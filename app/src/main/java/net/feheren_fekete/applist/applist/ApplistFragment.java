@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist;
+package net.feheren_fekete.applist.applist;
 
 import android.app.Activity;
 import android.app.WallpaperManager;
@@ -9,20 +9,28 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import net.feheren_fekete.applist.ApplistLog;
+import net.feheren_fekete.applist.ApplistPreferences;
+import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.settings.SettingsActivity;
+import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.utils.ScreenUtils;
@@ -38,12 +46,9 @@ import java.util.concurrent.Callable;
 import bolts.Continuation;
 import bolts.Task;
 
-public class ApplistActivity extends AppCompatActivity implements ApplistFragment.Listener {
+public class ApplistFragment extends Fragment implements ApplistPageFragment.Listener {
 
-    private static final String TAG = ApplistActivity.class.getSimpleName();
-
-    public static final String ACTION_RESTART =
-            ApplistActivity.class.getCanonicalName()+ "ACTION_RESTART";
+    private static final String TAG = ApplistFragment.class.getSimpleName();
 
     private Handler mHandler;
     private DataModel mDataModel;
@@ -56,32 +61,31 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
     private SearchView mSearchView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
-        SettingsUtils.applyColorTheme(this);
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.applists_activity);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.applist_fragment, container, false);
 
         mHandler = new Handler();
         mDataModel = DataModel.getInstance();
         mIconCache = new IconCache();
-        mBadgeStore = new BadgeStore(this, getPackageManager(), new BadgeUtils(this));
-        mApplistPreferences = new ApplistPreferences(this);
+        mBadgeStore = new BadgeStore(getContext(), getContext().getPackageManager(), new BadgeUtils(getContext()));
+        mApplistPreferences = new ApplistPreferences(getContext());
 
-        mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (SettingsUtils.isThemeTransparent(this)) {
-            ScreenUtils.setStatusBarTranslucent(this, true);
+        mAppBarLayout = (AppBarLayout) view.findViewById(R.id.applist_fragment_appbar_layout);
+        mToolbar = (Toolbar) view.findViewById(R.id.applist_fragment_toolbar);
+        if (SettingsUtils.isThemeTransparent(getContext())) {
+            ScreenUtils.setStatusBarTranslucent(getActivity(), true);
             AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-            layoutParams.height += ScreenUtils.getStatusBarHeight(this);
+            layoutParams.height += ScreenUtils.getStatusBarHeight(getContext());
             mToolbar.setLayoutParams(layoutParams);
-            mToolbar.setPadding(0, ScreenUtils.getStatusBarHeight(this), 0, 0);
+            mToolbar.setPadding(0, ScreenUtils.getStatusBarHeight(getContext()), 0, 0);
         }
         mToolbar.setOnClickListener(mToolbarClickListener);
         mToolbar.setTitle(R.string.toolbar_title);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(mToolbar);
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        setHasOptionsMenu(true);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -90,26 +94,17 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
         intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         intentFilter.addDataScheme("package");
-        registerReceiver(mPackageStateReceiver, intentFilter);
+        getContext().registerReceiver(mPackageStateReceiver, intentFilter);
 
         loadAndUpdateData();
+
+        return view;
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (ACTION_RESTART.equals(intent.getAction())) {
-            finish();
-            startActivity(intent);
-        } else {
-            loadAndUpdateData();
-        }
-    }
-
-    @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
-        if (SettingsUtils.getShowBadge(this)) {
+        if (SettingsUtils.getShowBadge(getContext())) {
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -121,17 +116,11 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
-        if (SettingsUtils.isThemeTransparent(this)) {
-            final WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
-            final Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-            findViewById(R.id.applists_activity_layout).setBackground(wallpaperDrawable);
-        }
-
         EventBus.getDefault().register(this);
-        mPackageStateReceiver.onReceive(this, null);
+        mPackageStateReceiver.onReceive(getContext(), null);
 
         String currentDeviceLocale = Locale.getDefault().toString();
         String savedDeviceLocale = mApplistPreferences.getDeviceLocale();
@@ -142,29 +131,30 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (mSearchView != null) {
-            hideKeyboardFrom(this, mSearchView);
+            hideKeyboardFrom(getContext(), mSearchView);
             mSearchView.setIconified(true);
         }
         EventBus.getDefault().unregister(this);
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mPackageStateReceiver);
+        getContext().unregisterReceiver(mPackageStateReceiver);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.applist_menu, menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.applist_menu, menu);
 
         mMenu = menu;
 
@@ -173,14 +163,13 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
         mSearchView.setIconifiedByDefault(true);
         mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
         mSearchView.setOnQueryTextListener(mSearchTextListener);
-
-        return true;
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
         boolean isFilteredByName = false;
-        ApplistFragment fragment = getApplistFragment();
+        ApplistPageFragment fragment = getApplistFragment();
         if (fragment != null) {
             isFilteredByName = fragment.isFilteredByName();
         }
@@ -193,7 +182,6 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
             menu.findItem(R.id.action_create_section).setVisible(true);
             menu.findItem(R.id.action_settings).setVisible(true);
         }
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -201,7 +189,7 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
         boolean isHandled = false;
         int id = item.getItemId();
 
-        ApplistFragment fragment = getApplistFragment();
+        ApplistPageFragment fragment = getApplistFragment();
         if (fragment != null) {
             isHandled = fragment.handleMenuItem(id);
         }
@@ -219,11 +207,6 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
             isHandled = super.onOptionsItemSelected(item);
         }
         return isHandled;
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Don't exit on back-press. We are a launcher.
     }
 
     @Override
@@ -246,7 +229,7 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
     }
 
     private void showSettings() {
-        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        Intent settingsIntent = new Intent(getContext(), SettingsActivity.class);
         startActivity(settingsIntent);
     }
 
@@ -254,12 +237,13 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
         @Override
         public void onReceive(Context context, Intent intent) {
             final Uri uri = (intent != null) ? intent.getData() : null;
+            final Context appContext = context.getApplicationContext();
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
                     if (uri != null) {
                         FileUtils.deleteFiles(
-                                FileUtils.getIconCacheDirPath(ApplistActivity.this),
+                                FileUtils.getIconCacheDirPath(appContext),
                                 uri.getSchemeSpecificPart());
                     }
                     mDataModel.updateInstalledApps();
@@ -273,7 +257,7 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
     private SearchView.OnFocusChangeListener mSearchFocusListener = new View.OnFocusChangeListener() {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
-            ApplistFragment fragment = getApplistFragment();
+            ApplistPageFragment fragment = getApplistFragment();
             if (fragment != null) {
                 if (!hasFocus) {
                     stopFilteringByName(fragment);
@@ -292,7 +276,7 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            ApplistFragment fragment = getApplistFragment();
+            ApplistPageFragment fragment = getApplistFragment();
             if (fragment != null) {
                 if (newText == null || newText.isEmpty()) {
                     fragment.setNameFilter("");
@@ -318,12 +302,12 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    private void startFilteringByName(ApplistFragment fragment) {
+    private void startFilteringByName(ApplistPageFragment fragment) {
         fragment.activateNameFilter();
         onPrepareOptionsMenu(mMenu);
     }
 
-    private void stopFilteringByName(ApplistFragment fragment) {
+    private void stopFilteringByName(ApplistPageFragment fragment) {
         fragment.deactivateNameFilter();
         mSearchView.setIconified(true);
         onPrepareOptionsMenu(mMenu);
@@ -428,17 +412,17 @@ public class ApplistActivity extends AppCompatActivity implements ApplistFragmen
     }
 
     private void showApplistFragment(String pageName) {
-        ApplistFragment fragment = ApplistFragment.newInstance(pageName, mDataModel, mIconCache);
+        ApplistPageFragment fragment = ApplistPageFragment.newInstance(pageName, mDataModel, mIconCache);
         fragment.setListener(this);
-        getSupportFragmentManager()
+        getChildFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, fragment, ApplistFragment.class.getName())
+                .replace(R.id.applist_fragment_fragment_container, fragment, ApplistPageFragment.class.getName())
                 .commit();
     }
 
-    private ApplistFragment getApplistFragment() {
-        return (ApplistFragment) getSupportFragmentManager().findFragmentByTag(
-                ApplistFragment.class.getName());
+    private ApplistPageFragment getApplistFragment() {
+        return (ApplistPageFragment) getChildFragmentManager().findFragmentByTag(
+                ApplistPageFragment.class.getName());
     }
 
 }

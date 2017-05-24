@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist;
+package net.feheren_fekete.applist.settings;
 
 import android.Manifest;
 import android.app.Activity;
@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
@@ -21,10 +20,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import net.feheren_fekete.applist.MainActivity;
+import net.feheren_fekete.applist.applist.ApplistFragment;
+import net.feheren_fekete.applist.applist.ApplistDialogs;
+import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
-import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import java.util.concurrent.Callable;
 
@@ -256,8 +258,8 @@ public class SettingsActivity extends PreferenceActivity {
         }
 
         private void restartMainActivity() {
-            Intent i = new Intent(getActivity(), ApplistActivity.class);
-            i.setAction(ApplistActivity.ACTION_RESTART);
+            Intent i = new Intent(getActivity(), MainActivity.class);
+            i.setAction(MainActivity.ACTION_RESTART);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
             startActivity(i);
             getActivity().finish();
