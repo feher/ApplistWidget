@@ -2,18 +2,18 @@
 <resources>
 
     <style name="MyThemeTransparent" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="primaryColor">#55333333</item>
-        <item name="primaryDarkColor">#55000000</item>
-        <item name="primaryLightColor">#55CCCCCC</item>
+        <item name="primaryColor">#88000000</item>
+        <item name="primaryDarkColor">#88000000</item>
+        <item name="primaryLightColor">#88000000</item>
         <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
-        <item name="dividerColor">#55B6B6B6</item>
-        <item name="listBackgroundColor">#55EEEEEE</item>
+        <item name="dividerColor">#55000000</item>
+        <item name="listBackgroundColor">#88000000</item>
         <item name="sectionBackgroundColor">#88000000</item>
-        <item name="sectionTextColor">#dddddd</item>
-        <item name="appTextColor">#dddddd</item>
+        <item name="sectionTextColor">#555555</item>
+        <item name="appTextColor">#DDDDDD</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>

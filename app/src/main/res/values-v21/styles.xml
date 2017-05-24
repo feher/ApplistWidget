@@ -12,7 +12,7 @@
         <item name="dividerColor">#55000000</item>
         <item name="listBackgroundColor">#88000000</item>
         <item name="sectionBackgroundColor">#88000000</item>
-        <item name="sectionTextColor">#DDDDDD</item>
+        <item name="sectionTextColor">#555555</item>
         <item name="appTextColor">#DDDDDD</item>
 
         <item name="windowNoTitle">true</item>
