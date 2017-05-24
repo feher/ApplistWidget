@@ -20,8 +20,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
+
+import java.util.concurrent.Callable;
+
+import bolts.Task;
 
 
 public class SettingsActivity extends PreferenceActivity {
@@ -102,19 +107,64 @@ public class SettingsActivity extends PreferenceActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(PREF_KEY_COLOR_THEME)) {
-                Preference preference = findPreference(PREF_KEY_COLOR_THEME);
-                preference.setSummary(getColorTheme());
-                restartMainActivity();
+            if (key.equals(PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY)) {
+                handleChangeKeepAppsSorted();
+            } else if (key.equals(PREF_KEY_COLOR_THEME)) {
+                handleChangeColorTheme();
             } else if (key.equals(PREF_KEY_SHOW_SMS_BADGE)) {
-                if (getShowSmsBadge()) {
-                    ensurePermission(Manifest.permission.RECEIVE_SMS, SMS_PERMISSION_REQUEST_CODE);
-                }
+                handleChangeShowSmsBadge();
             } else if (key.equals(PREF_KEY_SHOW_PHONE_BADGE)) {
-                if (getShowPhoneBadge()) {
-                    if (ensurePermission(Manifest.permission.READ_PHONE_STATE, PHONE_PERMISSION_REQUEST_CODE)) {
-                        ensureDefaultPhoneApp();
-                    }
+                handleChangeShowPhoneBadge();
+            }
+        }
+
+        private void handleChangeKeepAppsSorted() {
+            if (getKeepAppsSortedAlphabetically()) {
+                ApplistDialogs.questionDialog(
+                        getActivity(),
+                        getResources().getString(R.string.settings_keep_apps_sorted_alphabetically),
+                        getResources().getString(R.string.settings_keep_apps_sorted_dialog_message),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                final DataModel dataModel = DataModel.getInstance();
+                                Task.callInBackground(new Callable<Void>() {
+                                    @Override
+                                    public Void call() throws Exception {
+                                        dataModel.sortApps();
+                                        return null;
+                                    }
+                                });
+                            }
+                        },
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                SwitchPreference keepAppsSorted = (SwitchPreference) findPreference(
+                                        PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY);
+                                keepAppsSorted.setChecked(false);
+                            }
+                        }
+                );
+            }
+        }
+
+        private void handleChangeColorTheme() {
+            Preference preference = findPreference(PREF_KEY_COLOR_THEME);
+            preference.setSummary(getColorTheme());
+            restartMainActivity();
+        }
+
+        private void handleChangeShowSmsBadge() {
+            if (getShowSmsBadge()) {
+                ensurePermission(Manifest.permission.RECEIVE_SMS, SMS_PERMISSION_REQUEST_CODE);
+            }
+        }
+
+        private void handleChangeShowPhoneBadge() {
+            if (getShowPhoneBadge()) {
+                if (ensurePermission(Manifest.permission.READ_PHONE_STATE, PHONE_PERMISSION_REQUEST_CODE)) {
+                    ensureDefaultPhoneApp();
                 }
             }
         }
@@ -217,6 +267,11 @@ public class SettingsActivity extends PreferenceActivity {
         private boolean getShowPhoneBadge() {
             return getPreferenceScreen().getSharedPreferences().getBoolean(
                     PREF_KEY_SHOW_PHONE_BADGE, false);
+        }
+
+        private boolean getKeepAppsSortedAlphabetically() {
+            return getPreferenceScreen().getSharedPreferences().getBoolean(
+                    PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY, false);
         }
 
     }

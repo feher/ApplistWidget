@@ -44,7 +44,7 @@ public class SettingsUtils {
         return colorThemeName.equals("Transparent");
     }
 
-    public static boolean getKeepAppsSortedAlphabetically(Context context) {
+    public static boolean isKeepAppsSortedAlphabetically(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         return sharedPref.getBoolean(SettingsActivity.PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY, false);
     }

@@ -107,16 +107,10 @@ public class DataModel {
         }
     }
 
-    public void storeData() {
+    private void storeData() {
         synchronized (this) {
             storePages(mPagesFilePath);
             storeInstalledApps(mInstalledAppsFilePath);
-        }
-    }
-
-    public void storePages() {
-        synchronized (this) {
-            storePages(mPagesFilePath);
         }
     }
 
@@ -338,6 +332,45 @@ public class DataModel {
                 page.setSections(orderedSections);
                 EventBus.getDefault().post(new SectionsChangedEvent());
                 if (save) {
+                    scheduleStoreData();
+                }
+            }
+        }
+    }
+
+    public void sortApps() {
+        synchronized (this) {
+            for (PageData pageData : mPages) {
+                for (SectionData sectionData : pageData.getSections()) {
+                    sectionData.sortAppsAlphabetically();
+                }
+            }
+            EventBus.getDefault().post(new SectionsChangedEvent());
+            scheduleStoreData();
+        }
+    }
+
+    public void sortAppsInPage(String pageName) {
+        synchronized (this) {
+            PageData page = getPage(pageName);
+            if (page != null) {
+                for (SectionData sectionData : page.getSections()) {
+                    sectionData.sortAppsAlphabetically();
+                }
+                EventBus.getDefault().post(new SectionsChangedEvent());
+                scheduleStoreData();
+            }
+        }
+    }
+
+    public void sortAppsInSection(String pageName, String sectionName) {
+        synchronized (this) {
+            PageData page = getPage(pageName);
+            if (page != null) {
+                SectionData sectionData = page.getSection(sectionName);
+                if (sectionData != null) {
+                    sectionData.sortAppsAlphabetically();
+                    EventBus.getDefault().post(new SectionsChangedEvent());
                     scheduleStoreData();
                 }
             }

@@ -96,7 +96,8 @@ public class ApplistDialogs {
     public static void questionDialog(Activity activity,
                                       String title,
                                       String message,
-                                      final Runnable onOk) {
+                                      final Runnable onOk,
+                                      final Runnable onCancel) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder
                 .setTitle(title)
@@ -111,7 +112,7 @@ public class ApplistDialogs {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Nothing.
+                        onCancel.run();
                     }
                 });
         AlertDialog alertDialog = alertDialogBuilder.create();

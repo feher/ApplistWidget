@@ -36,4 +36,9 @@
     <string name="settings_show_phone_badge_select_default_app">Valitse oletuspuhelinappi</string>
     <string name="remove_section_message">Poistatko \"%1$s\" ryhmän?\n\nSisältävät appit siirretään \"%2$s\" ryhmiin.</string>
     <string name="remove_section_title">Poista ryhmä</string>
+    <string name="color_theme_transparent">Läpinäkyvä</string>
+    <string name="section_item_menu_sort_apps">Lajittele aakkosjärjestyksessä</string>
+    <string name="settings_keep_apps_sorted_alphabetically">Pidä appit järjestyksessä</string>
+    <string name="settings_keep_apps_sorted_alphabetically_summary">Lajittele ryhmissä olevat appit aina aakkosjärjestyksessä</string>
+    <string name="settings_keep_apps_sorted_dialog_message">Kaikki appit lajittelemme uudestaan aakkosjärjestykseen.</string>
 </resources>

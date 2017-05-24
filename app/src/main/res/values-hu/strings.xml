@@ -36,4 +36,9 @@
     <string name="settings_show_phone_badge_select_default_app">Válaszd ki az alapértelmezett telefon app-ot</string>
     <string name="remove_section_message">Biztos, hogy törlöd a \"%1$s\" csoportot?\n\nA tartalmazott app-ok áthelyeződnek a \"%2$s\" csoportba.</string>
     <string name="remove_section_title">Csoport törlése</string>
+    <string name="color_theme_transparent">Áttetsző</string>
+    <string name="section_item_menu_sort_apps">Appok ABC rendezése</string>
+    <string name="settings_keep_apps_sorted_alphabetically">Appok automatikus rendezése</string>
+    <string name="settings_keep_apps_sorted_alphabetically_summary">Az appok mindig ABC szerint lesznek rendezve</string>
+    <string name="settings_keep_apps_sorted_dialog_message">Most minden appot átrendezünk ABC szerint.</string>
 </resources>

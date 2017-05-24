@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist.model;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -67,6 +68,10 @@ public class SectionData extends BaseData {
 
     public boolean removeApp(AppData app) {
         return mApps.remove(app);
+    }
+
+    public void sortAppsAlphabetically() {
+        Collections.sort(mApps, new AppData.NameComparator());
     }
 
     @Override

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.GridLayoutManager;
@@ -289,8 +288,10 @@ public class ApplistFragment extends Fragment
             }
         });
         if (!sectionItem.isRemovable()) {
-            MenuItem deleteMenuItem = mItemMenu.getMenu().findItem(R.id.action_section_delete);
-            deleteMenuItem.setVisible(false);
+            mItemMenu.getMenu().findItem(R.id.action_section_delete).setVisible(false);
+        }
+        if (SettingsUtils.isKeepAppsSortedAlphabetically(getContext().getApplicationContext())) {
+            mItemMenu.getMenu().findItem(R.id.action_section_sort_apps).setVisible(false);
         }
         mItemMenu.show();
     }
@@ -458,6 +459,10 @@ public class ApplistFragment extends Fragment
                     deleteSection((SectionItem) mItemMenuTarget);
                     handled = true;
                     break;
+                case R.id.action_section_sort_apps:
+                    sortSection((SectionItem) mItemMenuTarget);
+                    handled = true;
+                    break;
             }
             mItemMenu = null;
             return handled;
@@ -510,7 +515,6 @@ public class ApplistFragment extends Fragment
                             @Override
                             public Void call() throws Exception {
                                 mDataModel.setSectionName(pageName, oldSectionName, newSectionName);
-                                mDataModel.storePages();
                                 return null;
                             }
                         });
@@ -533,12 +537,29 @@ public class ApplistFragment extends Fragment
                             @Override
                             public Void call() throws Exception {
                                 mDataModel.removeSection(pageName, sectionName);
-                                mDataModel.storePages();
                                 return null;
                             }
                         });
                     }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // Nothing.
+                    }
                 });
+    }
+
+    private void sortSection(SectionItem sectionItem) {
+        final String sectionName = sectionItem.getName();
+        final String pageName = getPageName();
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mDataModel.sortAppsInSection(pageName, sectionName);
+                return null;
+            }
+        });
     }
 
     private void createSection(@Nullable final AppItem appToMove) {
@@ -567,7 +588,6 @@ public class ApplistFragment extends Fragment
                                         AppData appData = new AppData(appToMove);
                                         mDataModel.moveAppToSection(pageName, sectionName, appData);
                                     }
-                                    mDataModel.storePages();
                                     return null;
                                 }
                             });
@@ -579,11 +599,15 @@ public class ApplistFragment extends Fragment
     private void savePageToModel() {
         final String pageName = getPageName();
         final List<BaseItem> items = mAdapter.getAllItems();
+        final boolean keepAppsSorted = SettingsUtils.isKeepAppsSortedAlphabetically(getContext().getApplicationContext());
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 PageData pageData = ViewModelUtils.viewToModel(DataModel.INVALID_ID, pageName, items);
                 mDataModel.setPage(pageName, pageData);
+                if (keepAppsSorted) {
+                    mDataModel.sortAppsInPage(pageName);
+                }
                 return null;
             }
         });
