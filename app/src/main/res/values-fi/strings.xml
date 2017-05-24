@@ -24,7 +24,6 @@
     <string name="settings_appearance">Ulkonäkö</string>
     <string name="settings_color_theme">Väri</string>
     <string name="uncategorized_group">Muut</string>
-    <string name="color_theme_default">@string/color_theme_black</string>
     <string name="default_page_name">Appit</string>
     <string name="settings_badges">Viestimerkkejä</string>
     <string name="settings_show_sms_badge">Lukematon tekstiviesti</string>
@@ -41,4 +40,9 @@
     <string name="settings_keep_apps_sorted_alphabetically">Pidä appit järjestyksessä</string>
     <string name="settings_keep_apps_sorted_alphabetically_summary">Lajittele ryhmissä olevat appit aina aakkosjärjestyksessä</string>
     <string name="settings_keep_apps_sorted_dialog_message">Kaikki appit lajittelemme uudestaan aakkosjärjestykseen.</string>
+    <string name="column_width_large">Suuri</string>
+    <string name="column_width_medium">Medium</string>
+    <string name="column_width_small">Pieni</string>
+    <string name="column_width_tiny">Pikkuinen</string>
+    <string name="settings_column_width">Kuvakkeiden koko</string>
 </resources>

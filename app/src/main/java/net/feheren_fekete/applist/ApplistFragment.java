@@ -89,7 +89,9 @@ public class ApplistFragment extends Fragment
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_fragment_recycler_view);
 
-        final int columnSize = getResources().getDimensionPixelSize(R.dimen.appitem_width);
+        final int columnSize = Math.round(
+                ScreenUtils.dpToPx(getContext(),
+                        SettingsUtils.getColumnWidth(getContext())));
         final int screenWidth = ScreenUtils.getScreenWidth(getContext());
         final int columnCount = screenWidth / columnSize;
         mLayoutManager = new GridLayoutManager(getContext(), columnCount);

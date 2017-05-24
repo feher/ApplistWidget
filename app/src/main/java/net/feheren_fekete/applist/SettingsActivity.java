@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
@@ -23,6 +24,7 @@ import android.util.Log;
 import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import java.util.concurrent.Callable;
 
@@ -34,6 +36,7 @@ public class SettingsActivity extends PreferenceActivity {
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
     public static final String PREF_KEY_COLOR_THEME = "pref_key_color_theme";
+    public static final String PREF_KEY_COLUMN_WIDTH = "pref_key_column_width";
     public static final String PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY = "pref_key_keep_apps_sorted_alphabetically";
     public static final String PREF_KEY_SHOW_BADGE = "pref_key_show_badge";
     public static final String PREF_KEY_SHOW_SMS_BADGE = "pref_key_show_sms_badge";
@@ -76,11 +79,13 @@ public class SettingsActivity extends PreferenceActivity {
         private static final int SMS_PERMISSION_REQUEST_CODE = 1;
         private static final int PHONE_PERMISSION_REQUEST_CODE = 2;
         private String mDefaultThemeValue;
+        private String mDefaultColumnWidthValue;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             mDefaultThemeValue = getResources().getString(R.string.color_theme_value_default);
+            mDefaultColumnWidthValue = getResources().getString(R.string.column_width_value_default);
             addPreferencesFromResource(R.xml.preferences);
         }
 
@@ -96,6 +101,9 @@ public class SettingsActivity extends PreferenceActivity {
             super.onResume();
             Preference preference = findPreference(PREF_KEY_COLOR_THEME);
             preference.setSummary(getColorTheme());
+
+            preference = findPreference(PREF_KEY_COLUMN_WIDTH);
+            preference.setSummary(getColumnWidth());
         }
 
         @Override
@@ -111,6 +119,8 @@ public class SettingsActivity extends PreferenceActivity {
                 handleChangeKeepAppsSorted();
             } else if (key.equals(PREF_KEY_COLOR_THEME)) {
                 handleChangeColorTheme();
+            } else if (key.equals(PREF_KEY_COLUMN_WIDTH)) {
+                handleChangeColumnWidth();
             } else if (key.equals(PREF_KEY_SHOW_SMS_BADGE)) {
                 handleChangeShowSmsBadge();
             } else if (key.equals(PREF_KEY_SHOW_PHONE_BADGE)) {
@@ -152,6 +162,12 @@ public class SettingsActivity extends PreferenceActivity {
         private void handleChangeColorTheme() {
             Preference preference = findPreference(PREF_KEY_COLOR_THEME);
             preference.setSummary(getColorTheme());
+            restartMainActivity();
+        }
+
+        private void handleChangeColumnWidth() {
+            Preference preference = findPreference(PREF_KEY_COLUMN_WIDTH);
+            preference.setSummary(getColumnWidth());
             restartMainActivity();
         }
 
@@ -254,6 +270,18 @@ public class SettingsActivity extends PreferenceActivity {
             for (int i = 0; i < colorThemeValues.length; ++i) {
                 if (colorThemeValues[i].equals(colorThemeValue)) {
                     return colorThemes[i];
+                }
+            }
+            return "";
+        }
+
+        private String getColumnWidth() {
+            String columnWidthValue = getPreferenceScreen().getSharedPreferences().getString(PREF_KEY_COLUMN_WIDTH, mDefaultColumnWidthValue);
+            String[] columnWidthValues = getResources().getStringArray(R.array.column_width_values);
+            String[] columnWidths = getResources().getStringArray(R.array.column_widths);
+            for (int i = 0; i < columnWidthValues.length; ++i) {
+                if (columnWidthValues[i].equals(columnWidthValue)) {
+                    return columnWidths[i];
                 }
             }
             return "";

@@ -11,11 +11,19 @@
         <ListPreference
             android:key="pref_key_color_theme"
             android:title="@string/settings_color_theme"
-            android:summary="@string/color_theme_default"
+            android:summary=""
             android:dialogTitle="@string/settings_color_theme"
             android:entries="@array/color_themes"
             android:entryValues="@array/color_theme_values"
             android:defaultValue="@string/color_theme_value_default" />
+        <ListPreference
+            android:key="pref_key_column_width"
+            android:title="@string/settings_column_width"
+            android:summary=""
+            android:dialogTitle="@string/settings_column_width"
+            android:entries="@array/column_widths"
+            android:entryValues="@array/column_width_values"
+            android:defaultValue="@string/column_width_value_default" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/settings_badges"

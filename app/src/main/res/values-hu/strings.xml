@@ -24,7 +24,6 @@
     <string name="settings_appearance">Kinézet</string>
     <string name="settings_color_theme">Szín</string>
     <string name="uncategorized_group">Egyéb</string>
-    <string name="color_theme_default">@string/color_theme_black</string>
     <string name="default_page_name">Appok</string>
     <string name="settings_badges">Űzenetjelzések</string>
     <string name="settings_show_badge">Új tartalom</string>
@@ -41,4 +40,9 @@
     <string name="settings_keep_apps_sorted_alphabetically">Appok automatikus rendezése</string>
     <string name="settings_keep_apps_sorted_alphabetically_summary">Az appok mindig ABC szerint lesznek rendezve</string>
     <string name="settings_keep_apps_sorted_dialog_message">Most minden appot átrendezünk ABC szerint.</string>
+    <string name="column_width_large">Nagy</string>
+    <string name="column_width_medium">Közepes</string>
+    <string name="column_width_small">Kicsi</string>
+    <string name="column_width_tiny">Picike</string>
+    <string name="settings_column_width">Ikonméret</string>
 </resources>

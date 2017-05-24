@@ -33,6 +33,7 @@
     <string name="settings_keep_apps_sorted_alphabetically_summary">Always sort apps alphabetically inside groups</string>
     <string name="settings_keep_apps_sorted_dialog_message">All your apps will be re-arranged alphabetically now.</string>
     <string name="settings_color_theme">Color theme</string>
+    <string name="settings_column_width">Icon size</string>
     <string name="settings_badges">Message indicators</string>
     <string name="settings_show_badge">New content</string>
     <string name="settings_show_badge_summary">Show an indicator of new content for supported applications (e.g. Facebook)</string>
@@ -42,7 +43,6 @@
     <string name="settings_show_phone_badge_summary">Show an indicator for missed calls on the default phone app</string>
     <string name="settings_show_phone_badge_select_default_app">Select your default phone app</string>
 
-    <string name="color_theme_default">@string/color_theme_black</string>
     <string name="color_theme_transparent">Transparent</string>
     <string name="color_theme_black">Black</string>
     <string name="color_theme_brown">Brown</string>
@@ -51,7 +51,6 @@
     <string name="color_theme_blue_grey">Blue Grey</string>
     <string name="color_theme_deep_purple">Deep Purple</string>
     <string name="color_theme_indigo">Indigo</string>
-
     <string-array name="color_themes">
         <item>@string/color_theme_transparent</item>
         <item>@string/color_theme_black</item>
@@ -64,7 +63,6 @@
     </string-array>
 
     <string name="color_theme_value_default" translatable="false">Black</string>
-
     <string-array name="color_theme_values" translatable="false">
         <item>Transparent</item>
         <item>Black</item>
@@ -74,6 +72,25 @@
         <item>Blue Grey</item>
         <item>Deep Purple</item>
         <item>Indigo</item>
+    </string-array>
+
+    <string name="column_width_tiny">Tiny</string>
+    <string name="column_width_small">Small</string>
+    <string name="column_width_medium">Medium</string>
+    <string name="column_width_large">Large</string>
+    <string-array name="column_widths">
+        <item>@string/column_width_tiny</item>
+        <item>@string/column_width_small</item>
+        <item>@string/column_width_medium</item>
+        <item>@string/column_width_large</item>
+    </string-array>
+
+    <string name="column_width_value_default" translatable="false">86</string>
+    <string-array name="column_width_values">
+        <item>56</item>
+        <item>66</item>
+        <item>76</item>
+        <item>86</item>
     </string-array>
 
 </resources>

@@ -38,6 +38,14 @@ public class SettingsUtils {
         }
     }
 
+    public static int getColumnWidth(Context context) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        String columnWidthValue = sharedPref.getString(
+                SettingsActivity.PREF_KEY_COLUMN_WIDTH,
+                context.getResources().getString(R.string.column_width_value_default));
+        return Integer.parseInt(columnWidthValue);
+    }
+
     public static boolean isThemeTransparent(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String colorThemeName = sharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, "Brown");
