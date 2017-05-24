@@ -2,14 +2,15 @@
 <resources>
 
     <style name="MyThemeTransparent" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="primaryColor">#88000000</item>
-        <item name="primaryDarkColor">#88000000</item>
-        <item name="primaryLightColor">#88000000</item>
+        <item name="primaryColor">#000000</item>
+        <item name="primaryDarkColor">#000000</item>
+        <item name="primaryLightColor">#CCCCCC</item>
         <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#55000000</item>
+        <item name="toolbarBackgroundColor">#EE000000</item>
         <item name="listBackgroundColor">#88000000</item>
         <item name="sectionBackgroundColor">#88000000</item>
         <item name="sectionTextColor">#555555</item>
@@ -31,6 +32,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
+        <item name="toolbarBackgroundColor">?attr/primaryColor</item>
         <item name="listBackgroundColor">#EEEEEE</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
@@ -52,6 +54,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
+        <item name="toolbarBackgroundColor">?attr/primaryColor</item>
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
@@ -73,6 +76,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#ECEFF1</item>
         <item name="dividerColor">#B6B6B6</item>
+        <item name="toolbarBackgroundColor">?attr/primaryColor</item>
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
@@ -94,6 +98,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
+        <item name="toolbarBackgroundColor">?attr/primaryColor</item>
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
@@ -115,6 +120,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#212121</item>
         <item name="dividerColor">#B6B6B6</item>
+        <item name="toolbarBackgroundColor">?attr/primaryColor</item>
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
@@ -136,6 +142,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
+        <item name="toolbarBackgroundColor">?attr/primaryColor</item>
         <item name="listBackgroundColor">#e6eadf</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
@@ -157,6 +164,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#B6B6B6</item>
+        <item name="toolbarBackgroundColor">?attr/primaryColor</item>
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
