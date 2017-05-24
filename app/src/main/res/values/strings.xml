@@ -86,7 +86,7 @@
     </string-array>
 
     <string name="column_width_value_default" translatable="false">86</string>
-    <string-array name="column_width_values">
+    <string-array name="column_width_values" translatable="false">
         <item>56</item>
         <item>66</item>
         <item>76</item>
