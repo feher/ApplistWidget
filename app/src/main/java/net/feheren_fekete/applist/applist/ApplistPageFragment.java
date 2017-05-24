@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist;
+package net.feheren_fekete.applist.applist;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -21,10 +21,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.model.AppData;
 import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.model.PageData;
+import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.*;
 import net.feheren_fekete.applist.viewmodel.AppItem;
@@ -40,10 +42,10 @@ import java.util.concurrent.Callable;
 import bolts.Continuation;
 import bolts.Task;
 
-public class ApplistFragment extends Fragment
+public class ApplistPageFragment extends Fragment
         implements ApplistAdapter.ItemListener, ApplistItemTouchHelperCallback.OnMoveListener {
 
-    private static final String TAG = ApplistFragment.class.getSimpleName();
+    private static final String TAG = ApplistPageFragment.class.getSimpleName();
 
     public interface Listener {
         void onItemMoveStart();
@@ -64,10 +66,10 @@ public class ApplistFragment extends Fragment
     private float mItemMoveThreshold;
     private @Nullable Listener mListener;
 
-    public static ApplistFragment newInstance(String pageName,
-                                              DataModel dataModel,
-                                              IconCache iconCache) {
-        ApplistFragment fragment = new ApplistFragment();
+    public static ApplistPageFragment newInstance(String pageName,
+                                                  DataModel dataModel,
+                                                  IconCache iconCache) {
+        ApplistPageFragment fragment = new ApplistPageFragment();
 
         Bundle args = new Bundle();
         args.putString("pageName", pageName);
@@ -85,9 +87,9 @@ public class ApplistFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.applist_fragment, container, false);
+        View view = inflater.inflate(R.layout.applist_page_fragment, container, false);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_fragment_recycler_view);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_page_fragment_recycler_view);
 
         final int columnSize = Math.round(
                 ScreenUtils.dpToPx(getContext(),
@@ -111,7 +113,7 @@ public class ApplistFragment extends Fragment
         });
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mTouchOverlay = view.findViewById(R.id.applist_fragment_touch_overlay);
+        mTouchOverlay = view.findViewById(R.id.applist_page_fragment_touch_overlay);
         mTouchOverlay.setOnTouchListener(mTouchOverlayListener);
 
         mAdapter = new ApplistAdapter(

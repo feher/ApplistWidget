@@ -1,9 +1,12 @@
-package net.feheren_fekete.applist;
+package net.feheren_fekete.applist.settings;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
+import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.settings.SettingsActivity;
 
 public class SettingsUtils {
 

@@ -5,9 +5,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ShortcutInfo;
 import android.net.Uri;
+import android.os.Build;
+import android.os.UserHandle;
 import android.provider.Telephony;
 import android.support.annotation.Nullable;
 
@@ -97,6 +101,16 @@ public class AppUtils {
         Intent phoneIntent = new Intent(Intent.ACTION_DIAL);
         phoneIntent.setData(Uri.parse("tel:+1234567890"));
         return phoneIntent;
+    }
+
+    public static List<ShortcutInfo> getShortcutInfos(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            UserHandle userHandle = android.os.Process.myUserHandle();
+            LauncherApps launcherApps = context.getSystemService(LauncherApps.class);
+            LauncherApps.ShortcutQuery shortcutQuery = null;
+            launcherApps.getShortcuts(shortcutQuery, userHandle);
+        }
+        return null;
     }
 
     private static long createAppId(String packageName, String componentName) {

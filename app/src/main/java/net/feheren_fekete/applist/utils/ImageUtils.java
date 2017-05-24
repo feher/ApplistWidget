@@ -1,15 +1,13 @@
-package net.feheren_fekete.applist;
+package net.feheren_fekete.applist.utils;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import net.feheren_fekete.applist.ApplistLog;
 
 import java.io.File;
 import java.io.FileOutputStream;

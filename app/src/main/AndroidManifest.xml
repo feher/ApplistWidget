@@ -30,7 +30,7 @@
         android:theme="@style/MyThemeBlack">
 
         <activity
-            android:name="net.feheren_fekete.applist.ApplistActivity"
+            android:name="net.feheren_fekete.applist.MainActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait">
@@ -43,11 +43,11 @@
         </activity>
 
         <activity
-            android:name="net.feheren_fekete.applist.SettingsActivity"
-            android:parentActivityName=".ApplistActivity">
+            android:name="net.feheren_fekete.applist.settings.SettingsActivity"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="net.feheren_fekete.applist.ApplistActivity" />
+                android:value="net.feheren_fekete.applist.MainActivity" />
         </activity>
 
         <receiver android:name=".shortcutbadge.BadgeReceiver">

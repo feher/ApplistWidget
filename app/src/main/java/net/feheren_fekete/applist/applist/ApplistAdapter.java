@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist;
+package net.feheren_fekete.applist.applist;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -18,10 +18,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import net.feheren_fekete.applist.ApplistApp;
+import net.feheren_fekete.applist.ApplistLog;
+import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.model.BadgeStore;
 import net.feheren_fekete.applist.model.DataModel;
 import net.feheren_fekete.applist.model.PageData;
 import net.feheren_fekete.applist.model.SectionData;
+import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.viewmodel.AppItem;

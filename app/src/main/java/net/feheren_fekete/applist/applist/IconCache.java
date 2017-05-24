@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist;
+package net.feheren_fekete.applist.applist;
 
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
