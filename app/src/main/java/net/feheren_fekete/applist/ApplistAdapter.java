@@ -398,20 +398,26 @@ public class ApplistAdapter
             return null;
         }
         if (mFilterName.isEmpty()) {
-            return mCollapsedItems;
-        }
-
-        List<BaseItem> result = new ArrayList<>();
-        String lowercaseFilterText = mFilterName.toLowerCase();
-        for (BaseItem item : mAllItems) {
-            if (item instanceof AppItem) {
-                String lowercaseItemName = item.getName().toLowerCase();
-                if (lowercaseItemName.contains(lowercaseFilterText)) {
+            List<BaseItem> result = new ArrayList<>();
+            for (BaseItem item : mAllItems) {
+                if (item instanceof AppItem) {
                     result.add(item);
                 }
             }
+            return result;
+        } else {
+            List<BaseItem> result = new ArrayList<>();
+            String lowercaseFilterText = mFilterName.toLowerCase();
+            for (BaseItem item : mAllItems) {
+                if (item instanceof AppItem) {
+                    String lowercaseItemName = item.getName().toLowerCase();
+                    if (lowercaseItemName.contains(lowercaseFilterText)) {
+                        result.add(item);
+                    }
+                }
+            }
+            return result;
         }
-        return result;
     }
 
     private List<BaseItem> filterItemsByType() {
