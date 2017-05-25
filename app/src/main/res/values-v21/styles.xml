@@ -15,6 +15,7 @@
         <item name="sectionBackgroundColor">#88000000</item>
         <item name="sectionTextColor">#555555</item>
         <item name="appTextColor">#DDDDDD</item>
+        <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -37,6 +38,7 @@
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -59,6 +61,7 @@
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="draggedOverIndicatorColor">#88DD6600</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -81,6 +84,7 @@
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -103,6 +107,7 @@
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -125,6 +130,7 @@
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="draggedOverIndicatorColor">#88FF6600</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -147,6 +153,7 @@
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -169,6 +176,7 @@
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="draggedOverIndicatorColor">#88536DFE</item>
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>

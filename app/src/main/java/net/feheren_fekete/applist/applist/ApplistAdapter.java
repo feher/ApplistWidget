@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
@@ -15,7 +14,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import net.feheren_fekete.applist.ApplistApp;
@@ -81,20 +79,24 @@ public class ApplistAdapter
     }
 
     public static class ViewHolderBase extends RecyclerView.ViewHolder {
+        public final ViewGroup layout;
         public ViewHolderBase(View view) {
             super(view);
+            this.layout = (ViewGroup) view.findViewById(R.id.layout);
         }
     }
 
     public static class AppItemHolder extends ViewHolderBase {
-        public final ConstraintLayout layout;
+        public final View draggedOverIndicatorLeft;
+        public final View draggedOverIndicatorRight;
         public final ImageView appIcon;
         public final TextView appName;
         public final TextView badgeCount;
         public IconLoaderTask iconLoader;
         public AppItemHolder(View view) {
             super(view);
-            this.layout = (ConstraintLayout) view.findViewById(R.id.layout);
+            this.draggedOverIndicatorLeft = view.findViewById(R.id.appitem_dragged_over_indicator_left);
+            this.draggedOverIndicatorRight = view.findViewById(R.id.appitem_dragged_over_indicator_right);
             this.appIcon = (ImageView) view.findViewById(R.id.icon);
             this.appName = (TextView) view.findViewById(R.id.app_name);
             this.badgeCount = (TextView) view.findViewById(R.id.badge_count);
@@ -102,11 +104,13 @@ public class ApplistAdapter
     }
 
     public static class SectionItemHolder extends ViewHolderBase {
-        public final RelativeLayout layout;
+        public final View draggedOverIndicatorLeft;
+        public final View draggedOverIndicatorRight;
         public final TextView sectionName;
         public SectionItemHolder(View view) {
             super(view);
-            this.layout = (RelativeLayout) view.findViewById(R.id.layout);
+            this.draggedOverIndicatorLeft = view.findViewById(R.id.sectionitem_dragged_over_indicator_left);
+            this.draggedOverIndicatorRight = view.findViewById(R.id.sectionitem_dragged_over_indicator_right);
             this.sectionName = (TextView) view.findViewById(R.id.app_name);
         }
     }
@@ -264,6 +268,9 @@ public class ApplistAdapter
     }
 
     public boolean moveItem(int fromPosition, int toPosition) {
+        if (fromPosition == toPosition) {
+            return false;
+        }
         List<BaseItem> items = getItems();
         if (fromPosition < 0 || fromPosition >= items.size()) {
             ApplistLog.getInstance().log(new RuntimeException("Bad fromPosition " + fromPosition));
@@ -353,8 +360,46 @@ public class ApplistAdapter
         });
     }
 
+    public BaseItem getItem(int position) {
+        return getItems().get(position);
+    }
+
     public List<BaseItem> getAllItems() {
         return new ArrayList<>(mAllItems);
+    }
+
+    public boolean isAppLastInSection(AppItem item) {
+        boolean result = false;
+        final int position = getRealItemPosition(item);
+        if (position == mAllItems.size() - 1) {
+            result = true;
+        } else if (mAllItems.get(position + 1) instanceof SectionItem) {
+            result = true;
+        }
+        return result;
+    }
+
+    public boolean isSectionEmpty(SectionItem item) {
+        boolean result = false;
+        final int position = getRealItemPosition(item);
+        if (position == mAllItems.size() - 1) {
+            result = true;
+        } else if (mAllItems.get(position + 1) instanceof SectionItem) {
+            result = true;
+        }
+        return result;
+    }
+
+    public boolean isSectionLast(SectionItem item) {
+        boolean result = true;
+        final int position = getRealItemPosition(item);
+        for (int i = position + 1; i < mAllItems.size(); ++i) {
+            if (mAllItems.get(i) instanceof SectionItem) {
+                result = false;
+                break;
+            }
+        }
+        return result;
     }
 
     private List<BaseItem> getItems() {
@@ -488,6 +533,16 @@ public class ApplistAdapter
             holder.badgeCount.setVisibility(View.GONE);
         }
 
+        final float alpha = item.isDragged() ? 0.3f : 1.0f;
+        holder.appIcon.setAlpha(alpha);
+        holder.appName.setAlpha(alpha);
+        holder.badgeCount.setAlpha(alpha);
+
+        holder.draggedOverIndicatorLeft.setVisibility(
+                item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);
+        holder.draggedOverIndicatorRight.setVisibility(
+                item.isDraggedOverRight() ? View.VISIBLE : View.INVISIBLE);
+
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -520,6 +575,14 @@ public class ApplistAdapter
                 item.isCollapsed()
                         ? item.getName() + " ..."
                         : item.getName());
+
+        final float alpha = item.isDragged() ? 0.3f : 1.0f;
+        holder.sectionName.setAlpha(alpha);
+
+        holder.draggedOverIndicatorLeft.setVisibility(
+                item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);
+        holder.draggedOverIndicatorRight.setVisibility(
+                item.isDraggedOverRight() ? View.VISIBLE : View.INVISIBLE);
 
         holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

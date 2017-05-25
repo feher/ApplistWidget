@@ -24,7 +24,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 1;
+        return 2;
     }
 
 }

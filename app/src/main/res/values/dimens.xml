@@ -8,7 +8,7 @@
     <dimen name="custom_tab_layout_height">72dp</dimen>
     <dimen name="appitem_icon_size">48dp</dimen>
     <dimen name="appitem_badge_size">24dp</dimen>
+    <dimen name="dragged_over_indicator_width">4dp</dimen>
 
     <dimen name="applist_fragment_item_move_threshold">20dp</dimen>
-    <dimen name="applist_fragment_item_drag_max_scroll">7dp</dimen>
 </resources>
