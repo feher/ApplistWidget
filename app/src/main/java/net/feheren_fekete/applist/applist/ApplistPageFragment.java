@@ -394,6 +394,11 @@ public class ApplistPageFragment extends Fragment
                                 && mItemMenu != null
                                 && mItemMenuTarget != null;
                         if (canMoveItem) {
+                            // Tell the ViewPager in LauncherFragment to let us handle
+                            // events from now on. Otherwise ViewPager would steal them
+                            // for handling the side-swipe of pages.
+                            ((ViewGroup)v).requestDisallowInterceptTouchEvent(true);
+
                             final float a = event.getRawX() - fingerDownPos.x;
                             final float b = event.getRawY() - fingerDownPos.y;
                             if (Math.sqrt(a * a + b * b) > mItemMoveThreshold) {
