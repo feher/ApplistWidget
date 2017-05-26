@@ -368,7 +368,7 @@ public class ApplistPageFragment extends Fragment
     public void onStartDragging() {
         mItemMenu.dismiss();
         if (mListener != null) {
-            mListener.onItemMoveStart();
+//            mListener.onItemMoveStart();
         }
 
         mAdapter.setEnabled(mItemMenuTarget, false);
@@ -415,7 +415,7 @@ public class ApplistPageFragment extends Fragment
         removeDraggedView();
 
         if (mListener != null) {
-// This makes appbar move down
+            // This makes appbar move down
 //            mListener.onItemMoveEnd();
         }
     }
