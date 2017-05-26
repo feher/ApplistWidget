@@ -525,6 +525,10 @@ public class ApplistAdapter
     }
 
     private void bindAppItemHolder(AppItemHolder holder, int position) {
+        if (mFragment.getActivity() == null) {
+            return;
+        }
+
         final AppItem item = (AppItem) getItems().get(position);
 
         Bitmap icon = mIconCache.getIcon(mIconCache.createKey(item));
