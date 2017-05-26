@@ -512,8 +512,8 @@ public class ApplistPageFragment extends Fragment
         final MotionEvent event = mItemDragHandler.getMotionEvent();
         final float fingerCurrentPosX = event.getRawX();
         final float fingerCurrentPosY = event.getRawY();
-        final int firstItemPos = mLayoutManager.findFirstCompletelyVisibleItemPosition();
-        final int lastItemPos = mLayoutManager.findLastCompletelyVisibleItemPosition();
+        final int firstItemPos = mLayoutManager.findFirstVisibleItemPosition();
+        final int lastItemPos = mLayoutManager.findLastVisibleItemPosition();
 
         if (mDraggedOverItem != null) {
             mDraggedOverItem.setDraggedOver(BaseItem.NONE);
