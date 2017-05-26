@@ -21,7 +21,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.model.AppData;
 import net.feheren_fekete.applist.model.BadgeStore;
@@ -62,7 +61,8 @@ public class ApplistPageFragment extends Fragment
     private MyGridLayoutManager mLayoutManager;
     private ApplistItemDragHandler mItemDragHandler;
     private View mDraggedView;
-    private int mDraggedViewSize;
+    private int mDraggedAppViewSize;
+    private int mDraggedSectionViewSize;
     private @Nullable BaseItem mDraggedOverItem;
     private int[] mRecyclerViewLocation = new int[2];
     private int[] mDraggedOverViewLocation = new int[2];
@@ -122,7 +122,8 @@ public class ApplistPageFragment extends Fragment
         mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_fragment_touch_overlay);
         mItemDragHandler = new ApplistItemDragHandler(this, mTouchOverlay, mRecyclerView);
         mItemMoveThreshold = getResources().getDimension(R.dimen.applist_fragment_item_move_threshold);
-        mDraggedViewSize = getResources().getDimensionPixelSize(R.dimen.appitem_icon_size);
+        mDraggedAppViewSize = getResources().getDimensionPixelSize(R.dimen.appitem_icon_size);
+        mDraggedSectionViewSize = getResources().getDimensionPixelSize(R.dimen.dragged_section_item_width);
 
         mAdapter = new ApplistAdapter(
                 getContext(),
@@ -366,9 +367,6 @@ public class ApplistPageFragment extends Fragment
     @Override
     public void onStartDragging() {
         mItemMenu.dismiss();
-//        if (mItemMenuTarget instanceof SectionItem) {
-//            mAdapter.setTypeFilter(SectionItem.class);
-//        }
         if (mListener != null) {
             mListener.onItemMoveStart();
         }
@@ -381,8 +379,7 @@ public class ApplistPageFragment extends Fragment
 //            sectionItemHolder.sectionName.setTypeface(null, Typeface.BOLD);
 //        }
 
-        mItemMenuTarget.setDragged(true);
-        mAdapter.notifyItemChanged(mAdapter.getItemPosition(mItemMenuTarget));
+        mAdapter.setDragged(mItemMenuTarget, true);
 
         addDraggedView();
     }
@@ -414,8 +411,7 @@ public class ApplistPageFragment extends Fragment
 
     @Override
     public void onStopDragging() {
-        mItemMenuTarget.setDragged(false);
-        mAdapter.notifyItemChanged(mAdapter.getItemPosition(mItemMenuTarget));
+        mAdapter.setDragged(mItemMenuTarget, false);
 
         if (mDraggedOverItem != null) {
             mDraggedOverItem.setDraggedOver(BaseItem.NONE);
@@ -423,10 +419,6 @@ public class ApplistPageFragment extends Fragment
         }
 
         removeDraggedView();
-
-//        if (mItemMenuTarget instanceof SectionItem) {
-//            mAdapter.setTypeFilter(null);
-//        }
 
         if (mListener != null) {
 // This makes appbar move down
@@ -473,19 +465,19 @@ public class ApplistPageFragment extends Fragment
                     (ApplistAdapter.AppItemHolder) mRecyclerView.findViewHolderForItemId(mItemMenuTarget.getId());
             ImageView imageView = new ImageView(getContext());
             imageView.setImageDrawable(appItemHolder.appIcon.getDrawable());
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mDraggedViewSize, mDraggedViewSize);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mDraggedAppViewSize, mDraggedAppViewSize);
             imageView.setLayoutParams(layoutParams);
             mDraggedView = imageView;
         } else {
             if (mDraggedSectionView == null) {
                 LayoutInflater inflater = LayoutInflater.from(getContext());
-                mDraggedSectionView = inflater.inflate(R.layout.dragged_sectionitem, null, false);
+                mDraggedSectionView = inflater.inflate(R.layout.dragged_section_item, null, false);
                 FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        mDraggedSectionViewSize, ViewGroup.LayoutParams.WRAP_CONTENT);
                 mDraggedSectionView.setLayoutParams(layoutParams);
             }
             SectionItem sectionItem = (SectionItem) mItemMenuTarget;
-            TextView textView = (TextView) mDraggedSectionView.findViewById(R.id.dragged_sectionitem_name);
+            TextView textView = (TextView) mDraggedSectionView.findViewById(R.id.dragged_section_item_name);
             textView.setText(sectionItem.getName());
             mDraggedView = mDraggedSectionView;
         }
@@ -495,11 +487,19 @@ public class ApplistPageFragment extends Fragment
 
     private void updateDraggedViewPosition() {
         final MotionEvent event = mItemDragHandler.getMotionEvent();
-        final float rawX = event.getRawX();
-        final float rawY = event.getRawY();
+        final float fingerRawX = event.getRawX();
+        final float fingerRawY = event.getRawY();
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mDraggedView.getLayoutParams();
-        layoutParams.leftMargin = Math.round(rawX - mRecyclerViewLocation[0] - mDraggedViewSize);
-        layoutParams.topMargin = Math.round(rawY - mRecyclerViewLocation[1] - mDraggedViewSize);
+        mRecyclerView.getLocationOnScreen(mRecyclerViewLocation);
+        layoutParams.leftMargin = Math.round(fingerRawX - mRecyclerViewLocation[0]);
+        layoutParams.topMargin = Math.round(fingerRawY - mRecyclerViewLocation[1]);
+        if (mItemMenuTarget instanceof AppItem) {
+            layoutParams.leftMargin -= mDraggedAppViewSize / 2;
+            layoutParams.topMargin -= mDraggedAppViewSize * 1.5;
+        } else {
+            layoutParams.leftMargin -= mDraggedSectionViewSize / 2;
+            layoutParams.topMargin -= mDraggedSectionViewSize;
+        }
         mDraggedView.setLayoutParams(layoutParams);
     }
 
@@ -533,7 +533,9 @@ public class ApplistPageFragment extends Fragment
                         && viewTop <= fingerCurrentPosY && fingerCurrentPosY <= viewBottom);
                 if (isFingerOverView) {
                     mDraggedOverItem = mAdapter.getItem(i);
-                    if (mItemMenuTarget instanceof AppItem) {
+                    if (mDraggedOverItem == mItemMenuTarget) {
+                        mDraggedOverItem = null;
+                    } else if (mItemMenuTarget instanceof AppItem) {
                         if (mDraggedOverItem instanceof AppItem) {
                             if (mAdapter.isAppLastInSection((AppItem) mDraggedOverItem)) {
                                 final int viewMiddle = viewLeft + (viewRight - viewLeft) / 2;
@@ -545,14 +547,16 @@ public class ApplistPageFragment extends Fragment
                                 mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
                             }
                             mAdapter.notifyItemChanged(i);
-                        } else {
+                        } else if (mDraggedOverItem instanceof SectionItem) {
                             SectionItem sectionItem = (SectionItem) mDraggedOverItem;
                             if (sectionItem.isCollapsed() || mAdapter.isSectionEmpty(sectionItem)) {
                                 mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
                                 mAdapter.notifyItemChanged(i);
+                            } else {
+                                mDraggedOverItem = null;
                             }
                         }
-                    } else {
+                    } else if (mItemMenuTarget instanceof SectionItem) {
                         if (mDraggedOverItem instanceof AppItem) {
                             final boolean isLastItem = (i == mAdapter.getItemCount() - 1);
                             if (isLastItem) {
@@ -561,20 +565,14 @@ public class ApplistPageFragment extends Fragment
                             } else {
                                 mDraggedOverItem = null;
                             }
-                        } else {
-                            mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
-                            mAdapter.notifyItemChanged(i);
+                        } else if (mDraggedOverItem instanceof SectionItem) {
+                            if (i != mAdapter.getNextSectionPosition(mItemMenuTarget)) {
+                                mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
+                                mAdapter.notifyItemChanged(i);
+                            } else {
+                                mDraggedOverItem = null;
+                            }
                         }
-//                        if (mAdapter.isSectionLast((SectionItem) mDraggedOverItem)) {
-//                            final int viewMiddle = viewTop + (viewBottom - viewTop) / 2;
-//                            final boolean isFingerOverLeftHalf =
-//                                    (viewTop <= fingerCurrentPosY && fingerCurrentPosY <= viewMiddle);
-//                            mDraggedOverItem.setDraggedOver(
-//                                    isFingerOverLeftHalf ? BaseItem.LEFT : BaseItem.RIGHT);
-//                        } else {
-//                            mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
-//                        }
-//                        mAdapter.notifyItemChanged(i);
                     }
                     break;
                 }

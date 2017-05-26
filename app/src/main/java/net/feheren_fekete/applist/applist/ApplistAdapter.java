@@ -220,6 +220,35 @@ public class ApplistAdapter
         return RecyclerView.NO_POSITION;
     }
 
+    public int getNextSectionPosition(BaseItem item) {
+        final int itemPosition = getItemPosition(item);
+        if (itemPosition != RecyclerView.NO_POSITION) {
+            List<BaseItem> items = getItems();
+            for (int i = itemPosition + 1; i < items.size(); ++i) {
+                BaseItem it = items.get(i);
+                if (it instanceof SectionItem) {
+                    return i;
+                }
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
+    @Nullable
+    public BaseItem getNextSection(BaseItem item) {
+        final int itemPosition = getItemPosition(item);
+        if (itemPosition != RecyclerView.NO_POSITION) {
+            List<BaseItem> items = getItems();
+            for (int i = itemPosition + 1; i < items.size(); ++i) {
+                BaseItem it = items.get(i);
+                if (it instanceof SectionItem) {
+                    return it;
+                }
+            }
+        }
+        return null;
+    }
+
     @Override
     public long getItemId(int position) {
         return getItems().get(position).getId();
@@ -317,19 +346,11 @@ public class ApplistAdapter
             }
             mAllItems.removeAll(sectionAndApps);
 
-            int itemCount = 0;
-            int sectionCount = 0;
-            for (BaseItem item : mAllItems) {
-                ++itemCount;
-                if (item instanceof SectionItem) {
-                    ++sectionCount;
-                }
-                if (sectionCount == toPosition + 1) {
-                    --itemCount;
-                    break;
-                }
+            int adjustedToPosition = realToPosition;
+            if (realFromPosition < realToPosition) {
+                adjustedToPosition = realToPosition - sectionAndApps.size() + 1;
             }
-            mAllItems.addAll(itemCount, sectionAndApps);
+            mAllItems.addAll(adjustedToPosition, sectionAndApps);
         }
 
         updateCollapsedAndFilteredItems();
@@ -400,6 +421,27 @@ public class ApplistAdapter
             }
         }
         return result;
+    }
+
+    public void setDragged(BaseItem item, boolean dragged) {
+        if (item instanceof AppItem) {
+            item.setDragged(dragged);
+            notifyItemChanged(getRealItemPosition(item));
+        } else if (item instanceof SectionItem) {
+            final int sectionPosition = getRealItemPosition(item);
+            final int lastAppInSectionPosition;
+            final BaseItem nextSection = getNextSection(item);
+            if (nextSection != null) {
+                final int nextSectionPosition = getRealItemPosition(nextSection);
+                lastAppInSectionPosition = nextSectionPosition - 1;
+            } else {
+                lastAppInSectionPosition = mAllItems.size() - 1;
+            }
+            for (int i = sectionPosition; i <= lastAppInSectionPosition; ++i) {
+                mAllItems.get(i).setDragged(dragged);
+            }
+            notifyItemRangeChanged(sectionPosition, lastAppInSectionPosition - sectionPosition + 1);
+        }
     }
 
     private List<BaseItem> getItems() {

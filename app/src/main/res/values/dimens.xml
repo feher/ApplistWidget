@@ -9,6 +9,7 @@
     <dimen name="appitem_icon_size">48dp</dimen>
     <dimen name="appitem_badge_size">24dp</dimen>
     <dimen name="dragged_over_indicator_width">4dp</dimen>
+    <dimen name="dragged_section_item_width">86dp</dimen>
 
     <dimen name="applist_fragment_item_move_threshold">20dp</dimen>
 </resources>
