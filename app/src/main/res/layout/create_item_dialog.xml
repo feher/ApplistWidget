@@ -7,14 +7,14 @@
     android:padding="15dp">
 
     <TextView
-        android:id="@+id/text"
+        android:id="@+id/create_item_dialog_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/section_name"/>
 
     <EditText
-        android:id="@+id/edit_text"
+        android:id="@+id/create_item_dialog_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textCapSentences">

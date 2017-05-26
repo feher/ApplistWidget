@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
+import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
@@ -80,9 +81,9 @@ public class ApplistAdapter
 
     public static class ViewHolderBase extends RecyclerView.ViewHolder {
         public final ViewGroup layout;
-        public ViewHolderBase(View view) {
+        public ViewHolderBase(View view, @IdRes int layoutId) {
             super(view);
-            this.layout = (ViewGroup) view.findViewById(R.id.layout);
+            this.layout = (ViewGroup) view.findViewById(layoutId);
         }
     }
 
@@ -94,12 +95,12 @@ public class ApplistAdapter
         public final TextView badgeCount;
         public IconLoaderTask iconLoader;
         public AppItemHolder(View view) {
-            super(view);
-            this.draggedOverIndicatorLeft = view.findViewById(R.id.appitem_dragged_over_indicator_left);
-            this.draggedOverIndicatorRight = view.findViewById(R.id.appitem_dragged_over_indicator_right);
-            this.appIcon = (ImageView) view.findViewById(R.id.icon);
-            this.appName = (TextView) view.findViewById(R.id.app_name);
-            this.badgeCount = (TextView) view.findViewById(R.id.badge_count);
+            super(view, R.id.applist_app_item_layout);
+            this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_app_item_dragged_over_indicator_left);
+            this.draggedOverIndicatorRight = view.findViewById(R.id.applist_app_item_dragged_over_indicator_right);
+            this.appIcon = (ImageView) view.findViewById(R.id.applist_app_item_icon);
+            this.appName = (TextView) view.findViewById(R.id.applist_app_item_app_name);
+            this.badgeCount = (TextView) view.findViewById(R.id.applist_app_item_badge_count);
         }
     }
 
@@ -108,10 +109,10 @@ public class ApplistAdapter
         public final View draggedOverIndicatorRight;
         public final TextView sectionName;
         public SectionItemHolder(View view) {
-            super(view);
-            this.draggedOverIndicatorLeft = view.findViewById(R.id.sectionitem_dragged_over_indicator_left);
-            this.draggedOverIndicatorRight = view.findViewById(R.id.sectionitem_dragged_over_indicator_right);
-            this.sectionName = (TextView) view.findViewById(R.id.app_name);
+            super(view, R.id.applist_section_item_layout);
+            this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_section_item_dragged_over_indicator_left);
+            this.draggedOverIndicatorRight = view.findViewById(R.id.applist_section_item_dragged_over_indicator_right);
+            this.sectionName = (TextView) view.findViewById(R.id.applist_section_item_app_name);
         }
     }
 
@@ -144,11 +145,11 @@ public class ApplistAdapter
     public ViewHolderBase onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case APP_ITEM_VIEW: {
-                View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.appitem, parent, false);
+                View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.applist_app_item, parent, false);
                 return new AppItemHolder(itemView);
             }
             case SECTION_ITEM_VIEW: {
-                View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.sectionitem, parent, false);
+                View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.applist_section_item, parent, false);
                 return new SectionItemHolder(itemView);
             }
             default:

@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout"
+    android:id="@+id/applist_app_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
@@ -11,7 +11,7 @@
     android:background="?selectableItemBackground">
 
     <View
-        android:id="@+id/appitem_dragged_over_indicator_left"
+        android:id="@+id/applist_app_item_dragged_over_indicator_left"
         android:layout_width="@dimen/dragged_over_indicator_width"
         android:layout_height="0dp"
         android:background="?attr/draggedOverIndicatorColor"
@@ -21,7 +21,7 @@
         />
 
     <View
-        android:id="@+id/appitem_dragged_over_indicator_right"
+        android:id="@+id/applist_app_item_dragged_over_indicator_right"
         android:layout_width="@dimen/dragged_over_indicator_width"
         android:layout_height="0dp"
         android:background="?attr/draggedOverIndicatorColor"
@@ -31,7 +31,7 @@
         />
 
     <ImageView
-        android:id="@+id/icon"
+        android:id="@+id/applist_app_item_icon"
         android:layout_width="@dimen/appitem_icon_size"
         android:layout_height="@dimen/appitem_icon_size"
         android:layout_gravity="center_horizontal"
@@ -45,7 +45,7 @@
         android:layout_marginRight="5dp"/>
 
     <TextView
-        android:id="@+id/app_name"
+        android:id="@+id/applist_app_item_app_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -56,7 +56,7 @@
         android:textSize="12sp"
         android:textColor="?attr/appTextColor"
         tools:text="app name"
-        app:layout_constraintTop_toBottomOf="@+id/icon"
+        app:layout_constraintTop_toBottomOf="@+id/applist_app_item_icon"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -68,7 +68,7 @@
     <TextView
         android:layout_width="@dimen/appitem_badge_size"
         android:layout_height="@dimen/appitem_badge_size"
-        android:id="@+id/badge_count"
+        android:id="@+id/applist_app_item_badge_count"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginEnd="5dp"

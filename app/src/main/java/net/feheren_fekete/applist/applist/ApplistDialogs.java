@@ -36,10 +36,10 @@ public class ApplistDialogs {
                                        final RunnableWithArg<String> onOk) {
         View dialogView = activity.getLayoutInflater().inflate(R.layout.create_item_dialog, null);
 
-        TextView textView = (TextView) dialogView.findViewById(R.id.text);
+        TextView textView = (TextView) dialogView.findViewById(R.id.create_item_dialog_text);
         textView.setText(activity.getResources().getString(textId));
 
-        final EditText editText = (EditText) dialogView.findViewById(R.id.edit_text);
+        final EditText editText = (EditText) dialogView.findViewById(R.id.create_item_dialog_edit_text);
         editText.setText(defaultInputText);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
@@ -154,9 +154,9 @@ public class ApplistDialogs {
                         Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.app_selector_item, parent, false);
                 holder = new ViewHolder();
-                holder.layout = (ViewGroup) convertView.findViewById(R.id.layout);
-                holder.icon = (ImageView) convertView.findViewById(R.id.icon);
-                holder.text = (TextView) convertView.findViewById(R.id.app_name);
+                holder.layout = (ViewGroup) convertView.findViewById(R.id.app_selector_item_layout);
+                holder.icon = (ImageView) convertView.findViewById(R.id.app_selector_item_icon);
+                holder.text = (TextView) convertView.findViewById(R.id.app_selector_item_app_name);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
@@ -181,7 +181,7 @@ public class ApplistDialogs {
                                        final List<ResolveInfo> apps,
                                        final RunnableWithArg<ResolveInfo> onAppSelected) {
         AppChooserAdapter adapter = new AppChooserAdapter(
-                activity, R.layout.app_selector_item, R.id.app_name, apps, onAppSelected);
+                activity, R.layout.app_selector_item, R.id.app_selector_item_app_name, apps, onAppSelected);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder
                 .setTitle(title)

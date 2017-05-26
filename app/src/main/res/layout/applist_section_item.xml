@@ -13,7 +13,7 @@
     android:background="?attr/sectionBackgroundColor">
 
     <RelativeLayout
-        android:id="@+id/layout"
+        android:id="@+id/applist_section_item_layout"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
             <!--android:id="@+id/top_divider" />-->
 
         <View
-            android:id="@+id/sectionitem_dragged_over_indicator_left"
+            android:id="@+id/applist_section_item_dragged_over_indicator_left"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dragged_over_indicator_width"
             android:background="?attr/draggedOverIndicatorColor"
@@ -35,7 +35,7 @@
             />
 
         <TextView
-            android:id="@+id/app_name"
+            android:id="@+id/applist_section_item_app_name"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:paddingTop="5dp"
@@ -50,7 +50,7 @@
             />
 
         <View
-            android:id="@+id/sectionitem_dragged_over_indicator_right"
+            android:id="@+id/applist_section_item_dragged_over_indicator_right"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dragged_over_indicator_width"
             android:background="?attr/draggedOverIndicatorColor"

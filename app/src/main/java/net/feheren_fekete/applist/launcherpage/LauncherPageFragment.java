@@ -34,9 +34,9 @@ public class LauncherPageFragment extends Fragment {
         mAppWidgetManager = AppWidgetManager.getInstance(getContext().getApplicationContext());
         mAppWidgetHost = new AppWidgetHost(getContext().getApplicationContext(), 1234567);
 
-        mWidgetContainer = (ViewGroup) view.findViewById(R.id.launcher_page_container);
+        mWidgetContainer = (ViewGroup) view.findViewById(R.id.launcher_page_fragment_container);
 
-        view.findViewById(R.id.launcher_page_add_widget_button).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.launcher_page_fragment_add_widget_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectWidget();
