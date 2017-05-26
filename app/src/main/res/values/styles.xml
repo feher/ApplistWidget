@@ -38,7 +38,7 @@
         <item name="listBackgroundColor">#EEEEEE</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
-        <item name="sectionTextHighlightColor">?attr/secondaryTextColor</item>
+        <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
@@ -62,7 +62,7 @@
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
-        <item name="sectionTextHighlightColor">?attr/secondaryTextColor</item>
+        <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88DD6600</item>
 
@@ -86,7 +86,7 @@
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
-        <item name="sectionTextHighlightColor">?attr/secondaryTextColor</item>
+        <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
@@ -110,7 +110,7 @@
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
-        <item name="sectionTextHighlightColor">?attr/secondaryTextColor</item>
+        <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
@@ -134,7 +134,7 @@
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
-        <item name="sectionTextHighlightColor">?attr/secondaryTextColor</item>
+        <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF5722</item>
 
@@ -158,7 +158,7 @@
         <item name="listBackgroundColor">#e6eadf</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
-        <item name="sectionTextHighlightColor">?attr/secondaryTextColor</item>
+        <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
@@ -182,7 +182,7 @@
         <item name="listBackgroundColor">#FFFFFF</item>
         <item name="sectionBackgroundColor">?attr/primaryLightColor</item>
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
-        <item name="sectionTextHighlightColor">?attr/secondaryTextColor</item>
+        <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88536DFE</item>
 
