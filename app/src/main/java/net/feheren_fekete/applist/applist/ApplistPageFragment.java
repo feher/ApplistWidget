@@ -553,23 +553,25 @@ public class ApplistPageFragment extends Fragment
                 if (considerItem) {
                     ApplistAdapter.ViewHolderBase viewHolder =
                             (ApplistAdapter.ViewHolderBase) mRecyclerView.findViewHolderForAdapterPosition(i);
-                    viewHolder.layout.getLocationOnScreen(mDraggedOverViewLocation);
-                    final int viewLeft = mDraggedOverViewLocation[0];
-                    final int viewTop = mDraggedOverViewLocation[1];
-                    final int viewRight = mDraggedOverViewLocation[0] + viewHolder.layout.getWidth();
-                    final int viewBottom = mDraggedOverViewLocation[1] + viewHolder.layout.getHeight();
-                    final float viewCenterX = viewLeft + (viewHolder.layout.getWidth() / 2.0f);
-                    final float viewCenterY = viewTop + (viewHolder.layout.getHeight() / 2.0f);
-                    final double distanceToView = distanceOfPoints(
-                            viewCenterX, viewCenterY, draggedViewPosX, draggedViewPosY);
-                    if (distanceToView < distanceToClosestItem) {
-                        closestItemPosition = i;
-                        closestItem = mAdapter.getItem(i);
-                        distanceToClosestItem = distanceToView;
-                        closestViewLeft = viewLeft;
-                        closestViewRight = viewRight;
-                        closestViewTop = viewTop;
-                        closestViewBottom = viewBottom;
+                    if (viewHolder != null) {
+                        viewHolder.layout.getLocationOnScreen(mDraggedOverViewLocation);
+                        final int viewLeft = mDraggedOverViewLocation[0];
+                        final int viewTop = mDraggedOverViewLocation[1];
+                        final int viewRight = mDraggedOverViewLocation[0] + viewHolder.layout.getWidth();
+                        final int viewBottom = mDraggedOverViewLocation[1] + viewHolder.layout.getHeight();
+                        final float viewCenterX = viewLeft + (viewHolder.layout.getWidth() / 2.0f);
+                        final float viewCenterY = viewTop + (viewHolder.layout.getHeight() / 2.0f);
+                        final double distanceToView = distanceOfPoints(
+                                viewCenterX, viewCenterY, draggedViewPosX, draggedViewPosY);
+                        if (distanceToView < distanceToClosestItem) {
+                            closestItemPosition = i;
+                            closestItem = mAdapter.getItem(i);
+                            distanceToClosestItem = distanceToView;
+                            closestViewLeft = viewLeft;
+                            closestViewRight = viewRight;
+                            closestViewTop = viewTop;
+                            closestViewBottom = viewBottom;
+                        }
                     }
                 }
             }
