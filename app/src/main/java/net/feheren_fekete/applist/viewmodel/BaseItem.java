@@ -7,9 +7,9 @@ public abstract class BaseItem {
     public static final int RIGHT = 2;
 
     private long mId;
-    private boolean mIsDragged;
-    private boolean mIsDraggedOverLeft;
-    private boolean mIsDraggedOverRight;
+    private boolean mIsEnabled = true;
+    private boolean mIsDraggedOverLeft = false;
+    private boolean mIsDraggedOverRight = false;
 
     public BaseItem(long id) {
         mId = id;
@@ -19,12 +19,12 @@ public abstract class BaseItem {
         return mId;
     }
 
-    public boolean isDragged() {
-        return mIsDragged;
+    public boolean isEnabled() {
+        return mIsEnabled;
     }
 
-    public void setDragged(boolean dragged) {
-        mIsDragged = dragged;
+    public void setEnabled(boolean enabled) {
+        mIsEnabled = enabled;
     }
 
     public boolean isDraggedOverLeft() {

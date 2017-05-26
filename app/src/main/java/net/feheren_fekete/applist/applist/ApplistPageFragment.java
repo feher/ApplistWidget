@@ -36,7 +36,6 @@ import net.feheren_fekete.applist.viewmodel.ViewModelUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -380,7 +379,7 @@ public class ApplistPageFragment extends Fragment
 //            sectionItemHolder.sectionName.setTypeface(null, Typeface.BOLD);
 //        }
 
-        mAdapter.setDragged(mItemMenuTarget, true);
+        mAdapter.setEnabled(mItemMenuTarget, false);
 
         addDraggedView();
     }
@@ -412,7 +411,7 @@ public class ApplistPageFragment extends Fragment
 
     @Override
     public void onStopDragging() {
-        mAdapter.setDragged(mItemMenuTarget, false);
+        mAdapter.setEnabled(mItemMenuTarget, true);
 
         if (mDraggedOverItem != null) {
             mDraggedOverItem.setDraggedOver(BaseItem.NONE);

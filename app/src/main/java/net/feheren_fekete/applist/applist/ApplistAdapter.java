@@ -424,15 +424,15 @@ public class ApplistAdapter
         return result;
     }
 
-    public void setDragged(BaseItem item, boolean dragged) {
+    public void setEnabled(BaseItem item, boolean enabled) {
         if (item instanceof AppItem) {
-            item.setDragged(dragged);
+            item.setEnabled(enabled);
             notifyItemChanged(getRealItemPosition(item));
         } else if (item instanceof SectionItem) {
-            item.setDragged(dragged);
+            item.setEnabled(enabled);
             for (BaseItem baseItem : mAllItems) {
                 if (baseItem instanceof AppItem) {
-                    baseItem.setDragged(dragged);
+                    baseItem.setEnabled(enabled);
                 }
             }
             notifyDataSetChanged();
@@ -574,7 +574,7 @@ public class ApplistAdapter
             holder.badgeCount.setVisibility(View.GONE);
         }
 
-        final float alpha = item.isDragged() ? 0.3f : 1.0f;
+        final float alpha = item.isEnabled() ? 1.0f : 0.3f;
         holder.appIcon.setAlpha(alpha);
         holder.appName.setAlpha(alpha);
         holder.badgeCount.setAlpha(alpha);
@@ -617,7 +617,7 @@ public class ApplistAdapter
                         ? item.getName() + " ..."
                         : item.getName());
 
-        final float alpha = item.isDragged() ? 0.3f : 1.0f;
+        final float alpha = item.isEnabled() ? 1.0f : 0.3f;
         holder.sectionName.setAlpha(alpha);
 
         holder.draggedOverIndicatorLeft.setVisibility(
