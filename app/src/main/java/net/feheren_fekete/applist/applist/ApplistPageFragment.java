@@ -372,7 +372,7 @@ public class ApplistPageFragment extends Fragment
         }
 
         mAdapter.setEnabled(mItemMenuTarget, false);
-//        mAdapter.setSectionsHighlighted(true);
+        mAdapter.setSectionsHighlighted(true);
 
         addDraggedView();
     }
@@ -405,7 +405,7 @@ public class ApplistPageFragment extends Fragment
     @Override
     public void onStopDragging() {
         mAdapter.setEnabled(mItemMenuTarget, true);
-//        mAdapter.setSectionsHighlighted(false);
+        mAdapter.setSectionsHighlighted(false);
 
         if (mDraggedOverItem != null) {
             mDraggedOverItem.setDraggedOver(BaseItem.NONE);
