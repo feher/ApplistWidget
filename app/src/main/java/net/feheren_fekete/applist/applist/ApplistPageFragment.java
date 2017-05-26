@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.model.AppData;
 import net.feheren_fekete.applist.model.BadgeStore;
@@ -365,9 +366,9 @@ public class ApplistPageFragment extends Fragment
     @Override
     public void onStartDragging() {
         mItemMenu.dismiss();
-        if (mItemMenuTarget instanceof SectionItem) {
-            mAdapter.setTypeFilter(SectionItem.class);
-        }
+//        if (mItemMenuTarget instanceof SectionItem) {
+//            mAdapter.setTypeFilter(SectionItem.class);
+//        }
         if (mListener != null) {
             mListener.onItemMoveStart();
         }
@@ -380,15 +381,10 @@ public class ApplistPageFragment extends Fragment
 //            sectionItemHolder.sectionName.setTypeface(null, Typeface.BOLD);
 //        }
 
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mItemMenuTarget.setDragged(true);
-                mAdapter.notifyItemChanged(mAdapter.getItemPosition(mItemMenuTarget));
+        mItemMenuTarget.setDragged(true);
+        mAdapter.notifyItemChanged(mAdapter.getItemPosition(mItemMenuTarget));
 
-                addDraggedView();
-            }
-        });
+        addDraggedView();
     }
 
     @Override
@@ -428,9 +424,9 @@ public class ApplistPageFragment extends Fragment
 
         removeDraggedView();
 
-        if (mItemMenuTarget instanceof SectionItem) {
-            mAdapter.setTypeFilter(null);
-        }
+//        if (mItemMenuTarget instanceof SectionItem) {
+//            mAdapter.setTypeFilter(null);
+//        }
 
         if (mListener != null) {
 // This makes appbar move down
@@ -469,6 +465,8 @@ public class ApplistPageFragment extends Fragment
         }
     };
 
+    private View mDraggedSectionView;
+
     private void addDraggedView() {
         if (mItemMenuTarget instanceof AppItem) {
             ApplistAdapter.AppItemHolder appItemHolder =
@@ -479,14 +477,17 @@ public class ApplistPageFragment extends Fragment
             imageView.setLayoutParams(layoutParams);
             mDraggedView = imageView;
         } else {
+            if (mDraggedSectionView == null) {
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                mDraggedSectionView = inflater.inflate(R.layout.dragged_sectionitem, null, false);
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                mDraggedSectionView.setLayoutParams(layoutParams);
+            }
             SectionItem sectionItem = (SectionItem) mItemMenuTarget;
-            TextView textView = new TextView(getContext());
+            TextView textView = (TextView) mDraggedSectionView.findViewById(R.id.dragged_sectionitem_name);
             textView.setText(sectionItem.getName());
-            textView.setBackgroundColor(0xffaaaaaa);
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            textView.setLayoutParams(layoutParams);
-            mDraggedView = textView;
+            mDraggedView = mDraggedSectionView;
         }
         updateDraggedViewPosition();
         mTouchOverlay.addView(mDraggedView);
@@ -552,16 +553,28 @@ public class ApplistPageFragment extends Fragment
                             }
                         }
                     } else {
-                        if (mAdapter.isSectionLast((SectionItem) mDraggedOverItem)) {
-                            final int viewMiddle = viewTop + (viewBottom - viewTop) / 2;
-                            final boolean isFingerOverLeftHalf =
-                                    (viewTop <= fingerCurrentPosY && fingerCurrentPosY <= viewMiddle);
-                            mDraggedOverItem.setDraggedOver(
-                                    isFingerOverLeftHalf ? BaseItem.LEFT : BaseItem.RIGHT);
+                        if (mDraggedOverItem instanceof AppItem) {
+                            final boolean isLastItem = (i == mAdapter.getItemCount() - 1);
+                            if (isLastItem) {
+                                mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
+                                mAdapter.notifyItemChanged(i);
+                            } else {
+                                mDraggedOverItem = null;
+                            }
                         } else {
                             mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
+                            mAdapter.notifyItemChanged(i);
                         }
-                        mAdapter.notifyItemChanged(i);
+//                        if (mAdapter.isSectionLast((SectionItem) mDraggedOverItem)) {
+//                            final int viewMiddle = viewTop + (viewBottom - viewTop) / 2;
+//                            final boolean isFingerOverLeftHalf =
+//                                    (viewTop <= fingerCurrentPosY && fingerCurrentPosY <= viewMiddle);
+//                            mDraggedOverItem.setDraggedOver(
+//                                    isFingerOverLeftHalf ? BaseItem.LEFT : BaseItem.RIGHT);
+//                        } else {
+//                            mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
+//                        }
+//                        mAdapter.notifyItemChanged(i);
                     }
                     break;
                 }
