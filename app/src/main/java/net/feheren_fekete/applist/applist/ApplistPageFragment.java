@@ -370,14 +370,6 @@ public class ApplistPageFragment extends Fragment
         if (mListener != null) {
             mListener.onItemMoveStart();
         }
-//        if (viewHolder instanceof ApplistAdapter.AppItemHolder) {
-//            ApplistAdapter.AppItemHolder appItemHolder = (ApplistAdapter.AppItemHolder) viewHolder;
-//            appItemHolder.appIcon.animate().scaleX(1.2f).scaleY(1.2f).setDuration(150).start();
-//            appItemHolder.appName.setVisibility(View.INVISIBLE);
-//        } else if (viewHolder instanceof ApplistAdapter.SectionItemHolder) {
-//            ApplistAdapter.SectionItemHolder sectionItemHolder = (ApplistAdapter.SectionItemHolder) viewHolder;
-//            sectionItemHolder.sectionName.setTypeface(null, Typeface.BOLD);
-//        }
 
         mAdapter.setEnabled(mItemMenuTarget, false);
 //        mAdapter.setSectionsHighlighted(true);
