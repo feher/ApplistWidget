@@ -12,6 +12,7 @@
     <attr name="listBackgroundColor" format="reference|color" />
     <attr name="sectionBackgroundColor" format="reference|color" />
     <attr name="sectionTextColor" format="reference|color" />
+    <attr name="sectionTextHighlightColor" format="reference|color" />
     <attr name="appTextColor" format="reference|color" />
     <attr name="draggedOverIndicatorColor" format="reference|color" />
 </resources>

@@ -10,6 +10,7 @@ public abstract class BaseItem {
     private boolean mIsEnabled = true;
     private boolean mIsDraggedOverLeft = false;
     private boolean mIsDraggedOverRight = false;
+    private boolean mIsHighlighted = false;
 
     public BaseItem(long id) {
         mId = id;
@@ -50,6 +51,14 @@ public abstract class BaseItem {
                 mIsDraggedOverRight = false;
                 break;
         }
+    }
+
+    public boolean isHighlighted() {
+        return mIsHighlighted;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        mIsHighlighted = highlighted;
     }
 
     public abstract String getName();

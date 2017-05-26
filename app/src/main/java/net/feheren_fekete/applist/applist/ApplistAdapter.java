@@ -2,6 +2,7 @@ package net.feheren_fekete.applist.applist;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -439,6 +441,15 @@ public class ApplistAdapter
         }
     }
 
+    public void setSectionsHighlighted(boolean highlighted) {
+        for (BaseItem baseItem : mAllItems) {
+            if (baseItem instanceof SectionItem) {
+                baseItem.setHighlighted(highlighted);
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     private List<BaseItem> getItems() {
         if (mFilteredItems != null) {
             return mFilteredItems;
@@ -610,6 +621,7 @@ public class ApplistAdapter
         });
     }
 
+    private TypedValue mTypedValue = new TypedValue();
     private void bindSectionItemHolder(final SectionItemHolder holder, int position) {
         final SectionItem item = (SectionItem) getItems().get(position);
         holder.sectionName.setText(
@@ -617,8 +629,17 @@ public class ApplistAdapter
                         ? item.getName() + " ..."
                         : item.getName());
 
+        Resources.Theme theme = mContext.getTheme();
+        if (item.isHighlighted()) {
+            theme.resolveAttribute(R.attr.sectionTextHighlightColor, mTypedValue, true);
+        } else {
+            theme.resolveAttribute(R.attr.sectionTextColor, mTypedValue, true);
+        }
+        holder.sectionName.setTextColor(mTypedValue.data);
+
         final float alpha = item.isEnabled() ? 1.0f : 0.3f;
         holder.sectionName.setAlpha(alpha);
+
 
         holder.draggedOverIndicatorLeft.setVisibility(
                 item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);
