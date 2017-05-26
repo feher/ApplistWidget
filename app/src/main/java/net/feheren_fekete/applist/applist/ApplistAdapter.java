@@ -429,19 +429,13 @@ public class ApplistAdapter
             item.setDragged(dragged);
             notifyItemChanged(getRealItemPosition(item));
         } else if (item instanceof SectionItem) {
-            final int sectionPosition = getRealItemPosition(item);
-            final int lastAppInSectionPosition;
-            final BaseItem nextSection = getNextSection(item);
-            if (nextSection != null) {
-                final int nextSectionPosition = getRealItemPosition(nextSection);
-                lastAppInSectionPosition = nextSectionPosition - 1;
-            } else {
-                lastAppInSectionPosition = mAllItems.size() - 1;
+            item.setDragged(dragged);
+            for (BaseItem baseItem : mAllItems) {
+                if (baseItem instanceof AppItem) {
+                    baseItem.setDragged(dragged);
+                }
             }
-            for (int i = sectionPosition; i <= lastAppInSectionPosition; ++i) {
-                mAllItems.get(i).setDragged(dragged);
-            }
-            notifyItemRangeChanged(sectionPosition, lastAppInSectionPosition - sectionPosition + 1);
+            notifyDataSetChanged();
         }
     }
 

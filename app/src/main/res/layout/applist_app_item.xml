@@ -10,26 +10,6 @@
     android:focusable="true"
     android:background="?selectableItemBackground">
 
-    <View
-        android:id="@+id/applist_app_item_dragged_over_indicator_left"
-        android:layout_width="@dimen/dragged_over_indicator_width"
-        android:layout_height="0dp"
-        android:background="?attr/draggedOverIndicatorColor"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
-
-    <View
-        android:id="@+id/applist_app_item_dragged_over_indicator_right"
-        android:layout_width="@dimen/dragged_over_indicator_width"
-        android:layout_height="0dp"
-        android:background="?attr/draggedOverIndicatorColor"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
-
     <ImageView
         android:id="@+id/applist_app_item_icon"
         android:layout_width="@dimen/appitem_icon_size"
@@ -78,6 +58,26 @@
         android:gravity="center"
         android:textColor="@android:color/white"
         android:background="@drawable/badge"
+        />
+
+    <View
+        android:id="@+id/applist_app_item_dragged_over_indicator_left"
+        android:layout_width="@dimen/dragged_over_indicator_width"
+        android:layout_height="0dp"
+        android:background="?attr/draggedOverIndicatorColor"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/applist_app_item_app_name"
+        />
+
+    <View
+        android:id="@+id/applist_app_item_dragged_over_indicator_right"
+        android:layout_width="@dimen/dragged_over_indicator_width"
+        android:layout_height="0dp"
+        android:background="?attr/draggedOverIndicatorColor"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/applist_app_item_app_name"
         />
 
 </android.support.constraint.ConstraintLayout>
