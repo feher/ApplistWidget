@@ -71,6 +71,7 @@ public class ApplistAdapter
     private IconCache mIconCache;
     private int[] mIconPlaceholderColors;
     private int mNextPlaceholderColor;
+    private TypedValue mTypedValue = new TypedValue();
 
     public interface ItemListener {
         void onAppTapped(AppItem appItem);
@@ -427,18 +428,17 @@ public class ApplistAdapter
     }
 
     public void setEnabled(BaseItem item, boolean enabled) {
-        if (item instanceof AppItem) {
-            item.setEnabled(enabled);
-            notifyItemChanged(getRealItemPosition(item));
-        } else if (item instanceof SectionItem) {
-            item.setEnabled(enabled);
-            for (BaseItem baseItem : mAllItems) {
-                if (baseItem instanceof AppItem) {
-                    baseItem.setEnabled(enabled);
-                }
+        item.setEnabled(enabled);
+        notifyItemChanged(getRealItemPosition(item));
+    }
+
+    public void setAllAppsEnabled(boolean enabled) {
+        for (BaseItem baseItem : mAllItems) {
+            if (baseItem instanceof AppItem) {
+                baseItem.setEnabled(enabled);
             }
-            notifyDataSetChanged();
         }
+        notifyDataSetChanged();
     }
 
     public void setSectionsHighlighted(boolean highlighted) {
@@ -621,7 +621,6 @@ public class ApplistAdapter
         });
     }
 
-    private TypedValue mTypedValue = new TypedValue();
     private void bindSectionItemHolder(final SectionItemHolder holder, int position) {
         final SectionItem item = (SectionItem) getItems().get(position);
         holder.sectionName.setText(
@@ -639,7 +638,6 @@ public class ApplistAdapter
 
         final float alpha = item.isEnabled() ? 1.0f : 0.3f;
         holder.sectionName.setAlpha(alpha);
-
 
         holder.draggedOverIndicatorLeft.setVisibility(
                 item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);

@@ -377,8 +377,12 @@ public class ApplistPageFragment extends Fragment
             mListener.onItemDragStart();
         }
 
-        mAdapter.setEnabled(mItemMenuTarget, false);
-        mAdapter.setSectionsHighlighted(true);
+        if (mItemMenuTarget instanceof AppItem) {
+            mAdapter.setEnabled(mItemMenuTarget, false);
+        } else if (mItemMenuTarget instanceof SectionItem) {
+            mAdapter.setAllAppsEnabled(false);
+            mAdapter.setSectionsHighlighted(true);
+        }
 
         addDraggedView();
     }
@@ -425,8 +429,12 @@ public class ApplistPageFragment extends Fragment
 
     @Override
     public void onStopDragging() {
-        mAdapter.setEnabled(mItemMenuTarget, true);
-        mAdapter.setSectionsHighlighted(false);
+        if (mItemMenuTarget instanceof AppItem) {
+            mAdapter.setEnabled(mItemMenuTarget, true);
+        } else if (mItemMenuTarget instanceof SectionItem) {
+            mAdapter.setAllAppsEnabled(true);
+            mAdapter.setSectionsHighlighted(false);
+        }
 
         if (mDraggedOverItem != null) {
             mDraggedOverItem.setDraggedOver(BaseItem.NONE);
