@@ -659,8 +659,8 @@ public class ApplistPageFragment extends Fragment
             if (firstItemPos != 0) {
                 mRecyclerView.getLocationOnScreen(mRecyclerViewLocation);
                 final int recyclerViewTop = mRecyclerViewLocation[1];
-                float scrollLimit = (fingerCurrentPosY - recyclerViewTop) / (fingerDownPos.y - recyclerViewTop);
-                if (scrollLimit < 0.30f) {
+                float scrollLimit = (fingerCurrentPosY - recyclerViewTop) / mRecyclerView.getHeight();
+                if (scrollLimit < 0.20f) {
                     mRecyclerView.smoothScrollToPosition(0);
                 } else {
                     mRecyclerView.stopScroll();
@@ -671,8 +671,8 @@ public class ApplistPageFragment extends Fragment
             if (lastItemPos != mAdapter.getItemCount() - 1) {
                 mRecyclerView.getLocationOnScreen(mRecyclerViewLocation);
                 final int recyclerViewBottom = mRecyclerViewLocation[1] + mRecyclerView.getHeight();
-                float scrollLimit = (recyclerViewBottom - fingerCurrentPosY) / (recyclerViewBottom - fingerDownPos.y);
-                if (scrollLimit < 0.30f) {
+                float scrollLimit = (recyclerViewBottom - fingerCurrentPosY) / mRecyclerView.getHeight();
+                if (scrollLimit < 0.20f) {
                     mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
                 } else {
                     mRecyclerView.stopScroll();
