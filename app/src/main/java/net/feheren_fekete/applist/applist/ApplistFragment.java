@@ -213,6 +213,13 @@ public class ApplistFragment extends Fragment implements ApplistPageFragment.Lis
 
     @Override
     public void onItemDragStart() {
+        // Manually move the appbar out of the screen.
+        // I tried all kinds of other ways to achieve this but I gave up. This one works.
+        //
+        // We use CoordinatorLayout with AppBarLayout and RecyclerView (inside a fragment).
+        // For this reason, we must also manually restore the translation values otherwise
+        // AppBarLayout gets confused about its own location.
+        //
         mAppBarBottomBeforeItemDrag = mAppBarLayout.getBottom();
         mAppBarLayout.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
         mFragmentContainer.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
@@ -220,6 +227,13 @@ public class ApplistFragment extends Fragment implements ApplistPageFragment.Lis
 
     @Override
     public void onItemDragEnd() {
+        // Manually restore the appbar's position on the screen.
+        // I tried all kinds of other ways to achieve this but I gave up. This one works.
+        //
+        // We use CoordinatorLayout with AppBarLayout and RecyclerView (inside a fragment).
+        // For this reason, we must also manually restore the translation values otherwise
+        // AppBarLayout gets confused about its own location.
+        //
         mAppBarLayout.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
         mFragmentContainer.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
     }

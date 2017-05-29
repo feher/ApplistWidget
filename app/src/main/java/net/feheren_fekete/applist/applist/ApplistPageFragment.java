@@ -368,6 +368,10 @@ public class ApplistPageFragment extends Fragment
     public void onStartDragging() {
         mItemMenu.dismiss();
 
+        // The RecyclerView is under the AppBarLayout. But the AppBarLayout is
+        // behind the transparent status bar. So, if we hide the AppBarLayout the
+        // RecyclerView would get behind the status bar.
+        // We don't want that. So we add a top padding.
         mRecyclerView.setPadding(0, ScreenUtils.getStatusBarHeight(getContext()), 0, 0);
         if (mListener != null) {
             mListener.onItemDragStart();
@@ -431,6 +435,7 @@ public class ApplistPageFragment extends Fragment
 
         removeDraggedView();
 
+        // Remove the top padding we added in onStartDragging().
         mRecyclerView.setPadding(0, 0, 0, 0);
         if (mListener != null) {
             mListener.onItemDragEnd();
