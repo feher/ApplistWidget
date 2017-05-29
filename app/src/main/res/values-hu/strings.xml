@@ -7,7 +7,7 @@
     <string name="dialog_error_section_exists">Ez a csoport már létezik</string>
     <string name="ok">OK</string>
     <string name="section_name">Csoport név</string>
-    <string name="toast_change_item_positions">Húzd át az elemeket a kívánt sorrendbe</string>
+    <string name="rearrange_items_help">Tartsd lenyomva és Húzd a csoportokat és az appot a kívánt sorrendbe</string>
     <string name="toolbar_title">Apper</string>
     <string name="action_create_section">Új csoport</string>
     <string name="color_theme_black">Fekete</string>
@@ -45,4 +45,5 @@
     <string name="column_width_small">Kicsi</string>
     <string name="column_width_tiny">Picike</string>
     <string name="settings_column_width">Ikonméret</string>
+    <string name="got_it">RENDBEN</string>
 </resources>

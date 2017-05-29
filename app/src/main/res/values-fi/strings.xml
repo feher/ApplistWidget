@@ -8,7 +8,7 @@
     <string name="dialog_error_section_exists">Ryhmä on jo olemassa</string>
     <string name="ok">OK</string>
     <string name="section_name">Ryhmän nimi</string>
-    <string name="toast_change_item_positions">Raahaa ja uudelleenjärjestä</string>
+    <string name="rearrange_items_help">Paina pitkään ja Raahaa appit ja ryhmät uuteenjärjestykseen</string>
     <string name="toolbar_title">Apper</string>
     <string name="color_theme_black">Musta</string>
     <string name="color_theme_blue_grey">Harmaan sininen</string>
@@ -45,4 +45,5 @@
     <string name="column_width_small">Pieni</string>
     <string name="column_width_tiny">Pikkuinen</string>
     <string name="settings_column_width">Kuvakkeiden koko</string>
+    <string name="got_it">SELVÄ</string>
 </resources>

@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.applist;
 
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.model.AppData;
 import net.feheren_fekete.applist.model.BadgeStore;
@@ -53,6 +56,7 @@ public class ApplistPageFragment extends Fragment
     }
 
     private BadgeStore mBadgeStore;
+    private ApplistPreferences mApplistPreferences;
     private DataModel mDataModel;
     private RecyclerView mRecyclerView;
     private ViewGroup mTouchOverlay;
@@ -150,6 +154,7 @@ public class ApplistPageFragment extends Fragment
                 getContext(),
                 getContext().getPackageManager(),
                 new BadgeUtils(getContext()));
+        mApplistPreferences = new ApplistPreferences(getContext());
     }
 
     @Override
@@ -166,6 +171,18 @@ public class ApplistPageFragment extends Fragment
     public void onResume() {
         super.onResume();
         EventBus.getDefault().register(mAdapter);
+        if (mApplistPreferences.getShowRearrangeItemsHelp()) {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage(R.string.rearrange_items_help)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mApplistPreferences.setShowRearrangeItemsHelp(false);
+                        }
+                    })
+                    .show();
+        }
     }
 
     @Override

@@ -7,6 +7,9 @@ public class ApplistPreferences {
 
     private static final String APPLIST_PREFERENCES = "APPLIST_PREFERENCES";
 
+    private static final String PREFERENCE_SHOW_REARRANGE_ITEMS_HELP = "PREFERENCE_SHOW_REARRANGE_ITEMS_HELP";
+    private static final boolean DEFAULT_SHOW_REARRANGE_ITEMS_HELP = true;
+
     private static final String PREFERENCE_DEVICE_LOCALE = "DEVICE_LOCALE";
     private static final String DEFAULT_DEVICE_LOCALE = "";
 
@@ -15,6 +18,14 @@ public class ApplistPreferences {
     public ApplistPreferences(Context context) {
         mSharedPreferences = context.getApplicationContext().getSharedPreferences(
                 APPLIST_PREFERENCES, Context.MODE_PRIVATE);
+    }
+
+    public boolean getShowRearrangeItemsHelp() {
+        return mSharedPreferences.getBoolean(PREFERENCE_SHOW_REARRANGE_ITEMS_HELP, DEFAULT_SHOW_REARRANGE_ITEMS_HELP);
+    }
+
+    public void setShowRearrangeItemsHelp(boolean showRearrangeItemsHelp) {
+        mSharedPreferences.edit().putBoolean(PREFERENCE_SHOW_REARRANGE_ITEMS_HELP, showRearrangeItemsHelp).apply();
     }
 
     public String getDeviceLocale() {
