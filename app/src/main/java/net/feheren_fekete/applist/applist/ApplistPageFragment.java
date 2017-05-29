@@ -48,8 +48,8 @@ public class ApplistPageFragment extends Fragment
     private static final String TAG = ApplistPageFragment.class.getSimpleName();
 
     public interface Listener {
-        void onItemMoveStart();
-        void onItemMoveEnd();
+        void onItemDragStart();
+        void onItemDragEnd();
     }
 
     private BadgeStore mBadgeStore;
@@ -367,8 +367,10 @@ public class ApplistPageFragment extends Fragment
     @Override
     public void onStartDragging() {
         mItemMenu.dismiss();
+
+        mRecyclerView.setPadding(0, ScreenUtils.getStatusBarHeight(getContext()), 0, 0);
         if (mListener != null) {
-//            mListener.onItemMoveStart();
+            mListener.onItemDragStart();
         }
 
         mAdapter.setEnabled(mItemMenuTarget, false);
@@ -389,16 +391,31 @@ public class ApplistPageFragment extends Fragment
     @Override
     public void onDrop() {
         if (mDraggedOverItem != null) {
-            int fromPosition = mAdapter.getItemPosition(mItemMenuTarget);
-            int toPosition = mAdapter.getItemPosition(mDraggedOverItem);
-            if (fromPosition < toPosition && mDraggedOverItem.isDraggedOverLeft()) {
-                --toPosition;
+            boolean canDrop = true;
+            if (mItemMenuTarget == mDraggedOverItem) {
+                canDrop = false;
             }
-            if (toPosition < fromPosition && mDraggedOverItem.isDraggedOverRight()) {
-                ++toPosition;
+            if (mItemMenuTarget instanceof SectionItem) {
+                if (mDraggedOverItem instanceof SectionItem) {
+                    final int draggedOverItemPos = mAdapter.getItemPosition(mDraggedOverItem);
+                    if (draggedOverItemPos == mAdapter.getNextSectionPosition(mItemMenuTarget)) {
+                        canDrop = false;
+                    }
+                }
             }
-            mAdapter.moveItem(fromPosition, toPosition);
-            savePageToModel();
+
+            if (canDrop) {
+                int fromPosition = mAdapter.getItemPosition(mItemMenuTarget);
+                int toPosition = mAdapter.getItemPosition(mDraggedOverItem);
+                if (fromPosition < toPosition && mDraggedOverItem.isDraggedOverLeft()) {
+                    --toPosition;
+                }
+                if (toPosition < fromPosition && mDraggedOverItem.isDraggedOverRight()) {
+                    ++toPosition;
+                }
+                mAdapter.moveItem(fromPosition, toPosition);
+                savePageToModel();
+            }
         }
     }
 
@@ -414,9 +431,9 @@ public class ApplistPageFragment extends Fragment
 
         removeDraggedView();
 
+        mRecyclerView.setPadding(0, 0, 0, 0);
         if (mListener != null) {
-            // This makes appbar move down
-//            mListener.onItemMoveEnd();
+            mListener.onItemDragEnd();
         }
     }
 
@@ -544,6 +561,12 @@ public class ApplistPageFragment extends Fragment
                         considerItem = false;
                     }
                 }
+                if (mItemMenuTarget instanceof SectionItem
+                        && item instanceof AppItem) {
+                    // We don't allow dragging sections over app items, unless it's the very last
+                    // app item.
+                    considerItem = (i == mAdapter.getItemCount() - 1);
+                }
                 if (considerItem) {
                     ApplistAdapter.ViewHolderBase viewHolder =
                             (ApplistAdapter.ViewHolderBase) mRecyclerView.findViewHolderForAdapterPosition(i);
@@ -572,9 +595,7 @@ public class ApplistPageFragment extends Fragment
 
             if (closestItem != null) {
                 mDraggedOverItem = mAdapter.getItem(closestItemPosition);
-                if (mDraggedOverItem == mItemMenuTarget) {
-                    mDraggedOverItem = null;
-                } else if (mItemMenuTarget instanceof AppItem) {
+                if (mItemMenuTarget instanceof AppItem) {
                     if (mDraggedOverItem instanceof AppItem) {
                         if (mAdapter.isAppLastInSection((AppItem) mDraggedOverItem)) {
                             final int viewLeftSideCenterX = closestViewLeft;
@@ -592,30 +613,16 @@ public class ApplistPageFragment extends Fragment
                         }
                         mAdapter.notifyItemChanged(closestItemPosition);
                     } else if (mDraggedOverItem instanceof SectionItem) {
-                        SectionItem sectionItem = (SectionItem) mDraggedOverItem;
-                        if (sectionItem.isCollapsed() || mAdapter.isSectionEmpty(sectionItem)) {
-                            mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
-                            mAdapter.notifyItemChanged(closestItemPosition);
-                        } else {
-                            mDraggedOverItem = null;
-                        }
+                        mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
+                        mAdapter.notifyItemChanged(closestItemPosition);
                     }
                 } else if (mItemMenuTarget instanceof SectionItem) {
                     if (mDraggedOverItem instanceof AppItem) {
-                        final boolean isLastItem = (closestItemPosition == mAdapter.getItemCount() - 1);
-                        if (isLastItem) {
-                            mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
-                            mAdapter.notifyItemChanged(closestItemPosition);
-                        } else {
-                            mDraggedOverItem = null;
-                        }
+                        mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
+                        mAdapter.notifyItemChanged(closestItemPosition);
                     } else if (mDraggedOverItem instanceof SectionItem) {
-                        if (closestItemPosition != mAdapter.getNextSectionPosition(mItemMenuTarget)) {
-                            mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
-                            mAdapter.notifyItemChanged(closestItemPosition);
-                        } else {
-                            mDraggedOverItem = null;
-                        }
+                        mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
+                        mAdapter.notifyItemChanged(closestItemPosition);
                     }
                 }
             }

@@ -1,12 +1,10 @@
 package net.feheren_fekete.applist.applist;
 
 import android.app.Activity;
-import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
@@ -23,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.ApplistPreferences;
@@ -57,8 +56,10 @@ public class ApplistFragment extends Fragment implements ApplistPageFragment.Lis
     private ApplistPreferences mApplistPreferences;
     private AppBarLayout mAppBarLayout;
     private Toolbar mToolbar;
+    private FrameLayout mFragmentContainer;
     private Menu mMenu;
     private SearchView mSearchView;
+    private int mAppBarBottomBeforeItemDrag;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -84,8 +85,9 @@ public class ApplistFragment extends Fragment implements ApplistPageFragment.Lis
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(mToolbar);
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
         setHasOptionsMenu(true);
+
+        mFragmentContainer = (FrameLayout) view.findViewById(R.id.applist_fragment_fragment_container);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -210,22 +212,16 @@ public class ApplistFragment extends Fragment implements ApplistPageFragment.Lis
     }
 
     @Override
-    public void onItemMoveStart() {
-        mAppBarLayout.setExpanded(true);
-        AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-        layoutParams.setScrollFlags(0);
-        mToolbar.setLayoutParams(layoutParams);
+    public void onItemDragStart() {
+        mAppBarBottomBeforeItemDrag = mAppBarLayout.getBottom();
+        mAppBarLayout.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
+        mFragmentContainer.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
     }
 
     @Override
-    public void onItemMoveEnd() {
-//        mAppBarLayout.setExpanded(false, true);
-        AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-        layoutParams.setScrollFlags(
-                AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                        | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-                        | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
-        mToolbar.setLayoutParams(layoutParams);
+    public void onItemDragEnd() {
+        mAppBarLayout.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
+        mFragmentContainer.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
     }
 
     private void showSettings() {
