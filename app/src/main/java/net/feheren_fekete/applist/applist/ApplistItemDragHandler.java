@@ -249,13 +249,13 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
         if (mRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
 
-            int closestItemPosition = RecyclerView.NO_POSITION;
-            BaseItem closestItem = null;
-            double distanceToClosestItem = Double.MAX_VALUE;
-            int closestViewLeft = 0;
-            int closestViewTop = 0;
-            int closestViewRight = 0;
-            int closestViewBottom = 0;
+            int candidateItemPosition = RecyclerView.NO_POSITION;
+            BaseItem candidateItem = null;
+            double distanceToCandidateItem = Double.MAX_VALUE;
+            int candidateViewLeft = 0;
+            int candidateViewTop = 0;
+            int candidateViewRight = 0;
+            int candidateViewBottom = 0;
             for (int i = firstItemPos; i <= lastItemPos; ++i) {
                 boolean considerItem = true;
                 BaseItem item = mAdapter.getItem(i);
@@ -287,30 +287,30 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                         final float viewCenterY = viewTop + (viewHolder.layout.getHeight() / 2.0f);
                         final double distanceToView = distanceOfPoints(
                                 viewCenterX, viewCenterY, draggedViewPosX, draggedViewPosY);
-                        if (distanceToView < distanceToClosestItem) {
-                            closestItemPosition = i;
-                            closestItem = mAdapter.getItem(i);
-                            distanceToClosestItem = distanceToView;
-                            closestViewLeft = viewLeft;
-                            closestViewRight = viewRight;
-                            closestViewTop = viewTop;
-                            closestViewBottom = viewBottom;
+                        if (distanceToView < distanceToCandidateItem) {
+                            candidateItemPosition = i;
+                            candidateItem = mAdapter.getItem(i);
+                            distanceToCandidateItem = distanceToView;
+                            candidateViewLeft = viewLeft;
+                            candidateViewRight = viewRight;
+                            candidateViewTop = viewTop;
+                            candidateViewBottom = viewBottom;
                         }
                     }
                 }
             }
 
-            if (closestItem != null) {
-                mDraggedOverItem = mAdapter.getItem(closestItemPosition);
+            if (candidateItem != null) {
+                mDraggedOverItem = mAdapter.getItem(candidateItemPosition);
                 if (draggedItem instanceof AppItem) {
                     if (mDraggedOverItem instanceof AppItem) {
                         if (mAdapter.isAppLastInSection((AppItem) mDraggedOverItem)) {
-                            final int viewLeftSideCenterX = closestViewLeft;
-                            final int viewLeftSideCenterY = closestViewTop + (closestViewBottom - closestViewTop) / 2;
+                            final int viewLeftSideCenterX = candidateViewLeft;
+                            final int viewLeftSideCenterY = candidateViewTop + (candidateViewBottom - candidateViewTop) / 2;
                             final double distanceToLeftSideCenter = distanceOfPoints(
                                     viewLeftSideCenterX, viewLeftSideCenterY, draggedViewPosX, draggedViewPosY);
-                            final int viewRightSideCenterX = closestViewRight;
-                            final int viewRightSideCenterY = closestViewTop + (closestViewBottom - closestViewTop) / 2;
+                            final int viewRightSideCenterX = candidateViewRight;
+                            final int viewRightSideCenterY = candidateViewTop + (candidateViewBottom - candidateViewTop) / 2;
                             final double distanceToRightSideCenter = distanceOfPoints(
                                     viewRightSideCenterX, viewRightSideCenterY, draggedViewPosX, draggedViewPosY);
                             mDraggedOverItem.setDraggedOver(
@@ -318,18 +318,18 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                         } else {
                             mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
                         }
-                        mAdapter.notifyItemChanged(closestItemPosition);
+                        mAdapter.notifyItemChanged(candidateItemPosition);
                     } else if (mDraggedOverItem instanceof SectionItem) {
                         mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
-                        mAdapter.notifyItemChanged(closestItemPosition);
+                        mAdapter.notifyItemChanged(candidateItemPosition);
                     }
                 } else if (draggedItem instanceof SectionItem) {
                     if (mDraggedOverItem instanceof AppItem) {
                         mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
-                        mAdapter.notifyItemChanged(closestItemPosition);
+                        mAdapter.notifyItemChanged(candidateItemPosition);
                     } else if (mDraggedOverItem instanceof SectionItem) {
                         mDraggedOverItem.setDraggedOver(BaseItem.LEFT);
-                        mAdapter.notifyItemChanged(closestItemPosition);
+                        mAdapter.notifyItemChanged(candidateItemPosition);
                     }
                 }
             }
