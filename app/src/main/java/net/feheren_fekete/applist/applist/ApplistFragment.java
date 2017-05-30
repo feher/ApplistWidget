@@ -45,7 +45,7 @@ import java.util.concurrent.Callable;
 import bolts.Continuation;
 import bolts.Task;
 
-public class ApplistFragment extends Fragment implements ApplistPageFragment.Listener {
+public class ApplistFragment extends Fragment implements ApplistItemDragHandler.Listener {
 
     private static final String TAG = ApplistFragment.class.getSimpleName();
 
@@ -422,8 +422,7 @@ public class ApplistFragment extends Fragment implements ApplistPageFragment.Lis
     }
 
     private void showApplistFragment(String pageName) {
-        ApplistPageFragment fragment = ApplistPageFragment.newInstance(pageName, mDataModel, mIconCache);
-        fragment.setListener(this);
+        ApplistPageFragment fragment = ApplistPageFragment.newInstance(pageName, mDataModel, mIconCache, this);
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.applist_fragment_fragment_container, fragment, ApplistPageFragment.class.getName())
