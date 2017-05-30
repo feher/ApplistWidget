@@ -241,12 +241,6 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         final int firstItemPos = mLayoutManager.findFirstVisibleItemPosition();
         final int lastItemPos = mLayoutManager.findLastVisibleItemPosition();
 
-        if (mDraggedOverItem != null) {
-            mDraggedOverItem.setDraggedOver(BaseItem.NONE);
-            mAdapter.notifyItemChanged(mAdapter.getItemPosition(mDraggedOverItem));
-            mDraggedOverItem = null;
-        }
-
         if (mRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
 
             int candidateItemPosition = RecyclerView.NO_POSITION;
@@ -300,8 +294,11 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                 }
             }
 
-            if (candidateItem != null) {
-                mDraggedOverItem = mAdapter.getItem(candidateItemPosition);
+            if (candidateItem == null) {
+                cleanDraggedOverItem();
+            } else {
+                cleanDraggedOverItem();
+                mDraggedOverItem = candidateItem;
                 if (draggedItem instanceof AppItem) {
                     if (mDraggedOverItem instanceof AppItem) {
                         if (mAdapter.isAppLastInSection((AppItem) mDraggedOverItem)) {
@@ -333,6 +330,16 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                     }
                 }
             }
+        } else {
+            cleanDraggedOverItem();
+        }
+    }
+
+    private void cleanDraggedOverItem() {
+        if (mDraggedOverItem != null) {
+            mDraggedOverItem.setDraggedOver(BaseItem.NONE);
+            mAdapter.notifyItemChanged(mAdapter.getItemPosition(mDraggedOverItem));
+            mDraggedOverItem = null;
         }
     }
 
