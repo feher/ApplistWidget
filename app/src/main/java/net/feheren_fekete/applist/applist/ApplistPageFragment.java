@@ -101,6 +101,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
                 getContext(),
                 this,
                 getContext().getPackageManager(),
+                new FileUtils(),
                 mDataModel,
                 new BadgeStore(
                         getContext(),
