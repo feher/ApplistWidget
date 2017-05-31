@@ -9,6 +9,7 @@ import android.util.Log;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.utils.AppUtils;
+import net.feheren_fekete.applist.utils.FileUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
@@ -41,6 +42,7 @@ public class DataModel {
 
     private static DataModel sInstance;
 
+    private FileUtils mFileUtils = new FileUtils();
     private Handler mHandler;
     private PackageManager mPackageManager;
     private String mUncategorizedSectionName;
@@ -443,7 +445,7 @@ public class DataModel {
             return;
         }
 
-        writeFile(filePath, data);
+        mFileUtils.writeFile(filePath, data);
     }
 
     private void storeInstalledApps(String filePath) {
@@ -466,7 +468,7 @@ public class DataModel {
             return;
         }
 
-        writeFile(filePath, data);
+        mFileUtils.writeFile(filePath, data);
     }
 
     private void addUncategorizedSection(PageData page) {
@@ -537,7 +539,7 @@ public class DataModel {
 
     private List<PageData> loadPages(String filePath) {
         List<PageData> pages = new ArrayList<>();
-        String fileContent = readFile(filePath);
+        String fileContent = mFileUtils.readFile(filePath);
         try {
             JSONObject jsonObject = new JSONObject(fileContent);
 
@@ -585,7 +587,7 @@ public class DataModel {
 
     private List<AppData> loadInstalledApps(String filePath) {
         List<AppData> installedApps = new ArrayList<>();
-        String fileContent = readFile(filePath);
+        String fileContent = mFileUtils.readFile(filePath);
         try {
             JSONObject jsonObject = new JSONObject(fileContent);
 
@@ -619,62 +621,6 @@ public class DataModel {
             return json.getString(name);
         } catch (JSONException e) {
             return defaultValue;
-        }
-    }
-
-    private String readFile(String filePath) {
-        String fileContent = "";
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(filePath);
-        } catch (FileNotFoundException e) {
-            return fileContent;
-        }
-        InputStreamReader isr = null;
-        try {
-            isr = new InputStreamReader(fis, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return fileContent;
-        }
-
-        try {
-            StringBuilder stringBuilder = new StringBuilder("");
-            char[] buffer = new char[1024];
-            int n;
-            while ((n = isr.read(buffer)) != -1) {
-                stringBuilder.append(new String(buffer, 0, n));
-            }
-            fileContent = stringBuilder.toString();
-        } catch (IOException e) {
-            // Ignore
-        } finally {
-            try {
-                isr.close();
-            } catch (IOException e) {
-                // Ignore
-            }
-        }
-
-        return fileContent;
-    }
-
-    private void writeFile(String filePath, String content) {
-        BufferedWriter bw = null;
-        try {
-            FileOutputStream fw = new FileOutputStream(filePath);
-            OutputStreamWriter osw = new OutputStreamWriter(fw, "UTF-8");
-            bw = new BufferedWriter(osw);
-            bw.write(content);
-        } catch (IOException e) {
-            ApplistLog.getInstance().log(e);
-        } finally {
-            if (bw != null) {
-                try {
-                    bw.close();
-                } catch (IOException e) {
-                    ApplistLog.getInstance().log(e);
-                }
-            }
         }
     }
 
