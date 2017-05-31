@@ -51,6 +51,7 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
 
     private Handler mHandler;
     private DataModel mDataModel;
+    private FileUtils mFileUtils = new FileUtils();
     private IconCache mIconCache;
     private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
@@ -252,8 +253,8 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
                 @Override
                 public Void call() throws Exception {
                     if (uri != null) {
-                        FileUtils.deleteFiles(
-                                FileUtils.getIconCacheDirPath(appContext),
+                        mFileUtils.deleteFiles(
+                                mFileUtils.getIconCacheDirPath(appContext),
                                 uri.getSchemeSpecificPart());
                     }
                     mDataModel.updateInstalledApps();

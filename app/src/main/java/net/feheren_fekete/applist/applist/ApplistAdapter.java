@@ -59,6 +59,7 @@ public class ApplistAdapter
     private Fragment mFragment;
     private Handler mHandler;
     private PackageManager mPackageManager;
+    private FileUtils mFileUtils;
     private DataModel mModel;
     private BadgeStore mBadgeStore;
     private String mPageName;
@@ -122,6 +123,7 @@ public class ApplistAdapter
     public ApplistAdapter(Context context,
                           Fragment fragment,
                           PackageManager packageManager,
+                          FileUtils fileUtils,
                           DataModel model,
                           BadgeStore badgeStore,
                           String pageName,
@@ -131,6 +133,7 @@ public class ApplistAdapter
         mFragment = fragment;
         mHandler = new Handler();
         mPackageManager = packageManager;
+        mFileUtils = fileUtils;
         mModel = model;
         mBadgeStore = badgeStore;
         mPageName = pageName;
@@ -548,7 +551,7 @@ public class ApplistAdapter
             if (holder.iconLoader == null) {
                 holder.iconLoader = new IconLoaderTask(
                         item, holder, mPackageManager,
-                        mIconCache, FileUtils.getIconCacheDirPath(mContext));
+                        mIconCache, mFileUtils.getIconCacheDirPath(mContext));
                 holder.iconLoader.execute();
                 holder.appIcon.setImageBitmap(null);
                 holder.appIcon.setBackgroundColor(mIconPlaceholderColors[mNextPlaceholderColor]);

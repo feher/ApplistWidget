@@ -65,8 +65,9 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
         Bundle args = new Bundle();
         args.putString("pageName", pageName);
         fragment.setArguments(args);
-        fragment.setDataModel(dataModel);
-        fragment.setIconCache(iconCache);
+
+        fragment.mDataModel = dataModel;
+        fragment.mIconCache = iconCache;
         fragment.mListener = listener;
 
         return fragment;
@@ -105,6 +106,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
                 getContext(),
                 this,
                 getContext().getPackageManager(),
+                new FileUtils(),
                 mDataModel,
                 new BadgeStore(
                         getContext(),
@@ -384,14 +386,6 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
             return handled;
         }
     };
-
-    private void setDataModel(DataModel dataModel) {
-        mDataModel = dataModel;
-    }
-
-    private void setIconCache(IconCache iconCache) {
-        mIconCache = iconCache;
-    }
 
     private void showAppInfo(AppItem appItem) {
         Intent intent = new Intent();
