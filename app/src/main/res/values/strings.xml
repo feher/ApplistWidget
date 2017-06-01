@@ -26,6 +26,9 @@
     <string name="section_item_menu_delete">Delete</string>
     <string name="section_item_menu_sort_apps">Sort apps alphabetically</string>
 
+    <string name="widget_menu_move_resize">Move &amp; resize</string>
+    <string name="widget_menu_remove">Remove</string>
+
     <string name="toast_change_item_positions">Drag items\nto rearrange</string>
 
     <string name="settings_appearance">Appearance</string>

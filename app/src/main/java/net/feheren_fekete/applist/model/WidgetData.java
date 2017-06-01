@@ -4,14 +4,16 @@ public class WidgetData {
 
     private String mProviderPackage;
     private String mProviderClass;
+    private int mPage;
     private int mPositionX; // dp
     private int mPositionY; // dp
     private int mWidth; // dp
     private int mHeight; // dp
 
-    public WidgetData(String providerPackage, String providerClass, int positionX, int positionY, int width, int height) {
+    public WidgetData(String providerPackage, String providerClass, int page, int positionX, int positionY, int width, int height) {
         mProviderPackage = providerPackage;
         mProviderClass = providerClass;
+        mPage = page;
         mPositionX = positionX;
         mPositionY = positionY;
         mWidth = width;
@@ -33,6 +35,14 @@ public class WidgetData {
 
     public String getProviderClass() {
         return mProviderClass;
+    }
+
+    public int getPage() {
+        return mPage;
+    }
+
+    public void setPage(int page) {
+        mPage = page;
     }
 
     public int getPositionX() {
