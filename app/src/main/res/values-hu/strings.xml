@@ -46,4 +46,8 @@
     <string name="column_width_tiny">Picike</string>
     <string name="settings_column_width">Ikonméret</string>
     <string name="got_it">RENDBEN</string>
+    <string name="launcher_page_add_widget">Widget hozzáadása</string>
+    <string name="widget_menu_move_resize">Mozgat &amp; átméretez</string>
+    <string name="widget_menu_bring_to_top">Elöre hoz</string>
+    <string name="widget_menu_remove">Töröl</string>
 </resources>

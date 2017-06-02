@@ -46,4 +46,8 @@
     <string name="column_width_tiny">Pikkuinen</string>
     <string name="settings_column_width">Kuvakkeiden koko</string>
     <string name="got_it">SELVÄ</string>
+    <string name="launcher_page_add_widget">Lisää widgetin</string>
+    <string name="widget_menu_move_resize">Siirrä &amp; vaihda koko</string>
+    <string name="widget_menu_bring_to_top">Tuo eteen</string>
+    <string name="widget_menu_remove">Poista</string>
 </resources>
