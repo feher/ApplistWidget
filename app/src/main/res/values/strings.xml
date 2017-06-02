@@ -28,9 +28,11 @@
     <string name="section_item_menu_sort_apps">Sort apps alphabetically</string>
 
     <string name="widget_menu_move_resize">Move &amp; resize</string>
+    <string name="widget_menu_bring_to_top">Bring to top</string>
     <string name="widget_menu_remove">Remove</string>
 
     <string name="rearrange_items_help">Long press and Drag to rearrange groups and items</string>
+    <string name="launcher_page_add_widget">Add widget</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>

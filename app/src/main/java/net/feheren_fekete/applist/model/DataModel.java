@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import bolts.Continuation;
 import bolts.Task;
 
 // FIXME: Make th public methods synchronized? Can they be accesses from parallel threads?
@@ -58,6 +59,19 @@ public class DataModel {
     public static void initInstance(Context context, PackageManager packageManager) {
         if (sInstance == null) {
             sInstance = new DataModel(context, packageManager);
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    sInstance.loadData();
+                    return null;
+                }
+            }).continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    sInstance.updateInstalledApps();
+                    return null;
+                }
+            });
         }
     }
 
@@ -87,7 +101,7 @@ public class DataModel {
                 updateSections(page);
             }
             mPages = pages;
-            EventBus.getDefault().postSticky(new DataLoadedEvent());
+            EventBus.getDefault().post(new DataLoadedEvent());
         }
     }
 

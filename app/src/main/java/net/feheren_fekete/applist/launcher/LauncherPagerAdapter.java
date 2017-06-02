@@ -12,6 +12,8 @@ import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
 import java.util.List;
 import java.util.Map;
 
+import hugo.weaving.DebugLog;
+
 public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 
     private Map<Integer, Fragment> mPageFragments = new ArrayMap<>();
@@ -23,7 +25,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Fragment fragment;
-        if (position == 0) {
+        if (position == 1) {
             fragment = new ApplistFragment();
         } else {
             fragment = LauncherPageFragment.newInstance(position);
@@ -40,7 +42,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 1;
+        return 3;
     }
 
     public Fragment getPageFragment(int position) {

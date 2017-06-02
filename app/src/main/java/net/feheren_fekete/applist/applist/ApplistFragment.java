@@ -99,8 +99,6 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
         intentFilter.addDataScheme("package");
         getContext().registerReceiver(mPackageStateReceiver, intentFilter);
 
-        loadAndUpdateData();
-
         return view;
     }
 
@@ -121,6 +119,8 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
     @Override
     public void onResume() {
         super.onResume();
+
+        updateApplistFragmentDelayed();
 
         EventBus.getDefault().register(this);
         mPackageStateReceiver.onReceive(getContext(), null);
@@ -176,14 +176,33 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
         if (fragment != null) {
             isFilteredByName = fragment.isFilteredByName();
         }
+        MenuItem menuItem;
         if (isFilteredByName) {
-            menu.findItem(R.id.action_search_app).setVisible(true);
-            menu.findItem(R.id.action_create_section).setVisible(false);
-            menu.findItem(R.id.action_settings).setVisible(false);
+            menuItem = menu.findItem(R.id.action_search_app);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
+            menuItem = menu.findItem(R.id.action_create_section);
+            if (menuItem != null) {
+                menuItem.setVisible(false);
+            }
+            menuItem = menu.findItem(R.id.action_settings);
+            if (menuItem != null) {
+                menuItem.setVisible(false);
+            }
         } else {
-            menu.findItem(R.id.action_search_app).setVisible(true);
-            menu.findItem(R.id.action_create_section).setVisible(true);
-            menu.findItem(R.id.action_settings).setVisible(true);
+            menuItem = menu.findItem(R.id.action_search_app);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
+            menuItem = menu.findItem(R.id.action_create_section);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
+            menuItem = menu.findItem(R.id.action_settings);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
         }
     }
 
@@ -325,36 +344,15 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
     }
 
     @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDataLoadedEvent(DataModel.DataLoadedEvent event) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                updateApplistFragment();
-            }
-        });
+        updateApplistFragmentDelayed();
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPagesChangedEvent(DataModel.PagesChangedEvent event) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                updateApplistFragment();
-            }
-        });
-    }
-
-    private Task<Void> loadData() {
-        final DataModel dataModel = DataModel.getInstance();
-        return Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                dataModel.loadData();
-                return null;
-            }
-        });
+        updateApplistFragmentDelayed();
     }
 
     private void updateData() {
@@ -366,21 +364,6 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
                 return null;
             }
         });
-    }
-
-    private void loadAndUpdateData() {
-        loadData().continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateData();
-                    }
-                }, 1000);
-                return null;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
     }
 
     private void loadApplistFragment() {
@@ -410,6 +393,15 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
             public Void call() throws Exception {
                 mDataModel.addNewPage(defaultPageName);
                 return null;
+            }
+        });
+    }
+
+    private void updateApplistFragmentDelayed() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                updateApplistFragment();
             }
         });
     }

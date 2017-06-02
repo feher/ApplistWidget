@@ -8,6 +8,7 @@ import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
 import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.model.WidgetModel;
 
 
 public class ApplistApp extends MultiDexApplication {
@@ -29,6 +30,7 @@ public class ApplistApp extends MultiDexApplication {
 
         ApplistLog.initInstance();
         DataModel.initInstance(this, getPackageManager());
+        WidgetModel.initInstance(this);
 
         mIconPlaceholderColors = new int[6];
         mIconPlaceholderColors[0] = 0xffcdbbbb;
