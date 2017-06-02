@@ -27,7 +27,10 @@
     <string name="section_item_menu_sort_apps">Sort apps alphabetically</string>
 
     <string name="widget_menu_move_resize">Move &amp; resize</string>
+    <string name="widget_menu_bring_to_top">Bring to top</string>
     <string name="widget_menu_remove">Remove</string>
+
+    <string name="launcher_page_add_widget">Add widget</string>
 
     <string name="toast_change_item_positions">Drag items\nto rearrange</string>
 

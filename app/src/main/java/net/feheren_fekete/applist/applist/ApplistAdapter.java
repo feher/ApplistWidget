@@ -278,7 +278,6 @@ public class ApplistAdapter
         return super.getItemViewType(position);
     }
 
-    @DebugLog
     public void loadAllItems() {
         Task.callInBackground(new Callable<List<BaseItem>>() {
             @Override

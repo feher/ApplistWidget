@@ -65,7 +65,7 @@ public class FileUtils {
             }
             fileContent = stringBuilder.toString();
         } catch (IOException e) {
-            // Ignore
+            ApplistLog.getInstance().log(e);
         } finally {
             try {
                 isr.close();

@@ -1,36 +1,120 @@
 package net.feheren_fekete.applist.model;
 
-import org.greenrobot.eventbus.EventBus;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.util.Log;
 
+import net.feheren_fekete.applist.ApplistLog;
+import net.feheren_fekete.applist.utils.FileUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+
+import bolts.Task;
+import hugo.weaving.DebugLog;
 
 public class WidgetModel {
 
+    private static final String TAG = WidgetModel.class.getSimpleName();
+
     public static final class DataLoadedEvent {}
+
     public static class WidgetEvent {
         public final WidgetData widgetData;
         private WidgetEvent(WidgetData widgetData) {
             this.widgetData = widgetData;
         }
     }
+
     public static final class WidgetAddedEvent extends WidgetEvent {
         private WidgetAddedEvent(WidgetData widgetData) {
             super(widgetData);
         }
     }
+
     public static final class WidgetDeletedEvent extends WidgetEvent {
         private WidgetDeletedEvent(WidgetData widgetData) {
             super(widgetData);
         }
     }
 
+    public static final class WidgetChangedEvent extends WidgetEvent {
+        private WidgetChangedEvent(WidgetData widgetData) {
+            super(widgetData);
+        }
+    }
+
+    private static WidgetModel sInstance;
+
+    private String mWidgetsFilePath;
+    private Handler mHandler = new Handler();
+    private FileUtils mFileUtils = new FileUtils();
     private List<WidgetData> mWidgets = new ArrayList<>();
+
+    public static void initInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new WidgetModel(context);
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    sInstance.loadData();
+                    return null;
+                }
+            });
+        }
+    }
+
+    public static WidgetModel getInstance() {
+        if (sInstance != null) {
+            return sInstance;
+        } else {
+            throw new RuntimeException("WidgetModel singleton is not initialized");
+        }
+    }
+
+    private WidgetModel(Context context) {
+        mWidgetsFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-widgets.json";
+    }
 
     public void loadData() {
         synchronized (this) {
-            // TODO
-            EventBus.getDefault().postSticky(new DataLoadedEvent());
+            mWidgets.clear();
+            String fileContent = mFileUtils.readFile(mWidgetsFilePath);
+            if (!TextUtils.isEmpty(fileContent)) {
+                try {
+                    JSONObject jsonObject = new JSONObject(fileContent);
+
+                    JSONArray jsonWidgets = jsonObject.getJSONArray("widgets");
+                    for (int k = 0; k < jsonWidgets.length(); ++k) {
+                        JSONObject jsonWidget = jsonWidgets.getJSONObject(k);
+                        WidgetData widgetData = new WidgetData(
+                                jsonWidget.getLong("id"),
+                                jsonWidget.getInt("app-widget-id"),
+                                jsonWidget.getString("package-name"),
+                                jsonWidget.getString("class-name"),
+                                jsonWidget.getInt("page-number"),
+                                jsonWidget.getInt("position-x"),
+                                jsonWidget.getInt("position-y"),
+                                jsonWidget.getInt("width"),
+                                jsonWidget.getInt("height"));
+                        mWidgets.add(widgetData);
+                    }
+
+                } catch (JSONException e) {
+                    ApplistLog.getInstance().log(e);
+                }
+            }
+            EventBus.getDefault().post(new DataLoadedEvent());
         }
     }
 
@@ -45,10 +129,46 @@ public class WidgetModel {
         }
     }
 
+    public List<WidgetData> getWidgets(int pageNumber) {
+        synchronized (this) {
+            // Return a copy to avoid messing up the data by the caller.
+            List<WidgetData> result = new ArrayList<>();
+            for (WidgetData widgetData : mWidgets) {
+                if (widgetData.getPageNumber() == pageNumber) {
+                    result.add(new WidgetData(widgetData));
+                }
+            }
+            return result;
+        }
+    }
+
     public void addWidget(WidgetData widgetData) {
         synchronized (this) {
             mWidgets.add(widgetData);
+            scheduleStoreData();
             EventBus.getDefault().post(new WidgetAddedEvent(widgetData));
+        }
+    }
+
+    public void updateWidget(WidgetData widgetData) {
+        synchronized (this) {
+            WidgetData existingWidgetData = getWidgetData(widgetData);
+            if (existingWidgetData != null) {
+                existingWidgetData.updateFrom(widgetData);
+                scheduleStoreData();
+            }
+        }
+    }
+
+    public void bringWidgetToTop(WidgetData widgetData) {
+        synchronized (this) {
+            WidgetData existingWidgetData = getWidgetData(widgetData);
+            if (existingWidgetData != null) {
+                mWidgets.remove(existingWidgetData);
+                mWidgets.add(existingWidgetData);
+                scheduleStoreData();
+                EventBus.getDefault().post(new WidgetChangedEvent(widgetData));
+            }
         }
     }
 
@@ -58,11 +178,70 @@ public class WidgetModel {
                 if (widget.getProviderPackage().equals(widgetData.getProviderPackage())
                         && widget.getProviderClass().equals(widgetData.getProviderClass())) {
                     mWidgets.remove(widget);
+                    scheduleStoreData();
                     EventBus.getDefault().post(new WidgetDeletedEvent(widgetData));
                     return;
                 }
             }
         }
+    }
+
+    @Nullable
+    private WidgetData getWidgetData(WidgetData widgetData) {
+        for (WidgetData widget : mWidgets) {
+            if (widget.getId() == widgetData.getId()) {
+                return widget;
+            }
+        }
+        return null;
+    }
+
+    private void storeData() {
+        synchronized (this) {
+            String data = "";
+            JSONObject jsonObject = new JSONObject();
+            try {
+                JSONArray jsonWidgets = new JSONArray();
+                for (WidgetData widgetData : mWidgets) {
+                    JSONObject jsonWidget = new JSONObject();
+                    jsonWidget.put("id", widgetData.getId());
+                    jsonWidget.put("app-widget-id", widgetData.getAppWidgetId());
+                    jsonWidget.put("package-name", widgetData.getProviderPackage());
+                    jsonWidget.put("class-name", widgetData.getProviderClass());
+                    jsonWidget.put("page-number", widgetData.getPageNumber());
+                    jsonWidget.put("position-x", widgetData.getPositionX());
+                    jsonWidget.put("position-y", widgetData.getPositionY());
+                    jsonWidget.put("width", widgetData.getWidth());
+                    jsonWidget.put("height", widgetData.getHeight());
+                    jsonWidgets.put(jsonWidget);
+                }
+                jsonObject.put("widgets", jsonWidgets);
+                data = jsonObject.toString(2);
+            } catch (JSONException e) {
+                ApplistLog.getInstance().log(e);
+                return;
+            }
+
+            mFileUtils.writeFile(mWidgetsFilePath, data);
+        }
+    }
+
+    private Runnable mStoreDataRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    storeData();
+                    return null;
+                }
+            });
+        }
+    };
+
+    private void scheduleStoreData() {
+        mHandler.removeCallbacks(mStoreDataRunnable);
+        mHandler.postDelayed(mStoreDataRunnable, 500);
     }
 
 }

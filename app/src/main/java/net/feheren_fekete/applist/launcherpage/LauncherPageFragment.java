@@ -1,18 +1,18 @@
 package net.feheren_fekete.applist.launcherpage;
 
 import android.app.Activity;
-import android.appwidget.AppWidgetHost;
-import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.PopupMenu;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.model.WidgetData;
 import net.feheren_fekete.applist.model.WidgetModel;
@@ -31,6 +32,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+
+import bolts.Task;
 
 public class LauncherPageFragment extends Fragment {
 
@@ -43,22 +47,29 @@ public class LauncherPageFragment extends Fragment {
     private static final int LEFT_BORDER = 1 << 2;
     private static final int RIGHT_BORDER = 1 << 3;
 
+    public static final class WidgetMoveStartedEvent {}
+    public static final class WidgetMoveFinishedEvent {}
+
     private static final class WidgetItem {
         public WidgetData widgetData;
-        public AppWidgetHostView appWidgetHostView;
+        public MyAppWidgetHostView appWidgetHostView;
     }
 
+    private Handler mHandler = new Handler();
     private WidgetModel mWidgetModel;
     private AppWidgetManager mAppWidgetManager;
-    private AppWidgetHost mAppWidgetHost;
+    private MyAppWidgetHost mAppWidgetHost;
     private ViewGroup mWidgetContainer;
     private List<WidgetItem> mWidgets = new ArrayList<>();
+    private @Nullable PopupMenu mPageMenu;
     private @Nullable PopupMenu mWidgetMenu;
     private @Nullable WidgetItem mWidgetMenuTarget;
+    private int mWidgetTouchBorderWidth; // px
+    private int mMinWidgetSize; // px
     private int[] mTempLocation = new int[2];
     private RectF mTempRect1 = new RectF();
-    private RectF mTempRect2 = new RectF();
-    private boolean mIsMovingWidget;
+    private PointF mOriginalFingerPos = new PointF();
+    private PointF mPreviousFingerPos = new PointF();
 
     public static LauncherPageFragment newInstance(int pageNumber) {
         LauncherPageFragment fragment = new LauncherPageFragment();
@@ -73,22 +84,25 @@ public class LauncherPageFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mWidgetModel = new WidgetModel();
+        mWidgetModel = WidgetModel.getInstance();
+        mWidgetTouchBorderWidth = getContext().getResources().getDimensionPixelSize(R.dimen.widget_border_width_touch);
+        mMinWidgetSize = getContext().getResources().getDimensionPixelSize(R.dimen.widget_min_size);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_page_fragment, container, false);
 
-        mAppWidgetManager = AppWidgetManager.getInstance(getContext().getApplicationContext());
-        mAppWidgetHost = new AppWidgetHost(getContext().getApplicationContext(), 1234567);
+        mAppWidgetManager = ((MainActivity) getActivity()).getAppWidgetManager();
+        mAppWidgetHost = ((MainActivity) getActivity()).getAppWidgetHost();
 
-        mWidgetContainer = (ViewGroup) view.findViewById(R.id.launcher_page_fragment_container);
-
-        view.findViewById(R.id.launcher_page_fragment_add_widget_button).setOnClickListener(new View.OnClickListener() {
+        mWidgetContainer = (ViewGroup) view.findViewById(R.id.launcher_page_fragment_widget_container);
+        mWidgetContainer.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                selectWidget();
+            public boolean onLongClick(View v) {
+                openPageMenu();
+                return true;
             }
         });
 
@@ -102,11 +116,10 @@ public class LauncherPageFragment extends Fragment {
             if (requestCode == REQUEST_PICK_APPWIDGET) {
                 configureWidget(data);
             } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
-                createWidget(data);
+                addWidgetToModelDelayed(data);
             }
         } else if (resultCode == Activity.RESULT_CANCELED && data != null) {
-            int appWidgetId =
-                    data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+            int appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
             if (appWidgetId != -1) {
                 mAppWidgetHost.deleteAppWidgetId(appWidgetId);
             }
@@ -116,7 +129,7 @@ public class LauncherPageFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        mAppWidgetHost.startListening();
+        updateScreenFromModel();
     }
 
     @Override
@@ -131,44 +144,46 @@ public class LauncherPageFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        mAppWidgetHost.stopListening();
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDataLoadedEvent(WidgetModel.DataLoadedEvent event) {
+        updateScreenFromModel();
     }
 
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onDataLoadedEvent(WidgetModel.DataLoadedEvent event) {
-        // TODO: update/populate mWidgets
-    }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onWidgetAddedEvent(WidgetModel.WidgetAddedEvent event) {
-        // TODO: update/populate mWidgets
+        if (event.widgetData.getPageNumber() == getPageNumber()) {
+            addWidgetToScreen(event.widgetData);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onWidgetDeletedEvent(WidgetModel.WidgetDeletedEvent event) {
+        if (event.widgetData.getPageNumber() == getPageNumber()) {
+            WidgetItem widgetItem = getWidgetItem(event.widgetData);
+            removeWidgetFromScreen(widgetItem, true, true);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onWidgetChangedEvent(WidgetModel.WidgetChangedEvent event) {
+        updateScreenFromModel();
     }
 
     public int getPageNumber() {
         return getArguments().getInt("pageNumber");
     }
 
-    public void handleLongTap(MotionEvent event) {
-        WidgetItem widgetItem = findWidgetAtLocation(event.getRawX(), event.getRawY());
-        if (widgetItem != null) {
-            openWidgetMenu(widgetItem);
-        }
-    }
-
-    private PointF mOriginalFingerPos = new PointF();
-    private PointF mPreviousFingerPos = new PointF();
-
     public boolean handleScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
         boolean handled = false;
-        if (mIsMovingWidget && mWidgetMenuTarget != null) {
+        if (mWidgetMenuTarget != null) {
             if (mOriginalFingerPos.x != event1.getRawX() || mOriginalFingerPos.y != event1.getRawY()) {
-                mOriginalFingerPos.set(event1.getRawX(), event2.getRawY());
-                mPreviousFingerPos.set(event1.getRawX(), event2.getRawY());
+                mOriginalFingerPos.set(event1.getRawX(), event1.getRawY());
+                mPreviousFingerPos.set(event1.getRawX(), event1.getRawY());
             }
 
             if (isLocationInsideWidget(mWidgetMenuTarget, mPreviousFingerPos.x, mPreviousFingerPos.y)) {
@@ -177,8 +192,6 @@ public class LauncherPageFragment extends Fragment {
                         mPreviousFingerPos.x, mPreviousFingerPos.y,
                         event2.getRawX(), event2.getRawY());
                 handled = true;
-            } else {
-                mIsMovingWidget = false;
             }
 
             mPreviousFingerPos.set(event2.getRawX(), event2.getRawY());
@@ -186,8 +199,24 @@ public class LauncherPageFragment extends Fragment {
         return handled;
     }
 
-    private void selectWidget() {
-        int appWidgetId = this.mAppWidgetHost.allocateAppWidgetId();
+    public boolean handleSingleTap(MotionEvent event) {
+        mWidgetMenuTarget.appWidgetHostView.setResizing(false);
+        EventBus.getDefault().post(new WidgetMoveFinishedEvent());
+        return true;
+    }
+
+    @Nullable
+    private WidgetItem getWidgetItem(WidgetData widgetData) {
+        for (WidgetItem widgetItem : mWidgets) {
+            if (widgetItem.widgetData.getId() == widgetData.getId()) {
+                return widgetItem;
+            }
+        }
+        return null;
+    }
+
+    private void pickWidget() {
+        int appWidgetId = mAppWidgetHost.allocateAppWidgetId();
         Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         addEmptyData(pickIntent);
@@ -206,6 +235,9 @@ public class LauncherPageFragment extends Fragment {
     private void configureWidget(Intent data) {
         Bundle extras = data.getExtras();
         int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+        if (appWidgetId == -1) {
+            return;
+        }
         AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         if (appWidgetInfo.configure != null) {
             Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
@@ -213,48 +245,161 @@ public class LauncherPageFragment extends Fragment {
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
         } else {
-            createWidget(data);
+            addWidgetToModelDelayed(data);
         }
     }
 
-    private void createWidget(Intent data) {
-        if (!mWidgets.isEmpty()) {
-            removeWidget(0);
+    private void updateScreenFromModel() {
+        removeAllWidgetsFromScreen();
+        List<WidgetData> widgetDatas = mWidgetModel.getWidgets(getPageNumber());
+        for (WidgetData widgetData : widgetDatas) {
+            addWidgetToScreen(widgetData);
         }
+    }
 
-        Bundle extras = data.getExtras();
-        int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+    private void addWidgetToScreen(WidgetData widgetData) {
+        int appWidgetId = widgetData.getAppWidgetId();
         AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
-        AppWidgetHostView hostView = mAppWidgetHost.createView(getContext().getApplicationContext(), appWidgetId, appWidgetInfo);
+
+        MyAppWidgetHostView hostView = (MyAppWidgetHostView) mAppWidgetHost.createView(
+                getContext().getApplicationContext(), appWidgetId, appWidgetInfo);
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                Math.round(ScreenUtils.dpToPx(getContext(), 200)),
-                Math.round(ScreenUtils.dpToPx(getContext(), 300)));
-        layoutParams.topMargin = 0;
-        layoutParams.leftMargin = 0;
+                Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getWidth())),
+                Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getHeight())));
+        layoutParams.leftMargin = Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getPositionX()));
+        layoutParams.topMargin = Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getPositionY()));
         hostView.setLayoutParams(layoutParams);
 
-        WidgetItem widgetItem = new WidgetItem();
-        widgetItem.widgetData = new WidgetData(
+        final WidgetItem widgetItem = new WidgetItem();
+        widgetItem.widgetData = widgetData;
+        widgetItem.appWidgetHostView = hostView;
+        widgetItem.appWidgetHostView.setGestureListener(new WidgetGestureListener(widgetItem));
+
+        mWidgets.add(widgetItem);
+        mWidgetContainer.addView(hostView);
+        mWidgetContainer.invalidate();
+    }
+
+    private void removeAllWidgetsFromScreen() {
+        for (WidgetItem widgetItem : mWidgets) {
+            removeWidgetFromScreen(widgetItem, false, false);
+        }
+        mWidgets.clear();
+    }
+
+    private void removeWidgetFromScreen(WidgetItem widgetItem, boolean removeFromList, boolean permanentlyDeleted) {
+        if (permanentlyDeleted) {
+            mAppWidgetHost.deleteAppWidgetId(widgetItem.appWidgetHostView.getAppWidgetId());
+        }
+        mWidgetContainer.removeView(widgetItem.appWidgetHostView);
+        mWidgetContainer.invalidate();
+        if (removeFromList) {
+            mWidgets.remove(widgetItem);
+        }
+    }
+
+    private void addWidgetToModelDelayed(final Intent data) {
+        // The widget picker and configuration activity sent this fragment to the PAUSED state.
+        // But we want to be in the RESUMED state. Otherwise we don't receive EventBus events
+        // from the WidgetModel.
+        // So delay the model update to the next event loop.
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                addWidgetToModel(data);
+            }
+        });
+    }
+
+    private void addWidgetToModel(Intent data) {
+        final int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+        if (appWidgetId == -1) {
+            return;
+        }
+        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
+        final WidgetData widgetData = new WidgetData(
+                System.currentTimeMillis(),
+                appWidgetId,
                 appWidgetInfo.provider.getPackageName(),
                 appWidgetInfo.provider.getClassName(),
                 getPageNumber(),
                 0, 0, 200, 300);
-        widgetItem.appWidgetHostView = hostView;
-        mWidgets.add(widgetItem);
 
-        mWidgetContainer.addView(hostView);
-        mWidgetModel.addWidget(widgetItem.widgetData);
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mWidgetModel.addWidget(widgetData);
+                return null;
+            }
+        });
     }
 
-    private void removeWidget(int widgetIndex) {
-        WidgetItem widgetItem = mWidgets.get(widgetIndex);
-        mAppWidgetHost.deleteAppWidgetId(widgetItem.appWidgetHostView.getAppWidgetId());
-        mWidgetContainer.removeView(widgetItem.appWidgetHostView);
-        mWidgets.remove(widgetIndex);
-        mWidgetModel.deleteWidget(widgetItem.widgetData);
+    private void bringWidgetToTop(final WidgetItem widgetItem) {
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mWidgetModel.bringWidgetToTop(widgetItem.widgetData);
+                return null;
+            }
+        });
     }
+
+    private void removeWidgetFromModel(final WidgetItem widgetItem) {
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mWidgetModel.deleteWidget(widgetItem.widgetData);
+                return null;
+            }
+        });
+    }
+
+    private class WidgetGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private WidgetItem mWidgetItem;
+        public WidgetGestureListener(WidgetItem widgetItem) {
+            mWidgetItem = widgetItem;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            openWidgetMenu(mWidgetItem);
+        }
+    }
+
+    private void openPageMenu() {
+        mPageMenu = new PopupMenu(getContext(), getView().findViewById(R.id.launcher_page_fragment_page_menu_anchor));
+        mPageMenu.setOnMenuItemClickListener(mPageMenuClickListener);
+        mPageMenu.inflate(R.menu.launcher_page_menu);
+        mPageMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
+                mPageMenu = null;
+            }
+        });
+        mPageMenu.show();
+    }
+
+    private PopupMenu.OnMenuItemClickListener mPageMenuClickListener = new PopupMenu.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            boolean handled = false;
+            switch (menuItem.getItemId()) {
+                case R.id.launcher_page_add_widget:
+                    pickWidget();
+                    handled = true;
+                    break;
+            }
+            mWidgetMenu = null;
+            return handled;
+        }
+    };
 
     private void openWidgetMenu(WidgetItem widgetItem) {
         mWidgetMenu = new PopupMenu(getContext(), widgetItem.appWidgetHostView);
@@ -276,11 +421,17 @@ public class LauncherPageFragment extends Fragment {
             boolean handled = false;
             switch (menuItem.getItemId()) {
                 case R.id.widget_move_resize:
-                    mIsMovingWidget = true;
+                    handled = true;
+                    mWidgetMenuTarget.appWidgetHostView.setResizing(true);
+                    EventBus.getDefault().post(new WidgetMoveStartedEvent());
+                    break;
+                case R.id.widget_bring_to_top:
+                    bringWidgetToTop(mWidgetMenuTarget);
                     handled = true;
                     break;
                 case R.id.widget_remove:
                     handled = true;
+                    removeWidgetFromModel(mWidgetMenuTarget);
                     break;
             }
             mWidgetMenu = null;
@@ -309,45 +460,55 @@ public class LauncherPageFragment extends Fragment {
         return mTempRect1.contains(locationX, locationY);
     }
 
-    private int mWidgetTouchBorderWidthHalf = 25; // px
-    private int mMinWidgetSize = 100; // px
-    private void updateWidgetLocation(WidgetItem widgetItem,
+    private void updateWidgetLocation(final WidgetItem widgetItem,
                                       float location1X, float location1Y,
                                       float location2X, float location2Y) {
         final int touchedBorder = isLocationOnTouchBorder(widgetItem, location1X, location1Y);
+        FrameLayout.LayoutParams layoutParams =
+                (FrameLayout.LayoutParams) widgetItem.appWidgetHostView.getLayoutParams();
         if (touchedBorder != NO_BORDER) {
             // Resizing
-            FrameLayout.LayoutParams layoutParams =
-                    (FrameLayout.LayoutParams) widgetItem.appWidgetHostView.getLayoutParams();
+            final int deltaX = Math.round(location2X - location1X);
+            final int deltaY = Math.round(location2Y - location1Y);
             if ((touchedBorder & LEFT_BORDER) != 0) {
-                layoutParams.leftMargin += Math.round(location2X - location1X);
-                layoutParams.leftMargin = Math.max(0, layoutParams.leftMargin);
+                layoutParams.leftMargin += deltaX;
+                layoutParams.width -= deltaX;
             }
             if ((touchedBorder & TOP_BORDER) != 0) {
-                layoutParams.topMargin += Math.round(location2Y - location1Y);
-                layoutParams.topMargin = Math.max(0, layoutParams.topMargin);
+                layoutParams.topMargin += deltaY;
+                layoutParams.height -= deltaY;
             }
             if ((touchedBorder & RIGHT_BORDER) != 0) {
-                layoutParams.width += Math.round(location2X - location1X);
-                layoutParams.width = Math.max(mMinWidgetSize, layoutParams.width);
+                layoutParams.width += deltaX;
             }
             if ((touchedBorder & BOTTOM_BORDER) != 0) {
-                layoutParams.height += Math.round(location2Y - location1Y);
-                layoutParams.height = Math.max(mMinWidgetSize, layoutParams.height);
+                layoutParams.height += deltaY;
             }
-            widgetItem.appWidgetHostView.setLayoutParams(layoutParams);
-            mWidgetContainer.invalidate();
+            layoutParams.leftMargin = Math.max(0, layoutParams.leftMargin);
+            layoutParams.topMargin = Math.max(0, layoutParams.topMargin);
+            layoutParams.width = Math.max(mMinWidgetSize, layoutParams.width);
+            layoutParams.height = Math.max(mMinWidgetSize, layoutParams.height);
         } else {
             // Moving
-            FrameLayout.LayoutParams layoutParams =
-                    (FrameLayout.LayoutParams) widgetItem.appWidgetHostView.getLayoutParams();
             final float distanceX = location2X - location1X;
             final float distanceY = location2Y - location1Y;
             layoutParams.leftMargin += distanceX;
             layoutParams.topMargin += distanceY;
-            widgetItem.appWidgetHostView.setLayoutParams(layoutParams);
-            mWidgetContainer.invalidate();
         }
+        widgetItem.appWidgetHostView.setLayoutParams(layoutParams);
+        Context context = getContext();
+        widgetItem.widgetData.setPositionX(Math.round(ScreenUtils.pxToDp(context, layoutParams.leftMargin)));
+        widgetItem.widgetData.setPositionY(Math.round(ScreenUtils.pxToDp(context, layoutParams.topMargin)));
+        widgetItem.widgetData.setWidth(Math.round(ScreenUtils.pxToDp(context, layoutParams.width)));
+        widgetItem.widgetData.setHeight(Math.round(ScreenUtils.pxToDp(context, layoutParams.height)));
+        mWidgetContainer.invalidate();
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mWidgetModel.updateWidget(widgetItem.widgetData);
+                return null;
+            }
+        });
     }
 
     private int isLocationOnTouchBorder(WidgetItem widgetItem, float locationX, float locationY) {
@@ -356,41 +517,41 @@ public class LauncherPageFragment extends Fragment {
         widgetItem.appWidgetHostView.getLocationOnScreen(mTempLocation);
         final int widgetLeft = mTempLocation[0];
         final int widgetTop = mTempLocation[1];
-        final int widgetRight = mTempLocation[0] + widgetItem.appWidgetHostView.getWidth();
-        final int widgetBottom = mTempLocation[1] + widgetItem.appWidgetHostView.getHeight();
+        final int widgetRight = widgetLeft + widgetItem.appWidgetHostView.getWidth();
+        final int widgetBottom = widgetTop + widgetItem.appWidgetHostView.getHeight();
 
         mTempRect1.set(
-                widgetLeft - mWidgetTouchBorderWidthHalf,
-                widgetTop - mWidgetTouchBorderWidthHalf,
-                widgetRight + mWidgetTouchBorderWidthHalf,
-                widgetTop + mWidgetTouchBorderWidthHalf);
+                widgetLeft - mWidgetTouchBorderWidth,
+                widgetTop - mWidgetTouchBorderWidth,
+                widgetRight + mWidgetTouchBorderWidth,
+                widgetTop + mWidgetTouchBorderWidth);
         if (mTempRect1.contains(locationX, locationY)) {
             result |= TOP_BORDER;
         }
 
         mTempRect1.set(
-                widgetLeft - mWidgetTouchBorderWidthHalf,
-                widgetBottom - mWidgetTouchBorderWidthHalf,
-                widgetRight + mWidgetTouchBorderWidthHalf,
-                widgetBottom + mWidgetTouchBorderWidthHalf);
+                widgetLeft - mWidgetTouchBorderWidth,
+                widgetBottom - mWidgetTouchBorderWidth,
+                widgetRight + mWidgetTouchBorderWidth,
+                widgetBottom + mWidgetTouchBorderWidth);
         if (mTempRect1.contains(locationX, locationY)) {
             result |= BOTTOM_BORDER;
         }
 
         mTempRect1.set(
-                widgetLeft - mWidgetTouchBorderWidthHalf,
-                widgetTop - mWidgetTouchBorderWidthHalf,
-                widgetLeft + mWidgetTouchBorderWidthHalf,
-                widgetBottom + mWidgetTouchBorderWidthHalf);
+                widgetLeft - mWidgetTouchBorderWidth,
+                widgetTop - mWidgetTouchBorderWidth,
+                widgetLeft + mWidgetTouchBorderWidth,
+                widgetBottom + mWidgetTouchBorderWidth);
         if (mTempRect1.contains(locationX, locationY)) {
             result |= LEFT_BORDER;
         }
 
         mTempRect1.set(
-                widgetRight - mWidgetTouchBorderWidthHalf,
-                widgetTop - mWidgetTouchBorderWidthHalf,
-                widgetRight + mWidgetTouchBorderWidthHalf,
-                widgetBottom + mWidgetTouchBorderWidthHalf);
+                widgetRight - mWidgetTouchBorderWidth,
+                widgetTop - mWidgetTouchBorderWidth,
+                widgetRight + mWidgetTouchBorderWidth,
+                widgetBottom + mWidgetTouchBorderWidth);
         if (mTempRect1.contains(locationX, locationY)) {
             result |= RIGHT_BORDER;
         }
