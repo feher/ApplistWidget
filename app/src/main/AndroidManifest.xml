@@ -21,6 +21,8 @@
     <!-- For Phone badges -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <uses-permission android:name="android.permission.BIND_APPWIDGET" />
+
     <application
         android:name="net.feheren_fekete.applist.ApplistApp"
         android:allowBackup="true"

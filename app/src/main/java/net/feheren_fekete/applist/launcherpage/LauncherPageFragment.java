@@ -41,6 +41,7 @@ public class LauncherPageFragment extends Fragment {
 
     private static final int REQUEST_PICK_APPWIDGET = 1;
     private static final int REQUEST_CREATE_APPWIDGET = 2;
+    private static final int REQUEST_BIND_APPWIDGET = 3;
 
     private static final int NO_BORDER = 0;
     private static final int TOP_BORDER = 1;
@@ -115,7 +116,15 @@ public class LauncherPageFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_PICK_APPWIDGET) {
-                configureWidget(data);
+                if (bindWidget(data)) {
+                    if (configureWidget(data)) {
+                        addWidgetToModelDelayed(data);
+                    }
+                }
+            } else if (requestCode == REQUEST_BIND_APPWIDGET) {
+                if (configureWidget(data)) {
+                    addWidgetToModelDelayed(data);
+                }
             } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
                 addWidgetToModelDelayed(data);
             }
@@ -247,11 +256,35 @@ public class LauncherPageFragment extends Fragment {
                 AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras);
     }
 
-    private void configureWidget(Intent data) {
+    private boolean bindWidget(Intent data) {
+//        return true;
+        int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+        if (appWidgetId == -1) {
+            return true;
+        }
+        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
+
+        boolean success = mAppWidgetManager.bindAppWidgetIdIfAllowed(
+                appWidgetId, appWidgetInfo.provider, new Bundle());
+        if (success) {
+            return true;
+        } else {
+            Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, appWidgetInfo.provider);
+//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, android.os.Process.myUserHandle());
+            // This is the options bundle discussed above
+            //        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, appWidgetInfo.options);
+            startActivityForResult(intent, REQUEST_BIND_APPWIDGET);
+            return false;
+        }
+    }
+
+    private boolean configureWidget(Intent data) {
         Bundle extras = data.getExtras();
         int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
         if (appWidgetId == -1) {
-            return;
+            return true;
         }
         AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         if (appWidgetInfo.configure != null) {
@@ -259,9 +292,9 @@ public class LauncherPageFragment extends Fragment {
             intent.setComponent(appWidgetInfo.configure);
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
-        } else {
-            addWidgetToModelDelayed(data);
+            return false;
         }
+        return true;
     }
 
     private void updateScreenFromModel() {
