@@ -49,6 +49,9 @@ public class LauncherPageFragment extends Fragment {
     private static final int LEFT_BORDER = 1 << 2;
     private static final int RIGHT_BORDER = 1 << 3;
 
+    private static final int DEFAULT_WIDGET_WIDTH = 200;
+    private static final int DEFAULT_WIDGET_HEIGHT = 300;
+
     public static final class WidgetMoveStartedEvent {}
     public static final class WidgetMoveFinishedEvent {}
 
@@ -257,27 +260,36 @@ public class LauncherPageFragment extends Fragment {
     }
 
     private boolean bindWidget(Intent data) {
-//        return true;
-        int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-        if (appWidgetId == -1) {
-            return true;
-        }
-        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
-
-        boolean success = mAppWidgetManager.bindAppWidgetIdIfAllowed(
-                appWidgetId, appWidgetInfo.provider, new Bundle());
-        if (success) {
-            return true;
-        } else {
-            Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, appWidgetInfo.provider);
-//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, android.os.Process.myUserHandle());
-            // This is the options bundle discussed above
-            //        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, appWidgetInfo.options);
-            startActivityForResult(intent, REQUEST_BIND_APPWIDGET);
-            return false;
-        }
+        // If we use ACTION_APPWIDGET_PICK we don't need to bind manually.
+        // It's needed only if we implement our own custom widget picker.
+        return true;
+//        int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+//        if (appWidgetId == -1) {
+//            return true;
+//        }
+//        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
+//
+//        Bundle options = new Bundle();
+//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, DEFAULT_WIDGET_WIDTH);
+//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, DEFAULT_WIDGET_HEIGHT);
+//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, DEFAULT_WIDGET_WIDTH);
+//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, DEFAULT_WIDGET_HEIGHT);
+//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
+//
+//        boolean success = mAppWidgetManager.bindAppWidgetIdIfAllowed(
+//                appWidgetId, appWidgetInfo.provider, options);
+//        if (success) {
+//            return true;
+//        } else {
+//            Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
+//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, appWidgetInfo.provider);
+////            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, android.os.Process.myUserHandle());
+//            // This is the options bundle discussed above
+//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
+//            startActivityForResult(intent, REQUEST_BIND_APPWIDGET);
+//            return false;
+//        }
     }
 
     private boolean configureWidget(Intent data) {
@@ -319,6 +331,14 @@ public class LauncherPageFragment extends Fragment {
         layoutParams.leftMargin = Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getPositionX()));
         layoutParams.topMargin = Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getPositionY()));
         hostView.setLayoutParams(layoutParams);
+
+        Bundle options = new Bundle();
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetData.getWidth());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetData.getHeight());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widgetData.getWidth());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetData.getHeight());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
+        hostView.updateAppWidgetOptions(options);
 
         final WidgetItem widgetItem = new WidgetItem();
         widgetItem.widgetData = widgetData;
@@ -558,7 +578,17 @@ public class LauncherPageFragment extends Fragment {
         widgetItem.widgetData.setPositionY(Math.round(ScreenUtils.pxToDp(context, layoutParams.topMargin)));
         widgetItem.widgetData.setWidth(Math.round(ScreenUtils.pxToDp(context, layoutParams.width)));
         widgetItem.widgetData.setHeight(Math.round(ScreenUtils.pxToDp(context, layoutParams.height)));
+
+        Bundle options = new Bundle();
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetItem.widgetData.getWidth());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetItem.widgetData.getHeight());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widgetItem.widgetData.getWidth());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetItem.widgetData.getHeight());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
+        widgetItem.appWidgetHostView.updateAppWidgetOptions(options);
+
         mWidgetContainer.invalidate();
+
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
