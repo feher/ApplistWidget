@@ -30,9 +30,30 @@
     <string name="widget_menu_move_resize">Move &amp; resize</string>
     <string name="widget_menu_bring_to_top">Bring to top</string>
     <string name="widget_menu_remove">Remove</string>
+    <string-array name="widget_menu">
+        <item>@string/widget_menu_move_resize</item>
+        <item>@string/widget_menu_bring_to_top</item>
+        <item>@string/widget_menu_remove</item>
+    </string-array>
 
     <string name="rearrange_items_help">Long press and Drag to rearrange groups and items</string>
+
     <string name="launcher_page_add_widget">Add widget</string>
+    <string name="launcher_page_add_page_left">Add page left</string>
+    <string name="launcher_page_add_page_right">Add page right</string>
+    <string name="launcher_page_move_page_left">Move page left</string>
+    <string name="launcher_page_move_page_right">Move page right</string>
+    <string name="launcher_page_set_as_default">Set as main page</string>
+    <string name="launcher_page_remove_page">Remove page</string>
+    <string-array name="launcher_page_menu">
+        <item>@string/launcher_page_add_widget</item>
+        <item>@string/launcher_page_add_page_left</item>
+        <item>@string/launcher_page_add_page_right</item>
+        <item>@string/launcher_page_move_page_left</item>
+        <item>@string/launcher_page_move_page_right</item>
+        <item>@string/launcher_page_set_as_default</item>
+        <item>@string/launcher_page_remove_page</item>
+    </string-array>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -11,13 +12,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.PopupMenu;
+import android.support.v7.app.AlertDialog;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import net.feheren_fekete.applist.MainActivity;
@@ -61,8 +62,8 @@ public class LauncherPageFragment extends Fragment {
     private MyAppWidgetHost mAppWidgetHost;
     private ViewGroup mWidgetContainer;
     private List<WidgetItem> mWidgets = new ArrayList<>();
-    private @Nullable PopupMenu mPageMenu;
-    private @Nullable PopupMenu mWidgetMenu;
+    private @Nullable AlertDialog mPageMenu;
+    private @Nullable AlertDialog mWidgetMenu;
     private @Nullable WidgetItem mWidgetMenuTarget;
     private int mWidgetTouchBorderWidth; // px
     private int mMinWidgetSize; // px
@@ -178,6 +179,20 @@ public class LauncherPageFragment extends Fragment {
         return getArguments().getInt("pageNumber");
     }
 
+    public void handleDown(MotionEvent event) {
+        if (mWidgetMenuTarget != null) {
+            if (isLocationInsideWidget(mWidgetMenuTarget, event.getRawX(), event.getRawY())) {
+                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_RESIZING);
+            }
+        }
+    }
+
+    public void handleUp(MotionEvent event) {
+        if (mWidgetMenuTarget != null) {
+            mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_SELECTED);
+        }
+    }
+
     public boolean handleScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
         boolean handled = false;
         if (mWidgetMenuTarget != null) {
@@ -200,7 +215,7 @@ public class LauncherPageFragment extends Fragment {
     }
 
     public boolean handleSingleTap(MotionEvent event) {
-        mWidgetMenuTarget.appWidgetHostView.setResizing(false);
+        mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
         EventBus.getDefault().post(new WidgetMoveFinishedEvent());
         return true;
     }
@@ -373,71 +388,80 @@ public class LauncherPageFragment extends Fragment {
         }
     }
 
+
     private void openPageMenu() {
-        mPageMenu = new PopupMenu(getContext(), getView().findViewById(R.id.launcher_page_fragment_page_menu_anchor));
-        mPageMenu.setOnMenuItemClickListener(mPageMenuClickListener);
-        mPageMenu.inflate(R.menu.launcher_page_menu);
-        mPageMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-            @Override
-            public void onDismiss(PopupMenu menu) {
-                mPageMenu = null;
-            }
-        });
+        mPageMenu = new AlertDialog.Builder(getContext())
+                .setItems(R.array.launcher_page_menu, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                // Add widget
+                                pickWidget();
+                                break;
+                            case 1:
+                                // Add page left
+                                break;
+                            case 2:
+                                // Add page right
+                                break;
+                        }
+                        mPageMenu = null;
+                    }
+                })
+                .setCancelable(true)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        mPageMenu = null;
+                    }
+                })
+                .create();
+        mPageMenu.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         mPageMenu.show();
     }
 
-    private PopupMenu.OnMenuItemClickListener mPageMenuClickListener = new PopupMenu.OnMenuItemClickListener() {
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            boolean handled = false;
-            switch (menuItem.getItemId()) {
-                case R.id.launcher_page_add_widget:
-                    pickWidget();
-                    handled = true;
-                    break;
-            }
-            mWidgetMenu = null;
-            return handled;
-        }
-    };
-
     private void openWidgetMenu(WidgetItem widgetItem) {
-        mWidgetMenu = new PopupMenu(getContext(), widgetItem.appWidgetHostView);
-        mWidgetMenu.setOnMenuItemClickListener(mWidgetMenuClickListener);
-        mWidgetMenu.inflate(R.menu.widget_menu);
-        mWidgetMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-            @Override
-            public void onDismiss(PopupMenu menu) {
-                mWidgetMenu = null;
-            }
-        });
+        mWidgetMenu = new AlertDialog.Builder(getContext())
+                .setItems(R.array.widget_menu, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_SELECTED);
+                                EventBus.getDefault().post(new WidgetMoveStartedEvent());
+                                break;
+                            case 1:
+                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
+                                bringWidgetToTop(mWidgetMenuTarget);
+                                break;
+                            case 2:
+                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
+                                removeWidgetFromModel(mWidgetMenuTarget);
+                                break;
+                        }
+                        mWidgetMenu = null;
+                    }
+                })
+                .setCancelable(true)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        mWidgetMenu = null;
+                    }
+                })
+                .create();
+        mWidgetMenu.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         mWidgetMenu.show();
         mWidgetMenuTarget = widgetItem;
+        mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_SELECTED);
     }
-
-    private PopupMenu.OnMenuItemClickListener mWidgetMenuClickListener = new PopupMenu.OnMenuItemClickListener() {
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            boolean handled = false;
-            switch (menuItem.getItemId()) {
-                case R.id.widget_move_resize:
-                    handled = true;
-                    mWidgetMenuTarget.appWidgetHostView.setResizing(true);
-                    EventBus.getDefault().post(new WidgetMoveStartedEvent());
-                    break;
-                case R.id.widget_bring_to_top:
-                    bringWidgetToTop(mWidgetMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.widget_remove:
-                    handled = true;
-                    removeWidgetFromModel(mWidgetMenuTarget);
-                    break;
-            }
-            mWidgetMenu = null;
-            return handled;
-        }
-    };
 
     @Nullable
     private WidgetItem findWidgetAtLocation(float locationX, float locationY) {

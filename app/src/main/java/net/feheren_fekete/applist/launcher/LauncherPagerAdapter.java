@@ -22,6 +22,10 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         super(fm);
     }
 
+    public int getMainPagePosition() {
+        return 1;
+    }
+
     @Override
     public Fragment getItem(int position) {
         Fragment fragment;

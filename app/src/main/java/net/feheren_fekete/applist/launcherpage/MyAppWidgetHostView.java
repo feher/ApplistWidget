@@ -13,9 +13,13 @@ import net.feheren_fekete.applist.R;
 
 public class MyAppWidgetHostView extends AppWidgetHostView {
 
+    public static final int STATE_NORMAL = 0;
+    public static final int STATE_SELECTED = 1;
+    public static final int STATE_RESIZING = 2;
+
     private final int mWidgetBorderWidth;
     private Paint mPaint = new Paint();
-    private boolean mIsResizing;
+    private int mState;
     private GestureDetectorCompat mGestureDetector;
 
     public MyAppWidgetHostView(Context context) {
@@ -32,8 +36,8 @@ public class MyAppWidgetHostView extends AppWidgetHostView {
         mGestureDetector = new GestureDetectorCompat(getContext(), gestureListener);
     }
 
-    public void setResizing(boolean resizing) {
-        mIsResizing = resizing;
+    public void setState(int state) {
+        mState = state;
         invalidate();
     }
 
@@ -47,7 +51,7 @@ public class MyAppWidgetHostView extends AppWidgetHostView {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        if (mIsResizing) {
+        if (mState != STATE_NORMAL) {
             mPaint.setStyle(Paint.Style.STROKE);
 
             final int offset = mWidgetBorderWidth;
@@ -61,7 +65,7 @@ public class MyAppWidgetHostView extends AppWidgetHostView {
                     canvas.getHeight() - offset,
                     mPaint);
 
-            mPaint.setColor(Color.WHITE);
+            mPaint.setColor(mState == STATE_SELECTED ? Color.GRAY : Color.WHITE);
             mPaint.setStrokeWidth(mWidgetBorderWidth);
             canvas.drawRect(
                     0 + offset,
