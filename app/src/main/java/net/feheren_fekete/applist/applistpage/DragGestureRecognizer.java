@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applist;
+package net.feheren_fekete.applist.applistpage;
 
 import android.graphics.PointF;
 import android.support.v4.view.MotionEventCompat;

@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.model;
+package net.feheren_fekete.applist.applistpage.model;
 
 public abstract class BaseData {
 

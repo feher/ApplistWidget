@@ -1,11 +1,11 @@
-package net.feheren_fekete.applist.model;
+package net.feheren_fekete.applist.applistpage.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
-import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
+import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.AppUtils;
 
 import org.greenrobot.eventbus.EventBus;

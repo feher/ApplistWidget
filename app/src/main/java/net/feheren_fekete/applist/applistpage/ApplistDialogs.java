@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applist;
+package net.feheren_fekete.applist.applistpage;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,7 +19,6 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import net.feheren_fekete.applist.R;

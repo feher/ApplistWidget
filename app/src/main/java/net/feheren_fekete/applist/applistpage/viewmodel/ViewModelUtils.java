@@ -1,9 +1,8 @@
-package net.feheren_fekete.applist.viewmodel;
+package net.feheren_fekete.applist.applistpage.viewmodel;
 
-import net.feheren_fekete.applist.model.AppData;
-import net.feheren_fekete.applist.model.DataModel;
-import net.feheren_fekete.applist.model.PageData;
-import net.feheren_fekete.applist.model.SectionData;
+import net.feheren_fekete.applist.applistpage.model.AppData;
+import net.feheren_fekete.applist.applistpage.model.PageData;
+import net.feheren_fekete.applist.applistpage.model.SectionData;
 
 import java.util.ArrayList;
 import java.util.List;

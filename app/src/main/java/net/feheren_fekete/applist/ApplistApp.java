@@ -7,8 +7,8 @@ import android.support.multidex.MultiDexApplication;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
-import net.feheren_fekete.applist.model.DataModel;
-import net.feheren_fekete.applist.model.WidgetModel;
+import net.feheren_fekete.applist.applistpage.model.DataModel;
+import net.feheren_fekete.applist.launcherpage.model.WidgetModel;
 
 
 public class ApplistApp extends MultiDexApplication {

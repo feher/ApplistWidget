@@ -23,8 +23,8 @@ import android.widget.FrameLayout;
 
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.model.WidgetData;
-import net.feheren_fekete.applist.model.WidgetModel;
+import net.feheren_fekete.applist.launcherpage.model.WidgetData;
+import net.feheren_fekete.applist.launcherpage.model.WidgetModel;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -393,7 +393,7 @@ public class LauncherPageFragment extends Fragment {
                 appWidgetInfo.provider.getPackageName(),
                 appWidgetInfo.provider.getClassName(),
                 getPageNumber(),
-                0, 0, 200, 300);
+                0, 0, DEFAULT_WIDGET_WIDTH, DEFAULT_WIDGET_HEIGHT);
 
         Task.callInBackground(new Callable<Void>() {
             @Override

@@ -1,9 +1,9 @@
-package net.feheren_fekete.applist.applist;
+package net.feheren_fekete.applist.applistpage;
 
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 
-import net.feheren_fekete.applist.viewmodel.AppItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
 
 public class IconCache {
     private LruCache<String, Bitmap> mCache;

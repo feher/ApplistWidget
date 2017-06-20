@@ -1,13 +1,12 @@
-package net.feheren_fekete.applist.shortcutbadge;
+package net.feheren_fekete.applist.applistpage.shortcutbadge;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.provider.Telephony;
 import android.util.Log;
 
-import net.feheren_fekete.applist.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.utils.AppUtils;
 
 public class SmsReceiver extends BroadcastReceiver {

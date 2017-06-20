@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applist;
+package net.feheren_fekete.applist.applistpage;
 
 import android.content.Context;
 import android.graphics.PointF;

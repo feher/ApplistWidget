@@ -1,10 +1,9 @@
-package net.feheren_fekete.applist.model;
+package net.feheren_fekete.applist.applistpage.model;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
@@ -16,15 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

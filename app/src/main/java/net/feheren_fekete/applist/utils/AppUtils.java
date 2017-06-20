@@ -1,6 +1,5 @@
 package net.feheren_fekete.applist.utils;
 
-import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,7 @@ import android.net.Uri;
 import android.provider.Telephony;
 import android.support.annotation.Nullable;
 
-import net.feheren_fekete.applist.model.AppData;
+import net.feheren_fekete.applist.applistpage.model.AppData;
 
 import java.util.ArrayList;
 import java.util.List;

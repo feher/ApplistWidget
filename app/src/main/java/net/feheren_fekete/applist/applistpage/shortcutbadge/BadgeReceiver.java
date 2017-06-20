@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.shortcutbadge;
+package net.feheren_fekete.applist.applistpage.shortcutbadge;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import net.feheren_fekete.applist.ApplistLog;
-import net.feheren_fekete.applist.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 
 public class BadgeReceiver extends BroadcastReceiver {
 

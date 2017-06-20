@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.shortcutbadge;
+package net.feheren_fekete.applist.applistpage.shortcutbadge;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -13,7 +13,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import net.feheren_fekete.applist.ApplistLog;
-import net.feheren_fekete.applist.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.utils.AppUtils;
 
 public class CallStateReceiver extends BroadcastReceiver {

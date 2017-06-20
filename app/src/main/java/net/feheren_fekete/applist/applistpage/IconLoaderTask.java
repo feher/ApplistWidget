@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applist;
+package net.feheren_fekete.applist.applistpage;
 
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
 import net.feheren_fekete.applist.utils.ImageUtils;
-import net.feheren_fekete.applist.viewmodel.AppItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
 
 import java.io.File;
 import java.lang.ref.WeakReference;

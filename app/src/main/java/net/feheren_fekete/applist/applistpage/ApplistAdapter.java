@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applist;
+package net.feheren_fekete.applist.applistpage;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -22,17 +22,17 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.ApplistApp;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.model.BadgeStore;
-import net.feheren_fekete.applist.model.DataModel;
-import net.feheren_fekete.applist.model.PageData;
-import net.feheren_fekete.applist.model.SectionData;
+import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.model.DataModel;
+import net.feheren_fekete.applist.applistpage.model.PageData;
+import net.feheren_fekete.applist.applistpage.model.SectionData;
 import net.feheren_fekete.applist.settings.SettingsUtils;
-import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
+import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
-import net.feheren_fekete.applist.viewmodel.AppItem;
-import net.feheren_fekete.applist.viewmodel.BaseItem;
-import net.feheren_fekete.applist.viewmodel.SectionItem;
-import net.feheren_fekete.applist.viewmodel.ViewModelUtils;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -44,7 +44,6 @@ import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
-import hugo.weaving.DebugLog;
 
 
 public class ApplistAdapter

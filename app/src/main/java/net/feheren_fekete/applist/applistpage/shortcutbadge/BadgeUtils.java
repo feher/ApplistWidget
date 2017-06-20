@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.shortcutbadge;
+package net.feheren_fekete.applist.applistpage.shortcutbadge;
 
 import android.content.ContentResolver;
 import android.content.Context;

@@ -21,10 +21,9 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import net.feheren_fekete.applist.MainActivity;
-import net.feheren_fekete.applist.applist.ApplistFragment;
-import net.feheren_fekete.applist.applist.ApplistDialogs;
+import net.feheren_fekete.applist.applistpage.ApplistDialogs;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.applistpage.model.DataModel;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 

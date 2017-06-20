@@ -52,7 +52,7 @@
                 android:value="net.feheren_fekete.applist.MainActivity" />
         </activity>
 
-        <receiver android:name=".shortcutbadge.BadgeReceiver">
+        <receiver android:name=".applistpage.shortcutbadge.BadgeReceiver">
             <!-- Samsung, LG, Asus -->
             <intent-filter>
                 <action android:name="android.intent.action.BADGE_COUNT_UPDATE" />
@@ -79,14 +79,14 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".shortcutbadge.SmsReceiver"
+        <receiver android:name=".applistpage.shortcutbadge.SmsReceiver"
                   android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".shortcutbadge.CallStateReceiver">
+        <receiver android:name=".applistpage.shortcutbadge.CallStateReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>

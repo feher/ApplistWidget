@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applist;
+package net.feheren_fekete.applist.applistpage;
 
 import android.content.ComponentName;
 import android.content.DialogInterface;
@@ -20,15 +20,15 @@ import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.model.AppData;
-import net.feheren_fekete.applist.model.BadgeStore;
-import net.feheren_fekete.applist.model.DataModel;
+import net.feheren_fekete.applist.applistpage.model.AppData;
+import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.model.DataModel;
 import net.feheren_fekete.applist.settings.SettingsUtils;
-import net.feheren_fekete.applist.shortcutbadge.BadgeUtils;
+import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.*;
-import net.feheren_fekete.applist.viewmodel.AppItem;
-import net.feheren_fekete.applist.viewmodel.BaseItem;
-import net.feheren_fekete.applist.viewmodel.SectionItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
 
 import org.greenrobot.eventbus.EventBus;
 

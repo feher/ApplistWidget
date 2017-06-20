@@ -1,11 +1,9 @@
-package net.feheren_fekete.applist.model;
+package net.feheren_fekete.applist.launcherpage.model;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.utils.FileUtils;
@@ -21,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import bolts.Task;
-import hugo.weaving.DebugLog;
 
 public class WidgetModel {
 

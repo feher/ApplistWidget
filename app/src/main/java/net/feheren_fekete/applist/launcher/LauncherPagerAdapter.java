@@ -6,13 +6,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.util.ArrayMap;
 import android.view.ViewGroup;
 
-import net.feheren_fekete.applist.applist.ApplistFragment;
+import net.feheren_fekete.applist.applistpage.ApplistFragment;
 import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
 
-import java.util.List;
 import java.util.Map;
-
-import hugo.weaving.DebugLog;
 
 public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 

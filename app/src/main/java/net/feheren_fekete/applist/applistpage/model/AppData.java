@@ -1,6 +1,6 @@
-package net.feheren_fekete.applist.model;
+package net.feheren_fekete.applist.applistpage.model;
 
-import net.feheren_fekete.applist.viewmodel.AppItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
 
 import java.util.Comparator;
 
