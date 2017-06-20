@@ -38,6 +38,7 @@ public class WidgetData {
         mAppWidgetId = other.mAppWidgetId;
         mProviderPackage = other.mProviderPackage;
         mProviderClass = other.mProviderClass;
+        mPageNumber = other.mPageNumber;
         mPositionX = other.mPositionX;
         mPositionY = other.mPositionY;
         mWidth = other.mWidth;
