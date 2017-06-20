@@ -70,7 +70,8 @@
     <string name="settings_show_phone_badge_summary">Show an indicator for missed calls on the default phone app</string>
     <string name="settings_show_phone_badge_select_default_app">Select your default phone app</string>
 
-    <string name="color_theme_transparent">Transparent</string>
+    <string name="color_theme_transparent_light">Transparent Light</string>
+    <string name="color_theme_transparent_dark">Transparent Dark</string>
     <string name="color_theme_black">Black</string>
     <string name="color_theme_brown">Brown</string>
     <string name="color_theme_red">Red</string>
@@ -79,7 +80,8 @@
     <string name="color_theme_deep_purple">Deep Purple</string>
     <string name="color_theme_indigo">Indigo</string>
     <string-array name="color_themes">
-        <item>@string/color_theme_transparent</item>
+        <item>@string/color_theme_transparent_light</item>
+        <item>@string/color_theme_transparent_dark</item>
         <item>@string/color_theme_black</item>
         <item>@string/color_theme_brown</item>
         <item>@string/color_theme_red</item>
@@ -89,16 +91,26 @@
         <item>@string/color_theme_indigo</item>
     </string-array>
 
-    <string name="color_theme_value_default" translatable="false">Black</string>
+    <string name="color_theme_value_transparent_light" translatable="false">transparent_light</string>
+    <string name="color_theme_value_transparent_dark" translatable="false">transparent_dark</string>
+    <string name="color_theme_value_black" translatable="false">black</string>
+    <string name="color_theme_value_brown" translatable="false">brown</string>
+    <string name="color_theme_value_red" translatable="false">red</string>
+    <string name="color_theme_value_green" translatable="false">green</string>
+    <string name="color_theme_value_blue_grey" translatable="false">blue_grey</string>
+    <string name="color_theme_value_deep_purple" translatable="false">deep_purple</string>
+    <string name="color_theme_value_indigo" translatable="false">indigo</string>
+    <string name="color_theme_value_default" translatable="false">@string/color_theme_value_black</string>
     <string-array name="color_theme_values" translatable="false">
-        <item>Transparent</item>
-        <item>Black</item>
-        <item>Brown</item>
-        <item>Red</item>
-        <item>Green</item>
-        <item>Blue Grey</item>
-        <item>Deep Purple</item>
-        <item>Indigo</item>
+        <item>@string/color_theme_value_transparent_light</item>
+        <item>@string/color_theme_value_transparent_dark</item>
+        <item>@string/color_theme_value_black</item>
+        <item>@string/color_theme_value_brown</item>
+        <item>@string/color_theme_value_red</item>
+        <item>@string/color_theme_value_green</item>
+        <item>@string/color_theme_value_blue_grey</item>
+        <item>@string/color_theme_value_deep_purple</item>
+        <item>@string/color_theme_value_indigo</item>
     </string-array>
 
     <string name="column_width_tiny">Tiny</string>

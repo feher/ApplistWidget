@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="MyThemeTransparent" parent="MyThemeBase">
+    <style name="MyThemeTransparentDark" parent="MyThemeBase">
         <item name="primaryColor">#000000</item>
         <item name="primaryDarkColor">#000000</item>
         <item name="primaryLightColor">#CCCCCC</item>
@@ -14,6 +14,30 @@
         <item name="listBackgroundColor">#88000000</item>
         <item name="sectionBackgroundColor">#88000000</item>
         <item name="sectionTextColor">#555555</item>
+        <item name="sectionTextHighlightColor">#DDDDDD</item>
+        <item name="appTextColor">#DDDDDD</item>
+        <item name="draggedOverIndicatorColor">#88FF9800</item>
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">?attr/primaryColor</item>
+        <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
+        <item name="colorAccent">?attr/accentColor</item>
+    </style>
+
+    <style name="MyThemeTransparentLight" parent="MyThemeBase">
+        <item name="primaryColor">#000000</item>
+        <item name="primaryDarkColor">#000000</item>
+        <item name="primaryLightColor">#CCCCCC</item>
+        <item name="accentColor">#FF9800</item>
+        <item name="primaryTextColor">#212121</item>
+        <item name="secondaryTextColor">#727272</item>
+        <item name="iconsColor">#FFFFFF</item>
+        <item name="dividerColor">#55FFFFFF</item>
+        <item name="toolbarBackgroundColor">#CC000000</item>
+        <item name="listBackgroundColor">#55000000</item>
+        <item name="sectionBackgroundColor">#33FFFFFF</item>
+        <item name="sectionTextColor">#DDDDDD</item>
         <item name="sectionTextHighlightColor">#DDDDDD</item>
         <item name="appTextColor">#DDDDDD</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
