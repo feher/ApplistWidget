@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -23,6 +24,7 @@ public class LauncherFragment extends Fragment {
 
     private static final int MAX_PAGE_COUNT = 3;
 
+    private LauncherModel mLauncherModel;
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
     private int mActivePage = -1;
@@ -32,10 +34,11 @@ public class LauncherFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_fragment, container, false);
 
+        mLauncherModel = LauncherModel.getInstance();
+
         mPager = (MyViewPager) view.findViewById(R.id.launcher_fragment_view_pager);
         mPagerAdapter = new LauncherPagerAdapter(getChildFragmentManager());
         mPager.setAdapter(mPagerAdapter);
-        mPager.setOffscreenPageLimit(MAX_PAGE_COUNT - 1);
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -50,9 +53,7 @@ public class LauncherFragment extends Fragment {
         });
 
         if (savedInstanceState != null) {
-            mPager.setCurrentItem(savedInstanceState.getInt("activePage"), false);
-        } else {
-            mPager.setCurrentItem(mPagerAdapter.getMainPagePosition(), false);
+            mActivePage = savedInstanceState.getInt("activePage");
         }
 
         return view;
@@ -68,12 +69,24 @@ public class LauncherFragment extends Fragment {
     public void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
+        mLauncherModel.loadData();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDataLoadedEvent(LauncherModel.DataLoadedEvent event) {
+        mPagerAdapter.setPages(mLauncherModel.getPages());
+        mPager.setOffscreenPageLimit(mPagerAdapter.getCount() - 1);
+        if (mActivePage == -1) {
+            mActivePage = mPagerAdapter.getMainPagePosition();
+        }
+        mPager.setCurrentItem(mActivePage, false);
     }
 
     @SuppressWarnings("unused")

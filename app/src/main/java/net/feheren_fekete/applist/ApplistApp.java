@@ -8,6 +8,7 @@ import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
 import net.feheren_fekete.applist.applistpage.model.DataModel;
+import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcherpage.model.WidgetModel;
 
 
@@ -29,6 +30,7 @@ public class ApplistApp extends MultiDexApplication {
         Fabric.with(this, new Crashlytics());
 
         ApplistLog.initInstance();
+        LauncherModel.initInstance(this);
         DataModel.initInstance(this, getPackageManager());
         WidgetModel.initInstance(this);
 

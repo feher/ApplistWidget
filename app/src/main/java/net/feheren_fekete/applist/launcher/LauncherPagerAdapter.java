@@ -7,26 +7,43 @@ import android.support.v4.util.ArrayMap;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.applistpage.ApplistFragment;
+import net.feheren_fekete.applist.launcher.model.LauncherModel;
+import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 
+    private List<PageData> mPages = Collections.emptyList();
     private Map<Integer, Fragment> mPageFragments = new ArrayMap<>();
 
     public LauncherPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
+    public void setPages(List<PageData> pages) {
+        mPages = pages;
+        notifyDataSetChanged();
+    }
+
     public int getMainPagePosition() {
-        return 1;
+        for (int i = 0; i < mPages.size(); ++i) {
+            PageData pageData = mPages.get(i);
+            if (pageData.isMainPage()) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     @Override
     public Fragment getItem(int position) {
         Fragment fragment;
-        if (position == 1) {
+        PageData pageData = mPages.get(position);
+        if (pageData.getType() == PageData.TYPE_APPLIST_PAGE) {
             fragment = new ApplistFragment();
         } else {
             fragment = LauncherPageFragment.newInstance(position);
@@ -43,7 +60,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return mPages.size();
     }
 
     public Fragment getPageFragment(int position) {
