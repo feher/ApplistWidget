@@ -26,26 +26,28 @@ public class WidgetModel {
 
     public static final class DataLoadedEvent {}
 
-    public static class WidgetEvent {
+    public static final class WidgetsChangedEvent {}
+
+    public static class BaseWidgetEvent {
         public final WidgetData widgetData;
-        private WidgetEvent(WidgetData widgetData) {
+        private BaseWidgetEvent(WidgetData widgetData) {
             this.widgetData = widgetData;
         }
     }
 
-    public static final class WidgetAddedEvent extends WidgetEvent {
+    public static final class WidgetAddedEvent extends BaseWidgetEvent {
         private WidgetAddedEvent(WidgetData widgetData) {
             super(widgetData);
         }
     }
 
-    public static final class WidgetDeletedEvent extends WidgetEvent {
+    public static final class WidgetDeletedEvent extends BaseWidgetEvent {
         private WidgetDeletedEvent(WidgetData widgetData) {
             super(widgetData);
         }
     }
 
-    public static final class WidgetChangedEvent extends WidgetEvent {
+    public static final class WidgetChangedEvent extends BaseWidgetEvent {
         private WidgetChangedEvent(WidgetData widgetData) {
             super(widgetData);
         }
@@ -99,7 +101,7 @@ public class WidgetModel {
                                 jsonWidget.getInt("app-widget-id"),
                                 jsonWidget.getString("package-name"),
                                 jsonWidget.getString("class-name"),
-                                jsonWidget.getInt("page-number"),
+                                jsonWidget.getInt("page-id"),
                                 jsonWidget.getInt("position-x"),
                                 jsonWidget.getInt("position-y"),
                                 jsonWidget.getInt("width"),
@@ -126,12 +128,12 @@ public class WidgetModel {
         }
     }
 
-    public List<WidgetData> getWidgets(int pageNumber) {
+    public List<WidgetData> getWidgets(long pageId) {
         synchronized (this) {
             // Return a copy to avoid messing up the data by the caller.
             List<WidgetData> result = new ArrayList<>();
             for (WidgetData widgetData : mWidgets) {
-                if (widgetData.getPageNumber() == pageNumber) {
+                if (widgetData.getPageId() == pageId) {
                     result.add(new WidgetData(widgetData));
                 }
             }
@@ -183,6 +185,20 @@ public class WidgetModel {
         }
     }
 
+    public void deleteWidgetsOfPage(long pageId) {
+        synchronized (this) {
+            List<WidgetData> widgetsOfPage = new ArrayList<>();
+            for (WidgetData widget : mWidgets) {
+                if (widget.getPageId() == pageId) {
+                    widgetsOfPage.add(widget);
+                }
+            }
+            mWidgets.removeAll(widgetsOfPage);
+            scheduleStoreData();
+            EventBus.getDefault().post(new WidgetsChangedEvent());
+        }
+    }
+
     @Nullable
     private WidgetData getWidgetData(WidgetData widgetData) {
         for (WidgetData widget : mWidgets) {
@@ -205,7 +221,7 @@ public class WidgetModel {
                     jsonWidget.put("app-widget-id", widgetData.getAppWidgetId());
                     jsonWidget.put("package-name", widgetData.getProviderPackage());
                     jsonWidget.put("class-name", widgetData.getProviderClass());
-                    jsonWidget.put("page-number", widgetData.getPageNumber());
+                    jsonWidget.put("page-id", widgetData.getPageId());
                     jsonWidget.put("position-x", widgetData.getPositionX());
                     jsonWidget.put("position-y", widgetData.getPositionY());
                     jsonWidget.put("width", widgetData.getWidth());

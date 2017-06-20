@@ -14,6 +14,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 repositories {
+    mavenCentral() // For Glide
     maven { url 'https://maven.fabric.io/public' }
 }
 
@@ -49,9 +50,19 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:percent:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+
     compile 'com.parse.bolts:bolts-tasks:1.4.0'
+
     compile 'org.greenrobot:eventbus:3.0.0'
+
+    // Glide
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.github.bumptech.glide:glide:4.0.0-RC0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC0'
+
+    // Crashlytics
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
+
 }

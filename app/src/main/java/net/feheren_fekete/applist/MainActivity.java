@@ -1,16 +1,21 @@
 package net.feheren_fekete.applist;
 
-import android.app.WallpaperManager;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 
+import net.feheren_fekete.applist.applistpage.ApplistFragment;
 import net.feheren_fekete.applist.launcher.LauncherFragment;
+import net.feheren_fekete.applist.launcher.PageEditorFragment;
+import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
 import net.feheren_fekete.applist.launcherpage.MyAppWidgetHost;
 import net.feheren_fekete.applist.settings.SettingsUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,10 +38,7 @@ public class MainActivity extends AppCompatActivity {
         mAppWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         mAppWidgetHost = new MyAppWidgetHost(getApplicationContext(), 1234567);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.main_activity_fragment_container, new LauncherFragment())
-                .commit();
+        showLauncherFragment();
     }
 
     @Override
@@ -50,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -60,9 +61,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        final WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
-        final Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-        findViewById(R.id.main_activity_layout).setBackground(wallpaperDrawable);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -76,12 +81,44 @@ public class MainActivity extends AppCompatActivity {
         // Don't exit on back-press. We are a launcher.
     }
 
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onShowPageEditorEvent(LauncherPageFragment.ShowPageEditorEvent event) {
+        showPageEditorFragment();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onShowPageEditorEvent(ApplistFragment.ShowPageEditorEvent event) {
+        showPageEditorFragment();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPageEditorDoneEvent(PageEditorFragment.DoneEvent event) {
+        showLauncherFragment();
+    }
+
     public MyAppWidgetHost getAppWidgetHost() {
         return mAppWidgetHost;
     }
 
     public AppWidgetManager getAppWidgetManager() {
         return mAppWidgetManager;
+    }
+
+    private void showLauncherFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_activity_fragment_container, new LauncherFragment())
+                .commit();
+    }
+
+    private void showPageEditorFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_activity_fragment_container, new PageEditorFragment())
+                .commit();
     }
 
 }

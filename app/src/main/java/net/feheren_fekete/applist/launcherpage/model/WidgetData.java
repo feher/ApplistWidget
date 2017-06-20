@@ -6,7 +6,7 @@ public class WidgetData {
     private int mAppWidgetId;
     private String mProviderPackage;
     private String mProviderClass;
-    private int mPageNumber;
+    private long mPageId;
     private int mPositionX; // dp
     private int mPositionY; // dp
     private int mWidth; // dp
@@ -15,14 +15,14 @@ public class WidgetData {
     public WidgetData(long id,
                       int appWidgetId,
                       String providerPackage, String providerClass,
-                      int pageNumber,
+                      long pageId,
                       int positionX, int positionY,
                       int width, int height) {
         mId = id;
         mAppWidgetId = appWidgetId;
         mProviderPackage = providerPackage;
         mProviderClass = providerClass;
-        mPageNumber = pageNumber;
+        mPageId = pageId;
         mPositionX = positionX;
         mPositionY = positionY;
         mWidth = width;
@@ -38,7 +38,7 @@ public class WidgetData {
         mAppWidgetId = other.mAppWidgetId;
         mProviderPackage = other.mProviderPackage;
         mProviderClass = other.mProviderClass;
-        mPageNumber = other.mPageNumber;
+        mPageId = other.mPageId;
         mPositionX = other.mPositionX;
         mPositionY = other.mPositionY;
         mWidth = other.mWidth;
@@ -61,12 +61,12 @@ public class WidgetData {
         return mProviderClass;
     }
 
-    public int getPageNumber() {
-        return mPageNumber;
+    public long getPageId() {
+        return mPageId;
     }
 
-    public void setPageNumber(int pageNumber) {
-        mPageNumber = pageNumber;
+    public void setPageId(int pageId) {
+        mPageId = pageId;
     }
 
     public int getPositionX() {
@@ -107,7 +107,7 @@ public class WidgetData {
                 + ", appWidgetId " + mAppWidgetId
                 + ", package " + mProviderPackage
                 + ", class " + mProviderClass
-                + ", page " + mPageNumber
+                + ", pageId " + mPageId
                 + ", posX " + mPositionX
                 + ", posY " + mPositionY
                 + ", width " + mWidth

@@ -1,6 +1,9 @@
 package net.feheren_fekete.applist.launcher;
 
+import android.app.WallpaperManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -12,22 +15,27 @@ import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
+import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
+import net.feheren_fekete.applist.utils.ScreenshotUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.concurrent.Callable;
+
+import bolts.Task;
+
 public class LauncherFragment extends Fragment {
 
     private static final String TAG = LauncherFragment.class.getSimpleName();
-
-    private static final int MAX_PAGE_COUNT = 3;
 
     private LauncherModel mLauncherModel;
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
     private int mActivePage = -1;
+    private Handler mHandler = new Handler();
 
     @Nullable
     @Override
@@ -46,6 +54,7 @@ public class LauncherFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 mActivePage = position;
+                scheduleScreenshot();
             }
             @Override
             public void onPageScrollStateChanged(int state) {
@@ -55,6 +64,8 @@ public class LauncherFragment extends Fragment {
         if (savedInstanceState != null) {
             mActivePage = savedInstanceState.getInt("activePage");
         }
+
+        initPages();
 
         return view;
     }
@@ -68,8 +79,14 @@ public class LauncherFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
         EventBus.getDefault().register(this);
-        mLauncherModel.loadData();
+
+        final WallpaperManager wallpaperManager = WallpaperManager.getInstance(getContext());
+        final Drawable wallpaperDrawable = wallpaperManager.getDrawable();
+        getView().setBackground(wallpaperDrawable);
+
+        scheduleScreenshot();
     }
 
     @Override
@@ -81,12 +98,7 @@ public class LauncherFragment extends Fragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDataLoadedEvent(LauncherModel.DataLoadedEvent event) {
-        mPagerAdapter.setPages(mLauncherModel.getPages());
-        mPager.setOffscreenPageLimit(mPagerAdapter.getCount() - 1);
-        if (mActivePage == -1) {
-            mActivePage = mPagerAdapter.getMainPagePosition();
-        }
-        mPager.setCurrentItem(mActivePage, false);
+        initPages();
     }
 
     @SuppressWarnings("unused")
@@ -99,6 +111,33 @@ public class LauncherFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onWidgetMoveFinishedEvent(LauncherPageFragment.WidgetMoveFinishedEvent event) {
         mPager.setInterceptingTouchEvents(false, null, null);
+    }
+
+    private void initPages() {
+        mPagerAdapter.setPages(mLauncherModel.getPages());
+        mPager.setOffscreenPageLimit(mPagerAdapter.getCount() - 1);
+        if (mActivePage == -1) {
+            mActivePage = mPagerAdapter.getMainPagePosition();
+        }
+        if (mActivePage != -1) {
+            mActivePage = Math.min(mActivePage, mPagerAdapter.getCount() - 1);
+            mPager.setCurrentItem(mActivePage, false);
+            scheduleScreenshot();
+        }
+    }
+
+    private Runnable mScreenshotRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mActivePage != -1) {
+                new ScreenshotUtils().takeScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePage).getId());
+            }
+        }
+    };
+
+    private void scheduleScreenshot() {
+        mHandler.removeCallbacks(mScreenshotRunnable);
+        mHandler.postDelayed(mScreenshotRunnable, 500);
     }
 
     private GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {

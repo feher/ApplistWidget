@@ -23,10 +23,19 @@ public class LauncherModel {
 
     public static final class DataLoadedEvent {}
 
-    public static final class PageAddedEvent {
+    public static final class PagesChangedEvent {
+    }
+
+    public static class BasePageEvent {
         public final PageData pageData;
-        public PageAddedEvent(PageData pageData) {
+        public BasePageEvent(PageData pageData) {
             this.pageData = pageData;
+        }
+    }
+
+    public static final class PageAddedEvent extends BasePageEvent {
+        public PageAddedEvent(PageData pageData) {
+            super(pageData);
         }
     }
 
@@ -70,14 +79,14 @@ public class LauncherModel {
                 try {
                     JSONObject jsonObject = new JSONObject(fileContent);
 
-                    JSONArray jsonWidgets = jsonObject.getJSONArray("pages");
-                    for (int k = 0; k < jsonWidgets.length(); ++k) {
-                        JSONObject jsonWidget = jsonWidgets.getJSONObject(k);
-                        PageData widgetData = new PageData(
-                                jsonWidget.getLong("id"),
-                                jsonWidget.getInt("type"),
-                                jsonWidget.getBoolean("is-main-page"));
-                        mPages.add(widgetData);
+                    JSONArray jsonPages = jsonObject.getJSONArray("pages");
+                    for (int k = 0; k < jsonPages.length(); ++k) {
+                        JSONObject jsonPage = jsonPages.getJSONObject(k);
+                        PageData pageData = new PageData(
+                                jsonPage.getLong("id"),
+                                jsonPage.getInt("type"),
+                                jsonPage.getBoolean("is-main-page"));
+                        mPages.add(pageData);
                     }
                 } catch (JSONException e) {
                     ApplistLog.getInstance().log(e);
@@ -103,6 +112,18 @@ public class LauncherModel {
         }
     }
 
+    public void setPages(List<PageData> pages) {
+        synchronized (this)  {
+            // Create a copy to avoid messing up the data by the caller.
+            List<PageData> result = new ArrayList<>();
+            for (PageData pageData : pages) {
+                result.add(new PageData(pageData));
+            }
+            mPages = result;
+            scheduleStoreData();
+        }
+    }
+
     public void addPage(PageData pageData) {
         synchronized (this) {
             mPages.add(pageData);
@@ -111,20 +132,45 @@ public class LauncherModel {
         }
     }
 
+    public void removePage(int position) {
+        synchronized (this)  {
+            PageData removedPage = mPages.remove(position);
+            if (removedPage.isMainPage()) {
+                if (!mPages.isEmpty()) {
+                    PageData newMainPage = mPages.get(0);
+                    newMainPage.setMainPage(true);
+                }
+            }
+            scheduleStoreData();
+            EventBus.getDefault().post(new PagesChangedEvent());
+        }
+    }
+
+    public void setMainPage(int position) {
+        synchronized (this) {
+            for (PageData pageData : mPages) {
+                pageData.setMainPage(false);
+            }
+            mPages.get(position).setMainPage(true);
+            scheduleStoreData();
+            EventBus.getDefault().post(new PagesChangedEvent());
+        }
+    }
+
     private void storeData() {
         synchronized (this) {
             String data = "";
             JSONObject jsonObject = new JSONObject();
             try {
-                JSONArray jsonWidgets = new JSONArray();
+                JSONArray jsonPages = new JSONArray();
                 for (PageData pageData : mPages) {
-                    JSONObject jsonWidget = new JSONObject();
-                    jsonWidget.put("id", pageData.getId());
-                    jsonWidget.put("type", pageData.getType());
-                    jsonWidget.put("is-main-page", pageData.isMainPage());
-                    jsonWidgets.put(jsonWidget);
+                    JSONObject jsonPage = new JSONObject();
+                    jsonPage.put("id", pageData.getId());
+                    jsonPage.put("type", pageData.getType());
+                    jsonPage.put("is-main-page", pageData.isMainPage());
+                    jsonPages.put(jsonPage);
                 }
-                jsonObject.put("pages", jsonWidgets);
+                jsonObject.put("pages", jsonPages);
                 data = jsonObject.toString(2);
             } catch (JSONException e) {
                 ApplistLog.getInstance().log(e);

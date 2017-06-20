@@ -19,4 +19,10 @@
         android:id="@+id/action_settings"
         android:title="@string/action_settings"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_edit_pages"
+        android:title="@string/launcher_page_edit_pages"
+        app:showAsAction="never"/>
+
 </menu>

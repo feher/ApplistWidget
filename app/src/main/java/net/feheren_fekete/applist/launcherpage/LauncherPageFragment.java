@@ -52,6 +52,7 @@ public class LauncherPageFragment extends Fragment {
     private static final int DEFAULT_WIDGET_WIDTH = 200;
     private static final int DEFAULT_WIDGET_HEIGHT = 300;
 
+    public static final class ShowPageEditorEvent {}
     public static final class WidgetMoveStartedEvent {}
     public static final class WidgetMoveFinishedEvent {}
 
@@ -76,11 +77,11 @@ public class LauncherPageFragment extends Fragment {
     private PointF mOriginalFingerPos = new PointF();
     private PointF mPreviousFingerPos = new PointF();
 
-    public static LauncherPageFragment newInstance(int pageNumber) {
+    public static LauncherPageFragment newInstance(long pageId) {
         LauncherPageFragment fragment = new LauncherPageFragment();
 
         Bundle args = new Bundle();
-        args.putInt("pageNumber", pageNumber);
+        args.putLong("pageId", pageId);
         fragment.setArguments(args);
 
         return fragment;
@@ -92,7 +93,6 @@ public class LauncherPageFragment extends Fragment {
         mWidgetModel = WidgetModel.getInstance();
         mWidgetTouchBorderWidth = getContext().getResources().getDimensionPixelSize(R.dimen.widget_border_width_touch);
         mMinWidgetSize = getContext().getResources().getDimensionPixelSize(R.dimen.widget_min_size);
-
     }
 
     @Override
@@ -163,11 +163,16 @@ public class LauncherPageFragment extends Fragment {
         updateScreenFromModel();
     }
 
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onWidgetsChangedEvent(WidgetModel.WidgetsChangedEvent event) {
+        updateScreenFromModel();
+    }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onWidgetAddedEvent(WidgetModel.WidgetAddedEvent event) {
-        if (event.widgetData.getPageNumber() == getPageNumber()) {
+        if (event.widgetData.getPageId() == getPageId()) {
             addWidgetToScreen(event.widgetData);
         }
     }
@@ -175,7 +180,7 @@ public class LauncherPageFragment extends Fragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onWidgetDeletedEvent(WidgetModel.WidgetDeletedEvent event) {
-        if (event.widgetData.getPageNumber() == getPageNumber()) {
+        if (event.widgetData.getPageId() == getPageId()) {
             WidgetItem widgetItem = getWidgetItem(event.widgetData);
             removeWidgetFromScreen(widgetItem, true, true);
         }
@@ -187,8 +192,8 @@ public class LauncherPageFragment extends Fragment {
         updateScreenFromModel();
     }
 
-    public int getPageNumber() {
-        return getArguments().getInt("pageNumber");
+    public long getPageId() {
+        return getArguments().getLong("pageId");
     }
 
     public void handleDown(MotionEvent event) {
@@ -240,6 +245,10 @@ public class LauncherPageFragment extends Fragment {
             }
         }
         return null;
+    }
+
+    private void showPageEditor() {
+        EventBus.getDefault().post(new ShowPageEditorEvent());
     }
 
     private void pickWidget() {
@@ -311,7 +320,7 @@ public class LauncherPageFragment extends Fragment {
 
     private void updateScreenFromModel() {
         removeAllWidgetsFromScreen();
-        List<WidgetData> widgetDatas = mWidgetModel.getWidgets(getPageNumber());
+        List<WidgetData> widgetDatas = mWidgetModel.getWidgets(getPageId());
         for (WidgetData widgetData : widgetDatas) {
             addWidgetToScreen(widgetData);
         }
@@ -392,7 +401,7 @@ public class LauncherPageFragment extends Fragment {
                 appWidgetId,
                 appWidgetInfo.provider.getPackageName(),
                 appWidgetInfo.provider.getClassName(),
-                getPageNumber(),
+                getPageId(),
                 0, 0, DEFAULT_WIDGET_WIDTH, DEFAULT_WIDGET_HEIGHT);
 
         Task.callInBackground(new Callable<Void>() {
@@ -453,10 +462,8 @@ public class LauncherPageFragment extends Fragment {
                                 pickWidget();
                                 break;
                             case 1:
-                                // Add page left
-                                break;
-                            case 2:
-                                // Add page right
+                                // Edit pages
+                                showPageEditor();
                                 break;
                         }
                         mPageMenu = null;

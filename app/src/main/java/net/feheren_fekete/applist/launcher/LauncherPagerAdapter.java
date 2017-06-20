@@ -29,6 +29,10 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         notifyDataSetChanged();
     }
 
+    public PageData getPageData(int position) {
+        return mPages.get(position);
+    }
+
     public int getMainPagePosition() {
         for (int i = 0; i < mPages.size(); ++i) {
             PageData pageData = mPages.get(i);
@@ -36,7 +40,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
                 return i;
             }
         }
-        return 0;
+        return -1;
     }
 
     @Override
@@ -46,7 +50,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         if (pageData.getType() == PageData.TYPE_APPLIST_PAGE) {
             fragment = new ApplistFragment();
         } else {
-            fragment = LauncherPageFragment.newInstance(position);
+            fragment = LauncherPageFragment.newInstance(pageData.getId());
         }
         mPageFragments.put(position, fragment);
         return fragment;

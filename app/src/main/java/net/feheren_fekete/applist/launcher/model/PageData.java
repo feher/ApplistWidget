@@ -31,4 +31,8 @@ public class PageData {
         return mIsMainPage;
     }
 
+    public void setMainPage(boolean mainPage) {
+        mIsMainPage = mainPage;
+    }
+
 }

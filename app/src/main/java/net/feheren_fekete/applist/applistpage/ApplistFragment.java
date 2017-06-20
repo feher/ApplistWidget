@@ -49,6 +49,8 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
 
     private static final String TAG = ApplistFragment.class.getSimpleName();
 
+    public static final class ShowPageEditorEvent {}
+
     private Handler mHandler;
     private DataModel mDataModel;
     private FileUtils mFileUtils = new FileUtils();
@@ -190,6 +192,10 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
             if (menuItem != null) {
                 menuItem.setVisible(false);
             }
+            menuItem = menu.findItem(R.id.action_edit_pages);
+            if (menuItem != null) {
+                menuItem.setVisible(false);
+            }
         } else {
             menuItem = menu.findItem(R.id.action_search_app);
             if (menuItem != null) {
@@ -200,6 +206,10 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
                 menuItem.setVisible(true);
             }
             menuItem = menu.findItem(R.id.action_settings);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
+            menuItem = menu.findItem(R.id.action_edit_pages);
             if (menuItem != null) {
                 menuItem.setVisible(true);
             }
@@ -220,6 +230,10 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
             switch (id) {
                 case R.id.action_settings:
                     showSettings();
+                    isHandled = true;
+                    break;
+                case R.id.action_edit_pages:
+                    showPageEditor();
                     isHandled = true;
                     break;
             }
@@ -256,6 +270,10 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
         //
         mAppBarLayout.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
         mFragmentContainer.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
+    }
+
+    private void showPageEditor() {
+        EventBus.getDefault().post(new ShowPageEditorEvent());
     }
 
     private void showSettings() {
