@@ -21,6 +21,8 @@ public class LauncherFragment extends Fragment {
 
     private static final String TAG = LauncherFragment.class.getSimpleName();
 
+    private static final int MAX_PAGE_COUNT = 3;
+
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
     private int mActivePage = -1;
@@ -33,6 +35,7 @@ public class LauncherFragment extends Fragment {
         mPager = (MyViewPager) view.findViewById(R.id.launcher_fragment_view_pager);
         mPagerAdapter = new LauncherPagerAdapter(getChildFragmentManager());
         mPager.setAdapter(mPagerAdapter);
+        mPager.setOffscreenPageLimit(MAX_PAGE_COUNT - 1);
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
