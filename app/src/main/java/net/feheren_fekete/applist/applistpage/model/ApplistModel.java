@@ -26,13 +26,13 @@ import bolts.Continuation;
 import bolts.Task;
 
 // FIXME: Make th public methods synchronized? Can they be accesses from parallel threads?
-public class DataModel {
+public class ApplistModel {
 
-    private static final String TAG = DataModel.class.getSimpleName();
+    private static final String TAG = ApplistModel.class.getSimpleName();
 
     public static final int INVALID_ID = 0;
 
-    private static DataModel sInstance;
+    private static ApplistModel sInstance;
 
     private FileUtils mFileUtils = new FileUtils();
     private Handler mHandler;
@@ -49,7 +49,7 @@ public class DataModel {
 
     public static void initInstance(Context context, PackageManager packageManager) {
         if (sInstance == null) {
-            sInstance = new DataModel(context, packageManager);
+            sInstance = new ApplistModel(context, packageManager);
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -66,15 +66,15 @@ public class DataModel {
         }
     }
 
-    public static DataModel getInstance() {
+    public static ApplistModel getInstance() {
         if (sInstance != null) {
             return sInstance;
         } else {
-            throw new RuntimeException("DataModel singleton is not initialized");
+            throw new RuntimeException("ApplistModel singleton is not initialized");
         }
     }
 
-    private DataModel(Context context, PackageManager packageManager) {
+    private ApplistModel(Context context, PackageManager packageManager) {
         mHandler = new Handler();
         mPackageManager = packageManager;
         mUncategorizedSectionName = context.getResources().getString(R.string.uncategorized_group);

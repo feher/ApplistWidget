@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.applistpage.model.DataModel;
+import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.utils.ScreenUtils;
@@ -36,7 +36,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
     private Context mContext;
     private ApplistPageFragment mApplistPageFragment;
-    private DataModel mDataModel;
+    private ApplistModel mApplistModel;
     private ViewGroup mTouchOverlay;
     private RecyclerView mRecyclerView;
     private MyGridLayoutManager mLayoutManager;
@@ -53,7 +53,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
     public ApplistItemDragHandler(Context context,
                                   ApplistPageFragment applistPageFragment,
-                                  DataModel dataModel,
+                                  ApplistModel applistModel,
                                   ViewGroup touchOverlay,
                                   RecyclerView recyclerView,
                                   MyGridLayoutManager layoutManager,
@@ -61,7 +61,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                                   Listener listener) {
         mContext = context;
         mApplistPageFragment = applistPageFragment;
-        mDataModel = dataModel;
+        mApplistModel = applistModel;
         mTouchOverlay = touchOverlay;
         mRecyclerView = recyclerView;
         mLayoutManager = layoutManager;
@@ -389,10 +389,10 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                PageData pageData = ViewModelUtils.viewToModel(DataModel.INVALID_ID, pageName, items);
-                mDataModel.setPage(pageName, pageData);
+                PageData pageData = ViewModelUtils.viewToModel(ApplistModel.INVALID_ID, pageName, items);
+                mApplistModel.setPage(pageName, pageData);
                 if (keepAppsSorted) {
-                    mDataModel.sortAppsInPage(pageName);
+                    mApplistModel.sortAppsInPage(pageName);
                 }
                 return null;
             }

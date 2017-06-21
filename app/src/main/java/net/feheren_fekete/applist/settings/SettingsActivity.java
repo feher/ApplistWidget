@@ -23,7 +23,7 @@ import android.util.Log;
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.applistpage.ApplistDialogs;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.applistpage.model.DataModel;
+import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 
@@ -138,11 +138,11 @@ public class SettingsActivity extends PreferenceActivity {
                         new Runnable() {
                             @Override
                             public void run() {
-                                final DataModel dataModel = DataModel.getInstance();
+                                final ApplistModel applistModel = ApplistModel.getInstance();
                                 Task.callInBackground(new Callable<Void>() {
                                     @Override
                                     public Void call() throws Exception {
-                                        dataModel.sortApps();
+                                        applistModel.sortApps();
                                         return null;
                                     }
                                 });

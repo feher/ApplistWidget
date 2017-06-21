@@ -21,8 +21,8 @@ import android.view.ViewGroup;
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.AppData;
+import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
-import net.feheren_fekete.applist.applistpage.model.DataModel;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.*;
@@ -44,7 +44,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
 
     private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
-    private DataModel mDataModel;
+    private ApplistModel mApplistModel;
     private RecyclerView mRecyclerView;
     private ViewGroup mTouchOverlay;
     private IconCache mIconCache;
@@ -57,7 +57,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
     private ApplistItemDragHandler.Listener mListener;
 
     public static ApplistPageFragment newInstance(String pageName,
-                                                  DataModel dataModel,
+                                                  ApplistModel applistModel,
                                                   IconCache iconCache,
                                                   ApplistItemDragHandler.Listener listener) {
         ApplistPageFragment fragment = new ApplistPageFragment();
@@ -66,7 +66,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
         args.putString("pageName", pageName);
         fragment.setArguments(args);
 
-        fragment.mDataModel = dataModel;
+        fragment.mApplistModel = applistModel;
         fragment.mIconCache = iconCache;
         fragment.mListener = listener;
 
@@ -107,7 +107,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
                 this,
                 getContext().getPackageManager(),
                 new FileUtils(),
-                mDataModel,
+                mApplistModel,
                 new BadgeStore(
                         getContext(),
                         getContext().getPackageManager(),
@@ -120,7 +120,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
 
         mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_fragment_touch_overlay);
         mItemDragCallback = new ApplistItemDragHandler(
-                getContext(), this, mDataModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
+                getContext(), this, mApplistModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
         mItemDragGestureRecognizer = new DragGestureRecognizer(mItemDragCallback, mTouchOverlay, mRecyclerView);
 
         return view;
@@ -320,7 +320,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    mDataModel.setSectionCollapsed(
+                    mApplistModel.setSectionCollapsed(
                             pageName,
                             sectionItem.getName(),
                             !wasSectionCollapsed);
@@ -424,7 +424,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
                         Task.callInBackground(new Callable<Void>() {
                             @Override
                             public Void call() throws Exception {
-                                mDataModel.setSectionName(pageName, oldSectionName, newSectionName);
+                                mApplistModel.setSectionName(pageName, oldSectionName, newSectionName);
                                 return null;
                             }
                         });
@@ -446,7 +446,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
                         Task.callInBackground(new Callable<Void>() {
                             @Override
                             public Void call() throws Exception {
-                                mDataModel.removeSection(pageName, sectionName);
+                                mApplistModel.removeSection(pageName, sectionName);
                                 return null;
                             }
                         });
@@ -466,7 +466,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mDataModel.sortAppsInSection(pageName, sectionName);
+                mApplistModel.sortAppsInSection(pageName, sectionName);
                 return null;
             }
         });
@@ -493,10 +493,10 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
                             Task.callInBackground(new Callable<Void>() {
                                 @Override
                                 public Void call() throws Exception {
-                                    mDataModel.addNewSection(pageName, sectionName, true);
+                                    mApplistModel.addNewSection(pageName, sectionName, true);
                                     if (appToMove != null) {
                                         AppData appData = new AppData(appToMove);
-                                        mDataModel.moveAppToSection(pageName, sectionName, appData);
+                                        mApplistModel.moveAppToSection(pageName, sectionName, appData);
                                     }
                                     return null;
                                 }

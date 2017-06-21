@@ -22,8 +22,8 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.ApplistApp;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
-import net.feheren_fekete.applist.applistpage.model.DataModel;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
 import net.feheren_fekete.applist.settings.SettingsUtils;
@@ -59,7 +59,7 @@ public class ApplistAdapter
     private Handler mHandler;
     private PackageManager mPackageManager;
     private FileUtils mFileUtils;
-    private DataModel mModel;
+    private ApplistModel mModel;
     private BadgeStore mBadgeStore;
     private String mPageName;
     private List<BaseItem> mCollapsedItems;
@@ -123,7 +123,7 @@ public class ApplistAdapter
                           Fragment fragment,
                           PackageManager packageManager,
                           FileUtils fileUtils,
-                          DataModel model,
+                          ApplistModel model,
                           BadgeStore badgeStore,
                           String pageName,
                           ItemListener itemListener,
@@ -283,7 +283,7 @@ public class ApplistAdapter
             public List<BaseItem> call() throws Exception {
                 PageData pageData = mModel.getPage(mPageName);
                 if (pageData == null) {
-                    pageData = new PageData(DataModel.INVALID_ID, mPageName, new ArrayList<SectionData>());
+                    pageData = new PageData(ApplistModel.INVALID_ID, mPageName, new ArrayList<SectionData>());
                 }
                 return ViewModelUtils.modelToView(pageData);
             }
@@ -366,7 +366,7 @@ public class ApplistAdapter
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSectionsChangedEvent(DataModel.SectionsChangedEvent event) {
+    public void onSectionsChangedEvent(ApplistModel.SectionsChangedEvent event) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {

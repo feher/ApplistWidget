@@ -26,8 +26,8 @@ import android.widget.FrameLayout;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
-import net.feheren_fekete.applist.applistpage.model.DataModel;
 import net.feheren_fekete.applist.settings.SettingsActivity;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
@@ -52,7 +52,7 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
     public static final class ShowPageEditorEvent {}
 
     private Handler mHandler;
-    private DataModel mDataModel;
+    private ApplistModel mApplistModel;
     private FileUtils mFileUtils = new FileUtils();
     private IconCache mIconCache;
     private BadgeStore mBadgeStore;
@@ -69,7 +69,7 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
         View view = inflater.inflate(R.layout.applist_fragment, container, false);
 
         mHandler = new Handler();
-        mDataModel = DataModel.getInstance();
+        mApplistModel = ApplistModel.getInstance();
         mIconCache = new IconCache();
         mBadgeStore = new BadgeStore(getContext(), getContext().getPackageManager(), new BadgeUtils(getContext()));
         mApplistPreferences = new ApplistPreferences(getContext());
@@ -294,7 +294,7 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
                                 mFileUtils.getIconCacheDirPath(appContext),
                                 uri.getSchemeSpecificPart());
                     }
-                    mDataModel.updateInstalledApps();
+                    mApplistModel.updateInstalledApps();
                     mBadgeStore.cleanup();
                     return null;
                 }
@@ -363,22 +363,22 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDataLoadedEvent(DataModel.DataLoadedEvent event) {
+    public void onDataLoadedEvent(ApplistModel.DataLoadedEvent event) {
         updateApplistFragmentDelayed();
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPagesChangedEvent(DataModel.PagesChangedEvent event) {
+    public void onPagesChangedEvent(ApplistModel.PagesChangedEvent event) {
         updateApplistFragmentDelayed();
     }
 
     private void updateData() {
-        final DataModel dataModel = DataModel.getInstance();
+        final ApplistModel applistModel = ApplistModel.getInstance();
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                dataModel.updateInstalledApps();
+                applistModel.updateInstalledApps();
                 return null;
             }
         });
@@ -388,7 +388,7 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
         Task.callInBackground(new Callable<List<String>>() {
             @Override
             public List<String> call() throws Exception {
-                return mDataModel.getPageNames();
+                return mApplistModel.getPageNames();
             }
         }).continueWith(new Continuation<List<String>, Void>() {
             @Override
@@ -409,7 +409,7 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mDataModel.addNewPage(defaultPageName);
+                mApplistModel.addNewPage(defaultPageName);
                 return null;
             }
         });
@@ -425,7 +425,7 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
     }
 
     private void updateApplistFragment() {
-        if (mDataModel.getPageCount() == 0) {
+        if (mApplistModel.getPageCount() == 0) {
             addDefaultPage();
         } else {
             loadApplistFragment();
@@ -433,7 +433,7 @@ public class ApplistFragment extends Fragment implements ApplistItemDragHandler.
     }
 
     private void showApplistFragment(String pageName) {
-        ApplistPageFragment fragment = ApplistPageFragment.newInstance(pageName, mDataModel, mIconCache, this);
+        ApplistPageFragment fragment = ApplistPageFragment.newInstance(pageName, mApplistModel, mIconCache, this);
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.applist_fragment_fragment_container, fragment, ApplistPageFragment.class.getName())
