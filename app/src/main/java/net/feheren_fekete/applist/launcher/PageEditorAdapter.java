@@ -5,8 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.PageData;
@@ -29,10 +30,12 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     public class PageViewHolder extends RecyclerView.ViewHolder {
         public ImageView screenshot;
         public ImageView homeIcon;
+        public TextView pageNumber;
         public PageViewHolder(View itemView) {
             super(itemView);
             screenshot = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_screenshot);
             homeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_home_icon);
+            pageNumber = (TextView) itemView.findViewById(R.id.launcher_page_editor_item_page_number);
             itemView.findViewById(R.id.launcher_page_editor_item_layout).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -92,10 +95,12 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         String screenshotPath = mScreenshotUtils.createScreenshotPath(holder.screenshot.getContext(), pageData.getId());
         File file = new File(screenshotPath);
         if (file.exists()) {
-            Glide.with(holder.screenshot.getContext())
-                    .load("file://" + screenshotPath)
+            GlideApp.with(holder.screenshot.getContext())
+                    .load(file)
+                    .signature(new ObjectKey(String.valueOf(file.lastModified())))
                     .into(holder.screenshot);
         }
+        holder.pageNumber.setText(String.valueOf(position + 1));
     }
 
     @Override

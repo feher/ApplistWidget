@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -19,14 +19,12 @@ import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.launcherpage.model.WidgetModel;
-import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.utils.ScreenshotUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
 import java.util.concurrent.Callable;
 
 import bolts.Task;
@@ -58,7 +56,7 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
 
         @Override
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-            int dragFlags = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+            int dragFlags = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN;
             int swipeFlags = 0;
             return makeMovementFlags(dragFlags, swipeFlags);
         }
@@ -94,6 +92,10 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
             super.clearView(recyclerView, viewHolder);
             ((PageEditorAdapter.PageViewHolder) viewHolder).screenshot.animate()
                     .scaleX(1.0f).scaleY(1.0f).setDuration(150).start();
+
+            // This is needed to re-draw (re-bind) all the items in the RecyclerView.
+            // We want to update the page numbers of every item.
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -114,7 +116,7 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
         View view = inflater.inflate(R.layout.launcher_page_editor_fragment, container, false);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.launcher_page_editor_page_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 2));
         mAdapter = new PageEditorAdapter(mScreenshotUtils, this);
         recyclerView.setAdapter(mAdapter);
 

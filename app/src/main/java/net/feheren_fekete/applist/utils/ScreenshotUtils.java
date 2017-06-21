@@ -3,6 +3,7 @@ package net.feheren_fekete.applist.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.view.View;
 
 import net.feheren_fekete.applist.ApplistLog;
@@ -25,7 +26,12 @@ public class ScreenshotUtils {
         View screenView = rootView.getRootView();
 
         screenView.setDrawingCacheEnabled(true);
-        final Bitmap bitmap = Bitmap.createScaledBitmap(screenView.getDrawingCache(), 600, 800, true);
+        Point screenSize = ScreenUtils.getScreenSize(activity);
+        final Bitmap bitmap = Bitmap.createScaledBitmap(
+                screenView.getDrawingCache(),
+                screenSize.x / 4,
+                screenSize.y / 4,
+                true);
         screenView.setDrawingCacheEnabled(false);
 
         final String filePath = createScreenshotPath(activity, pageId);

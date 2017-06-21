@@ -2,11 +2,12 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/launcher_page_editor_item_layout"
     android:layout_centerInParent="true"
     android:layout_margin="5dp"
-    android:layout_width="86dp"
-    android:layout_height="124dp"
+    android:layout_width="match_parent"
+    android:layout_height="256dp"
     >
 
     <ImageView
@@ -14,6 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@android:color/holo_blue_light"
+        android:scaleType="fitCenter"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -28,6 +30,22 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/launcher_page_editor_item_page_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:textColor="@android:color/white"
+        android:shadowDx="5"
+        android:shadowDy="5"
+        android:shadowRadius="5"
+        android:shadowColor="@android:color/black"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="1"
         />
 
 </android.support.constraint.ConstraintLayout>

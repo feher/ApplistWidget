@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.launcherpage;
 
 import android.app.Activity;
+import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
@@ -207,6 +208,7 @@ public class LauncherPageFragment extends Fragment {
     public void handleUp(MotionEvent event) {
         if (mWidgetMenuTarget != null) {
             mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_SELECTED);
+            updateWidgetOptions(mWidgetMenuTarget.appWidgetHostView, mWidgetMenuTarget.widgetData);
         }
     }
 
@@ -341,13 +343,7 @@ public class LauncherPageFragment extends Fragment {
         layoutParams.topMargin = Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getPositionY()));
         hostView.setLayoutParams(layoutParams);
 
-        Bundle options = new Bundle();
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetData.getWidth());
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetData.getHeight());
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widgetData.getWidth());
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetData.getHeight());
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
-        hostView.updateAppWidgetOptions(options);
+        updateWidgetOptions(hostView, widgetData);
 
         final WidgetItem widgetItem = new WidgetItem();
         widgetItem.widgetData = widgetData;
@@ -357,6 +353,16 @@ public class LauncherPageFragment extends Fragment {
         mWidgets.add(widgetItem);
         mWidgetContainer.addView(hostView);
         mWidgetContainer.invalidate();
+    }
+
+    private void updateWidgetOptions(AppWidgetHostView appWidgetHostView, WidgetData widgetData) {
+        Bundle options = new Bundle();
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetData.getWidth());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetData.getHeight());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widgetData.getWidth());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetData.getHeight());
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
+        appWidgetHostView.updateAppWidgetOptions(options);
     }
 
     private void removeAllWidgetsFromScreen() {
@@ -449,7 +455,6 @@ public class LauncherPageFragment extends Fragment {
             openWidgetMenu(mWidgetItem);
         }
     }
-
 
     private void openPageMenu() {
         mPageMenu = new AlertDialog.Builder(getContext())
@@ -585,14 +590,6 @@ public class LauncherPageFragment extends Fragment {
         widgetItem.widgetData.setPositionY(Math.round(ScreenUtils.pxToDp(context, layoutParams.topMargin)));
         widgetItem.widgetData.setWidth(Math.round(ScreenUtils.pxToDp(context, layoutParams.width)));
         widgetItem.widgetData.setHeight(Math.round(ScreenUtils.pxToDp(context, layoutParams.height)));
-
-        Bundle options = new Bundle();
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetItem.widgetData.getWidth());
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetItem.widgetData.getHeight());
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widgetItem.widgetData.getWidth());
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetItem.widgetData.getHeight());
-        options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
-        widgetItem.appWidgetHostView.updateAppWidgetOptions(options);
 
         mWidgetContainer.invalidate();
 
