@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.view.View;
 
 import net.feheren_fekete.applist.ApplistLog;
+import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import java.io.File;
@@ -59,13 +60,19 @@ public class ScreenshotUtils {
         mHandler.postDelayed(mScreenshotRunnable, delayMillis);
     }
 
+    public void cancelScheduledScreenshot() {
+        mActivity = null;
+        mPageId = PageData.INVALID_PAGE_ID;
+        mHandler.removeCallbacks(mScreenshotRunnable);
+    }
+
     public String createScreenshotPath(Context context, long pageId) {
         return context.getFilesDir().getAbsolutePath() + File.separator + "applist-page-" + pageId + ".png";
     }
 
     @DebugLog
     private void takeScreenshot(Activity activity, long pageId) {
-        if (!mLauncherStateManager.isPageVisible(pageId)) {
+        if (activity == null || pageId == PageData.INVALID_PAGE_ID || !mLauncherStateManager.isPageVisible(pageId)) {
             return;
         }
 

@@ -68,6 +68,8 @@ public class LauncherFragment extends Fragment {
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
                     mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
+                } else {
+                    mScreenshotUtils.cancelScheduledScreenshot();
                 }
             }
         });

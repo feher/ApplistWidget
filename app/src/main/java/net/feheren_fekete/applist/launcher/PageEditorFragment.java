@@ -84,7 +84,7 @@ public class PageEditorFragment extends Fragment {
             super.onSelectedChanged(viewHolder, actionState);
             if (viewHolder != null) {
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-                    ((PageEditorAdapter.PageViewHolder) viewHolder).screenshot.animate()
+                    ((PageEditorAdapter.PageViewHolder) viewHolder).layout.animate()
                             .scaleX(0.9f).scaleY(0.9f).setDuration(150).start();
                     itemAction = actionState;
                 }
@@ -95,7 +95,7 @@ public class PageEditorFragment extends Fragment {
         public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
             if (itemAction == ItemTouchHelper.ACTION_STATE_DRAG) {
-                ((PageEditorAdapter.PageViewHolder) viewHolder).screenshot.animate()
+                ((PageEditorAdapter.PageViewHolder) viewHolder).layout.animate()
                         .scaleX(1.0f).scaleY(1.0f).setDuration(150).start();
 
                 // This is needed to re-draw (re-bind) all the items in the RecyclerView.

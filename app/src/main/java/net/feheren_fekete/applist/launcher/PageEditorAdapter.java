@@ -35,12 +35,14 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     }
 
     public class PageViewHolder extends RecyclerView.ViewHolder {
+        public ViewGroup layout;
         public ImageView screenshot;
         public ImageView homeIcon;
         public ImageView removeIcon;
         public TextView pageNumber;
         public PageViewHolder(View itemView) {
             super(itemView);
+            layout = (ViewGroup) itemView.findViewById(R.id.launcher_page_editor_item_layout);
             screenshot = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_screenshot);
             homeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_home_icon);
             removeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_remove_icon);
@@ -117,9 +119,9 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     public void onBindViewHolder(PageViewHolder holder, int position) {
         PageData pageData = mPages.get(position);
         if (pageData.isMainPage()) {
-            holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_circle_selected);
+            holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_left_corner_selected);
         } else {
-            holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_circle);
+            holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_left_corner);
         }
 
         holder.removeIcon.setVisibility(

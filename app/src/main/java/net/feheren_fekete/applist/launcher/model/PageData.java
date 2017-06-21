@@ -2,6 +2,8 @@ package net.feheren_fekete.applist.launcher.model;
 
 public class PageData {
 
+    public static final long INVALID_PAGE_ID = 0;
+
     public static final int TYPE_APPLIST_PAGE = 1;
     public static final int TYPE_WIDGET_PAGE = 2;
 
