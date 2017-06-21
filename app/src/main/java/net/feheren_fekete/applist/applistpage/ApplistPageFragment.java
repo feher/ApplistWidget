@@ -23,6 +23,9 @@ import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.AppData;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.model.PageData;
+import net.feheren_fekete.applist.applistpage.model.SectionData;
+import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.*;
@@ -31,7 +34,10 @@ import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -42,6 +48,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
 
     private static final String TAG = ApplistPageFragment.class.getSimpleName();
 
+    private Handler mHandler = new Handler();
     private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
     private ApplistModel mApplistModel;
@@ -107,16 +114,15 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
                 this,
                 getContext().getPackageManager(),
                 new FileUtils(),
-                mApplistModel,
                 new BadgeStore(
                         getContext(),
                         getContext().getPackageManager(),
                         new BadgeUtils(getContext())),
-                getPageName(),
                 this,
                 mIconCache);
         mRecyclerView.setAdapter(mAdapter);
-        mAdapter.loadAllItems();
+
+        loadAllItems();
 
         mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_fragment_touch_overlay);
         mItemDragCallback = new ApplistItemDragHandler(
@@ -149,7 +155,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
     @Override
     public void onResume() {
         super.onResume();
-        EventBus.getDefault().register(mAdapter);
+        EventBus.getDefault().register(this);
         if (mApplistPreferences.getShowRearrangeItemsHelp()) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.rearrange_items_help)
@@ -167,7 +173,7 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
     @Override
     public void onPause() {
         super.onPause();
-        EventBus.getDefault().unregister(mAdapter);
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -178,8 +184,26 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
         }
     }
 
-    public void update() {
-        mAdapter.loadAllItems();
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSectionsChangedEvent(ApplistModel.SectionsChangedEvent event) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                loadAllItems();
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onBadgeEvent(BadgeStore.BadgeEvent event) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                loadAllItems();
+            }
+        });
     }
 
     public String getPageName() {
@@ -386,6 +410,14 @@ public class ApplistPageFragment extends Fragment implements ApplistAdapter.Item
             return handled;
         }
     };
+
+    private void loadAllItems() {
+        PageData pageData = mApplistModel.getPage(getPageName());
+        if (pageData == null) {
+            pageData = new PageData(ApplistModel.INVALID_ID, getPageName(), new ArrayList<SectionData>());
+        }
+        mAdapter.setItems(ViewModelUtils.modelToView(pageData));
+    }
 
     private void showAppInfo(AppItem appItem) {
         Intent intent = new Intent();

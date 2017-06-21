@@ -56,12 +56,9 @@ public class ApplistAdapter
 
     private Context mContext;
     private Fragment mFragment;
-    private Handler mHandler;
     private PackageManager mPackageManager;
     private FileUtils mFileUtils;
-    private ApplistModel mModel;
     private BadgeStore mBadgeStore;
-    private String mPageName;
     private List<BaseItem> mCollapsedItems;
     private List<BaseItem> mAllItems;
     private @Nullable String mFilterName;
@@ -123,19 +120,14 @@ public class ApplistAdapter
                           Fragment fragment,
                           PackageManager packageManager,
                           FileUtils fileUtils,
-                          ApplistModel model,
                           BadgeStore badgeStore,
-                          String pageName,
                           ItemListener itemListener,
                           IconCache iconCache) {
         mContext = context;
         mFragment = fragment;
-        mHandler = new Handler();
         mPackageManager = packageManager;
         mFileUtils = fileUtils;
-        mModel = model;
         mBadgeStore = badgeStore;
-        mPageName = pageName;
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();
         mItemListener = itemListener;
@@ -277,28 +269,10 @@ public class ApplistAdapter
         return super.getItemViewType(position);
     }
 
-    public void loadAllItems() {
-        Task.callInBackground(new Callable<List<BaseItem>>() {
-            @Override
-            public List<BaseItem> call() throws Exception {
-                PageData pageData = mModel.getPage(mPageName);
-                if (pageData == null) {
-                    pageData = new PageData(ApplistModel.INVALID_ID, mPageName, new ArrayList<SectionData>());
-                }
-                return ViewModelUtils.modelToView(pageData);
-            }
-        }).continueWith(new Continuation<List<BaseItem>, Void>() {
-            @Override
-            public Void then(Task<List<BaseItem>> task) throws Exception {
-                List<BaseItem> items = task.getResult();
-                if (items != null) {
-                    mAllItems = items;
-                    updateCollapsedAndFilteredItems();
-                    notifyDataSetChanged();
-                }
-                return null;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
+    public void setItems(List<BaseItem> items) {
+        mAllItems = items;
+        updateCollapsedAndFilteredItems();
+        notifyDataSetChanged();
     }
 
     public boolean moveItem(int fromPosition, int toPosition) {
@@ -362,28 +336,6 @@ public class ApplistAdapter
         notifyItemMoved(fromPosition, toPosition);
 
         return true;
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSectionsChangedEvent(ApplistModel.SectionsChangedEvent event) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                loadAllItems();
-            }
-        });
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onBadgeEvent(BadgeStore.BadgeEvent event) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                loadAllItems();
-            }
-        });
     }
 
     public BaseItem getItem(int position) {
