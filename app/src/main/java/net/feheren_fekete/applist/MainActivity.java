@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MyAppWidgetHost mAppWidgetHost;
     private AppWidgetManager mAppWidgetManager;
+    private boolean mIsHomePressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,9 @@ public class MainActivity extends AppCompatActivity {
             finish();
             startActivity(intent);
         } else {
-            //loadData();
+            // This occurs when the Home button is pressed.
+            // Be careful! It may not be true in the future or on some devices.
+            mIsHomePressed = true;
         }
     }
 
@@ -97,6 +100,12 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPageEditorDoneEvent(PageEditorFragment.DoneEvent event) {
         showLauncherFragment();
+    }
+
+    public boolean isHomePressed() {
+        boolean wasHomePressed = mIsHomePressed;
+        mIsHomePressed = false;
+        return wasHomePressed;
     }
 
     public MyAppWidgetHost getAppWidgetHost() {

@@ -13,6 +13,9 @@ public class ApplistPreferences {
     private static final String PREFERENCE_DEVICE_LOCALE = "DEVICE_LOCALE";
     private static final String DEFAULT_DEVICE_LOCALE = "";
 
+    private static final String PREFERENCE_LAST_ACTIVE_LAUNCHER_PAGE_POSITION = "LAST_ACTIVE_LAUNCHER_PAGE_POSITION";
+    private static final int DEFAULT_LAST_ACTIVE_LAUNCHER_PAGE_POSITION = -1;
+
     private SharedPreferences mSharedPreferences;
 
     public ApplistPreferences(Context context) {
@@ -34,6 +37,14 @@ public class ApplistPreferences {
 
     public void setDeviceLocale(String deviceLocale) {
         mSharedPreferences.edit().putString(PREFERENCE_DEVICE_LOCALE, deviceLocale).apply();
+    }
+
+    public int getLastActiveLauncherPagePosition() {
+        return mSharedPreferences.getInt(PREFERENCE_LAST_ACTIVE_LAUNCHER_PAGE_POSITION, DEFAULT_LAST_ACTIVE_LAUNCHER_PAGE_POSITION);
+    }
+
+    public void setLastActiveLauncherPagePosition(int pagePosition) {
+        mSharedPreferences.edit().putInt(PREFERENCE_LAST_ACTIVE_LAUNCHER_PAGE_POSITION, pagePosition).apply();
     }
 
 }

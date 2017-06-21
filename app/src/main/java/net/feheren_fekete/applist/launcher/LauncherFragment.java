@@ -1,10 +1,8 @@
 package net.feheren_fekete.applist.launcher;
 
-import android.app.Activity;
 import android.app.WallpaperManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -14,6 +12,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import net.feheren_fekete.applist.ApplistPreferences;
+import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
@@ -21,6 +21,11 @@ import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.concurrent.Callable;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class LauncherFragment extends Fragment {
 
@@ -30,14 +35,20 @@ public class LauncherFragment extends Fragment {
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
 
+    private ApplistPreferences mApplistPreferences;
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
-    private int mActivePage = -1;
+    private int mActivePagePosition = -1;
+
+    public LauncherFragment() {
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_fragment, container, false);
+
+        mApplistPreferences = new ApplistPreferences(getContext().getApplicationContext());
 
         mPager = (MyViewPager) view.findViewById(R.id.launcher_fragment_view_pager);
         mPagerAdapter = new LauncherPagerAdapter(getChildFragmentManager());
@@ -48,27 +59,19 @@ public class LauncherFragment extends Fragment {
             }
             @Override
             public void onPageSelected(int position) {
-                mActivePage = position;
-                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePage).getId(), 500);
+                mActivePagePosition = position;
+                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
             }
             @Override
             public void onPageScrollStateChanged(int state) {
             }
         });
 
-        if (savedInstanceState != null) {
-            mActivePage = savedInstanceState.getInt("activePage");
-        }
+        mActivePagePosition = mApplistPreferences.getLastActiveLauncherPagePosition();
 
         initPages();
 
         return view;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putInt("activePage", mActivePage);
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -77,17 +80,34 @@ public class LauncherFragment extends Fragment {
 
         EventBus.getDefault().register(this);
 
-        final WallpaperManager wallpaperManager = WallpaperManager.getInstance(getContext());
-        final Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-        getView().setBackground(wallpaperDrawable);
+        Task.callInBackground(new Callable<Drawable>() {
+            @Override
+            public Drawable call() throws Exception {
+                final WallpaperManager wallpaperManager = WallpaperManager.getInstance(getContext());
+                final Drawable wallpaperDrawable = wallpaperManager.getDrawable();
+                return wallpaperDrawable;
+            }
+        }).continueWith(new Continuation<Drawable, Void>() {
+            @Override
+            public Void then(Task<Drawable> task) throws Exception {
+                Drawable wallpaperDrawable = task.getResult();
+                getView().setBackground(wallpaperDrawable);
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
 
-        mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePage).getId(), 1000);
+        if (((MainActivity)getActivity()).isHomePressed()) {
+            handleHomeButtonPress();
+        } else {
+            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 1000);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
+        mApplistPreferences.setLastActiveLauncherPagePosition(mActivePagePosition);
     }
 
     @SuppressWarnings("unused")
@@ -111,13 +131,22 @@ public class LauncherFragment extends Fragment {
     private void initPages() {
         mPagerAdapter.setPages(mLauncherModel.getPages());
         mPager.setOffscreenPageLimit(mPagerAdapter.getCount() - 1);
-        if (mActivePage == -1) {
-            mActivePage = mPagerAdapter.getMainPagePosition();
+        if (mActivePagePosition == -1) {
+            mActivePagePosition = mPagerAdapter.getMainPagePosition();
         }
-        if (mActivePage != -1) {
-            mActivePage = Math.min(mActivePage, mPagerAdapter.getCount() - 1);
-            mPager.setCurrentItem(mActivePage, false);
-            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePage).getId(), 1000);
+        scrollToActivePage(false);
+    }
+
+    private void handleHomeButtonPress() {
+        mActivePagePosition = mPagerAdapter.getMainPagePosition();
+        scrollToActivePage(true);
+    }
+
+    private void scrollToActivePage(boolean smoothScroll) {
+        if (mActivePagePosition != -1) {
+            mActivePagePosition = Math.min(mActivePagePosition, mPagerAdapter.getCount() - 1);
+            mPager.setCurrentItem(mActivePagePosition, smoothScroll);
+            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 1000);
         }
     }
 
