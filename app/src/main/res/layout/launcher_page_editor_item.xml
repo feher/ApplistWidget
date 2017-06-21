@@ -5,16 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/launcher_page_editor_item_layout"
     android:layout_centerInParent="true"
-    android:layout_margin="5dp"
     android:layout_width="match_parent"
-    android:layout_height="256dp"
+    android:layout_height="300dp"
     >
 
     <ImageView
         android:id="@+id/launcher_page_editor_item_screenshot"
+        android:layout_margin="20dp"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@android:color/holo_blue_light"
         android:scaleType="fitCenter"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -24,18 +23,34 @@
 
     <ImageView
         android:id="@+id/launcher_page_editor_item_home_icon"
+        android:padding="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_home"
+        android:background="@drawable/page_editor_button_circle"
+        app:srcCompat="@drawable/ic_home_filled"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/launcher_page_editor_item_remove_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:padding="10dp"
+        android:tint="@android:color/white"
+        android:background="@drawable/page_editor_button_circle"
+        app:srcCompat="@drawable/ic_delete"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/launcher_page_editor_item_home_icon"
         />
 
     <TextView
         android:id="@+id/launcher_page_editor_item_page_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="@drawable/page_editor_button_circle"
+        android:gravity="center"
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:textColor="@android:color/white"
         android:shadowDx="5"

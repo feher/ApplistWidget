@@ -11,9 +11,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
@@ -29,7 +26,7 @@ import java.util.concurrent.Callable;
 
 import bolts.Task;
 
-public class PageEditorFragment extends Fragment implements PageEditorAdapter.Listener {
+public class PageEditorFragment extends Fragment {
 
     public static final class DoneEvent {}
 
@@ -37,11 +34,15 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
     private WidgetModel mWidgetModel;
     private PageEditorAdapter mAdapter;
     private ScreenshotUtils mScreenshotUtils;
+    private ItemTouchHelper mItemTouchHelper;
 
     private class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
+
+        private int itemAction;
+
         @Override
         public boolean isLongPressDragEnabled() {
-            return true;
+            return false;
         }
 
         @Override
@@ -83,6 +84,7 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
                     ((PageEditorAdapter.PageViewHolder) viewHolder).screenshot.animate()
                             .scaleX(0.9f).scaleY(0.9f).setDuration(150).start();
+                    itemAction = actionState;
                 }
             }
         }
@@ -90,12 +92,14 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
         @Override
         public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
-            ((PageEditorAdapter.PageViewHolder) viewHolder).screenshot.animate()
-                    .scaleX(1.0f).scaleY(1.0f).setDuration(150).start();
+            if (itemAction == ItemTouchHelper.ACTION_STATE_DRAG) {
+                ((PageEditorAdapter.PageViewHolder) viewHolder).screenshot.animate()
+                        .scaleX(1.0f).scaleY(1.0f).setDuration(150).start();
 
-            // This is needed to re-draw (re-bind) all the items in the RecyclerView.
-            // We want to update the page numbers of every item.
-            mAdapter.notifyDataSetChanged();
+                // This is needed to re-draw (re-bind) all the items in the RecyclerView.
+                // We want to update the page numbers of every item.
+                mAdapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -117,13 +121,13 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.launcher_page_editor_page_list);
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 2));
-        mAdapter = new PageEditorAdapter(mScreenshotUtils, this);
+        mAdapter = new PageEditorAdapter(mScreenshotUtils, mPageEditorAdapterListener);
         recyclerView.setAdapter(mAdapter);
 
-        ItemTouchHelper touchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback());
-        touchHelper.attachToRecyclerView(recyclerView);
+        mItemTouchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback());
+        mItemTouchHelper.attachToRecyclerView(recyclerView);
 
-        ImageView addPageButton = (ImageView) view.findViewById(R.id.launcher_page_editor_add_page);
+        View addPageButton = view.findViewById(R.id.launcher_page_editor_add_page);
         addPageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,7 +135,7 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
             }
         });
 
-        ImageView doneButton = (ImageView) view.findViewById(R.id.launcher_page_editor_done);
+        View doneButton = view.findViewById(R.id.launcher_page_editor_done);
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,28 +159,6 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
         EventBus.getDefault().unregister(this);
     }
 
-    @Override
-    public void onPageTapped(final int position) {
-        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
-                .setItems(R.array.launcher_page_editor_menu, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                setMainPage(position);
-                                break;
-                            case 1:
-                                removePage(position);
-                                break;
-                        }
-                    }
-                })
-                .setCancelable(true)
-                .create();
-        alertDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        alertDialog.show();
-    }
-
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDataLoadedEvent(LauncherModel.DataLoadedEvent event) {
@@ -194,6 +176,23 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
     public void onPageAddedEvent(LauncherModel.PageAddedEvent event) {
         mAdapter.addPage(event.pageData);
     }
+
+    private PageEditorAdapter.Listener mPageEditorAdapterListener = new PageEditorAdapter.Listener() {
+        @Override
+        public void onHomeTapped(int position) {
+            setMainPage(position);
+        }
+
+        @Override
+        public void onRemoveTapped(int position) {
+            removePage(position);
+        }
+
+        @Override
+        public void onPageTouched(int position, RecyclerView.ViewHolder viewHolder) {
+            mItemTouchHelper.startDrag(viewHolder);
+        }
+    };
 
     private void addNewPage() {
         Task.callInBackground(new Callable<Void>() {
@@ -219,22 +218,32 @@ public class PageEditorFragment extends Fragment implements PageEditorAdapter.Li
         final PageData pageData = mAdapter.getItem(position);
         final long pageId = pageData.getId();
         final String screenshotPath = mScreenshotUtils.createScreenshotPath(getContext(), pageId);
-        if (pageData.getType() != PageData.TYPE_APPLIST_PAGE) {
-            Task.callInBackground(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    mScreenshotUtils.deleteScreenshot(screenshotPath);
-                    mWidgetModel.deleteWidgetsOfPage(pageId);
-                    mLauncherModel.removePage(position);
-                    return null;
-                }
-            });
-        } else {
-            Toast.makeText(
-                    getContext(),
-                    R.string.launcher_page_editor_cannot_remove_apps_page,
-                    Toast.LENGTH_SHORT).show();
-        }
+        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
+                .setTitle(R.string.launcher_page_editor_remove_dialog_title)
+                .setMessage(R.string.launcher_page_editor_remove_dialog_message)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Task.callInBackground(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                mScreenshotUtils.deleteScreenshot(screenshotPath);
+                                mWidgetModel.deleteWidgetsOfPage(pageId);
+                                mLauncherModel.removePage(position);
+                                return null;
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Nothing.
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        alertDialog.show();
     }
 
     private void doneWithEditing() {

@@ -3,8 +3,10 @@ package net.feheren_fekete.applist.launcher;
 import android.app.WallpaperManager;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,22 +30,42 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     private @Nullable Drawable mWallpaper;
 
     public interface Listener {
-        void onPageTapped(int position);
+        void onHomeTapped(int position);
+        void onRemoveTapped(int position);
+        void onPageTouched(int position, RecyclerView.ViewHolder viewHolder);
     }
 
     public class PageViewHolder extends RecyclerView.ViewHolder {
         public ImageView screenshot;
         public ImageView homeIcon;
+        public ImageView removeIcon;
         public TextView pageNumber;
         public PageViewHolder(View itemView) {
             super(itemView);
             screenshot = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_screenshot);
             homeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_home_icon);
+            removeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_remove_icon);
             pageNumber = (TextView) itemView.findViewById(R.id.launcher_page_editor_item_page_number);
-            itemView.findViewById(R.id.launcher_page_editor_item_layout).setOnClickListener(new View.OnClickListener() {
+            homeIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mListener.onPageTapped(getAdapterPosition());
+                    mListener.onHomeTapped(getAdapterPosition());
+                }
+            });
+            removeIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onRemoveTapped(getAdapterPosition());
+                }
+            });
+            screenshot.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (MotionEventCompat.getActionMasked(event) ==
+                            MotionEvent.ACTION_DOWN) {
+                        mListener.onPageTouched(getAdapterPosition(), PageViewHolder.this);
+                    }
+                    return false;
                 }
             });
         }
@@ -95,7 +117,15 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     @Override
     public void onBindViewHolder(PageViewHolder holder, int position) {
         PageData pageData = mPages.get(position);
-        holder.homeIcon.setVisibility(pageData.isMainPage() ? View.VISIBLE : View.GONE);
+        if (pageData.isMainPage()) {
+            holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_circle_selected);
+        } else {
+            holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_circle);
+        }
+
+        holder.removeIcon.setVisibility(
+                (pageData.getType() != PageData.TYPE_APPLIST_PAGE) ? View.VISIBLE : View.GONE);
+
         String screenshotPath = mScreenshotUtils.createScreenshotPath(holder.screenshot.getContext(), pageData.getId());
         File file = new File(screenshotPath);
         if (file.exists()) {
