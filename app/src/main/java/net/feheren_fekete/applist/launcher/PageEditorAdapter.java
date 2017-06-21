@@ -1,5 +1,8 @@
 package net.feheren_fekete.applist.launcher;
 
+import android.app.WallpaperManager;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +25,7 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     private ScreenshotUtils mScreenshotUtils;
     private Listener mListener;
     private List<PageData> mPages = Collections.emptyList();
+    private @Nullable Drawable mWallpaper;
 
     public interface Listener {
         void onPageTapped(int position);
@@ -99,6 +103,12 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
                     .load(file)
                     .signature(new ObjectKey(String.valueOf(file.lastModified())))
                     .into(holder.screenshot);
+        } else {
+            if (mWallpaper == null) {
+                final WallpaperManager wallpaperManager = WallpaperManager.getInstance(holder.screenshot.getContext());
+                mWallpaper = wallpaperManager.getDrawable();
+            }
+            holder.screenshot.setImageDrawable(mWallpaper);
         }
         holder.pageNumber.setText(String.valueOf(position + 1));
     }
