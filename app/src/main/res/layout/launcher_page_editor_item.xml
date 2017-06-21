@@ -22,35 +22,37 @@
         />
 
     <ImageView
-        android:id="@+id/launcher_page_editor_item_home_icon"
-        android:padding="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/page_editor_button_circle"
-        app:srcCompat="@drawable/ic_home_filled"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <ImageView
         android:id="@+id/launcher_page_editor_item_remove_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:padding="10dp"
         android:tint="@android:color/white"
         android:background="@drawable/page_editor_button_circle"
         app:srcCompat="@drawable/ic_delete"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/launcher_page_editor_item_home_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@drawable/page_editor_button_circle"
+        app:srcCompat="@drawable/ic_home_filled"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/launcher_page_editor_item_home_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
         />
 
     <TextView
         android:id="@+id/launcher_page_editor_item_page_number"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
-        android:background="@drawable/page_editor_button_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:background="@drawable/page_editor_button_rectangle"
         android:gravity="center"
+        android:drawableRight="@drawable/ic_move"
+        android:drawablePadding="12dp"
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:textColor="@android:color/white"
         android:shadowDx="5"
@@ -59,8 +61,9 @@
         android:shadowColor="@android:color/black"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="1"
+        tools:textColor="@android:color/black"
         />
 
 </android.support.constraint.ConstraintLayout>

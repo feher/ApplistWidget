@@ -58,7 +58,7 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
                     mListener.onRemoveTapped(getAdapterPosition());
                 }
             });
-            screenshot.setOnTouchListener(new View.OnTouchListener() {
+            pageNumber.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (MotionEventCompat.getActionMasked(event) ==
