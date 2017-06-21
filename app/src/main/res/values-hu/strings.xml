@@ -51,4 +51,11 @@
     <string name="widget_menu_move_resize">Mozgat és átméretez</string>
     <string name="widget_menu_bring_to_top">Elöre hoz</string>
     <string name="widget_menu_remove">Töröl</string>
+    <string name="launcher_page_edit_pages">Oldalak szerkesztése</string>
+    <string name="launcher_page_editor_done">Kész</string>
+    <string name="launcher_page_editor_new_page">Új oldal</string>
+    <string name="launcher_page_editor_remove_dialog_message">Biztos törölni akarod ezt az oldalt?</string>
+    <string name="launcher_page_editor_remove_dialog_title">Oldal törlése</string>
+    <string name="no">Nem</string>
+    <string name="yes">Igen</string>
 </resources>

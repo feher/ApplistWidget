@@ -47,8 +47,15 @@
     <string name="column_width_tiny">Pikkuinen</string>
     <string name="settings_column_width">Kuvakkeiden koko</string>
     <string name="got_it">SELVÄ</string>
-    <string name="launcher_page_add_widget">Lisää widgetin</string>
+    <string name="launcher_page_add_widget">Lisää widget</string>
     <string name="widget_menu_move_resize">Siirrä ja vaihda koko</string>
     <string name="widget_menu_bring_to_top">Tuo eteen</string>
     <string name="widget_menu_remove">Poista</string>
+    <string name="launcher_page_edit_pages">Muokkaa sivuja</string>
+    <string name="launcher_page_editor_done">Valmis</string>
+    <string name="launcher_page_editor_new_page">Uusi sivu</string>
+    <string name="launcher_page_editor_remove_dialog_message">Haluatko poistaa tämän sivun?</string>
+    <string name="launcher_page_editor_remove_dialog_title">Poista sivu</string>
+    <string name="no">En</string>
+    <string name="yes">Kyllä</string>
 </resources>
