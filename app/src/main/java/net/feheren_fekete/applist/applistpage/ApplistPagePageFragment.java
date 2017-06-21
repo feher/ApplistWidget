@@ -26,7 +26,6 @@ import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
 import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
-import net.feheren_fekete.applist.launcher.LauncherStateManager;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
@@ -53,7 +52,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     // TODO: Inject these singletons.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
-    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
 
     private Handler mHandler = new Handler();
     private BadgeStore mBadgeStore;
@@ -427,10 +425,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             pageData = new PageData(ApplistModel.INVALID_ID, getPageName(), new ArrayList<SectionData>());
         }
         mAdapter.setItems(ViewModelUtils.modelToView(pageData));
-
-        if (mLauncherStateManager.isPageVisible(getLauncherPageId())) {
-            mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), 500);
-        }
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), 500);
     }
 
     private void showAppInfo(AppItem appItem) {

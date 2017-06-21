@@ -28,7 +28,6 @@ import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
-import net.feheren_fekete.applist.launcher.LauncherStateManager;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.settings.SettingsActivity;
 import net.feheren_fekete.applist.settings.SettingsUtils;
@@ -56,7 +55,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     // TODO: Inject these singletons.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
-    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
@@ -447,13 +445,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         } else {
             loadApplistFragment();
         }
-        scheduleScreenshot();
-    }
-
-    private void scheduleScreenshot() {
-        if (mLauncherStateManager.isPageVisible(getPageId())) {
-            mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 1000);
-        }
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 1000);
     }
 
     private void showApplistFragment(String pageName) {

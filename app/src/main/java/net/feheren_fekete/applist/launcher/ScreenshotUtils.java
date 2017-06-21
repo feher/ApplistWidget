@@ -20,6 +20,7 @@ import hugo.weaving.DebugLog;
 
 public class ScreenshotUtils {
 
+    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
     private Handler mHandler = new Handler();
     private Activity mActivity;
     private long mPageId;
@@ -64,6 +65,10 @@ public class ScreenshotUtils {
 
     @DebugLog
     private void takeScreenshot(Activity activity, long pageId) {
+        if (!mLauncherStateManager.isPageVisible(pageId)) {
+            return;
+        }
+
         View rootView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
         View screenView = rootView.getRootView();
 

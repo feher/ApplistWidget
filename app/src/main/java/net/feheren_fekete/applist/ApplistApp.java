@@ -31,8 +31,8 @@ public class ApplistApp extends MultiDexApplication {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
 
-        ScreenshotUtils.initInstance();
         LauncherStateManager.initInstance();
+        ScreenshotUtils.initInstance();
         ApplistLog.initInstance();
         LauncherModel.initInstance(this);
         ApplistModel.initInstance(this, getPackageManager());
