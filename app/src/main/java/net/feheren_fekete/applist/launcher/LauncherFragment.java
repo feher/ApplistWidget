@@ -16,6 +16,7 @@ import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
+import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -34,6 +35,7 @@ public class LauncherFragment extends Fragment {
     // TODO: Inject these singletons
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
 
     private ApplistPreferences mApplistPreferences;
     private MyViewPager mPager;
@@ -60,10 +62,13 @@ public class LauncherFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 mActivePagePosition = position;
-                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
+                setPageVisibility(mActivePagePosition, true);
             }
             @Override
             public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
+                }
             }
         });
 
@@ -145,8 +150,27 @@ public class LauncherFragment extends Fragment {
     private void scrollToActivePage(boolean smoothScroll) {
         if (mActivePagePosition != -1) {
             mActivePagePosition = Math.min(mActivePagePosition, mPagerAdapter.getCount() - 1);
-            mPager.setCurrentItem(mActivePagePosition, smoothScroll);
-            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 1000);
+            final int currentPagePosition = mPager.getCurrentItem();
+            if (currentPagePosition != mActivePagePosition) {
+                mPager.setCurrentItem(mActivePagePosition, smoothScroll);
+            } else {
+                setPageVisibility(mActivePagePosition, true);
+                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
+            }
+        }
+    }
+
+    private void setPageVisibility(int pagePosition, boolean visible) {
+        if (visible) {
+            for (int i = 0; i < mPagerAdapter.getCount(); ++i) {
+                PageData pageData = mPagerAdapter.getPageData(i);
+                mLauncherStateManager.setPageVisibile(pageData.getId(), false);
+            }
+            PageData pageData = mPagerAdapter.getPageData(pagePosition);
+            mLauncherStateManager.setPageVisibile(pageData.getId(), true);
+        } else {
+            PageData pageData = mPagerAdapter.getPageData(pagePosition);
+            mLauncherStateManager.setPageVisibile(pageData.getId(), false);
         }
     }
 

@@ -21,7 +21,8 @@
     <!-- For Phone badges -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <uses-permission android:name="android.permission.BIND_APPWIDGET" />
+    <!-- For custom widget picker -->
+    <!--<uses-permission android:name="android.permission.BIND_APPWIDGET" />-->
 
     <application
         android:name="net.feheren_fekete.applist.ApplistApp"
@@ -34,7 +35,9 @@
         <activity
             android:name="net.feheren_fekete.applist.MainActivity"
             android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
+            android:clearTaskOnLaunch="true"
+            android:resumeWhilePausing="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

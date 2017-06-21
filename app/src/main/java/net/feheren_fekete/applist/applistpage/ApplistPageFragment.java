@@ -28,6 +28,8 @@ import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.launcher.LauncherStateManager;
+import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.settings.SettingsActivity;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
@@ -53,6 +55,8 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     // TODO: Inject these singletons.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
+    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
@@ -65,6 +69,16 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private Menu mMenu;
     private SearchView mSearchView;
     private int mAppBarBottomBeforeItemDrag;
+
+    public static ApplistPageFragment newInstance(long pageId) {
+        ApplistPageFragment fragment = new ApplistPageFragment();
+
+        Bundle args = new Bundle();
+        args.putLong("pageId", pageId);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -372,6 +386,10 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         updateApplistFragmentDelayed();
     }
 
+    private long getPageId() {
+        return getArguments().getLong("pageId");
+    }
+
     private void updateData() {
         final ApplistModel applistModel = ApplistModel.getInstance();
         Task.callInBackground(new Callable<Void>() {
@@ -429,10 +447,18 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         } else {
             loadApplistFragment();
         }
+        scheduleScreenshot();
+    }
+
+    private void scheduleScreenshot() {
+        if (mLauncherStateManager.isPageVisible(getPageId())) {
+            mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 1000);
+        }
     }
 
     private void showApplistFragment(String pageName) {
-        ApplistPagePageFragment fragment = ApplistPagePageFragment.newInstance(pageName, mApplistModel, mIconCache, this);
+        ApplistPagePageFragment fragment = ApplistPagePageFragment.newInstance(
+                pageName, getPageId(), mIconCache, this);
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.applist_fragment_fragment_container, fragment, ApplistPagePageFragment.class.getName())

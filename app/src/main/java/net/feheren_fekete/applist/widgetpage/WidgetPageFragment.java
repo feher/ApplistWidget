@@ -196,10 +196,6 @@ public class WidgetPageFragment extends Fragment {
         updateScreenFromModel();
     }
 
-    public long getPageId() {
-        return getArguments().getLong("pageId");
-    }
-
     public void handleDown(MotionEvent event) {
         if (mWidgetMenuTarget != null) {
             if (isLocationInsideWidget(mWidgetMenuTarget, event.getRawX(), event.getRawY())) {
@@ -251,6 +247,10 @@ public class WidgetPageFragment extends Fragment {
             }
         }
         return null;
+    }
+
+    private long getPageId() {
+        return getArguments().getLong("pageId");
     }
 
     private void showPageEditor() {

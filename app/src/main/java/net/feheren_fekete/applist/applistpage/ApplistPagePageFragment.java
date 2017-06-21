@@ -26,6 +26,8 @@ import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
 import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
+import net.feheren_fekete.applist.launcher.LauncherStateManager;
+import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.*;
@@ -48,10 +50,14 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
     private static final String TAG = ApplistPagePageFragment.class.getSimpleName();
 
+    // TODO: Inject these singletons.
+    private ApplistModel mApplistModel = ApplistModel.getInstance();
+    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
+
     private Handler mHandler = new Handler();
     private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
-    private ApplistModel mApplistModel;
     private RecyclerView mRecyclerView;
     private ViewGroup mTouchOverlay;
     private IconCache mIconCache;
@@ -64,20 +70,30 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private ApplistItemDragHandler.Listener mListener;
 
     public static ApplistPagePageFragment newInstance(String pageName,
-                                                      ApplistModel applistModel,
+                                                      long launcherPageId,
                                                       IconCache iconCache,
                                                       ApplistItemDragHandler.Listener listener) {
         ApplistPagePageFragment fragment = new ApplistPagePageFragment();
 
         Bundle args = new Bundle();
         args.putString("pageName", pageName);
+        args.putLong("launcherPageId", launcherPageId);
         fragment.setArguments(args);
 
-        fragment.mApplistModel = applistModel;
         fragment.mIconCache = iconCache;
         fragment.mListener = listener;
 
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mBadgeStore = new BadgeStore(
+                getContext(),
+                getContext().getPackageManager(),
+                new BadgeUtils(getContext()));
+        mApplistPreferences = new ApplistPreferences(getContext());
     }
 
     @Nullable
@@ -130,16 +146,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         mItemDragGestureRecognizer = new DragGestureRecognizer(mItemDragCallback, mTouchOverlay, mRecyclerView);
 
         return view;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBadgeStore = new BadgeStore(
-                getContext(),
-                getContext().getPackageManager(),
-                new BadgeUtils(getContext()));
-        mApplistPreferences = new ApplistPreferences(getContext());
     }
 
     @Override
@@ -204,6 +210,10 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 loadAllItems();
             }
         });
+    }
+
+    private long getLauncherPageId() {
+        return getArguments().getLong("launcherPageId");
     }
 
     public String getPageName() {
@@ -417,6 +427,10 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             pageData = new PageData(ApplistModel.INVALID_ID, getPageName(), new ArrayList<SectionData>());
         }
         mAdapter.setItems(ViewModelUtils.modelToView(pageData));
+
+        if (mLauncherStateManager.isPageVisible(getLauncherPageId())) {
+            mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), 500);
+        }
     }
 
     private void showAppInfo(AppItem appItem) {

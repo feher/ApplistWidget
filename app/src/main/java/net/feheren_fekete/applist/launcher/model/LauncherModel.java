@@ -68,7 +68,7 @@ public class LauncherModel {
     }
 
     private LauncherModel(Context context) {
-        mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-pages.json";
+        mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-launcher-pages.json";
     }
 
     public void loadData() {

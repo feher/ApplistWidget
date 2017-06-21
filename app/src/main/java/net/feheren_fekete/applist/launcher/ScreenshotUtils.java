@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import bolts.Task;
+import hugo.weaving.DebugLog;
 
 public class ScreenshotUtils {
 
@@ -49,6 +50,7 @@ public class ScreenshotUtils {
         }
     };
 
+    @DebugLog
     public void scheduleScreenshot(Activity activity, long pageId, int delayMillis) {
         mActivity = activity;
         mPageId = pageId;
@@ -60,6 +62,7 @@ public class ScreenshotUtils {
         return context.getFilesDir().getAbsolutePath() + File.separator + "applist-page-" + pageId + ".png";
     }
 
+    @DebugLog
     private void takeScreenshot(Activity activity, long pageId) {
         View rootView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
         View screenView = rootView.getRootView();

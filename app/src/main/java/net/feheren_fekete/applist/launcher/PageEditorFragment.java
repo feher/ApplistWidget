@@ -30,6 +30,7 @@ public class PageEditorFragment extends Fragment {
     public static final class DoneEvent {}
 
     // TODO: Inject these singletons
+    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
@@ -223,6 +224,7 @@ public class PageEditorFragment extends Fragment {
                                 mScreenshotUtils.deleteScreenshot(screenshotPath);
                                 mWidgetModel.deleteWidgetsOfPage(pageId);
                                 mLauncherModel.removePage(position);
+                                mLauncherStateManager.clearPageVisible(pageId);
                                 return null;
                             }
                         });
