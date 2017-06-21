@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist.launcher;
 
+import android.app.Activity;
 import android.app.WallpaperManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -16,7 +17,6 @@ import android.view.ViewGroup;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
-import net.feheren_fekete.applist.utils.ScreenshotUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -26,18 +26,18 @@ public class LauncherFragment extends Fragment {
 
     private static final String TAG = LauncherFragment.class.getSimpleName();
 
-    private LauncherModel mLauncherModel;
+    // TODO: Inject these singletons
+    private LauncherModel mLauncherModel = LauncherModel.getInstance();
+    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
     private int mActivePage = -1;
-    private Handler mHandler = new Handler();
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_fragment, container, false);
-
-        mLauncherModel = LauncherModel.getInstance();
 
         mPager = (MyViewPager) view.findViewById(R.id.launcher_fragment_view_pager);
         mPagerAdapter = new LauncherPagerAdapter(getChildFragmentManager());
@@ -49,7 +49,7 @@ public class LauncherFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 mActivePage = position;
-                scheduleScreenshot();
+                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePage).getId(), 500);
             }
             @Override
             public void onPageScrollStateChanged(int state) {
@@ -81,7 +81,7 @@ public class LauncherFragment extends Fragment {
         final Drawable wallpaperDrawable = wallpaperManager.getDrawable();
         getView().setBackground(wallpaperDrawable);
 
-        scheduleScreenshot();
+        mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePage).getId(), 1000);
     }
 
     @Override
@@ -117,22 +117,8 @@ public class LauncherFragment extends Fragment {
         if (mActivePage != -1) {
             mActivePage = Math.min(mActivePage, mPagerAdapter.getCount() - 1);
             mPager.setCurrentItem(mActivePage, false);
-            scheduleScreenshot();
+            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePage).getId(), 1000);
         }
-    }
-
-    private Runnable mScreenshotRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (mActivePage != -1) {
-                new ScreenshotUtils().takeScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePage).getId());
-            }
-        }
-    };
-
-    private void scheduleScreenshot() {
-        mHandler.removeCallbacks(mScreenshotRunnable);
-        mHandler.postDelayed(mScreenshotRunnable, 500);
     }
 
     private GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {

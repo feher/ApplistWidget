@@ -51,10 +51,12 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     public static final class ShowPageEditorEvent {}
 
-    private Handler mHandler;
-    private ApplistModel mApplistModel;
+    // TODO: Inject these singletons.
+    private ApplistModel mApplistModel = ApplistModel.getInstance();
+
+    private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
-    private IconCache mIconCache;
+    private IconCache mIconCache = new IconCache();
     private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
     private AppBarLayout mAppBarLayout;
@@ -68,9 +70,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.applist_fragment, container, false);
 
-        mHandler = new Handler();
-        mApplistModel = ApplistModel.getInstance();
-        mIconCache = new IconCache();
         mBadgeStore = new BadgeStore(getContext(), getContext().getPackageManager(), new BadgeUtils(getContext()));
         mApplistPreferences = new ApplistPreferences(getContext());
 

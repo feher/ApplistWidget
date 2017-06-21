@@ -16,7 +16,6 @@ import com.bumptech.glide.signature.ObjectKey;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.PageData;
-import net.feheren_fekete.applist.utils.ScreenshotUtils;
 
 import java.io.File;
 import java.util.Collections;

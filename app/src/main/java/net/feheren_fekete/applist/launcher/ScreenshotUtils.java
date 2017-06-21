@@ -1,12 +1,14 @@
-package net.feheren_fekete.applist.utils;
+package net.feheren_fekete.applist.launcher;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.os.Handler;
 import android.view.View;
 
 import net.feheren_fekete.applist.ApplistLog;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,11 +19,48 @@ import bolts.Task;
 
 public class ScreenshotUtils {
 
+    private Handler mHandler = new Handler();
+    private Activity mActivity;
+    private long mPageId;
+
+    private static ScreenshotUtils sInstance;
+
+    public static void initInstance() {
+        if (sInstance == null) {
+            sInstance = new ScreenshotUtils();
+        }
+    }
+
+    public static ScreenshotUtils getInstance() {
+        if (sInstance != null) {
+            return sInstance;
+        } else {
+            throw new RuntimeException(ScreenshotUtils.class.getSimpleName() + " singleton is not initialized");
+        }
+    }
+
+    private ScreenshotUtils() {
+    }
+
+    private Runnable mScreenshotRunnable = new Runnable() {
+        @Override
+        public void run() {
+            takeScreenshot(mActivity, mPageId);
+        }
+    };
+
+    public void scheduleScreenshot(Activity activity, long pageId, int delayMillis) {
+        mActivity = activity;
+        mPageId = pageId;
+        mHandler.removeCallbacks(mScreenshotRunnable);
+        mHandler.postDelayed(mScreenshotRunnable, delayMillis);
+    }
+
     public String createScreenshotPath(Context context, long pageId) {
         return context.getFilesDir().getAbsolutePath() + File.separator + "applist-page-" + pageId + ".png";
     }
 
-    public void takeScreenshot(Activity activity, long pageId) {
+    private void takeScreenshot(Activity activity, long pageId) {
         View rootView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
         View screenView = rootView.getRootView();
 

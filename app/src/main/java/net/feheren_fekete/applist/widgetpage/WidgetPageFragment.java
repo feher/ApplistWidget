@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 import net.feheren_fekete.applist.utils.ScreenUtils;
@@ -62,8 +63,11 @@ public class WidgetPageFragment extends Fragment {
         public MyAppWidgetHostView appWidgetHostView;
     }
 
+    // TODO: Inject these singletons.
+    private WidgetModel mWidgetModel = WidgetModel.getInstance();
+    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+
     private Handler mHandler = new Handler();
-    private WidgetModel mWidgetModel;
     private AppWidgetManager mAppWidgetManager;
     private MyAppWidgetHost mAppWidgetHost;
     private ViewGroup mWidgetContainer;
@@ -91,7 +95,6 @@ public class WidgetPageFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mWidgetModel = WidgetModel.getInstance();
         mWidgetTouchBorderWidth = getContext().getResources().getDimensionPixelSize(R.dimen.widget_border_width_touch);
         mMinWidgetSize = getContext().getResources().getDimensionPixelSize(R.dimen.widget_min_size);
     }
@@ -209,6 +212,7 @@ public class WidgetPageFragment extends Fragment {
         if (mWidgetMenuTarget != null) {
             mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_SELECTED);
             updateWidgetOptions(mWidgetMenuTarget.appWidgetHostView, mWidgetMenuTarget.widgetData);
+            mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
         }
     }
 
@@ -353,6 +357,8 @@ public class WidgetPageFragment extends Fragment {
         mWidgets.add(widgetItem);
         mWidgetContainer.addView(hostView);
         mWidgetContainer.invalidate();
+
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
     }
 
     private void updateWidgetOptions(AppWidgetHostView appWidgetHostView, WidgetData widgetData) {
@@ -381,6 +387,8 @@ public class WidgetPageFragment extends Fragment {
         if (removeFromList) {
             mWidgets.remove(widgetItem);
         }
+
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
     }
 
     private void addWidgetToModelDelayed(final Intent data) {

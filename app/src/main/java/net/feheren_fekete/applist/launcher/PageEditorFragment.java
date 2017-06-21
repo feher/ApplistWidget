@@ -16,7 +16,6 @@ import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
-import net.feheren_fekete.applist.utils.ScreenshotUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -30,10 +29,12 @@ public class PageEditorFragment extends Fragment {
 
     public static final class DoneEvent {}
 
-    private LauncherModel mLauncherModel;
-    private WidgetModel mWidgetModel;
+    // TODO: Inject these singletons
+    private LauncherModel mLauncherModel = LauncherModel.getInstance();
+    private WidgetModel mWidgetModel = WidgetModel.getInstance();
+    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+
     private PageEditorAdapter mAdapter;
-    private ScreenshotUtils mScreenshotUtils;
     private ItemTouchHelper mItemTouchHelper;
 
     private class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
@@ -104,14 +105,6 @@ public class PageEditorFragment extends Fragment {
     }
 
     public PageEditorFragment() {
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mLauncherModel = LauncherModel.getInstance();
-        mWidgetModel = WidgetModel.getInstance();
-        mScreenshotUtils = new ScreenshotUtils();
     }
 
     @Nullable
