@@ -15,17 +15,12 @@ import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
-import net.feheren_fekete.applist.launcher.model.PageData;
-import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
+import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 import net.feheren_fekete.applist.utils.ScreenshotUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.concurrent.Callable;
-
-import bolts.Task;
 
 public class LauncherFragment extends Fragment {
 
@@ -103,13 +98,13 @@ public class LauncherFragment extends Fragment {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onWidgetMoveStartedEvent(LauncherPageFragment.WidgetMoveStartedEvent event) {
+    public void onWidgetMoveStartedEvent(WidgetPageFragment.WidgetMoveStartedEvent event) {
         mPager.setInterceptingTouchEvents(true, mGestureListener, mOnUpListener);
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onWidgetMoveFinishedEvent(LauncherPageFragment.WidgetMoveFinishedEvent event) {
+    public void onWidgetMoveFinishedEvent(WidgetPageFragment.WidgetMoveFinishedEvent event) {
         mPager.setInterceptingTouchEvents(false, null, null);
     }
 
@@ -143,7 +138,7 @@ public class LauncherFragment extends Fragment {
     private GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
-            LauncherPageFragment pageFragment = getLauncherPageFragment();
+            WidgetPageFragment pageFragment = getLauncherPageFragment();
             if (pageFragment != null) {
                 pageFragment.handleDown(e);
             }
@@ -153,7 +148,7 @@ public class LauncherFragment extends Fragment {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             boolean handled = false;
-            LauncherPageFragment pageFragment = getLauncherPageFragment();
+            WidgetPageFragment pageFragment = getLauncherPageFragment();
             if (pageFragment != null) {
                 handled = pageFragment.handleScroll(e1, e2, distanceX, distanceY);
             }
@@ -166,7 +161,7 @@ public class LauncherFragment extends Fragment {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             boolean handled = false;
-            LauncherPageFragment pageFragment = getLauncherPageFragment();
+            WidgetPageFragment pageFragment = getLauncherPageFragment();
             if (pageFragment != null) {
                 handled = pageFragment.handleSingleTap(e);
             }
@@ -180,7 +175,7 @@ public class LauncherFragment extends Fragment {
     private MyViewPager.OnUpListener mOnUpListener = new MyViewPager.OnUpListener() {
         @Override
         public void onUp(MotionEvent event) {
-            LauncherPageFragment pageFragment = getLauncherPageFragment();
+            WidgetPageFragment pageFragment = getLauncherPageFragment();
             if (pageFragment != null) {
                 pageFragment.handleUp(event);
             }
@@ -188,11 +183,11 @@ public class LauncherFragment extends Fragment {
     };
 
     @Nullable
-    private LauncherPageFragment getLauncherPageFragment() {
+    private WidgetPageFragment getLauncherPageFragment() {
         final int pagePosition = mPager.getCurrentItem();
         Fragment pageFragment = mPagerAdapter.getPageFragment(pagePosition);
-        if (pageFragment instanceof LauncherPageFragment) {
-            return (LauncherPageFragment) pageFragment;
+        if (pageFragment instanceof WidgetPageFragment) {
+            return (WidgetPageFragment) pageFragment;
         }
         return null;
     }

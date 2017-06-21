@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcher.model.PageData;
-import net.feheren_fekete.applist.launcherpage.model.WidgetModel;
+import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 import net.feheren_fekete.applist.utils.ScreenshotUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -198,7 +198,7 @@ public class PageEditorFragment extends Fragment {
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mLauncherModel.addPage(new PageData(System.currentTimeMillis(), PageData.TYPE_LAUNCHER_PAGE, false));
+                mLauncherModel.addPage(new PageData(System.currentTimeMillis(), PageData.TYPE_WIDGET_PAGE, false));
                 return null;
             }
         });

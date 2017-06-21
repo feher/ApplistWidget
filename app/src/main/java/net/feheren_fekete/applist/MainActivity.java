@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 
-import net.feheren_fekete.applist.applistpage.ApplistFragment;
+import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
 import net.feheren_fekete.applist.launcher.LauncherFragment;
 import net.feheren_fekete.applist.launcher.PageEditorFragment;
-import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
-import net.feheren_fekete.applist.launcherpage.MyAppWidgetHost;
+import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
+import net.feheren_fekete.applist.widgetpage.MyAppWidgetHost;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -83,13 +83,13 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onShowPageEditorEvent(LauncherPageFragment.ShowPageEditorEvent event) {
+    public void onShowPageEditorEvent(WidgetPageFragment.ShowPageEditorEvent event) {
         showPageEditorFragment();
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onShowPageEditorEvent(ApplistFragment.ShowPageEditorEvent event) {
+    public void onShowPageEditorEvent(ApplistPageFragment.ShowPageEditorEvent event) {
         showPageEditorFragment();
     }
 

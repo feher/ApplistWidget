@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.launcherpage;
+package net.feheren_fekete.applist.widgetpage;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetHostView;
@@ -24,8 +24,8 @@ import android.widget.FrameLayout;
 
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.launcherpage.model.WidgetData;
-import net.feheren_fekete.applist.launcherpage.model.WidgetModel;
+import net.feheren_fekete.applist.widgetpage.model.WidgetData;
+import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -38,7 +38,7 @@ import java.util.concurrent.Callable;
 
 import bolts.Task;
 
-public class LauncherPageFragment extends Fragment {
+public class WidgetPageFragment extends Fragment {
 
     private static final int REQUEST_PICK_APPWIDGET = 1;
     private static final int REQUEST_CREATE_APPWIDGET = 2;
@@ -78,8 +78,8 @@ public class LauncherPageFragment extends Fragment {
     private PointF mOriginalFingerPos = new PointF();
     private PointF mPreviousFingerPos = new PointF();
 
-    public static LauncherPageFragment newInstance(long pageId) {
-        LauncherPageFragment fragment = new LauncherPageFragment();
+    public static WidgetPageFragment newInstance(long pageId) {
+        WidgetPageFragment fragment = new WidgetPageFragment();
 
         Bundle args = new Bundle();
         args.putLong("pageId", pageId);

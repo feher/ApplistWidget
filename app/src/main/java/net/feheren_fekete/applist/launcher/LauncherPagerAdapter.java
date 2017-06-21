@@ -6,10 +6,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.util.ArrayMap;
 import android.view.ViewGroup;
 
-import net.feheren_fekete.applist.applistpage.ApplistFragment;
-import net.feheren_fekete.applist.launcher.model.LauncherModel;
+import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
 import net.feheren_fekete.applist.launcher.model.PageData;
-import net.feheren_fekete.applist.launcherpage.LauncherPageFragment;
+import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,9 +47,9 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         Fragment fragment;
         PageData pageData = mPages.get(position);
         if (pageData.getType() == PageData.TYPE_APPLIST_PAGE) {
-            fragment = new ApplistFragment();
+            fragment = new ApplistPageFragment();
         } else {
-            fragment = LauncherPageFragment.newInstance(pageData.getId());
+            fragment = WidgetPageFragment.newInstance(pageData.getId());
         }
         mPageFragments.put(position, fragment);
         return fragment;

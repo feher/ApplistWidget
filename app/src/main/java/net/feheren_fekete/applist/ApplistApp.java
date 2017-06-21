@@ -9,7 +9,7 @@ import io.fabric.sdk.android.Fabric;
 
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
-import net.feheren_fekete.applist.launcherpage.model.WidgetModel;
+import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 
 
 public class ApplistApp extends MultiDexApplication {

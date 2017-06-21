@@ -35,7 +35,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     }
 
     private Context mContext;
-    private ApplistPageFragment mApplistPageFragment;
+    private ApplistPagePageFragment mApplistPagePageFragment;
     private ApplistModel mApplistModel;
     private ViewGroup mTouchOverlay;
     private RecyclerView mRecyclerView;
@@ -52,7 +52,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     private float mItemMoveThreshold;
 
     public ApplistItemDragHandler(Context context,
-                                  ApplistPageFragment applistPageFragment,
+                                  ApplistPagePageFragment applistPagePageFragment,
                                   ApplistModel applistModel,
                                   ViewGroup touchOverlay,
                                   RecyclerView recyclerView,
@@ -60,7 +60,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                                   ApplistAdapter adapter,
                                   Listener listener) {
         mContext = context;
-        mApplistPageFragment = applistPageFragment;
+        mApplistPagePageFragment = applistPagePageFragment;
         mApplistModel = applistModel;
         mTouchOverlay = touchOverlay;
         mRecyclerView = recyclerView;
@@ -76,7 +76,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     @Override
     public boolean canDrag(DragGestureRecognizer gestureRecognizer) {
         return !mAdapter.isFilteredByName()
-                && mApplistPageFragment.isItemMenuOpen();
+                && mApplistPagePageFragment.isItemMenuOpen();
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
     @Override
     public void onStartDragging(DragGestureRecognizer gestureRecognizer) {
-        mApplistPageFragment.closeItemMenu();
+        mApplistPagePageFragment.closeItemMenu();
 
         // The RecyclerView is under the AppBarLayout. But the AppBarLayout is
         // behind the transparent status bar. So, if we hide the AppBarLayout the
@@ -100,7 +100,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         mRecyclerView.setPadding(0, ScreenUtils.getStatusBarHeight(mContext), 0, 0);
         mListener.onItemDragStart();
 
-        final BaseItem draggedItem = mApplistPageFragment.getItemMenuTarget();
+        final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
         if (draggedItem instanceof AppItem) {
             mAdapter.setEnabled(draggedItem, false);
         } else if (draggedItem instanceof SectionItem) {
@@ -114,7 +114,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     @Override
     public void onDragging(DragGestureRecognizer gestureRecognizer) {
         if (mDraggedView != null) {
-            final BaseItem draggedItem = mApplistPageFragment.getItemMenuTarget();
+            final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
             updateDraggedViewPosition(gestureRecognizer, draggedItem);
             updateDraggedOverItem(gestureRecognizer, draggedItem);
             scrollWhileDragging(gestureRecognizer);
@@ -125,7 +125,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     public void onDrop(DragGestureRecognizer gestureRecognizer) {
         if (mDraggedOverItem != null) {
             boolean canDrop = true;
-            final BaseItem draggedItem = mApplistPageFragment.getItemMenuTarget();
+            final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
             if (draggedItem == mDraggedOverItem) {
                 canDrop = false;
             }
@@ -155,7 +155,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
     @Override
     public void onStopDragging(DragGestureRecognizer gestureRecognizer) {
-        final BaseItem draggedItem = mApplistPageFragment.getItemMenuTarget();
+        final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
         if (draggedItem instanceof AppItem) {
             mAdapter.setEnabled(draggedItem, true);
         } else if (draggedItem instanceof SectionItem) {
@@ -383,7 +383,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     }
 
     private void savePageToModel() {
-        final String pageName = mApplistPageFragment.getPageName();
+        final String pageName = mApplistPagePageFragment.getPageName();
         final List<BaseItem> items = mAdapter.getAllItems();
         final boolean keepAppsSorted = SettingsUtils.isKeepAppsSortedAlphabetically(mContext.getApplicationContext());
         Task.callInBackground(new Callable<Void>() {

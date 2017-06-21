@@ -1,541 +1,448 @@
 package net.feheren_fekete.applist.applistpage;
 
-import android.content.ComponentName;
-import android.content.DialogInterface;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
-import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.view.MenuItemCompat;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.applistpage.model.AppData;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
-import net.feheren_fekete.applist.applistpage.model.PageData;
-import net.feheren_fekete.applist.applistpage.model.SectionData;
-import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
+import net.feheren_fekete.applist.settings.SettingsActivity;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
-import net.feheren_fekete.applist.utils.*;
-import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
-import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
-import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
+import net.feheren_fekete.applist.utils.FileUtils;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
 
-public class ApplistPageFragment extends Fragment implements ApplistAdapter.ItemListener {
+public class ApplistPageFragment extends Fragment implements ApplistItemDragHandler.Listener {
 
     private static final String TAG = ApplistPageFragment.class.getSimpleName();
 
-    private Handler mHandler = new Handler();
+    public static final class ShowPageEditorEvent {}
+
+    private Handler mHandler;
+    private ApplistModel mApplistModel;
+    private FileUtils mFileUtils = new FileUtils();
+    private IconCache mIconCache;
     private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
-    private ApplistModel mApplistModel;
-    private RecyclerView mRecyclerView;
-    private ViewGroup mTouchOverlay;
-    private IconCache mIconCache;
-    private ApplistAdapter mAdapter;
-    private MyGridLayoutManager mLayoutManager;
-    private DragGestureRecognizer mItemDragGestureRecognizer;
-    private ApplistItemDragHandler mItemDragCallback;
-    private @Nullable PopupMenu mItemMenu;
-    private @Nullable BaseItem mItemMenuTarget;
-    private ApplistItemDragHandler.Listener mListener;
+    private AppBarLayout mAppBarLayout;
+    private Toolbar mToolbar;
+    private FrameLayout mFragmentContainer;
+    private Menu mMenu;
+    private SearchView mSearchView;
+    private int mAppBarBottomBeforeItemDrag;
 
-    public static ApplistPageFragment newInstance(String pageName,
-                                                  ApplistModel applistModel,
-                                                  IconCache iconCache,
-                                                  ApplistItemDragHandler.Listener listener) {
-        ApplistPageFragment fragment = new ApplistPageFragment();
-
-        Bundle args = new Bundle();
-        args.putString("pageName", pageName);
-        fragment.setArguments(args);
-
-        fragment.mApplistModel = applistModel;
-        fragment.mIconCache = iconCache;
-        fragment.mListener = listener;
-
-        return fragment;
-    }
-
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.applist_page_fragment, container, false);
+        View view = inflater.inflate(R.layout.applist_fragment, container, false);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_page_fragment_recycler_view);
+        mHandler = new Handler();
+        mApplistModel = ApplistModel.getInstance();
+        mIconCache = new IconCache();
+        mBadgeStore = new BadgeStore(getContext(), getContext().getPackageManager(), new BadgeUtils(getContext()));
+        mApplistPreferences = new ApplistPreferences(getContext());
 
-        final int columnSize = Math.round(
-                ScreenUtils.dpToPx(getContext(),
-                        SettingsUtils.getColumnWidth(getContext())));
-        final int screenWidth = ScreenUtils.getScreenWidth(getContext());
-        final int columnCount = screenWidth / columnSize;
-        mLayoutManager = new MyGridLayoutManager(getContext(), columnCount);
-        mLayoutManager.setSmoothScrollbarEnabled(true);
-        mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-                switch (mAdapter.getItemViewType(position)) {
-                    case ApplistAdapter.APP_ITEM_VIEW:
-                        return 1;
-                    case ApplistAdapter.SECTION_ITEM_VIEW:
-                        return columnCount;
-                    default:
-                        return -1;
-                }
-            }
-        });
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAppBarLayout = (AppBarLayout) view.findViewById(R.id.applist_fragment_appbar_layout);
+        mToolbar = (Toolbar) view.findViewById(R.id.applist_fragment_toolbar);
+        if (SettingsUtils.isThemeTransparent(getContext())) {
+            ScreenUtils.setStatusBarTranslucent(getActivity(), true);
+            AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+            layoutParams.height += ScreenUtils.getStatusBarHeight(getContext());
+            mToolbar.setLayoutParams(layoutParams);
+            mToolbar.setPadding(0, ScreenUtils.getStatusBarHeight(getContext()), 0, 0);
+        }
+        mToolbar.setOnClickListener(mToolbarClickListener);
+        mToolbar.setTitle(R.string.toolbar_title);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(mToolbar);
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        setHasOptionsMenu(true);
 
-        mAdapter = new ApplistAdapter(
-                getContext(),
-                this,
-                getContext().getPackageManager(),
-                new FileUtils(),
-                new BadgeStore(
-                        getContext(),
-                        getContext().getPackageManager(),
-                        new BadgeUtils(getContext())),
-                this,
-                mIconCache);
-        mRecyclerView.setAdapter(mAdapter);
+        mFragmentContainer = (FrameLayout) view.findViewById(R.id.applist_fragment_fragment_container);
 
-        loadAllItems();
-
-        mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_fragment_touch_overlay);
-        mItemDragCallback = new ApplistItemDragHandler(
-                getContext(), this, mApplistModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
-        mItemDragGestureRecognizer = new DragGestureRecognizer(mItemDragCallback, mTouchOverlay, mRecyclerView);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addDataScheme("package");
+        getContext().registerReceiver(mPackageStateReceiver, intentFilter);
 
         return view;
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBadgeStore = new BadgeStore(
-                getContext(),
-                getContext().getPackageManager(),
-                new BadgeUtils(getContext()));
-        mApplistPreferences = new ApplistPreferences(getContext());
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
+        if (SettingsUtils.getShowBadge(getContext())) {
+            Task.callInBackground(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    mBadgeStore.updateBadgesFromLauncher();
+                    return null;
+                }
+            });
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        updateApplistFragmentDelayed();
+
         EventBus.getDefault().register(this);
-        if (mApplistPreferences.getShowRearrangeItemsHelp()) {
-            new AlertDialog.Builder(getActivity())
-                    .setMessage(R.string.rearrange_items_help)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mApplistPreferences.setShowRearrangeItemsHelp(false);
-                        }
-                    })
-                    .show();
+        mPackageStateReceiver.onReceive(getContext(), null);
+
+        String currentDeviceLocale = Locale.getDefault().toString();
+        String savedDeviceLocale = mApplistPreferences.getDeviceLocale();
+        if (!currentDeviceLocale.equals(savedDeviceLocale)) {
+            mApplistPreferences.setDeviceLocale(currentDeviceLocale);
+            updateData();
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        if (mSearchView != null) {
+            hideKeyboardFrom(getContext(), mSearchView);
+            mSearchView.setIconified(true);
+        }
         EventBus.getDefault().unregister(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mAdapter.isFilteredByName()) {
-            deactivateNameFilter();
-        }
     }
 
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSectionsChangedEvent(ApplistModel.SectionsChangedEvent event) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                loadAllItems();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getContext().unregisterReceiver(mPackageStateReceiver);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.applist_menu, menu);
+
+        mMenu = menu;
+
+        MenuItem searchItem = menu.findItem(R.id.action_search_app);
+        mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchView.setIconifiedByDefault(true);
+        mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
+        mSearchView.setOnQueryTextListener(mSearchTextListener);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        boolean isFilteredByName = false;
+        ApplistPagePageFragment fragment = getApplistFragment();
+        if (fragment != null) {
+            isFilteredByName = fragment.isFilteredByName();
+        }
+        MenuItem menuItem;
+        if (isFilteredByName) {
+            menuItem = menu.findItem(R.id.action_search_app);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
             }
-        });
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onBadgeEvent(BadgeStore.BadgeEvent event) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                loadAllItems();
+            menuItem = menu.findItem(R.id.action_create_section);
+            if (menuItem != null) {
+                menuItem.setVisible(false);
             }
-        });
-    }
-
-    public String getPageName() {
-        return getArguments().getString("pageName");
-    }
-
-    public boolean isFilteredByName() {
-        return mAdapter.isFilteredByName();
-    }
-
-    public void activateNameFilter() {
-        if (mAdapter.isFilteredByName()) {
-            return;
+            menuItem = menu.findItem(R.id.action_settings);
+            if (menuItem != null) {
+                menuItem.setVisible(false);
+            }
+            menuItem = menu.findItem(R.id.action_edit_pages);
+            if (menuItem != null) {
+                menuItem.setVisible(false);
+            }
+        } else {
+            menuItem = menu.findItem(R.id.action_search_app);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
+            menuItem = menu.findItem(R.id.action_create_section);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
+            menuItem = menu.findItem(R.id.action_settings);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
+            menuItem = menu.findItem(R.id.action_edit_pages);
+            if (menuItem != null) {
+                menuItem.setVisible(true);
+            }
         }
-
-        setNameFilter("");
     }
 
-    public void deactivateNameFilter() {
-        if (!mAdapter.isFilteredByName()) {
-            return;
-        }
-
-        setNameFilter(null);
-    }
-
-    public void setNameFilter(String filterText) {
-        mAdapter.setNameFilter(filterText);
-        mRecyclerView.scrollToPosition(0);
-    }
-
-    public boolean isItemMenuOpen() {
-        return mItemMenu != null;
-    }
-
-    public void closeItemMenu() {
-        mItemMenu.dismiss();
-    }
-
-    @Nullable
-    public BaseItem getItemMenuTarget() {
-        return mItemMenuTarget;
-    }
-
-    public boolean handleMenuItem(int itemId) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         boolean isHandled = false;
-        switch (itemId) {
-            case R.id.action_create_section:
-                createSection(null);
-                isHandled = true;
-                break;
+        int id = item.getItemId();
+
+        ApplistPagePageFragment fragment = getApplistFragment();
+        if (fragment != null) {
+            isHandled = fragment.handleMenuItem(id);
+        }
+
+        if (!isHandled) {
+            switch (id) {
+                case R.id.action_settings:
+                    showSettings();
+                    isHandled = true;
+                    break;
+                case R.id.action_edit_pages:
+                    showPageEditor();
+                    isHandled = true;
+                    break;
+            }
+        }
+
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
         }
         return isHandled;
     }
 
     @Override
-    public void onAppLongTapped(final AppItem appItem) {
-        ApplistAdapter.AppItemHolder appItemHolder =
-                (ApplistAdapter.AppItemHolder) mRecyclerView.findViewHolderForItemId(
-                        appItem.getId());
-        mItemMenuTarget = appItem;
-        mItemMenu = new PopupMenu(getContext(), appItemHolder.layout);
-        mItemMenu.setOnMenuItemClickListener(mItemMenuClickListener);
-        mItemMenu.inflate(R.menu.app_item_menu);
-        mItemMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-            @Override
-            public void onDismiss(PopupMenu menu) {
-                mItemMenu = null;
-            }
-        });
-        mItemMenu.show();
+    public void onItemDragStart() {
+        // Manually move the appbar out of the screen.
+        // I tried all kinds of other ways to achieve this but I gave up. This one works.
+        //
+        // We use CoordinatorLayout with AppBarLayout and RecyclerView (inside a fragment).
+        // For this reason, we must also manually restore the translation values otherwise
+        // AppBarLayout gets confused about its own location.
+        //
+        mAppBarBottomBeforeItemDrag = mAppBarLayout.getBottom();
+        mAppBarLayout.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
+        mFragmentContainer.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
     }
 
     @Override
-    public void onAppTapped(AppItem appItem) {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        ComponentName appComponentName = new ComponentName(
-                appItem.getPackageName(), appItem.getComponentName());
-        intent.setComponent(appComponentName);
-        getContext().startActivity(intent);
-
-        ComponentName smsAppComponentName = AppUtils.getSmsApp(getContext());
-        if (appComponentName.equals(smsAppComponentName)) {
-            mBadgeStore.setBadgeCount(
-                    smsAppComponentName.getPackageName(),
-                    smsAppComponentName.getClassName(),
-                    0);
-        }
-        ComponentName phoneAppComponentName = AppUtils.getPhoneApp(getContext().getApplicationContext());
-        if (appComponentName.equals(phoneAppComponentName)) {
-            mBadgeStore.setBadgeCount(
-                    phoneAppComponentName.getPackageName(),
-                    phoneAppComponentName.getClassName(),
-                    0);
-        }
-
-        if (getActivity() != null) {
-            getActivity().finish();
-        }
+    public void onItemDragEnd() {
+        // Manually restore the appbar's position on the screen.
+        // I tried all kinds of other ways to achieve this but I gave up. This one works.
+        //
+        // We use CoordinatorLayout with AppBarLayout and RecyclerView (inside a fragment).
+        // For this reason, we must also manually restore the translation values otherwise
+        // AppBarLayout gets confused about its own location.
+        //
+        mAppBarLayout.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
+        mFragmentContainer.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
     }
 
-    @Override
-    public void onAppTouched(final AppItem appItem) {
+    private void showPageEditor() {
+        EventBus.getDefault().post(new ShowPageEditorEvent());
     }
 
-    @Override
-    public void onSectionLongTapped(final SectionItem sectionItem) {
-        ApplistAdapter.SectionItemHolder sectionItemHolder =
-                (ApplistAdapter.SectionItemHolder) mRecyclerView.findViewHolderForItemId(
-                        sectionItem.getId());
-        mItemMenuTarget = sectionItem;
-        mItemMenu = new PopupMenu(getContext(), sectionItemHolder.layout);
-        mItemMenu.setOnMenuItemClickListener(mItemMenuClickListener);
-        mItemMenu.inflate(R.menu.section_item_menu);
-        mItemMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-            @Override
-            public void onDismiss(PopupMenu menu) {
-                mItemMenu = null;
-            }
-        });
-        if (!sectionItem.isRemovable()) {
-            mItemMenu.getMenu().findItem(R.id.action_section_delete).setVisible(false);
-        }
-        if (SettingsUtils.isKeepAppsSortedAlphabetically(getContext().getApplicationContext())) {
-            mItemMenu.getMenu().findItem(R.id.action_section_sort_apps).setVisible(false);
-        }
-        mItemMenu.show();
+    private void showSettings() {
+        Intent settingsIntent = new Intent(getContext(), SettingsActivity.class);
+        startActivity(settingsIntent);
     }
 
-    @Override
-    public void onSectionTapped(final SectionItem sectionItem) {
-        final String pageName = getPageName();
-        final boolean wasSectionCollapsed = sectionItem.isCollapsed();
-        if (!mAdapter.isFilteredByName()) {
+    private BroadcastReceiver mPackageStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final Uri uri = (intent != null) ? intent.getData() : null;
+            final Context appContext = context.getApplicationContext();
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    mApplistModel.setSectionCollapsed(
-                            pageName,
-                            sectionItem.getName(),
-                            !wasSectionCollapsed);
+                    if (uri != null) {
+                        mFileUtils.deleteFiles(
+                                mFileUtils.getIconCacheDirPath(appContext),
+                                uri.getSchemeSpecificPart());
+                    }
+                    mApplistModel.updateInstalledApps();
+                    mBadgeStore.cleanup();
                     return null;
                 }
-            }).continueWith(new Continuation<Void, Void>() {
-                @Override
-                public Void then(Task<Void> task) throws Exception {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (wasSectionCollapsed) {
-                                int position = mAdapter.getItemPosition(sectionItem);
-                                if (position != RecyclerView.NO_POSITION) {
-                                    int firstPosition = mLayoutManager.findFirstVisibleItemPosition();
-                                    int firstVisiblePosition = mLayoutManager.findFirstCompletelyVisibleItemPosition();
-                                    View firstVisibleView = mRecyclerView.getChildAt(firstVisiblePosition - firstPosition);
-                                    int toY = firstVisibleView.getTop();
-                                    View thisView = mRecyclerView.getChildAt(position - firstPosition);
-                                    int fromY = thisView.getTop();
-                                    mRecyclerView.smoothScrollBy(0, fromY - toY);
-                                }
-                            }
-                        }
-                    }, 200);
-                    return null;
-                }
-            }, Task.UI_THREAD_EXECUTOR);
-        }
-    }
-
-    @Override
-    public void onSectionTouched(final SectionItem sectionItem) {
-    }
-
-    private PopupMenu.OnMenuItemClickListener mItemMenuClickListener = new PopupMenu.OnMenuItemClickListener() {
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            boolean handled = false;
-            switch (menuItem.getItemId()) {
-                case R.id.action_app_info:
-                    showAppInfo((AppItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_app_uninstall:
-                    uninstallApp((AppItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_section_rename:
-                    renameSection((SectionItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_section_delete:
-                    deleteSection((SectionItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_section_sort_apps:
-                    sortSection((SectionItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-            }
-            mItemMenu = null;
-            return handled;
+            });
         }
     };
 
-    private void loadAllItems() {
-        PageData pageData = mApplistModel.getPage(getPageName());
-        if (pageData == null) {
-            pageData = new PageData(ApplistModel.INVALID_ID, getPageName(), new ArrayList<SectionData>());
+    private SearchView.OnFocusChangeListener mSearchFocusListener = new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            ApplistPagePageFragment fragment = getApplistFragment();
+            if (fragment != null) {
+                if (!hasFocus) {
+                    stopFilteringByName(fragment);
+                } else {
+                    startFilteringByName(fragment);
+                }
+            }
         }
-        mAdapter.setItems(ViewModelUtils.modelToView(pageData));
+    };
+
+    private SearchView.OnQueryTextListener mSearchTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            ApplistPagePageFragment fragment = getApplistFragment();
+            if (fragment != null) {
+                if (newText == null || newText.isEmpty()) {
+                    fragment.setNameFilter("");
+                } else {
+                    fragment.setNameFilter(newText);
+                }
+            }
+            return true;
+        }
+    };
+
+    private View.OnClickListener mToolbarClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mSearchView != null) {
+                mSearchView.setIconified(false);
+            }
+        }
+    };
+
+    private void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    private void showAppInfo(AppItem appItem) {
-        Intent intent = new Intent();
-        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", appItem.getPackageName(), null);
-        intent.setData(uri);
-        getContext().startActivity(intent);
+    private void startFilteringByName(ApplistPagePageFragment fragment) {
+        fragment.activateNameFilter();
+        onPrepareOptionsMenu(mMenu);
     }
 
-    private void uninstallApp(AppItem appItem) {
-        Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
-        Uri uri = Uri.fromParts("package", appItem.getPackageName(), null);
-        intent.setData(uri);
-        intent.putExtra(Intent.EXTRA_RETURN_RESULT, false);
-        getContext().startActivity(intent);
+    private void stopFilteringByName(ApplistPagePageFragment fragment) {
+        fragment.deactivateNameFilter();
+        mSearchView.setIconified(true);
+        onPrepareOptionsMenu(mMenu);
     }
 
-    private void renameSection(SectionItem sectionItem) {
-        final String pageName = getPageName();
-        final String oldSectionName = sectionItem.getName();
-        final List<String> sectionNames = mAdapter.getSectionNames();
-        ApplistDialogs.textInputDialog(
-                getActivity(), R.string.section_name, oldSectionName,
-                new RunnableWithRetArg<String, String>() {
-                     @Override
-                    public String run(String sectionName) {
-                        if (sectionNames.contains(sectionName)) {
-                            return getResources().getString(R.string.dialog_error_section_exists);
-                        }
-                        return null;
-                    }
-                },
-                new RunnableWithArg<String>() {
-                    @Override
-                    public void run(final String newSectionName) {
-                        Task.callInBackground(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                mApplistModel.setSectionName(pageName, oldSectionName, newSectionName);
-                                return null;
-                            }
-                        });
-                    }
-                });
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDataLoadedEvent(ApplistModel.DataLoadedEvent event) {
+        updateApplistFragmentDelayed();
     }
 
-    private void deleteSection(SectionItem sectionItem) {
-        final String sectionName = sectionItem.getName();
-        final String pageName = getPageName();
-        final String uncategorizedSectionName = mAdapter.getUncategorizedSectionName();
-        ApplistDialogs.questionDialog(
-                getActivity(),
-                getResources().getString(R.string.remove_section_title),
-                getResources().getString(R.string.remove_section_message, sectionName, uncategorizedSectionName),
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        Task.callInBackground(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                mApplistModel.removeSection(pageName, sectionName);
-                                return null;
-                            }
-                        });
-                    }
-                },
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        // Nothing.
-                    }
-                });
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPagesChangedEvent(ApplistModel.PagesChangedEvent event) {
+        updateApplistFragmentDelayed();
     }
 
-    private void sortSection(SectionItem sectionItem) {
-        final String sectionName = sectionItem.getName();
-        final String pageName = getPageName();
+    private void updateData() {
+        final ApplistModel applistModel = ApplistModel.getInstance();
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mApplistModel.sortAppsInSection(pageName, sectionName);
+                applistModel.updateInstalledApps();
                 return null;
             }
         });
     }
 
-    private void createSection(@Nullable final AppItem appToMove) {
-        final String pageName = getPageName();
-        final List<String> sectionNames = mAdapter.getSectionNames();
-        ApplistDialogs.textInputDialog(
-                getActivity(), R.string.section_name, "",
-                new RunnableWithRetArg<String, String>() {
-                    @Override
-                    public String run(String sectionName) {
-                        if (sectionNames.contains(sectionName)) {
-                            return getResources().getString(R.string.dialog_error_section_exists);
-                        }
-                        return null;
-                    }
-                },
-                new RunnableWithArg<String>() {
-                    @Override
-                    public void run(final String sectionName) {
-                        if (!sectionName.isEmpty()) {
-                            Task.callInBackground(new Callable<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    mApplistModel.addNewSection(pageName, sectionName, true);
-                                    if (appToMove != null) {
-                                        AppData appData = new AppData(appToMove);
-                                        mApplistModel.moveAppToSection(pageName, sectionName, appData);
-                                    }
-                                    return null;
-                                }
-                            });
-                        }
-                    }
-                });
+    private void loadApplistFragment() {
+        Task.callInBackground(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+                return mApplistModel.getPageNames();
+            }
+        }).continueWith(new Continuation<List<String>, Void>() {
+            @Override
+            public Void then(Task<List<String>> task) throws Exception {
+                List<String> pageNames = task.getResult();
+                if (!pageNames.isEmpty()) {
+                    showApplistFragment(pageNames.get(0));
+                } else {
+                    ApplistLog.getInstance().log(new RuntimeException("No pages found!"));
+                }
+                return null;
+            }
+        }, Task.UI_THREAD_EXECUTOR);
+    }
+
+    private void addDefaultPage() {
+        final String defaultPageName = getResources().getString(R.string.default_page_name);
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mApplistModel.addNewPage(defaultPageName);
+                return null;
+            }
+        });
+    }
+
+    private void updateApplistFragmentDelayed() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                updateApplistFragment();
+            }
+        });
+    }
+
+    private void updateApplistFragment() {
+        if (mApplistModel.getPageCount() == 0) {
+            addDefaultPage();
+        } else {
+            loadApplistFragment();
+        }
+    }
+
+    private void showApplistFragment(String pageName) {
+        ApplistPagePageFragment fragment = ApplistPagePageFragment.newInstance(pageName, mApplistModel, mIconCache, this);
+        getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.applist_fragment_fragment_container, fragment, ApplistPagePageFragment.class.getName())
+                .commit();
+    }
+
+    private ApplistPagePageFragment getApplistFragment() {
+        return (ApplistPagePageFragment) getChildFragmentManager().findFragmentByTag(
+                ApplistPagePageFragment.class.getName());
     }
 
 }

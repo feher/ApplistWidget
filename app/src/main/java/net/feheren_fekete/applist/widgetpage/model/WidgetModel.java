@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.launcherpage.model;
+package net.feheren_fekete.applist.widgetpage.model;
 
 import android.content.Context;
 import android.os.Handler;

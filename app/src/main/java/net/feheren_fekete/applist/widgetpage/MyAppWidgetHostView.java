@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.launcherpage;
+package net.feheren_fekete.applist.widgetpage;
 
 import android.appwidget.AppWidgetHostView;
 import android.content.Context;
