@@ -22,6 +22,8 @@ import hugo.weaving.DebugLog;
 public class ScreenshotUtils {
 
     private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
+    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+
     private Handler mHandler = new Handler();
     private Activity mActivity;
     private long mPageId;
@@ -80,7 +82,7 @@ public class ScreenshotUtils {
         View screenView = rootView.getRootView();
 
         screenView.setDrawingCacheEnabled(true);
-        Point screenSize = ScreenUtils.getScreenSize(activity);
+        Point screenSize = mScreenUtils.getScreenSize(activity);
         final Bitmap bitmap = Bitmap.createScaledBitmap(
                 screenView.getDrawingCache(),
                 screenSize.x / 4,

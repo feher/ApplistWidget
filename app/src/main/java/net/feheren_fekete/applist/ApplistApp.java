@@ -12,6 +12,7 @@ import net.feheren_fekete.applist.launcher.LauncherStateManager;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.settings.SettingsUtils;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 
 
@@ -34,6 +35,7 @@ public class ApplistApp extends MultiDexApplication {
 
         ApplistLog.initInstance();
         LauncherStateManager.initInstance();
+        ScreenUtils.initInstance();
         ScreenshotUtils.initInstance();
         SettingsUtils.initInstance(this);
         LauncherModel.initInstance(this);

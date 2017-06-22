@@ -53,6 +53,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 
     private Handler mHandler = new Handler();
     private BadgeStore mBadgeStore;
@@ -103,9 +104,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_page_page_fragment_recycler_view);
 
         final int columnSize = Math.round(
-                ScreenUtils.dpToPx(getContext(),
+                mScreenUtils.dpToPx(getContext(),
                         mSettingsUtils.getColumnWidth()));
-        final int screenWidth = ScreenUtils.getScreenWidth(getContext());
+        final int screenWidth = mScreenUtils.getScreenWidth(getContext());
         final int columnCount = screenWidth / columnSize;
         mLayoutManager = new MyGridLayoutManager(getContext(), columnCount);
         mLayoutManager.setSmoothScrollbarEnabled(true);
@@ -142,7 +143,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
         mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_page_fragment_touch_overlay);
         mItemDragCallback = new ApplistItemDragHandler(
-                getContext(), mSettingsUtils, this,
+                getContext(), mScreenUtils, mSettingsUtils, this,
                 mApplistModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
         mItemDragGestureRecognizer = new DragGestureRecognizer(mItemDragCallback, mTouchOverlay, mRecyclerView);
 

@@ -56,6 +56,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private ApplistModel mApplistModel = ApplistModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
@@ -88,7 +89,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
         mAppBarLayout = (AppBarLayout) view.findViewById(R.id.applist_page_fragment_appbar_layout);
         mToolbar = (Toolbar) view.findViewById(R.id.applist_page_fragment_toolbar);
-        mToolbar.setPadding(0, ScreenUtils.getStatusBarHeight(getContext()), 0, 0);
+        mToolbar.setPadding(0, mScreenUtils.getStatusBarHeight(getContext()), 0, 0);
         mToolbar.setOnClickListener(mToolbarClickListener);
         mToolbar.setTitle(R.string.toolbar_title);
         AppCompatActivity activity = (AppCompatActivity) getActivity();

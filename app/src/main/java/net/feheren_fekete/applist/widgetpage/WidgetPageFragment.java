@@ -66,6 +66,7 @@ public class WidgetPageFragment extends Fragment {
     // TODO: Inject these singletons.
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 
     private Handler mHandler = new Handler();
     private AppWidgetManager mAppWidgetManager;
@@ -341,10 +342,10 @@ public class WidgetPageFragment extends Fragment {
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getWidth())),
-                Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getHeight())));
-        layoutParams.leftMargin = Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getPositionX()));
-        layoutParams.topMargin = Math.round(ScreenUtils.dpToPx(getContext(), widgetData.getPositionY()));
+                Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getWidth())),
+                Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getHeight())));
+        layoutParams.leftMargin = Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getPositionX()));
+        layoutParams.topMargin = Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getPositionY()));
         hostView.setLayoutParams(layoutParams);
 
         updateWidgetOptions(hostView, widgetData);
@@ -594,10 +595,10 @@ public class WidgetPageFragment extends Fragment {
         }
         widgetItem.appWidgetHostView.setLayoutParams(layoutParams);
         Context context = getContext();
-        widgetItem.widgetData.setPositionX(Math.round(ScreenUtils.pxToDp(context, layoutParams.leftMargin)));
-        widgetItem.widgetData.setPositionY(Math.round(ScreenUtils.pxToDp(context, layoutParams.topMargin)));
-        widgetItem.widgetData.setWidth(Math.round(ScreenUtils.pxToDp(context, layoutParams.width)));
-        widgetItem.widgetData.setHeight(Math.round(ScreenUtils.pxToDp(context, layoutParams.height)));
+        widgetItem.widgetData.setPositionX(Math.round(mScreenUtils.pxToDp(context, layoutParams.leftMargin)));
+        widgetItem.widgetData.setPositionY(Math.round(mScreenUtils.pxToDp(context, layoutParams.topMargin)));
+        widgetItem.widgetData.setWidth(Math.round(mScreenUtils.pxToDp(context, layoutParams.width)));
+        widgetItem.widgetData.setHeight(Math.round(mScreenUtils.pxToDp(context, layoutParams.height)));
 
         mWidgetContainer.invalidate();
 

@@ -35,6 +35,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     }
 
     private Context mContext;
+    private ScreenUtils mScreenUtils;
     private SettingsUtils mSettingsUtils;
     private ApplistPagePageFragment mApplistPagePageFragment;
     private ApplistModel mApplistModel;
@@ -53,6 +54,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     private float mItemMoveThreshold;
 
     public ApplistItemDragHandler(Context context,
+                                  ScreenUtils screenUtils,
                                   SettingsUtils settingsUtils,
                                   ApplistPagePageFragment applistPagePageFragment,
                                   ApplistModel applistModel,
@@ -62,6 +64,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                                   ApplistAdapter adapter,
                                   Listener listener) {
         mContext = context;
+        mScreenUtils = screenUtils;
         mSettingsUtils = settingsUtils;
         mApplistPagePageFragment = applistPagePageFragment;
         mApplistModel = applistModel;
@@ -100,7 +103,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         // behind the transparent status bar. So, if we hide the AppBarLayout the
         // RecyclerView would get behind the status bar.
         // We don't want that. So we add a top padding.
-        mRecyclerView.setPadding(0, ScreenUtils.getStatusBarHeight(mContext), 0, 0);
+        mRecyclerView.setPadding(0, mScreenUtils.getStatusBarHeight(mContext), 0, 0);
         mListener.onItemDragStart();
 
         final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
