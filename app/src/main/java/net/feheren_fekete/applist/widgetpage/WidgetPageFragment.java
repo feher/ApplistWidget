@@ -398,12 +398,12 @@ public class WidgetPageFragment extends Fragment {
         // But we want to be in the RESUMED state. Otherwise we don't receive EventBus events
         // from the WidgetModel.
         // So delay the model update to the next event loop.
-        mHandler.post(new Runnable() {
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 addWidgetToModel(data);
             }
-        });
+        }, 500);
     }
 
     private void addWidgetToModel(Intent data) {
