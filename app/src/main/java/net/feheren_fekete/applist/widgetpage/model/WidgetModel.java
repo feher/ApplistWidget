@@ -174,8 +174,7 @@ public class WidgetModel {
     public void deleteWidget(WidgetData widgetData) {
         synchronized (this) {
             for (WidgetData widget : mWidgets) {
-                if (widget.getProviderPackage().equals(widgetData.getProviderPackage())
-                        && widget.getProviderClass().equals(widgetData.getProviderClass())) {
+                if (widget.getId() == widgetData.getId()) {
                     mWidgets.remove(widget);
                     scheduleStoreData();
                     EventBus.getDefault().post(new WidgetDeletedEvent(widgetData));
