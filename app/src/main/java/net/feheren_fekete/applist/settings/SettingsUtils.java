@@ -48,12 +48,14 @@ public class SettingsUtils {
             mColorThemes = createColorThemeMap();
         }
 
-        final String colorThemeName = mSharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, mDefaultColorTheme);
-        final Integer colorThemeId = mColorThemes.get(colorThemeName);
+        final String colorTheme = mSharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, mDefaultColorTheme);
+        final Integer colorThemeId = mColorThemes.get(colorTheme);
         if (colorThemeId != null) {
             activity.setTheme(colorThemeId);
         } else {
-            ApplistLog.getInstance().log(new RuntimeException("Invalid color theme: " + colorThemeName));
+            ApplistLog.getInstance().log(new RuntimeException("Invalid color theme, reverting to default theme: " + colorTheme));
+            mSharedPref.edit().putString(SettingsActivity.PREF_KEY_COLOR_THEME, mDefaultColorTheme).apply();
+            activity.setTheme(mColorThemes.get(mDefaultColorTheme));
         }
     }
 
@@ -70,8 +72,8 @@ public class SettingsUtils {
             mTransparentColorThemes.add(mContext.getString(R.string.color_theme_value_transparent_light));
             mTransparentColorThemes.add(mContext.getString(R.string.color_theme_value_transparent_dark));
         }
-        final String colorThemeName = mSharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, mDefaultColorTheme);
-        return mTransparentColorThemes.contains(colorThemeName);
+        final String colorTheme = mSharedPref.getString(SettingsActivity.PREF_KEY_COLOR_THEME, mDefaultColorTheme);
+        return mTransparentColorThemes.contains(colorTheme);
     }
 
     public boolean isKeepAppsSortedAlphabetically() {
