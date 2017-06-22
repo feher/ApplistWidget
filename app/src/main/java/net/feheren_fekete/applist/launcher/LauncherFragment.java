@@ -3,6 +3,7 @@ package net.feheren_fekete.applist.launcher;
 import android.app.WallpaperManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -38,6 +39,7 @@ public class LauncherFragment extends Fragment {
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
 
+    private Handler mHandler = new Handler();
     private ApplistPreferences mApplistPreferences;
     private ImageView mBackgroundImage;
     private MyViewPager mPager;
@@ -153,12 +155,20 @@ public class LauncherFragment extends Fragment {
         scrollToActivePage(true);
     }
 
-    private void scrollToActivePage(boolean smoothScroll) {
+    private void scrollToActivePage(final boolean smoothScroll) {
         if (mActivePagePosition != -1) {
             mActivePagePosition = Math.min(mActivePagePosition, mPagerAdapter.getCount() - 1);
             final int currentPagePosition = mPager.getCurrentItem();
             if (currentPagePosition != mActivePagePosition) {
-                mPager.setCurrentItem(mActivePagePosition, false);
+                // HACK: Without posting a delayed Runnable, the smooth scrolling is very laggy.
+                // The delay time also matters. E.g. 10 ms is too little.
+                // https://stackoverflow.com/questions/11962268/viewpager-setcurrentitempageid-true-does-not-smoothscroll
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPager.setCurrentItem(mActivePagePosition, smoothScroll);
+                    }
+                }, 100);
             } else {
                 setPageVisibility(mActivePagePosition, true);
                 mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
