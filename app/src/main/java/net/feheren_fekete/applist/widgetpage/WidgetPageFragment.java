@@ -51,8 +51,8 @@ public class WidgetPageFragment extends Fragment {
     private static final int LEFT_BORDER = 1 << 2;
     private static final int RIGHT_BORDER = 1 << 3;
 
-    private static final int DEFAULT_WIDGET_WIDTH = 200;
-    private static final int DEFAULT_WIDGET_HEIGHT = 300;
+    private static final int DEFAULT_WIDGET_WIDTH = 300; // dp
+    private static final int DEFAULT_WIDGET_HEIGHT = 200; // dp
 
     public static final class ShowPageEditorEvent {}
     public static final class WidgetMoveStartedEvent {}
