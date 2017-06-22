@@ -222,6 +222,7 @@ public class WidgetPageFragment extends Fragment {
             }
 
             if (isLocationInsideWidget(mWidgetMenuTarget, mPreviousFingerPos.x, mPreviousFingerPos.y)) {
+                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_RESIZING);
                 updateWidgetLocation(
                         mWidgetMenuTarget,
                         mPreviousFingerPos.x, mPreviousFingerPos.y,
