@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="MyThemeTransparentDark" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeTransparentDark" parent="MyThemeBase">
         <item name="primaryColor">#000000</item>
         <item name="primaryDarkColor">#000000</item>
         <item name="primaryLightColor">#CCCCCC</item>
@@ -25,7 +25,7 @@
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeTransparentLight" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeTransparentLight" parent="MyThemeBase">
         <item name="primaryColor">#000000</item>
         <item name="primaryDarkColor">#000000</item>
         <item name="primaryLightColor">#CCCCCC</item>
@@ -42,14 +42,12 @@
         <item name="appTextColor">#DDDDDD</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeBlack" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeBlack" parent="MyThemeBase">
         <item name="primaryColor">#333333</item>
         <item name="primaryDarkColor">#000000</item>
         <item name="primaryLightColor">#CCCCCC</item>
@@ -66,14 +64,12 @@
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeBrown" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeBrown" parent="MyThemeBase">
         <item name="primaryColor">#795548</item>
         <item name="primaryDarkColor">#5D4037</item>
         <item name="primaryLightColor">#D7CCC8</item>
@@ -90,14 +86,12 @@
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88DD6600</item>
 
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeBlueGrey" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeBlueGrey" parent="MyThemeBase">
         <item name="primaryColor">#607D8B</item>
         <item name="primaryDarkColor">#455A64</item>
         <item name="primaryLightColor">#CFD8DC</item>
@@ -114,14 +108,12 @@
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeIndigo" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeIndigo" parent="MyThemeBase">
         <item name="primaryColor">#3F51B5</item>
         <item name="primaryDarkColor">#303F9F</item>
         <item name="primaryLightColor">#C5CAE9</item>
@@ -138,14 +130,12 @@
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeRed" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeRed" parent="MyThemeBase">
         <item name="primaryColor">#BB2200</item>
         <item name="primaryDarkColor">#882200</item>
         <item name="primaryLightColor">#FFEEEE</item>
@@ -162,14 +152,12 @@
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF5722</item>
 
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeGreen" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeGreen" parent="MyThemeBase">
         <item name="primaryColor">#5d7d62</item>
         <item name="primaryDarkColor">#4a634e</item>
         <item name="primaryLightColor">#dde3d0</item>
@@ -186,14 +174,12 @@
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
     </style>
 
-    <style name="MyThemeDeepPurple" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="MyThemeDeepPurple" parent="MyThemeBase">
         <item name="primaryColor">#673AB7</item>
         <item name="primaryDarkColor">#512DA8</item>
         <item name="primaryLightColor">#D1C4E9</item>
@@ -210,11 +196,16 @@
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="draggedOverIndicatorColor">#88536DFE</item>
 
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
+    </style>
+
+    <style name="MyThemeBase" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
     </style>
 
 </resources>
