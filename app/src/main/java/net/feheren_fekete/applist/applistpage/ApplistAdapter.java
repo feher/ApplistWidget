@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,31 +18,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import net.feheren_fekete.applist.ApplistApp;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
-import net.feheren_fekete.applist.applistpage.model.PageData;
-import net.feheren_fekete.applist.applistpage.model.SectionData;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
-import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-
-import bolts.Continuation;
-import bolts.Task;
 
 
 public class ApplistAdapter
@@ -92,7 +79,9 @@ public class ApplistAdapter
         public final View draggedOverIndicatorLeft;
         public final View draggedOverIndicatorRight;
         public final ImageView appIcon;
-        public final TextView appName;
+        public final TextView appNameWithoutShadow;
+        public final TextView appNameWithShadow;
+        public TextView appName;
         public final TextView badgeCount;
         public IconLoaderTask iconLoader;
         public AppItemHolder(View view) {
@@ -100,7 +89,8 @@ public class ApplistAdapter
             this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_app_item_dragged_over_indicator_left);
             this.draggedOverIndicatorRight = view.findViewById(R.id.applist_app_item_dragged_over_indicator_right);
             this.appIcon = (ImageView) view.findViewById(R.id.applist_app_item_icon);
-            this.appName = (TextView) view.findViewById(R.id.applist_app_item_app_name);
+            this.appNameWithoutShadow = (TextView) view.findViewById(R.id.applist_app_item_app_name);
+            this.appNameWithShadow = (TextView) view.findViewById(R.id.applist_app_item_app_name_with_shadow);
             this.badgeCount = (TextView) view.findViewById(R.id.applist_app_item_badge_count);
         }
     }
@@ -113,7 +103,7 @@ public class ApplistAdapter
             super(view, R.id.applist_section_item_layout);
             this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_section_item_dragged_over_indicator_left);
             this.draggedOverIndicatorRight = view.findViewById(R.id.applist_section_item_dragged_over_indicator_right);
-            this.sectionName = (TextView) view.findViewById(R.id.applist_section_item_app_name);
+            this.sectionName = (TextView) view.findViewById(R.id.applist_section_item_section_name);
         }
     }
 
@@ -521,12 +511,19 @@ public class ApplistAdapter
             holder.appIcon.setImageBitmap(icon);
         }
 
-        holder.appName.setText(item.getName());
+        // REF: 2017_06_22_22_08_setShadowLayer_not_working
         if (mSettingsUtils.isThemeTransparent()) {
-            holder.appName.setShadowLayer(12, 2, 2, android.R.color.black);
+            holder.appNameWithShadow.setVisibility(View.VISIBLE);
+            holder.appNameWithoutShadow.setVisibility(View.INVISIBLE);
+            holder.appName = holder.appNameWithShadow;
         } else {
-            holder.appName.setShadowLayer(0, 0, 0, 0);
+            holder.appNameWithoutShadow.setVisibility(View.VISIBLE);
+            holder.appNameWithShadow.setVisibility(View.INVISIBLE);
+            holder.appName = holder.appNameWithoutShadow;
         }
+
+        holder.appName.setText(item.getName());
+
         if (mSettingsUtils.getShowBadge()) {
             int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getComponentName());
             if (badgeCount > 0) {
@@ -581,6 +578,7 @@ public class ApplistAdapter
 
     private void bindSectionItemHolder(final SectionItemHolder holder, int position) {
         final SectionItem item = (SectionItem) getItems().get(position);
+
         holder.sectionName.setText(
                 item.isCollapsed()
                         ? item.getName() + " ..."
