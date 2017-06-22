@@ -80,13 +80,13 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.applist_fragment, container, false);
+        View view = inflater.inflate(R.layout.applist_page_fragment, container, false);
 
         mBadgeStore = new BadgeStore(getContext(), getContext().getPackageManager(), new BadgeUtils(getContext()));
         mApplistPreferences = new ApplistPreferences(getContext());
 
-        mAppBarLayout = (AppBarLayout) view.findViewById(R.id.applist_fragment_appbar_layout);
-        mToolbar = (Toolbar) view.findViewById(R.id.applist_fragment_toolbar);
+        mAppBarLayout = (AppBarLayout) view.findViewById(R.id.applist_page_fragment_appbar_layout);
+        mToolbar = (Toolbar) view.findViewById(R.id.applist_page_fragment_toolbar);
         if (SettingsUtils.isThemeTransparent(getContext())) {
             ScreenUtils.setStatusBarTranslucent(getActivity(), true);
             AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
@@ -101,7 +101,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         setHasOptionsMenu(true);
 
-        mFragmentContainer = (FrameLayout) view.findViewById(R.id.applist_fragment_fragment_container);
+        mFragmentContainer = (FrameLayout) view.findViewById(R.id.applist_page_fragment_page_container);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -453,7 +453,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
                 pageName, getPageId(), mIconCache, this);
         getChildFragmentManager()
                 .beginTransaction()
-                .replace(R.id.applist_fragment_fragment_container, fragment, ApplistPagePageFragment.class.getName())
+                .replace(R.id.applist_page_fragment_page_container, fragment, ApplistPagePageFragment.class.getName())
                 .commit();
     }
 

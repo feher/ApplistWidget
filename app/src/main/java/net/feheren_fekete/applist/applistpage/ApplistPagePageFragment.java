@@ -97,9 +97,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.applist_page_fragment, container, false);
+        View view = inflater.inflate(R.layout.applist_page_page_fragment, container, false);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_page_fragment_recycler_view);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_page_page_fragment_recycler_view);
 
         final int columnSize = Math.round(
                 ScreenUtils.dpToPx(getContext(),
@@ -138,7 +138,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
         loadAllItems();
 
-        mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_fragment_touch_overlay);
+        mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_page_fragment_touch_overlay);
         mItemDragCallback = new ApplistItemDragHandler(
                 getContext(), this, mApplistModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
         mItemDragGestureRecognizer = new DragGestureRecognizer(mItemDragCallback, mTouchOverlay, mRecyclerView);
