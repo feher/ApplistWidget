@@ -198,16 +198,10 @@ public class WidgetPageFragment extends Fragment {
     }
 
     public void handleDown(MotionEvent event) {
-        if (mWidgetMenuTarget != null) {
-            if (isLocationInsideWidget(mWidgetMenuTarget, event.getRawX(), event.getRawY())) {
-                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_RESIZING);
-            }
-        }
     }
 
     public void handleUp(MotionEvent event) {
         if (mWidgetMenuTarget != null) {
-            mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_SELECTED);
             updateWidgetOptions(mWidgetMenuTarget.appWidgetHostView, mWidgetMenuTarget.widgetData);
             mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
         }
@@ -221,8 +215,11 @@ public class WidgetPageFragment extends Fragment {
                 mPreviousFingerPos.set(event1.getRawX(), event1.getRawY());
             }
 
-            if (isLocationInsideWidget(mWidgetMenuTarget, mPreviousFingerPos.x, mPreviousFingerPos.y)) {
-                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_RESIZING);
+            if (isLocationInsideWidget(
+                    mWidgetMenuTarget,
+                    mPreviousFingerPos.x,
+                    mPreviousFingerPos.y,
+                    mWidgetTouchBorderWidth)) {
                 updateWidgetLocation(
                         mWidgetMenuTarget,
                         mPreviousFingerPos.x, mPreviousFingerPos.y,
@@ -503,7 +500,7 @@ public class WidgetPageFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case 0:
-                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_SELECTED);
+                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_RESIZING);
                                 EventBus.getDefault().post(new WidgetMoveStartedEvent());
                                 break;
                             case 1:
@@ -542,20 +539,20 @@ public class WidgetPageFragment extends Fragment {
     private WidgetItem findWidgetAtLocation(float locationX, float locationY) {
         for (int i = mWidgets.size() - 1; i >= 0; --i) {
             final WidgetItem widgetItem = mWidgets.get(i);
-            if (isLocationInsideWidget(widgetItem, locationX, locationY)) {
+            if (isLocationInsideWidget(widgetItem, locationX, locationY, 0)) {
                 return widgetItem;
             }
         }
         return null;
     }
 
-    private boolean isLocationInsideWidget(WidgetItem widgetItem, float locationX, float locationY) {
+    private boolean isLocationInsideWidget(WidgetItem widgetItem, float locationX, float locationY, int margin) {
         widgetItem.appWidgetHostView.getLocationOnScreen(mTempLocation);
         mTempRect1.set(
-                mTempLocation[0],
-                mTempLocation[1],
-                mTempLocation[0] + widgetItem.appWidgetHostView.getWidth(),
-                mTempLocation[1] + widgetItem.appWidgetHostView.getHeight());
+                mTempLocation[0] - margin,
+                mTempLocation[1] - margin,
+                mTempLocation[0] + widgetItem.appWidgetHostView.getWidth() + margin,
+                mTempLocation[1] + widgetItem.appWidgetHostView.getHeight() + margin);
         return mTempRect1.contains(locationX, locationY);
     }
 

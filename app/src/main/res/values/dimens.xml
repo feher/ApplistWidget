@@ -16,8 +16,8 @@
 
     <dimen name="applist_fragment_item_move_threshold">20dp</dimen>
 
-    <dimen name="widget_border_width_touch">15dp</dimen>
+    <dimen name="widget_border_width_touch">20dp</dimen>
     <dimen name="widget_border_width_draw">2dp</dimen>
-    <dimen name="widget_min_size">50dp</dimen>
+    <dimen name="widget_min_size">80dp</dimen>
 
 </resources>
