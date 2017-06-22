@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcher.model.PageData;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -34,6 +35,7 @@ public class PageEditorFragment extends Fragment {
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 
     private RecyclerView mRecyclerView;
     private PageEditorAdapter mAdapter;
@@ -113,6 +115,13 @@ public class PageEditorFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_page_editor_fragment, container, false);
+
+
+        // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
+        final int topPadding = mScreenUtils.getStatusBarHeight(getContext());
+        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
+        final int bottomPadding = mScreenUtils.hasNavigationBar(getContext()) ? mScreenUtils.getNavigationBarHeight(getContext()) : 0;
+        view.findViewById(R.id.launcher_page_editor_fragment_layout).setPadding(0, topPadding, 0, bottomPadding);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.launcher_page_editor_page_list);
         mRecyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 2));
