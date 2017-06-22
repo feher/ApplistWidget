@@ -97,7 +97,7 @@
     <string name="color_theme_value_blue_grey" translatable="false">blue_grey</string>
     <string name="color_theme_value_deep_purple" translatable="false">deep_purple</string>
     <string name="color_theme_value_indigo" translatable="false">indigo</string>
-    <string name="color_theme_value_default" translatable="false">@string/color_theme_value_black</string>
+    <string name="color_theme_value_default" translatable="false">@string/color_theme_value_transparent_light</string>
     <string-array name="color_theme_values" translatable="false">
         <item>@string/color_theme_value_transparent_light</item>
         <item>@string/color_theme_value_transparent_dark</item>
