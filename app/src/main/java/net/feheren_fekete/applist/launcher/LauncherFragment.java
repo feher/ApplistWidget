@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.MainActivity;
@@ -38,6 +39,7 @@ public class LauncherFragment extends Fragment {
     private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
 
     private ApplistPreferences mApplistPreferences;
+    private ImageView mBackgroundImage;
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
     private int mActivePagePosition = -1;
@@ -51,6 +53,8 @@ public class LauncherFragment extends Fragment {
         View view = inflater.inflate(R.layout.launcher_fragment, container, false);
 
         mApplistPreferences = new ApplistPreferences(getContext().getApplicationContext());
+
+        mBackgroundImage = (ImageView) view.findViewById(R.id.launcher_fragment_background);
 
         mPager = (MyViewPager) view.findViewById(R.id.launcher_fragment_view_pager);
         mPagerAdapter = new LauncherPagerAdapter(getChildFragmentManager());
@@ -98,7 +102,7 @@ public class LauncherFragment extends Fragment {
             @Override
             public Void then(Task<Drawable> task) throws Exception {
                 Drawable wallpaperDrawable = task.getResult();
-                getView().setBackground(wallpaperDrawable);
+                mBackgroundImage.setImageDrawable(wallpaperDrawable);
                 return null;
             }
         }, Task.UI_THREAD_EXECUTOR);

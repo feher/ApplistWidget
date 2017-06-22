@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.feheren_fekete.applist.launcher.MyViewPager
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/launcher_fragment_view_pager"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/launcher_fragment_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        />
+
+    <net.feheren_fekete.applist.launcher.MyViewPager
+        android:id="@+id/launcher_fragment_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</FrameLayout>
