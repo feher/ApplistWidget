@@ -17,6 +17,7 @@ public class ScreenUtils {
 
     private DisplayMetrics mDisplayMetrics;
     private Point mScreenSize;
+    private Point mScreenSizeDp;
     private int mStatusBarHeight = -1;
     private int mNavigationBarHeight = -1;
     private int mHasNavigationBar = -1;
@@ -53,6 +54,16 @@ public class ScreenUtils {
             display.getSize(mScreenSize);
         }
         return mScreenSize;
+    }
+
+    public Point getScreenSizeDp(Context context) {
+        if (mScreenSizeDp == null) {
+            final Point screenSize = getScreenSize(context);
+            mScreenSizeDp = new Point(
+                    Math.round(pxToDp(context, screenSize.x)),
+                    Math.round(pxToDp(context, screenSize.y)));
+        }
+        return mScreenSizeDp;
     }
 
     public void setStatusBarTranslucent(Activity activity, boolean makeTranslucent) {

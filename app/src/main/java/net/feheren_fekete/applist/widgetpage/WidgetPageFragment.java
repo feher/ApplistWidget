@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
@@ -408,14 +409,18 @@ public class WidgetPageFragment extends Fragment {
         if (appWidgetId == -1) {
             return;
         }
-        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
+        final AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
+        final Point screenSize = mScreenUtils.getScreenSizeDp(getContext());
         final WidgetData widgetData = new WidgetData(
                 System.currentTimeMillis(),
                 appWidgetId,
                 appWidgetInfo.provider.getPackageName(),
                 appWidgetInfo.provider.getClassName(),
                 getPageId(),
-                0, 0, DEFAULT_WIDGET_WIDTH, DEFAULT_WIDGET_HEIGHT);
+                (screenSize.x / 2) - (DEFAULT_WIDGET_WIDTH / 2),
+                (screenSize.y / 2) - (DEFAULT_WIDGET_HEIGHT / 2),
+                DEFAULT_WIDGET_WIDTH,
+                DEFAULT_WIDGET_HEIGHT);
 
         Task.callInBackground(new Callable<Void>() {
             @Override
