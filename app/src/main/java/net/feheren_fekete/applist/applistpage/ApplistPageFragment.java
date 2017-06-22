@@ -89,7 +89,10 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
         mAppBarLayout = (AppBarLayout) view.findViewById(R.id.applist_page_fragment_appbar_layout);
         mToolbar = (Toolbar) view.findViewById(R.id.applist_page_fragment_toolbar);
+
+        // REF: 2017_06_22_12_00_toolbar_top_padding
         mToolbar.setPadding(0, mScreenUtils.getStatusBarHeight(getContext()), 0, 0);
+
         mToolbar.setOnClickListener(mToolbarClickListener);
         mToolbar.setTitle(R.string.toolbar_title);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -261,6 +264,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         // For this reason, we must also manually restore the translation values otherwise
         // AppBarLayout gets confused about its own location.
         //
+        // REF: 2017_06_22_12_00_recycler_view_top_padding
         mAppBarBottomBeforeItemDrag = mAppBarLayout.getBottom();
         mAppBarLayout.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
         mFragmentContainer.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
@@ -275,6 +279,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         // For this reason, we must also manually restore the translation values otherwise
         // AppBarLayout gets confused about its own location.
         //
+        // REF: 2017_06_22_12_00_recycler_view_top_padding
         mAppBarLayout.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
         mFragmentContainer.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
     }

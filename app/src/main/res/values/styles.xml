@@ -204,6 +204,13 @@
     <style name="MyThemeBase" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowIsTranslucent">true</item>
 
+        <!--
+        REF: 2017_06_22_12_00_toolbar_top_padding
+        REF: 2017_06_22_12_00_recycler_view_bottom_padding
+        -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
     </style>

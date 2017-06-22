@@ -220,6 +220,16 @@
     <style name="MyThemeBase" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowIsTranslucent">true</item>
 
+        <!--
+        We make the status bar and the navigation bar translucent.
+        But this makes the window content to go below them. For this reason we apply
+        paddings for the relevant views.
+        REF: 2017_06_22_12_00_toolbar_top_padding
+        REF: 2017_06_22_12_00_recycler_view_bottom_padding
+        -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+
         <item name="android:windowContentTransitions">true</item>
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
