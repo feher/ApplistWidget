@@ -104,7 +104,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_page_page_fragment_recycler_view);
 
         // We add a bottom padding to the RecyclerView to "push it up" above the navigation bar.
-        // REF: 2017_06_22_12_00_recycler_view_bottom_padding
+        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
         final int navigationBarHeight = mScreenUtils.hasNavigationBar(getContext()) ? mScreenUtils.getNavigationBarHeight(getContext()) : 0;
         mRecyclerView.setPadding(0, 0, 0, navigationBarHeight);
 
