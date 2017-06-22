@@ -158,7 +158,7 @@ public class LauncherFragment extends Fragment {
             mActivePagePosition = Math.min(mActivePagePosition, mPagerAdapter.getCount() - 1);
             final int currentPagePosition = mPager.getCurrentItem();
             if (currentPagePosition != mActivePagePosition) {
-                mPager.setCurrentItem(mActivePagePosition, smoothScroll);
+                mPager.setCurrentItem(mActivePagePosition, false);
             } else {
                 setPageVisibility(mActivePagePosition, true);
                 mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
