@@ -14,10 +14,13 @@ public class WidgetData {
 
     public WidgetData(long id,
                       int appWidgetId,
-                      String providerPackage, String providerClass,
+                      String providerPackage,
+                      String providerClass,
                       long pageId,
-                      int positionX, int positionY,
-                      int width, int height) {
+                      int positionX,
+                      int positionY,
+                      int width,
+                      int height) {
         mId = id;
         mAppWidgetId = appWidgetId;
         mProviderPackage = providerPackage;
@@ -65,7 +68,7 @@ public class WidgetData {
         return mPageId;
     }
 
-    public void setPageId(int pageId) {
+    public void setPageId(long pageId) {
         mPageId = pageId;
     }
 

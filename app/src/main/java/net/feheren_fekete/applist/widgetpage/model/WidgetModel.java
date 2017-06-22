@@ -101,7 +101,7 @@ public class WidgetModel {
                                 jsonWidget.getInt("app-widget-id"),
                                 jsonWidget.getString("package-name"),
                                 jsonWidget.getString("class-name"),
-                                jsonWidget.getInt("page-id"),
+                                jsonWidget.getLong("page-id"),
                                 jsonWidget.getInt("position-x"),
                                 jsonWidget.getInt("position-y"),
                                 jsonWidget.getInt("width"),
