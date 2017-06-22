@@ -274,6 +274,7 @@ public class SettingsActivity extends PreferenceActivity {
             }
         }
 
+        // REF: 2017_06_22_22_36_singleInstance_needed_for_restart
         private void restartMainActivity() {
             Intent i = new Intent(getActivity(), MainActivity.class);
             i.setAction(MainActivity.ACTION_RESTART);

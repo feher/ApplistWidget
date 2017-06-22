@@ -32,10 +32,15 @@
         android:supportsRtl="true"
         android:theme="@style/MyThemeTransparentLight">
 
+        <!--
+        launchMode must be singleInstance, otherwise it breaks the re-start code
+        in SettingsActivity.
+        REF: 2017_06_22_22_36_singleInstance_needed_for_restart
+        -->
         <activity
             android:name="net.feheren_fekete.applist.MainActivity"
             android:excludeFromRecents="true"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:clearTaskOnLaunch="true"
             android:resumeWhilePausing="true"
             android:screenOrientation="portrait">
