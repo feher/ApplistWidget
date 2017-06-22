@@ -52,7 +52,7 @@
         android:id="@+id/launcher_page_editor_item_page_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:padding="8dp"
         android:background="@drawable/page_editor_button_top"
         android:gravity="center"
