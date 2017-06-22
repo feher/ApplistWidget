@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -26,6 +27,7 @@ import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import java.util.concurrent.Callable;
 
@@ -80,6 +82,9 @@ public class SettingsActivity extends PreferenceActivity {
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+        // TODO: Inject these singletons.
+        private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+
         private static final int SMS_PERMISSION_REQUEST_CODE = 1;
         private static final int PHONE_PERMISSION_REQUEST_CODE = 2;
         private String mDefaultThemeValue;
@@ -91,6 +96,16 @@ public class SettingsActivity extends PreferenceActivity {
             mDefaultThemeValue = getResources().getString(R.string.color_theme_value_default);
             mDefaultColumnWidthValue = getResources().getString(R.string.column_width_value_default);
             addPreferencesFromResource(R.xml.preferences);
+        }
+
+        @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
+            final int topPadding = mScreenUtils.getStatusBarHeight(getActivity());
+            // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
+            final int bottomPadding = mScreenUtils.hasNavigationBar(getActivity()) ? mScreenUtils.getNavigationBarHeight(getActivity()) : 0;
+            getView().setPadding(0, topPadding, 0, bottomPadding);
         }
 
         @Override
