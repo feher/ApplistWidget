@@ -1,3 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="icon_placeholder_color_light_1">#ffcdbbbb</color>
+    <color name="icon_placeholder_color_light_2">#ffc6c5b1</color>
+    <color name="icon_placeholder_color_light_3">#ff9eb5a1</color>
+    <color name="icon_placeholder_color_light_4">#ff8688a1</color>
+    <color name="icon_placeholder_color_light_5">#ff957b98</color>
+    <color name="icon_placeholder_color_light_6">#ff937577</color>
+    <integer-array name="icon_placeholder_colors_light">
+        <item>@color/icon_placeholder_color_light_1</item>
+        <item>@color/icon_placeholder_color_light_2</item>
+        <item>@color/icon_placeholder_color_light_3</item>
+        <item>@color/icon_placeholder_color_light_4</item>
+        <item>@color/icon_placeholder_color_light_5</item>
+        <item>@color/icon_placeholder_color_light_6</item>
+    </integer-array>
+
+    <color name="icon_placeholder_color_dark_1">#ff8d7b7b</color>
+    <color name="icon_placeholder_color_dark_2">#ff868571</color>
+    <color name="icon_placeholder_color_dark_3">#ff5e7561</color>
+    <color name="icon_placeholder_color_dark_4">#ff464861</color>
+    <color name="icon_placeholder_color_dark_5">#ff553b58</color>
+    <color name="icon_placeholder_color_dark_6">#ff533537</color>
+    <integer-array name="icon_placeholder_colors_dark">
+        <item>@color/icon_placeholder_color_dark_1</item>
+        <item>@color/icon_placeholder_color_dark_2</item>
+        <item>@color/icon_placeholder_color_dark_3</item>
+        <item>@color/icon_placeholder_color_dark_4</item>
+        <item>@color/icon_placeholder_color_dark_5</item>
+        <item>@color/icon_placeholder_color_dark_6</item>
+    </integer-array>
 </resources>

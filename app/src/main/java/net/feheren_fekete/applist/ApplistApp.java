@@ -20,8 +20,6 @@ public class ApplistApp extends MultiDexApplication {
 
     private static final String TAG = ApplistApp.class.getSimpleName();
 
-    private static int[] mIconPlaceholderColors;
-
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
@@ -41,18 +39,6 @@ public class ApplistApp extends MultiDexApplication {
         LauncherModel.initInstance(this);
         ApplistModel.initInstance(this, getPackageManager());
         WidgetModel.initInstance(this);
-
-        mIconPlaceholderColors = new int[6];
-        mIconPlaceholderColors[0] = 0xffcdbbbb;
-        mIconPlaceholderColors[1] = 0xffc6c5b1;
-        mIconPlaceholderColors[2] = 0xff9eb5a1;
-        mIconPlaceholderColors[3] = 0xff8688a1;
-        mIconPlaceholderColors[4] = 0xff957b98;
-        mIconPlaceholderColors[5] = 0xff937577;
-    }
-
-    public int[] getIconPlaceholderColors() {
-        return mIconPlaceholderColors;
     }
 
 }
