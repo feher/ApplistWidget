@@ -11,6 +11,7 @@ import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.launcher.LauncherStateManager;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
+import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 
 
@@ -31,9 +32,10 @@ public class ApplistApp extends MultiDexApplication {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
 
+        ApplistLog.initInstance();
         LauncherStateManager.initInstance();
         ScreenshotUtils.initInstance();
-        ApplistLog.initInstance();
+        SettingsUtils.initInstance(this);
         LauncherModel.initInstance(this);
         ApplistModel.initInstance(this, getPackageManager());
         WidgetModel.initInstance(this);

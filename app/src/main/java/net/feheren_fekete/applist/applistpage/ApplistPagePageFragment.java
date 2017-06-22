@@ -52,6 +52,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     // TODO: Inject these singletons.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
 
     private Handler mHandler = new Handler();
     private BadgeStore mBadgeStore;
@@ -103,7 +104,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
         final int columnSize = Math.round(
                 ScreenUtils.dpToPx(getContext(),
-                        SettingsUtils.getColumnWidth(getContext())));
+                        mSettingsUtils.getColumnWidth()));
         final int screenWidth = ScreenUtils.getScreenWidth(getContext());
         final int columnCount = screenWidth / columnSize;
         mLayoutManager = new MyGridLayoutManager(getContext(), columnCount);
@@ -127,6 +128,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 getContext(),
                 this,
                 getContext().getPackageManager(),
+                mSettingsUtils,
                 new FileUtils(),
                 new BadgeStore(
                         getContext(),
@@ -140,7 +142,8 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
         mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_page_fragment_touch_overlay);
         mItemDragCallback = new ApplistItemDragHandler(
-                getContext(), this, mApplistModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
+                getContext(), mSettingsUtils, this,
+                mApplistModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
         mItemDragGestureRecognizer = new DragGestureRecognizer(mItemDragCallback, mTouchOverlay, mRecyclerView);
 
         return view;
@@ -338,7 +341,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         if (!sectionItem.isRemovable()) {
             mItemMenu.getMenu().findItem(R.id.action_section_delete).setVisible(false);
         }
-        if (SettingsUtils.isKeepAppsSortedAlphabetically(getContext().getApplicationContext())) {
+        if (mSettingsUtils.isKeepAppsSortedAlphabetically()) {
             mItemMenu.getMenu().findItem(R.id.action_section_sort_apps).setVisible(false);
         }
         mItemMenu.show();

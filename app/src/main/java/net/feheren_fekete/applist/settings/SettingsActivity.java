@@ -43,10 +43,13 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String PREF_KEY_SHOW_SMS_BADGE = "pref_key_show_sms_badge";
     public static final String PREF_KEY_SHOW_PHONE_BADGE = "pref_key_show_phone_badge";
 
+    // TODO: Inject these singletons.
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
-        SettingsUtils.applyColorTheme(this);
+        mSettingsUtils.applyColorTheme(this);
 
         super.onCreate(savedInstanceState);
 

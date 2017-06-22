@@ -24,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String ACTION_RESTART =
             MainActivity.class.getCanonicalName()+ "ACTION_RESTART";
 
+    // TODO: Inject these singletons.
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+
     private MyAppWidgetHost mAppWidgetHost;
     private AppWidgetManager mAppWidgetManager;
     private boolean mIsHomePressed;
@@ -31,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
-        SettingsUtils.applyColorTheme(this);
+        mSettingsUtils.applyColorTheme(this);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);

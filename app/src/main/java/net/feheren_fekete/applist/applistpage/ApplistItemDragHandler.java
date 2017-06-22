@@ -35,6 +35,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     }
 
     private Context mContext;
+    private SettingsUtils mSettingsUtils;
     private ApplistPagePageFragment mApplistPagePageFragment;
     private ApplistModel mApplistModel;
     private ViewGroup mTouchOverlay;
@@ -52,6 +53,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     private float mItemMoveThreshold;
 
     public ApplistItemDragHandler(Context context,
+                                  SettingsUtils settingsUtils,
                                   ApplistPagePageFragment applistPagePageFragment,
                                   ApplistModel applistModel,
                                   ViewGroup touchOverlay,
@@ -60,6 +62,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                                   ApplistAdapter adapter,
                                   Listener listener) {
         mContext = context;
+        mSettingsUtils = settingsUtils;
         mApplistPagePageFragment = applistPagePageFragment;
         mApplistModel = applistModel;
         mTouchOverlay = touchOverlay;
@@ -385,7 +388,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     private void savePageToModel() {
         final String pageName = mApplistPagePageFragment.getPageName();
         final List<BaseItem> items = mAdapter.getAllItems();
-        final boolean keepAppsSorted = SettingsUtils.isKeepAppsSortedAlphabetically(mContext.getApplicationContext());
+        final boolean keepAppsSorted = mSettingsUtils.isKeepAppsSortedAlphabetically();
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

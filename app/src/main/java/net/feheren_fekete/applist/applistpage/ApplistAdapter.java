@@ -57,6 +57,7 @@ public class ApplistAdapter
     private Context mContext;
     private Fragment mFragment;
     private PackageManager mPackageManager;
+    private SettingsUtils mSettingsUtils;
     private FileUtils mFileUtils;
     private BadgeStore mBadgeStore;
     private List<BaseItem> mCollapsedItems;
@@ -119,6 +120,7 @@ public class ApplistAdapter
     public ApplistAdapter(Context context,
                           Fragment fragment,
                           PackageManager packageManager,
+                          SettingsUtils settingsUtils,
                           FileUtils fileUtils,
                           BadgeStore badgeStore,
                           ItemListener itemListener,
@@ -126,6 +128,7 @@ public class ApplistAdapter
         mContext = context;
         mFragment = fragment;
         mPackageManager = packageManager;
+        mSettingsUtils = settingsUtils;
         mFileUtils = fileUtils;
         mBadgeStore = badgeStore;
         mCollapsedItems = Collections.emptyList();
@@ -517,12 +520,12 @@ public class ApplistAdapter
         }
 
         holder.appName.setText(item.getName());
-        if (SettingsUtils.isThemeTransparent(mContext)) {
+        if (mSettingsUtils.isThemeTransparent()) {
             holder.appName.setShadowLayer(12, 2, 2, android.R.color.black);
         } else {
             holder.appName.setShadowLayer(0, 0, 0, 0);
         }
-        if (SettingsUtils.getShowBadge(mFragment.getActivity())) {
+        if (mSettingsUtils.getShowBadge()) {
             int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getComponentName());
             if (badgeCount > 0) {
                 holder.badgeCount.setVisibility(View.VISIBLE);

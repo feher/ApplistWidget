@@ -55,6 +55,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     // TODO: Inject these singletons.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
@@ -87,13 +88,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
         mAppBarLayout = (AppBarLayout) view.findViewById(R.id.applist_page_fragment_appbar_layout);
         mToolbar = (Toolbar) view.findViewById(R.id.applist_page_fragment_toolbar);
-        if (SettingsUtils.isThemeTransparent(getContext())) {
-            ScreenUtils.setStatusBarTranslucent(getActivity(), true);
-            AppBarLayout.LayoutParams layoutParams = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-            layoutParams.height += ScreenUtils.getStatusBarHeight(getContext());
-            mToolbar.setLayoutParams(layoutParams);
-            mToolbar.setPadding(0, ScreenUtils.getStatusBarHeight(getContext()), 0, 0);
-        }
+        mToolbar.setPadding(0, ScreenUtils.getStatusBarHeight(getContext()), 0, 0);
         mToolbar.setOnClickListener(mToolbarClickListener);
         mToolbar.setTitle(R.string.toolbar_title);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -118,7 +113,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     @Override
     public void onStart() {
         super.onStart();
-        if (SettingsUtils.getShowBadge(getContext())) {
+        if (mSettingsUtils.getShowBadge()) {
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
