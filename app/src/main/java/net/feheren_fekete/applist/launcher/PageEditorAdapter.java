@@ -91,6 +91,16 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         return mPages.get(position);
     }
 
+    public int getItemPosition(PageData pageData) {
+        for (int i = 0; i < mPages.size(); ++i) {
+            PageData page = mPages.get(i);
+            if (page.getId() == pageData.getId()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public List<PageData> getItems() {
         return mPages;
     }
@@ -107,6 +117,11 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         }
         notifyItemMoved(fromPosition, toPosition);
         return true;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mPages.get(position).getId();
     }
 
     @Override

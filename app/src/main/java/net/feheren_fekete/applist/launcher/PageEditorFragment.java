@@ -35,6 +35,7 @@ public class PageEditorFragment extends Fragment {
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
 
+    private RecyclerView mRecyclerView;
     private PageEditorAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
 
@@ -113,13 +114,13 @@ public class PageEditorFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_page_editor_fragment, container, false);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.launcher_page_editor_page_list);
-        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 2));
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.launcher_page_editor_page_list);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 2));
         mAdapter = new PageEditorAdapter(mScreenshotUtils, mPageEditorAdapterListener);
-        recyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mAdapter);
 
         mItemTouchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback());
-        mItemTouchHelper.attachToRecyclerView(recyclerView);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         View addPageButton = view.findViewById(R.id.launcher_page_editor_add_page);
         addPageButton.setOnClickListener(new View.OnClickListener() {
@@ -169,6 +170,7 @@ public class PageEditorFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPageAddedEvent(LauncherModel.PageAddedEvent event) {
         mAdapter.addPage(event.pageData);
+        mRecyclerView.smoothScrollToPosition(mAdapter.getItemPosition(event.pageData));
     }
 
     private PageEditorAdapter.Listener mPageEditorAdapterListener = new PageEditorAdapter.Listener() {
