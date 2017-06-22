@@ -15,12 +15,12 @@
         <item>@color/icon_placeholder_color_light_6</item>
     </integer-array>
 
-    <color name="icon_placeholder_color_dark_1">#ff8d7b7b</color>
-    <color name="icon_placeholder_color_dark_2">#ff868571</color>
-    <color name="icon_placeholder_color_dark_3">#ff5e7561</color>
-    <color name="icon_placeholder_color_dark_4">#ff464861</color>
-    <color name="icon_placeholder_color_dark_5">#ff553b58</color>
-    <color name="icon_placeholder_color_dark_6">#ff533537</color>
+    <color name="icon_placeholder_color_dark_1">#558d7b7b</color>
+    <color name="icon_placeholder_color_dark_2">#55868571</color>
+    <color name="icon_placeholder_color_dark_3">#555e7561</color>
+    <color name="icon_placeholder_color_dark_4">#55464861</color>
+    <color name="icon_placeholder_color_dark_5">#55553b58</color>
+    <color name="icon_placeholder_color_dark_6">#55533537</color>
     <integer-array name="icon_placeholder_colors_dark">
         <item>@color/icon_placeholder_color_dark_1</item>
         <item>@color/icon_placeholder_color_dark_2</item>
