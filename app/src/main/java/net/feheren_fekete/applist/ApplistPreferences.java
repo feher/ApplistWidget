@@ -10,6 +10,9 @@ public class ApplistPreferences {
     private static final String PREFERENCE_SHOW_REARRANGE_ITEMS_HELP = "PREFERENCE_SHOW_REARRANGE_ITEMS_HELP";
     private static final boolean DEFAULT_SHOW_REARRANGE_ITEMS_HELP = true;
 
+    private static final String PREFERENCE_SHOW_USE_LAUNCHER_TIP = "PREFERENCE_SHOW_USE_LAUNCHER_TIP";
+    private static final boolean DEFAULT_SHOW_USE_LAUNCHER_TIP = true;
+
     private static final String PREFERENCE_DEVICE_LOCALE = "DEVICE_LOCALE";
     private static final String DEFAULT_DEVICE_LOCALE = "";
 
@@ -29,6 +32,14 @@ public class ApplistPreferences {
 
     public void setShowRearrangeItemsHelp(boolean showRearrangeItemsHelp) {
         mSharedPreferences.edit().putBoolean(PREFERENCE_SHOW_REARRANGE_ITEMS_HELP, showRearrangeItemsHelp).apply();
+    }
+
+    public boolean getShowUseLauncherTip() {
+        return mSharedPreferences.getBoolean(PREFERENCE_SHOW_USE_LAUNCHER_TIP, DEFAULT_SHOW_USE_LAUNCHER_TIP);
+    }
+
+    public void setShowUseLauncherTip(boolean show) {
+        mSharedPreferences.edit().putBoolean(PREFERENCE_SHOW_USE_LAUNCHER_TIP, show).apply();
     }
 
     public String getDeviceLocale() {

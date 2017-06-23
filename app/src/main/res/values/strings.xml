@@ -39,6 +39,7 @@
     </string-array>
 
     <string name="rearrange_items_help">Long press and Drag to rearrange groups and items</string>
+    <string name="use_launcher_tip">Did you know that you can use Apper as your <b>launcher</b>?\n\nGo to your phone Settings and set Apper as your <b>Home screen launcher</b>.</string>
 
     <string name="launcher_page_add_widget">Add widget</string>
     <string name="launcher_page_edit_pages">Edit pages</string>

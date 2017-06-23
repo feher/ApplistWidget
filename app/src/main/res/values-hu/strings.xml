@@ -58,4 +58,5 @@
     <string name="launcher_page_editor_remove_dialog_title">Oldal törlése</string>
     <string name="no">Nem</string>
     <string name="yes">Igen</string>
+    <string name="use_launcher_tip">Tudtad, hogy az Appert <b>kezdőképernyőként</b> is használhatod?\n\nÁllítsd be az Appert <b>kezdőképernyőnek</b> a telefon Beállításokban.</string>
 </resources>

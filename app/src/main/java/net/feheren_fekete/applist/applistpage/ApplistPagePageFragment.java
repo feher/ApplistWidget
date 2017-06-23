@@ -181,6 +181,18 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     })
                     .show();
         }
+        if (mApplistPreferences.getShowUseLauncherTip()) {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage(R.string.use_launcher_tip)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mApplistPreferences.setShowUseLauncherTip(false);
+                        }
+                    })
+                    .show();
+        }
     }
 
     @Override
