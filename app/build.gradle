@@ -22,18 +22,26 @@ apply plugin: 'com.jakewharton.hugo'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "net.feheren_fekete.applist"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 12
-        versionName "1.3.6"
+
+        // Even versionCode are release versions.
+        // Odd versionCode are developer/debug versions.
+        versionCode 17
+
+        // versionName is major.minor
+        // Even minor versions are release versions.
+        // Odd minor versions are developer/debug versions.
+        versionName "1.6.1"
+
         multiDexEnabled true
 
         // http://developer.android.com/tools/help/vector-asset-studio.html
         vectorDrawables.useSupportLibrary = true
     }
+    buildToolsVersion '25.0.2'
     buildTypes {
         release {
             minifyEnabled true
