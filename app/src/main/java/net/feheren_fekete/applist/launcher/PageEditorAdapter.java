@@ -1,6 +1,10 @@
 package net.feheren_fekete.applist.launcher;
 
+import android.app.WallpaperInfo;
 import android.app.WallpaperManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
@@ -36,6 +40,7 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
 
     public class PageViewHolder extends RecyclerView.ViewHolder {
         public ViewGroup layout;
+        public ImageView wallpaper;
         public ImageView screenshot;
         public ImageView homeIcon;
         public ImageView removeIcon;
@@ -43,6 +48,7 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         public PageViewHolder(View itemView) {
             super(itemView);
             layout = (ViewGroup) itemView.findViewById(R.id.launcher_page_editor_item_layout);
+            wallpaper = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_wallpaper);
             screenshot = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_screenshot);
             homeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_home_icon);
             removeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_remove_icon);
@@ -149,13 +155,20 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
                     .load(file)
                     .signature(new ObjectKey(String.valueOf(file.lastModified())))
                     .into(holder.screenshot);
-        } else {
-            if (mWallpaper == null) {
-                final WallpaperManager wallpaperManager = WallpaperManager.getInstance(holder.screenshot.getContext());
+        }
+        if (mWallpaper == null) {
+            final WallpaperManager wallpaperManager = WallpaperManager.getInstance(holder.screenshot.getContext());
+            WallpaperInfo wallpaperInfo = wallpaperManager.getWallpaperInfo();
+            if (wallpaperInfo != null) {
+                final Bitmap bmp = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+                final Canvas canvas = new Canvas(bmp);
+                canvas.drawColor(0xbb5d1e66);
+                mWallpaper = new BitmapDrawable(holder.wallpaper.getResources(), bmp);
+            } else {
                 mWallpaper = wallpaperManager.getDrawable();
             }
-            holder.screenshot.setImageDrawable(mWallpaper);
         }
+        holder.wallpaper.setImageDrawable(mWallpaper);
         holder.pageNumber.setText(String.valueOf(position + 1));
     }
 

@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.WindowManager;
 
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.applistpage.ApplistDialogs;
@@ -52,6 +53,12 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
         mSettingsUtils.applyColorTheme(this);
+
+        // We don't want the settings screen to be transparent.
+        // So, we revert the windowShowWallpaper flag and restore the background color.
+        // REF: 2017_06_23_22_41_dont_show_wallpaper_in_settings_screen.
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
+        getWindow().setBackgroundDrawableResource(android.R.color.white);
 
         super.onCreate(savedInstanceState);
 

@@ -218,7 +218,11 @@
     </style>
 
     <style name="MyThemeBase" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowIsTranslucent">true</item>
+        <!--
+        REF: 2017_06_23_22_41_dont_show_wallpaper_in_settings_screen.
+        -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowShowWallpaper">true</item>
 
         <!--
         We make the status bar and the navigation bar translucent.
@@ -238,4 +242,5 @@
 
         <item name="android:windowActivityTransitions">true</item>
     </style>
+
 </resources>

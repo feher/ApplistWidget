@@ -1,7 +1,5 @@
 package net.feheren_fekete.applist.launcher;
 
-import android.app.WallpaperManager;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -25,11 +23,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.concurrent.Callable;
-
-import bolts.Continuation;
-import bolts.Task;
-
 public class LauncherFragment extends Fragment {
 
     private static final String TAG = LauncherFragment.class.getSimpleName();
@@ -41,7 +34,6 @@ public class LauncherFragment extends Fragment {
 
     private Handler mHandler = new Handler();
     private ApplistPreferences mApplistPreferences;
-    private ImageView mBackgroundImage;
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
     private int mActivePagePosition = -1;
@@ -55,8 +47,6 @@ public class LauncherFragment extends Fragment {
         View view = inflater.inflate(R.layout.launcher_fragment, container, false);
 
         mApplistPreferences = new ApplistPreferences(getContext().getApplicationContext());
-
-        mBackgroundImage = (ImageView) view.findViewById(R.id.launcher_fragment_background);
 
         mPager = (MyViewPager) view.findViewById(R.id.launcher_fragment_view_pager);
         mPagerAdapter = new LauncherPagerAdapter(getChildFragmentManager());
@@ -92,22 +82,6 @@ public class LauncherFragment extends Fragment {
         super.onResume();
 
         EventBus.getDefault().register(this);
-
-        Task.callInBackground(new Callable<Drawable>() {
-            @Override
-            public Drawable call() throws Exception {
-                final WallpaperManager wallpaperManager = WallpaperManager.getInstance(getContext());
-                final Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-                return wallpaperDrawable;
-            }
-        }).continueWith(new Continuation<Drawable, Void>() {
-            @Override
-            public Void then(Task<Drawable> task) throws Exception {
-                Drawable wallpaperDrawable = task.getResult();
-                mBackgroundImage.setImageDrawable(wallpaperDrawable);
-                return null;
-            }
-        }, Task.UI_THREAD_EXECUTOR);
 
         if (((MainActivity)getActivity()).isHomePressed()) {
             handleHomeButtonPress();

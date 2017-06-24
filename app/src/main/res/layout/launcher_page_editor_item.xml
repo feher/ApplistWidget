@@ -10,6 +10,18 @@
     >
 
     <ImageView
+        android:id="@+id/launcher_page_editor_item_wallpaper"
+        android:layout_margin="10dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ImageView
         android:id="@+id/launcher_page_editor_item_screenshot"
         android:layout_margin="10dp"
         android:layout_width="0dp"
