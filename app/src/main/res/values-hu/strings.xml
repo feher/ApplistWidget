@@ -47,11 +47,11 @@
     <string name="column_width_tiny">Picike</string>
     <string name="settings_column_width">Ikonméret</string>
     <string name="got_it">RENDBEN</string>
-    <string name="launcher_page_add_widget">Widget hozzáadása</string>
+    <string name="widget_page_add_widget">Widget hozzáadása</string>
     <string name="widget_menu_move_resize">Mozgat és átméretez</string>
     <string name="widget_menu_bring_to_top">Elöre hoz</string>
     <string name="widget_menu_remove">Töröl</string>
-    <string name="launcher_page_edit_pages">Oldalak szerkesztése</string>
+    <string name="widget_page_edit_pages">Oldalak szerkesztése</string>
     <string name="launcher_page_editor_done">Kész</string>
     <string name="launcher_page_editor_new_page">Új oldal</string>
     <string name="launcher_page_editor_remove_dialog_message">Biztos törölni akarod ezt az oldalt?</string>
@@ -59,4 +59,6 @@
     <string name="no">Nem</string>
     <string name="yes">Igen</string>
     <string name="use_launcher_tip">Tudtad, hogy az Appert <b>kezdőképernyőként</b> is használhatod?\n\nÁllítsd be az Appert <b>kezdőképernyőnek</b> a telefon Beállításokban.</string>
+    <string name="widget_page_change_wallpaper">Háttérkép beállítása</string>
+    <string name="change_wallpaper_dialog_title">Válassz háttérkép forrást</string>
 </resources>

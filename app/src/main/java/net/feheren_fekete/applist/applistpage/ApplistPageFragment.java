@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.applistpage;
 
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.launcher.LauncherUtils;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.settings.SettingsActivity;
 import net.feheren_fekete.applist.settings.SettingsUtils;
@@ -57,6 +59,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
@@ -244,6 +247,10 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
                     break;
                 case R.id.action_edit_pages:
                     showPageEditor();
+                    isHandled = true;
+                    break;
+                case R.id.action_change_wallpaper:
+                    mLauncherUtils.changeWallpaper(getActivity());
                     isHandled = true;
                     break;
             }

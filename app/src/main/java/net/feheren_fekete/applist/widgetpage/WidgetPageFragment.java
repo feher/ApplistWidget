@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.widgetpage;
 
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
@@ -25,6 +26,7 @@ import android.widget.FrameLayout;
 
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.launcher.LauncherUtils;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
@@ -68,6 +70,7 @@ public class WidgetPageFragment extends Fragment {
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
 
     private Handler mHandler = new Handler();
     private AppWidgetManager mAppWidgetManager;
@@ -470,7 +473,7 @@ public class WidgetPageFragment extends Fragment {
 
     private void openPageMenu() {
         mPageMenu = new AlertDialog.Builder(getContext())
-                .setItems(R.array.launcher_page_menu, new DialogInterface.OnClickListener() {
+                .setItems(R.array.widget_page_menu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
@@ -481,6 +484,10 @@ public class WidgetPageFragment extends Fragment {
                             case 1:
                                 // Edit pages
                                 showPageEditor();
+                                break;
+                            case 2:
+                                // Change wallpaper
+                                mLauncherUtils.changeWallpaper(getActivity());
                                 break;
                         }
                         mPageMenu = null;

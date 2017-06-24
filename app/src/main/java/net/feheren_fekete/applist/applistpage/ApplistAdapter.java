@@ -254,12 +254,15 @@ public class ApplistAdapter
 
     @Override
     public int getItemViewType(int position) {
-        BaseItem item = getItems().get(position);
-        if (item instanceof AppItem) {
-            return APP_ITEM_VIEW;
-        }
-        if (item instanceof SectionItem) {
-            return SECTION_ITEM_VIEW;
+        List<BaseItem> items = getItems();
+        if (position < items.size()) {
+            BaseItem item = items.get(position);
+            if (item instanceof AppItem) {
+                return APP_ITEM_VIEW;
+            }
+            if (item instanceof SectionItem) {
+                return SECTION_ITEM_VIEW;
+            }
         }
         return super.getItemViewType(position);
     }

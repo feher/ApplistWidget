@@ -22,7 +22,12 @@
 
     <item
         android:id="@+id/action_edit_pages"
-        android:title="@string/launcher_page_edit_pages"
+        android:title="@string/widget_page_edit_pages"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_change_wallpaper"
+        android:title="@string/widget_page_change_wallpaper"
         app:showAsAction="never"/>
 
 </menu>

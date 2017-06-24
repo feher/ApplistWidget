@@ -124,7 +124,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     case ApplistAdapter.SECTION_ITEM_VIEW:
                         return columnCount;
                     default:
-                        return -1;
+                        return 1;
                 }
             }
         });

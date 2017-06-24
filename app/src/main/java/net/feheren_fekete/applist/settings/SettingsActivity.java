@@ -26,6 +26,7 @@ import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.applistpage.ApplistDialogs;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
+import net.feheren_fekete.applist.launcher.LauncherUtils;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 import net.feheren_fekete.applist.utils.ScreenUtils;
@@ -91,6 +92,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         // TODO: Inject these singletons.
         private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+        private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
 
         private static final int SMS_PERMISSION_REQUEST_CODE = 1;
         private static final int PHONE_PERMISSION_REQUEST_CODE = 2;
@@ -231,7 +233,7 @@ public class SettingsActivity extends PreferenceActivity {
             if (AppUtils.getPhoneApp(appContext) == null) {
                 SwitchPreference showPhoneBadge = (SwitchPreference) findPreference(PREF_KEY_SHOW_PHONE_BADGE);
                 showPhoneBadge.setChecked(false);
-                ApplistDialogs.chooseAppDialog(
+                mLauncherUtils.chooseAppDialog(
                         getActivity(),
                         getString(R.string.settings_show_phone_badge_select_default_app),
                         AppUtils.getAvailableAppsForIntent(getActivity(), AppUtils.getPhoneIntent()),
