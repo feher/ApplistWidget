@@ -313,7 +313,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         ComponentName appComponentName = new ComponentName(
-                appItem.getPackageName(), appItem.getComponentName());
+                appItem.getPackageName(), appItem.getClassName());
         intent.setComponent(appComponentName);
         getContext().startActivity(intent);
 

@@ -21,7 +21,7 @@ public class ViewModelUtils {
                 result.add(new AppItem(
                         appData.getId(),
                         appData.getPackageName(),
-                        appData.getComponentName(),
+                        appData.getClassName(),
                         appData.getAppName()));
             }
         }
@@ -51,7 +51,7 @@ public class ViewModelUtils {
                 appDatas.add(new AppData(
                         appItem.getId(),
                         appItem.getPackageName(),
-                        appItem.getComponentName(),
+                        appItem.getClassName(),
                         appItem.getName()));
             }
         }

@@ -528,7 +528,7 @@ public class ApplistAdapter
         holder.appName.setText(item.getName());
 
         if (mSettingsUtils.getShowBadge()) {
-            int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getComponentName());
+            int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getClassName());
             if (badgeCount > 0) {
                 holder.badgeCount.setVisibility(View.VISIBLE);
                 if (badgeCount != BadgeUtils.NOT_NUMBERED_BADGE_COUNT) {

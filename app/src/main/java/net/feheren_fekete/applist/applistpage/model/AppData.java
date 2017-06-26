@@ -6,20 +6,20 @@ import java.util.Comparator;
 
 public class AppData extends BaseData {
     private String mPackageName;
+    private String mClassName;
     private String mAppName;
-    private String mComponentName;
 
-    public AppData(long id, String packageName, String componentName, String appName) {
+    public AppData(long id, String packageName, String className, String appName) {
         super(id);
         mPackageName = packageName;
-        mComponentName = componentName;
+        mClassName = className;
         mAppName = appName;
     }
 
     public AppData(AppItem appItem) {
         super(appItem.getId());
         mPackageName = appItem.getPackageName();
-        mComponentName = appItem.getComponentName();
+        mClassName = appItem.getClassName();
         mAppName = appItem.getName();
     }
 
@@ -27,8 +27,8 @@ public class AppData extends BaseData {
         return mPackageName;
     }
 
-    public String getComponentName() {
-        return mComponentName;
+    public String getClassName() {
+        return mClassName;
     }
 
     public String getAppName() {
@@ -42,7 +42,7 @@ public class AppData extends BaseData {
         }
         AppData other = (AppData) o;
         return mPackageName.equals(other.getPackageName())
-                && mComponentName.equals(other.getComponentName());
+                && mClassName.equals(other.getClassName());
     }
 
     public static final class NameComparator implements Comparator<AppData> {

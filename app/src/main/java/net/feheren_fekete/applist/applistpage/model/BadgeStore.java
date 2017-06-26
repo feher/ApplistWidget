@@ -88,7 +88,7 @@ public class BadgeStore {
                 boolean isAppDeleted = true;
                 for (AppData appData : installedApps) {
                     if (packageName.equals(appData.getPackageName())
-                            && className.equals(appData.getComponentName())) {
+                            && className.equals(appData.getClassName())) {
                         isAppDeleted = false;
                         break;
                     }

@@ -3,16 +3,16 @@ package net.feheren_fekete.applist.applistpage.viewmodel;
 
 public class AppItem extends BaseItem {
     private String mPackageName;
-    private String mComponentName;
+    private String mClassName;
     private String mAppName;
 
     public AppItem(long id,
                    String packageName,
-                   String componentName,
+                   String className,
                    String appName) {
         super(id);
         mPackageName = packageName;
-        mComponentName = componentName;
+        mClassName = className;
         mAppName = appName;
     }
 
@@ -20,8 +20,8 @@ public class AppItem extends BaseItem {
         return mPackageName;
     }
 
-    public String getComponentName() {
-        return mComponentName;
+    public String getClassName() {
+        return mClassName;
     }
 
     @Override
@@ -36,6 +36,6 @@ public class AppItem extends BaseItem {
         }
         AppItem other = (AppItem) o;
         return mPackageName.equals(other.getPackageName())
-                && mComponentName.equals(other.getComponentName());
+                && mClassName.equals(other.getClassName());
     }
 }

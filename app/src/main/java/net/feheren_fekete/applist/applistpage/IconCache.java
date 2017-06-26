@@ -38,6 +38,6 @@ public class IconCache {
     }
 
     public String createKey(AppItem appItem) {
-        return appItem.getPackageName() + "::" + appItem.getComponentName();
+        return appItem.getPackageName() + "::" + appItem.getClassName();
     }
 }

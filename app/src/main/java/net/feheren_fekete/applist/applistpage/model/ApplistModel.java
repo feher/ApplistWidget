@@ -430,7 +430,7 @@ public class ApplistModel {
                         JSONObject jsonApp = new JSONObject();
                         jsonApp.put("id", app.getId());
                         jsonApp.put("package-name", app.getPackageName());
-                        jsonApp.put("component-name", app.getComponentName());
+                        jsonApp.put("component-name", app.getClassName());
                         jsonApp.put("app-name", app.getAppName());
                         jsonApps.put(jsonApp);
                     }
@@ -462,7 +462,7 @@ public class ApplistModel {
                 JSONObject jsonApp = new JSONObject();
                 jsonApp.put("id", app.getId());
                 jsonApp.put("package-name", app.getPackageName());
-                jsonApp.put("component-name", app.getComponentName());
+                jsonApp.put("component-name", app.getClassName());
                 jsonApp.put("app-name", app.getAppName());
                 jsonApps.put(jsonApp);
             }

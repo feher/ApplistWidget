@@ -34,7 +34,7 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
         this.iconCacheRef = new WeakReference<>(iconCache);
         this.cachedIconPath = iconCacheDirPath
                 + File.separator
-                + appItem.getPackageName() + "_" + appItem.getComponentName() + ".png";
+                + appItem.getPackageName() + "_" + appItem.getClassName() + ".png";
     }
 
     public boolean isLoadingFor(AppItem item) {
@@ -51,7 +51,7 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
                     return iconBitmap;
                 } else {
                     ComponentName componentName = new ComponentName(
-                            appItem.getPackageName(), appItem.getComponentName());
+                            appItem.getPackageName(), appItem.getClassName());
                     iconDrawable = packageManager.getActivityIcon(componentName);
                     if (!isCancelled() && iconDrawable != null) {
                         iconBitmap = ImageUtils.drawableToBitmap(iconDrawable);
