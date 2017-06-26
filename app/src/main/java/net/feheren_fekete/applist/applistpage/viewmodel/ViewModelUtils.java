@@ -3,6 +3,8 @@ package net.feheren_fekete.applist.applistpage.viewmodel;
 import net.feheren_fekete.applist.applistpage.model.AppData;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
+import net.feheren_fekete.applist.applistpage.model.ShortcutData;
+import net.feheren_fekete.applist.applistpage.model.StartableData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +19,21 @@ public class ViewModelUtils {
                     sectionData.getName(),
                     sectionData.isRemovable(),
                     sectionData.isCollapsed()));
-            for (AppData appData : sectionData.getStartables()) {
-                result.add(new AppItem(
-                        appData.getId(),
-                        appData.getPackageName(),
-                        appData.getClassName(),
-                        appData.getAppName()));
+            for (StartableData startableData : sectionData.getStartables()) {
+                if (startableData instanceof AppData) {
+                    AppData appData = (AppData) startableData;
+                    result.add(new AppItem(
+                            appData.getId(),
+                            appData.getPackageName(),
+                            appData.getClassName(),
+                            appData.getName()));
+                } else if (startableData instanceof ShortcutData) {
+                    ShortcutData shortcutData = (ShortcutData) startableData;
+                    result.add(new ShortcutItem(
+                            shortcutData.getId(),
+                            shortcutData.getName(),
+                            shortcutData.getIntent()));
+                }
             }
         }
         return result;
@@ -31,7 +42,7 @@ public class ViewModelUtils {
     public static PageData viewToModel(long pageId, String pageName, List<BaseItem> items) {
         List<SectionData> sectionDatas = new ArrayList<>();
         SectionData sectionData = null;
-        List<AppData> appDatas = new ArrayList<>();
+        List<StartableData> startableDatas = new ArrayList<>();
         for (BaseItem item : items) {
             if (item instanceof SectionItem) {
                 SectionItem sectionItem = (SectionItem) item;
@@ -39,20 +50,26 @@ public class ViewModelUtils {
                     sectionDatas.add(sectionData);
                 }
                 // Start a new section
-                appDatas = new ArrayList<>();
+                startableDatas = new ArrayList<>();
                 sectionData = new SectionData(
                         sectionItem.getId(),
                         sectionItem.getName(),
-                        appDatas,
+                        startableDatas,
                         sectionItem.isRemovable(),
                         sectionItem.isCollapsed());
             } else if (item instanceof AppItem) {
                 AppItem appItem = (AppItem) item;
-                appDatas.add(new AppData(
+                startableDatas.add(new AppData(
                         appItem.getId(),
                         appItem.getPackageName(),
                         appItem.getClassName(),
                         appItem.getName()));
+            } else if (item instanceof ShortcutItem) {
+                ShortcutItem shortcutItem = (ShortcutItem) item;
+                startableDatas.add(new ShortcutData(
+                        shortcutItem.getId(),
+                        shortcutItem.getName(),
+                        shortcutItem.getIntent()));
             }
         }
         if (sectionData != null) {

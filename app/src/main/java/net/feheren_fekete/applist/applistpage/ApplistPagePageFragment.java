@@ -68,6 +68,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private @Nullable PopupMenu mItemMenu;
     private @Nullable BaseItem mItemMenuTarget;
     private ApplistItemDragHandler.Listener mListener;
+    private ShortcutHelper mShortcutHelper;
 
     public static ApplistPagePageFragment newInstance(String pageName,
                                                       long launcherPageId,
@@ -94,6 +95,8 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 getContext().getPackageManager(),
                 new BadgeUtils(getContext()));
         mApplistPreferences = new ApplistPreferences(getContext());
+        mShortcutHelper = new ShortcutHelper(getContext(), getPageName());
+        mShortcutHelper.registerInstallShortcutReceiver();
     }
 
     @Nullable
@@ -156,8 +159,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
+        super.onDestroy();
+        mShortcutHelper.unregisterInstallShortcutReceiver();
     }
 
     @Override

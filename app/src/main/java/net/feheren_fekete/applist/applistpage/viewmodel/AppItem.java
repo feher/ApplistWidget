@@ -1,7 +1,7 @@
 package net.feheren_fekete.applist.applistpage.viewmodel;
 
 
-public class AppItem extends BaseItem {
+public class AppItem extends StartableItem {
     private String mPackageName;
     private String mClassName;
     private String mAppName;

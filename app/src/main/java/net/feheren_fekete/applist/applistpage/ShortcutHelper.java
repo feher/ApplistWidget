@@ -23,11 +23,15 @@ public class ShortcutHelper {
 
     private static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
 
-    private Context mContext;
-    private ApplistModel mApplistModel;
+    // TODO: Inject
+    private ApplistModel mApplistModel = ApplistModel.getInstance();
 
-    public ShortcutHelper(Context context) {
+    private Context mContext;
+    private String mPageName;
+
+    public ShortcutHelper(Context context, String pageName) {
         mContext = context;
+        mPageName = pageName;
     }
 
     public void registerInstallShortcutReceiver() {
@@ -81,10 +85,11 @@ public class ShortcutHelper {
                         System.currentTimeMillis(),
                         shortcutName,
                         shortcutIntent);
+                final Bitmap finalShortcutIconBitmap = shortcutIconBitmap;
                 Task.callInBackground(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
-//                        mApplistModel.createShortcut(shortcutData, shortcutIconBitmap);
+                        mApplistModel.createShortcut(mPageName, shortcutData, finalShortcutIconBitmap);
                         return null;
                     }
                 });
