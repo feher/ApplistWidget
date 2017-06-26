@@ -1,23 +1,24 @@
 package net.feheren_fekete.applist.applistpage.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class SectionData extends BaseData {
     private String mName;
-    private List<AppData> mApps;
+    private List<StartableData> mStartables;
     private boolean mIsRemovable;
     private boolean mIsCollapsed;
 
     public SectionData(long id,
                        String name,
-                       List<AppData> apps,
+                       List<StartableData> startables,
                        boolean isRemovable,
                        boolean isCollapsed) {
         super(id);
         mName = name;
-        mApps = apps;
+        mStartables = startables;
         mIsRemovable = isRemovable;
         mIsCollapsed = isCollapsed;
     }
@@ -43,35 +44,49 @@ public class SectionData extends BaseData {
     }
 
     public boolean isEmpty() {
-        return mApps.isEmpty();
+        return mStartables.isEmpty();
+    }
+
+    public List<StartableData> getStartables() {
+        return mStartables;
     }
 
     public List<AppData> getApps() {
-        return mApps;
+        ArrayList<AppData> result = new ArrayList<>();
+        for (StartableData startableData : mStartables) {
+            if (startableData instanceof AppData) {
+                result.add((AppData) startableData);
+            }
+        }
+        return result;
     }
 
-    public void setApps(List<AppData> apps) {
-        mApps = apps;
+    public void setStartables(List<StartableData> startables) {
+        mStartables = startables;
+    }
+
+    public void addStartables(int index, List<StartableData> startableDatas) {
+        mStartables.addAll(index, startableDatas);
     }
 
     public void addApps(int index, List<AppData> apps) {
-        mApps.addAll(index, apps);
+        mStartables.addAll(index, apps);
     }
 
-    public void addApp(AppData app) {
-        mApps.add(app);
+    public void addStartable(StartableData startableData) {
+        mStartables.add(startableData);
     }
 
-    public boolean hasApp(AppData app) {
-        return mApps.contains(app);
+    public boolean hasStartable(StartableData startableData) {
+        return mStartables.contains(startableData);
     }
 
-    public boolean removeApp(AppData app) {
-        return mApps.remove(app);
+    public boolean removeStartable(StartableData startableData) {
+        return mStartables.remove(startableData);
     }
 
-    public void sortAppsAlphabetically() {
-        Collections.sort(mApps, new AppData.NameComparator());
+    public void sortStartablesAlphabetically() {
+        Collections.sort(mStartables, new StartableData.NameComparator());
     }
 
     @Override

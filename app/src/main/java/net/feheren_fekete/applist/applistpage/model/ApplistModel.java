@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.applistpage.model;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -16,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +33,33 @@ public class ApplistModel {
     private static final String TAG = ApplistModel.class.getSimpleName();
 
     public static final int INVALID_ID = 0;
+
+    public static final String JSON_PAGES = "pages";
+    public static final String JSON_PAGE_ID = "id";
+    public static final String JSON_PAGE_NAME = "name";
+
+    public static final String JSON_SECTIONS = "sections";
+    public static final String JSON_SECTION_ID = "id";
+    public static final String JSON_SECTION_NAME = "name";
+
+    public static final String JSON_SECTION_IS_REMOVABLE = "is-removable";
+    public static final String JSON_SECTION_IS_COLLAPSED = "is-collapsed";
+
+    public static final String JSON_STARTABLES = "startables";
+    public static final String JSON_STARTABLE_ID = "id";
+    public static final String JSON_STARTABLE_TYPE = "type";
+    public static final String JSON_STARTABLE_TYPE_APP = "app";
+    public static final String JSON_STARTABLE_TYPE_SHORTCUT = "shortcut";
+    public static final String JSON_STARTABLE_NAME = "name";
+    public static final String JSON_APP_PACKAGE_NAME = "package-name";
+    public static final String JSON_APP_CLASS_NAME = "class-name";
+    public static final String JSON_SHORTCUT_INTENT = "intent";
+
+    public static final String JSON_INSTALLED_APPS = "installed-apps";
+    public static final String JSON_INSTALLED_APP_ID = "id";
+    public static final String JSON_INSTALLED_APP_PACKAGE_NAME = "package-name";
+    public static final String JSON_INSTALLED_APP_CLASS_NAME = "class-name";
+    public static final String JSON_INSATLLED_APP_NAME = "app-name";
 
     private static ApplistModel sInstance;
 
@@ -226,7 +255,7 @@ public class ApplistModel {
             for (PageData page : mPages) {
                 if (page.getName().equals(pageName)) {
                     page.addSection(new SectionData(
-                            createSectionId(), sectionName, new ArrayList<AppData>(), removable, false));
+                            createSectionId(), sectionName, new ArrayList<StartableData>(), removable, false));
                     EventBus.getDefault().post(new SectionsChangedEvent());
                     scheduleStoreData();
                     return;
@@ -345,11 +374,11 @@ public class ApplistModel {
         }
     }
 
-    public void sortApps() {
+    public void sortStartables() {
         synchronized (this) {
             for (PageData pageData : mPages) {
                 for (SectionData sectionData : pageData.getSections()) {
-                    sectionData.sortAppsAlphabetically();
+                    sectionData.sortStartablesAlphabetically();
                 }
             }
             EventBus.getDefault().post(new SectionsChangedEvent());
@@ -357,12 +386,12 @@ public class ApplistModel {
         }
     }
 
-    public void sortAppsInPage(String pageName) {
+    public void sortStartablesInPage(String pageName) {
         synchronized (this) {
             PageData page = getPage(pageName);
             if (page != null) {
                 for (SectionData sectionData : page.getSections()) {
-                    sectionData.sortAppsAlphabetically();
+                    sectionData.sortStartablesAlphabetically();
                 }
                 EventBus.getDefault().post(new SectionsChangedEvent());
                 scheduleStoreData();
@@ -370,13 +399,13 @@ public class ApplistModel {
         }
     }
 
-    public void sortAppsInSection(String pageName, String sectionName) {
+    public void sortStartablesInSection(String pageName, String sectionName) {
         synchronized (this) {
             PageData page = getPage(pageName);
             if (page != null) {
                 SectionData sectionData = page.getSection(sectionName);
                 if (sectionData != null) {
-                    sectionData.sortAppsAlphabetically();
+                    sectionData.sortStartablesAlphabetically();
                     EventBus.getDefault().post(new SectionsChangedEvent());
                     scheduleStoreData();
                 }
@@ -384,14 +413,14 @@ public class ApplistModel {
         }
     }
 
-    public void moveAppToSection(String pageName, String sectionName, AppData app) {
+    public void moveStartableToSection(String pageName, String sectionName, StartableData startableData) {
         synchronized (this) {
             PageData page = getPage(pageName);
             if (page != null) {
-                page.removeApp(app);
+                page.removeStartable(startableData);
                 SectionData section = page.getSection(sectionName);
                 if (section != null) {
-                    section.addApp(app);
+                    section.addStartable(startableData);
                     EventBus.getDefault().post(new SectionsChangedEvent());
                     scheduleStoreData();
                 }
@@ -414,36 +443,48 @@ public class ApplistModel {
             JSONArray jsonPages = new JSONArray();
             for (PageData page : mPages) {
                 JSONObject jsonPage = new JSONObject();
-                jsonPage.put("id", page.getId());
-                jsonPage.put("name", page.getName());
+                jsonPage.put(JSON_PAGE_ID, page.getId());
+                jsonPage.put(JSON_PAGE_NAME, page.getName());
 
                 JSONArray jsonSections = new JSONArray();
                 for (SectionData section : page.getSections()) {
                     JSONObject jsonSection = new JSONObject();
-                    jsonSection.put("id", section.getId());
-                    jsonSection.put("name", section.getName());
-                    jsonSection.put("is-removable", section.isRemovable());
-                    jsonSection.put("is-collapsed", section.isCollapsed());
+                    jsonSection.put(JSON_SECTION_ID, section.getId());
+                    jsonSection.put(JSON_SECTION_NAME, section.getName());
+                    jsonSection.put(JSON_SECTION_IS_REMOVABLE, section.isRemovable());
+                    jsonSection.put(JSON_SECTION_IS_COLLAPSED, section.isCollapsed());
 
-                    JSONArray jsonApps = new JSONArray();
-                    for (AppData app : section.getApps()) {
-                        JSONObject jsonApp = new JSONObject();
-                        jsonApp.put("id", app.getId());
-                        jsonApp.put("package-name", app.getPackageName());
-                        jsonApp.put("component-name", app.getClassName());
-                        jsonApp.put("app-name", app.getAppName());
-                        jsonApps.put(jsonApp);
+                    JSONArray jsonStartables = new JSONArray();
+                    for (StartableData startableData : section.getStartables()) {
+                        if (startableData instanceof AppData) {
+                            AppData app = (AppData) startableData;
+                            JSONObject jsonApp = new JSONObject();
+                            jsonApp.put(JSON_STARTABLE_ID, app.getId());
+                            jsonApp.put(JSON_STARTABLE_TYPE, "app");
+                            jsonApp.put(JSON_STARTABLE_NAME, app.getName());
+                            jsonApp.put(JSON_APP_PACKAGE_NAME, app.getPackageName());
+                            jsonApp.put(JSON_APP_CLASS_NAME, app.getClassName());
+                            jsonStartables.put(jsonApp);
+                        } else if (startableData instanceof ShortcutData) {
+                            ShortcutData shortcut = (ShortcutData) startableData;
+                            JSONObject jsonShortcut = new JSONObject();
+                            jsonShortcut.put(JSON_STARTABLE_ID, shortcut.getId());
+                            jsonShortcut.put(JSON_STARTABLE_TYPE, "shortcut");
+                            jsonShortcut.put(JSON_STARTABLE_NAME, shortcut.getName());
+                            jsonShortcut.put(JSON_SHORTCUT_INTENT, shortcut.getIntent());
+                            jsonStartables.put(jsonShortcut);
+                        }
                     }
 
-                    jsonSection.put("apps", jsonApps);
+                    jsonSection.put(JSON_STARTABLES, jsonStartables);
                     jsonSections.put(jsonSection);
                 }
 
-                jsonPage.put("sections", jsonSections);
+                jsonPage.put(JSON_SECTIONS, jsonSections);
                 jsonPages.put(jsonPage);
             }
 
-            jsonObject.put("pages", jsonPages);
+            jsonObject.put(JSON_PAGES, jsonPages);
             data = jsonObject.toString(2);
         } catch (JSONException e) {
             ApplistLog.getInstance().log(e);
@@ -460,13 +501,13 @@ public class ApplistModel {
             JSONArray jsonApps = new JSONArray();
             for (AppData app : mInstalledApps) {
                 JSONObject jsonApp = new JSONObject();
-                jsonApp.put("id", app.getId());
-                jsonApp.put("package-name", app.getPackageName());
-                jsonApp.put("component-name", app.getClassName());
-                jsonApp.put("app-name", app.getAppName());
+                jsonApp.put(JSON_INSTALLED_APP_ID, app.getId());
+                jsonApp.put(JSON_INSTALLED_APP_PACKAGE_NAME, app.getPackageName());
+                jsonApp.put(JSON_INSTALLED_APP_CLASS_NAME, app.getClassName());
+                jsonApp.put(JSON_INSATLLED_APP_NAME, app.getName());
                 jsonApps.put(jsonApp);
             }
-            jsonObject.put("installed-apps", jsonApps);
+            jsonObject.put(JSON_INSTALLED_APPS, jsonApps);
             data = jsonObject.toString(2);
         } catch (JSONException e) {
             ApplistLog.getInstance().log(e);
@@ -477,14 +518,14 @@ public class ApplistModel {
     }
 
     private void addUncategorizedSection(PageData page) {
-        List<AppData> uncategorizedApps = new ArrayList<>();
+        List<StartableData> uncategorizedApps = new ArrayList<>();
         for (AppData app : mInstalledApps) {
-            if (!page.hasApp(app)) {
+            if (!page.hasStartable(app)) {
                 uncategorizedApps.add(app);
             }
         }
 
-        Collections.sort(uncategorizedApps, new AppData.NameComparator());
+        Collections.sort(uncategorizedApps, new StartableData.NameComparator());
 
         SectionData uncategorizedSection = new SectionData(
                 createSectionId(), mUncategorizedSectionName, uncategorizedApps, false, false);
@@ -510,7 +551,7 @@ public class ApplistModel {
             isSectionChanged |= updateSection(uncategorizedSection, uncategorizedApps);
             uncategorizedApps.removeAll(uncategorizedSection.getApps());
             if (!uncategorizedApps.isEmpty()) {
-                Collections.sort(uncategorizedApps, new AppData.NameComparator());
+                Collections.sort(uncategorizedApps, new StartableData.NameComparator());
                 uncategorizedSection.addApps(0, uncategorizedApps);
                 isSectionChanged = true;
             }
@@ -521,24 +562,29 @@ public class ApplistModel {
 
     private boolean updateSection(SectionData sectionData, List<AppData> availableApps) {
         boolean isSectionChanged = false;
-        List<AppData> availableAppsInSection = new ArrayList<>();
-        for (AppData app : sectionData.getApps()) {
-            final int availableAppPos = availableApps.indexOf(app);
-            final boolean isAvailable = (availableAppPos != -1);
-            if (isAvailable) {
-                // The app name may have changed. E.g. The user changed the system
-                // language.
-                AppData installedApp = availableApps.get(availableAppPos);
-                if (!app.getAppName().equals(installedApp.getAppName())) {
-                    isSectionChanged = true;
+        List<StartableData> availableItemsInSection = new ArrayList<>();
+        for (StartableData startable : sectionData.getStartables()) {
+            if (startable instanceof AppData) {
+                AppData app = (AppData) startable;
+                final int availableAppPos = availableApps.indexOf(app);
+                final boolean isAvailable = (availableAppPos != -1);
+                if (isAvailable) {
+                    // The app name may have changed. E.g. The user changed the system
+                    // language.
+                    AppData installedApp = availableApps.get(availableAppPos);
+                    if (!app.getName().equals(installedApp.getName())) {
+                        isSectionChanged = true;
+                    }
+                    availableItemsInSection.add(installedApp);
                 }
-                availableAppsInSection.add(installedApp);
+            } else {
+                availableItemsInSection.add(startable);
             }
         }
-        if (sectionData.getApps().size() != availableAppsInSection.size()) {
+        if (sectionData.getStartables().size() != availableItemsInSection.size()) {
             isSectionChanged = true;
         }
-        sectionData.setApps(availableAppsInSection);
+        sectionData.setStartables(availableItemsInSection);
         return isSectionChanged;
     }
 
@@ -548,7 +594,7 @@ public class ApplistModel {
         try {
             JSONObject jsonObject = new JSONObject(fileContent);
 
-            JSONArray jsonPages = jsonObject.getJSONArray("pages");
+            JSONArray jsonPages = jsonObject.getJSONArray(JSON_PAGES);
             for (int i = 0; i < jsonPages.length(); ++i) {
                 JSONObject jsonPage = jsonPages.getJSONObject(i);
                 pages.add(loadPage(jsonPage));
@@ -561,33 +607,46 @@ public class ApplistModel {
 
     private PageData loadPage(JSONObject jsonPage) throws JSONException {
         List<SectionData> sections = new ArrayList<>();
-        JSONArray jsonSections = jsonPage.getJSONArray("sections");
+        JSONArray jsonSections = jsonPage.getJSONArray(JSON_SECTIONS);
         for (int j = 0; j < jsonSections.length(); ++j) {
             JSONObject jsonSection = jsonSections.getJSONObject(j);
             sections.add(loadSection(jsonSection));
         }
 
-        return new PageData(INVALID_ID, jsonPage.getString("name"), sections);
+        return new PageData(INVALID_ID, jsonPage.getString(JSON_PAGE_NAME), sections);
     }
 
     private SectionData loadSection(JSONObject jsonSection) throws JSONException {
-        List<AppData> apps = new ArrayList<>();
-        JSONArray jsonApps = jsonSection.getJSONArray("apps");
-        for (int k = 0; k < jsonApps.length(); ++k) {
-            JSONObject jsonApp = jsonApps.getJSONObject(k);
-            AppData app = new AppData(
-                    jsonApp.getLong("id"),
-                    jsonApp.getString("package-name"),
-                    jsonApp.getString("component-name"),
-                    jsonApp.getString("app-name"));
-            apps.add(app);
+        List<StartableData> startableDatas = new ArrayList<>();
+        JSONArray jsonStartables = jsonSection.getJSONArray(JSON_STARTABLES);
+        for (int k = 0; k < jsonStartables.length(); ++k) {
+            JSONObject jsonStartable = jsonStartables.getJSONObject(k);
+            final String type = jsonStartable.getString(JSON_STARTABLE_TYPE);
+            if (JSON_STARTABLE_TYPE_APP.equals(type)) {
+                AppData app = new AppData(
+                        jsonStartable.getLong(JSON_STARTABLE_ID),
+                        jsonStartable.getString(JSON_APP_PACKAGE_NAME),
+                        jsonStartable.getString(JSON_APP_CLASS_NAME),
+                        jsonStartable.getString(JSON_STARTABLE_NAME));
+                startableDatas.add(app);
+            } else if (type.equals(JSON_STARTABLE_TYPE_SHORTCUT)) {
+                try {
+                    ShortcutData shortcutData = new ShortcutData(
+                            jsonStartable.getLong(JSON_STARTABLE_ID),
+                            jsonStartable.getString(JSON_STARTABLE_NAME),
+                            Intent.parseUri(jsonStartable.getString(JSON_SHORTCUT_INTENT), 0));
+                    startableDatas.add(shortcutData);
+                } catch (URISyntaxException e) {
+                    ApplistLog.getInstance().log(e);
+                }
+            }
         }
         return new SectionData(
-                jsonSection.getLong("id"),
-                jsonSection.getString("name"),
-                apps,
-                loadJsonBoolean(jsonSection, "is-removable", true),
-                loadJsonBoolean(jsonSection, "is-collapsed", false));
+                jsonSection.getLong(JSON_SECTION_ID),
+                jsonSection.getString(JSON_SECTION_NAME),
+                startableDatas,
+                loadJsonBoolean(jsonSection, JSON_SECTION_IS_REMOVABLE, true),
+                loadJsonBoolean(jsonSection, JSON_SECTION_IS_COLLAPSED, false));
     }
 
     private List<AppData> loadInstalledApps(String filePath) {
@@ -596,14 +655,14 @@ public class ApplistModel {
         try {
             JSONObject jsonObject = new JSONObject(fileContent);
 
-            JSONArray jsonInstalledApps = jsonObject.getJSONArray("installed-apps");
+            JSONArray jsonInstalledApps = jsonObject.getJSONArray(JSON_INSTALLED_APPS);
             for (int k = 0; k < jsonInstalledApps.length(); ++k) {
                 JSONObject jsonApp = jsonInstalledApps.getJSONObject(k);
                 AppData app = new AppData(
-                        jsonApp.getLong("id"),
-                        jsonApp.getString("package-name"),
-                        jsonApp.getString("component-name"),
-                        jsonApp.getString("app-name"));
+                        jsonApp.getLong(JSON_INSTALLED_APP_ID),
+                        jsonApp.getString(JSON_INSTALLED_APP_PACKAGE_NAME),
+                        jsonApp.getString(JSON_INSTALLED_APP_CLASS_NAME),
+                        jsonApp.getString(JSON_INSATLLED_APP_NAME));
                 installedApps.add(app);
             }
 

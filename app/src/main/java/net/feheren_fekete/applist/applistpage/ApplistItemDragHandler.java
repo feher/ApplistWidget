@@ -408,7 +408,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                 PageData pageData = ViewModelUtils.viewToModel(ApplistModel.INVALID_ID, pageName, items);
                 mApplistModel.setPage(pageName, pageData);
                 if (keepAppsSorted) {
-                    mApplistModel.sortAppsInPage(pageName);
+                    mApplistModel.sortStartablesInPage(pageName);
                 }
                 return null;
             }

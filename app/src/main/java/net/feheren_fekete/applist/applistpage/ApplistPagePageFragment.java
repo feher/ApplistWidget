@@ -528,7 +528,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mApplistModel.sortAppsInSection(pageName, sectionName);
+                mApplistModel.sortStartablesInSection(pageName, sectionName);
                 return null;
             }
         });
@@ -558,7 +558,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                                     mApplistModel.addNewSection(pageName, sectionName, true);
                                     if (appToMove != null) {
                                         AppData appData = new AppData(appToMove);
-                                        mApplistModel.moveAppToSection(pageName, sectionName, appData);
+                                        mApplistModel.moveStartableToSection(pageName, sectionName, appData);
                                     }
                                     return null;
                                 }

@@ -105,14 +105,14 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
         mFragmentContainer = (FrameLayout) view.findViewById(R.id.applist_page_fragment_page_container);
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        intentFilter.addDataScheme("package");
-        getContext().registerReceiver(mPackageStateReceiver, intentFilter);
+        IntentFilter packageIntentFilter = new IntentFilter();
+        packageIntentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        packageIntentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        packageIntentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        packageIntentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        packageIntentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        packageIntentFilter.addDataScheme("package");
+        getContext().registerReceiver(mPackageStateReceiver, packageIntentFilter);
 
         return view;
     }

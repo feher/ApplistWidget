@@ -169,7 +169,7 @@ public class SettingsActivity extends PreferenceActivity {
                                 Task.callInBackground(new Callable<Void>() {
                                     @Override
                                     public Void call() throws Exception {
-                                        applistModel.sortApps();
+                                        applistModel.sortStartables();
                                         return null;
                                     }
                                 });

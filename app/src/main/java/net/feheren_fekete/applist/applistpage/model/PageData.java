@@ -62,18 +62,18 @@ public class PageData extends BaseData {
         return false;
     }
 
-    public boolean hasApp(AppData app) {
+    public boolean hasStartable(StartableData startableData) {
         for (SectionData section : mSections) {
-            if (section.hasApp(app)) {
+            if (section.hasStartable(startableData)) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean removeApp(AppData app) {
+    public boolean removeStartable(StartableData startableData) {
         for (SectionData section : mSections) {
-            if (section.removeApp(app)) {
+            if (section.removeStartable(startableData)) {
                 return true;
             }
         }

@@ -17,7 +17,7 @@ public class ViewModelUtils {
                     sectionData.getName(),
                     sectionData.isRemovable(),
                     sectionData.isCollapsed()));
-            for (AppData appData : sectionData.getApps()) {
+            for (AppData appData : sectionData.getStartables()) {
                 result.add(new AppItem(
                         appData.getId(),
                         appData.getPackageName(),

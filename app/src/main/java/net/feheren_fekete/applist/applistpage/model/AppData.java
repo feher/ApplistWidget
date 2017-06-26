@@ -4,23 +4,20 @@ import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
 
 import java.util.Comparator;
 
-public class AppData extends BaseData {
+public class AppData extends StartableData {
     private String mPackageName;
     private String mClassName;
-    private String mAppName;
 
     public AppData(long id, String packageName, String className, String appName) {
-        super(id);
+        super(id, appName);
         mPackageName = packageName;
         mClassName = className;
-        mAppName = appName;
     }
 
     public AppData(AppItem appItem) {
-        super(appItem.getId());
+        super(appItem.getId(), appItem.getName());
         mPackageName = appItem.getPackageName();
         mClassName = appItem.getClassName();
-        mAppName = appItem.getName();
     }
 
     public String getPackageName() {
@@ -29,10 +26,6 @@ public class AppData extends BaseData {
 
     public String getClassName() {
         return mClassName;
-    }
-
-    public String getAppName() {
-        return mAppName;
     }
 
     @Override
@@ -45,10 +38,4 @@ public class AppData extends BaseData {
                 && mClassName.equals(other.getClassName());
     }
 
-    public static final class NameComparator implements Comparator<AppData> {
-        @Override
-        public int compare(AppData lhs, AppData rhs) {
-            return lhs.getAppName().compareTo(rhs.getAppName());
-        }
-    }
 }
