@@ -652,6 +652,7 @@ public class ApplistAdapter
             holder.appIcon.setBackgroundColor(Color.TRANSPARENT);
             GlideApp.with(mContext).load(iconFile).into(holder.appIcon);
         } else {
+            holder.appIcon.setImageBitmap(null);
             holder.appIcon.setBackgroundColor(mIconPlaceholderColors[mNextPlaceholderColor]);
             mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
         }
