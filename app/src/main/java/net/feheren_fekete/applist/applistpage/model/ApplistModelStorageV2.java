@@ -50,7 +50,7 @@ public class ApplistModelStorageV2 {
     public ApplistModelStorageV2(Context context) {
         mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-pages-v2.json";
         mInstalledStartablesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-installed-startables-v2.json";
-        mShortcutIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "shortcut-icons";
+        mShortcutIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "shortcut-icons-v2";
     }
 
     public boolean exists() {
