@@ -85,7 +85,9 @@ public class ApplistModel {
             if (mApplistModelStorageV1.exists()) {
                 mInstalledStartables = mApplistModelStorageV1.loadInstalledApps();
                 pages = mApplistModelStorageV1.loadPages();
+                // Delete the old data files and store the new ones.
                 mApplistModelStorageV1.delete();
+                scheduleStoreData();
             } else {
                 mInstalledStartables = mApplistModelStorageV2.loadInstalledStartables();
                 pages = mApplistModelStorageV2.loadPages();
