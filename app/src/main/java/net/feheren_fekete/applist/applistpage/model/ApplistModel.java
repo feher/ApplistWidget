@@ -1,30 +1,22 @@
 package net.feheren_fekete.applist.applistpage.model;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 
-import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.utils.AppUtils;
-import net.feheren_fekete.applist.utils.FileUtils;
-import net.feheren_fekete.applist.utils.ImageUtils;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -43,8 +35,7 @@ public class ApplistModel {
     private ApplistModelStorageV1 mApplistModelStorageV1;
     private ApplistModelStorageV2 mApplistModelStorageV2;
     private String mUncategorizedSectionName;
-    private String mShortcutIconsDirPath;
-    private List<AppData> mInstalledApps;
+    private List<StartableData> mInstalledStartables;
     private List<PageData> mPages;
 
     public static final class PagesChangedEvent {}
@@ -84,8 +75,7 @@ public class ApplistModel {
         mApplistModelStorageV1 = new ApplistModelStorageV1(context);
         mApplistModelStorageV2 = new ApplistModelStorageV2(context);
         mUncategorizedSectionName = context.getResources().getString(R.string.uncategorized_group);
-        mShortcutIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "shortcut-icons";
-        mInstalledApps = new ArrayList<>();
+        mInstalledStartables = new ArrayList<>();
         mPages = new ArrayList<>();
     }
 
@@ -93,31 +83,33 @@ public class ApplistModel {
         synchronized (this) {
             List<PageData> pages;
             if (mApplistModelStorageV1.exists()) {
-                mInstalledApps = mApplistModelStorageV1.loadInstalledApps();
+                mInstalledStartables = mApplistModelStorageV1.loadInstalledApps();
                 pages = mApplistModelStorageV1.loadPages();
                 mApplistModelStorageV1.delete();
             } else {
-                mInstalledApps = mApplistModelStorageV2.loadInstalledApps();
+                mInstalledStartables = mApplistModelStorageV2.loadInstalledStartables();
                 pages = mApplistModelStorageV2.loadPages();
             }
-            for (PageData page : pages) {
-                updateSections(page);
-            }
+            updatePages(pages);
             mPages = pages;
             EventBus.getDefault().post(new DataLoadedEvent());
         }
     }
 
     public void updateInstalledApps() {
-        List<AppData> installedApps = AppUtils.getInstalledApps(mPackageManager);
+        List<AppData> newInstalledApps = AppUtils.getInstalledApps(mPackageManager);
         synchronized (this) {
-            mInstalledApps = installedApps;
-            boolean isSectionChanged = false;
-            for (PageData page : mPages) {
-                if (updateSections(page)) {
-                    isSectionChanged = true;
+            // Replace old installed apps with new installed apps.
+            List<StartableData> oldInstalledApps = new ArrayList<>();
+            for (StartableData startableData : mInstalledStartables) {
+                if (startableData instanceof AppData) {
+                    oldInstalledApps.add(startableData);
                 }
             }
+            mInstalledStartables.removeAll(oldInstalledApps);
+            mInstalledStartables.addAll(newInstalledApps);
+
+            boolean isSectionChanged = updatePages(mPages);
             if (isSectionChanged) {
                 EventBus.getDefault().post(new SectionsChangedEvent());
             }
@@ -129,7 +121,7 @@ public class ApplistModel {
     private void storeData() {
         synchronized (this) {
             mApplistModelStorageV2.storePages(mPages);
-            mApplistModelStorageV2.storeInstalledApps(mInstalledApps);
+            mApplistModelStorageV2.storeInstalledStartables(mInstalledStartables);
         }
     }
 
@@ -411,19 +403,41 @@ public class ApplistModel {
         }
     }
 
-    public void createShortcut(String pageName, ShortcutData shortcutData, Bitmap shortcutIcon) {
+    public void addInstalledShortcut(ShortcutData shortcutData, Bitmap shortcutIcon) {
         synchronized (this) {
-            PageData page = getPage(pageName);
-            if (page != null) {
-                ImageUtils.saveBitmap(
-                        shortcutIcon,
-                        mShortcutIconsDirPath + File.separator + "shortcut-icon-" + shortcutData.getId() + ".png");
-                SectionData sectionData = getUncategorizedSection(page);
-                sectionData.addStartable(shortcutData);
+            mApplistModelStorageV2.storeShortcutIcon(shortcutData, shortcutIcon);
+            mInstalledStartables.add(shortcutData);
+
+            boolean isSectionChanged = updatePages(mPages);
+            if (isSectionChanged) {
                 EventBus.getDefault().post(new SectionsChangedEvent());
-                scheduleStoreData();
             }
+
+            scheduleStoreData();
         }
+    }
+
+    public void removeInstalledShortcut(long shortcutId) {
+        synchronized (this) {
+            for (StartableData startableData : mInstalledStartables) {
+                if (startableData.getId() == shortcutId) {
+                    mInstalledStartables.remove(startableData);
+                    break;
+                }
+            }
+            mApplistModelStorageV2.deleteShortcutIcon(shortcutId);
+
+            boolean isSectionChanged = updatePages(mPages);
+            if (isSectionChanged) {
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
+
+            scheduleStoreData();
+        }
+    }
+
+    public String getShortcutIconPath(ShortcutData shortcutData) {
+        return mApplistModelStorageV2.getShortcutIconFilePath(shortcutData.getId());
     }
 
     private long createPageId() {
@@ -435,41 +449,51 @@ public class ApplistModel {
     }
 
     private void addUncategorizedSection(PageData page) {
-        List<StartableData> uncategorizedApps = new ArrayList<>();
-        for (AppData app : mInstalledApps) {
-            if (!page.hasStartable(app)) {
-                uncategorizedApps.add(app);
+        List<StartableData> uncategorizedItems = new ArrayList<>();
+        for (StartableData startableData : mInstalledStartables) {
+            if (!page.hasStartable(startableData)) {
+                uncategorizedItems.add(startableData);
             }
         }
 
-        Collections.sort(uncategorizedApps, new StartableData.NameComparator());
+        Collections.sort(uncategorizedItems, new StartableData.NameComparator());
 
         SectionData uncategorizedSection = new SectionData(
-                createSectionId(), mUncategorizedSectionName, uncategorizedApps, false, false);
+                createSectionId(), mUncategorizedSectionName, uncategorizedItems, false, false);
         page.addSection(uncategorizedSection);
     }
 
+    private boolean updatePages(List<PageData> pages) {
+        boolean isSectionChanged = false;
+        for (PageData page : mPages) {
+            if (updateSections(page)) {
+                isSectionChanged = true;
+            }
+        }
+        return isSectionChanged;
+    }
+
     private boolean updateSections(PageData page) {
-        if (mInstalledApps.isEmpty()) {
+        if (mInstalledStartables.isEmpty()) {
             return false;
         }
 
         boolean isSectionChanged = false;
-        ArrayList<AppData> uncategorizedApps = new ArrayList<>(mInstalledApps);
+        ArrayList<StartableData> uncategorizedItems = new ArrayList<>(mInstalledStartables);
         SectionData uncategorizedSection = getUncategorizedSection(page);
         for (SectionData section : page.getSections()) {
             if (section != uncategorizedSection) {
-                isSectionChanged |= updateSection(section, uncategorizedApps);
-                uncategorizedApps.removeAll(section.getApps());
+                isSectionChanged |= updateSection(section, uncategorizedItems);
+                uncategorizedItems.removeAll(section.getStartables());
             }
         }
 
         if (uncategorizedSection != null) {
-            isSectionChanged |= updateSection(uncategorizedSection, uncategorizedApps);
-            uncategorizedApps.removeAll(uncategorizedSection.getApps());
-            if (!uncategorizedApps.isEmpty()) {
-                Collections.sort(uncategorizedApps, new StartableData.NameComparator());
-                uncategorizedSection.addApps(0, uncategorizedApps);
+            isSectionChanged |= updateSection(uncategorizedSection, uncategorizedItems);
+            uncategorizedItems.removeAll(uncategorizedSection.getStartables());
+            if (!uncategorizedItems.isEmpty()) {
+                Collections.sort(uncategorizedItems, new StartableData.NameComparator());
+                uncategorizedSection.addStartables(0, uncategorizedItems);
                 isSectionChanged = true;
             }
         }
@@ -481,25 +505,20 @@ public class ApplistModel {
         return pageData.getSectionByRemovable(false);
     }
 
-    private boolean updateSection(SectionData sectionData, List<AppData> availableApps) {
+    private boolean updateSection(SectionData sectionData, List<StartableData> availableItems) {
         boolean isSectionChanged = false;
         List<StartableData> availableItemsInSection = new ArrayList<>();
-        for (StartableData startable : sectionData.getStartables()) {
-            if (startable instanceof AppData) {
-                AppData app = (AppData) startable;
-                final int availableAppPos = availableApps.indexOf(app);
-                final boolean isAvailable = (availableAppPos != -1);
-                if (isAvailable) {
-                    // The app name may have changed. E.g. The user changed the system
-                    // language.
-                    AppData installedApp = availableApps.get(availableAppPos);
-                    if (!app.getName().equals(installedApp.getName())) {
-                        isSectionChanged = true;
-                    }
-                    availableItemsInSection.add(installedApp);
+        for (StartableData startableData : sectionData.getStartables()) {
+            final int availableItemPos = availableItems.indexOf(startableData);
+            final boolean isAvailable = (availableItemPos != -1);
+            if (isAvailable) {
+                // The app name may have changed. E.g. The user changed the system
+                // language.
+                StartableData installedStartable = availableItems.get(availableItemPos);
+                if (!startableData.getName().equals(installedStartable.getName())) {
+                    isSectionChanged = true;
                 }
-            } else {
-                availableItemsInSection.add(startable);
+                availableItemsInSection.add(installedStartable);
             }
         }
         if (sectionData.getStartables().size() != availableItemsInSection.size()) {

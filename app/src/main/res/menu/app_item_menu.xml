@@ -15,4 +15,10 @@
         app:showAsAction="ifRoom|withText"
         />
 
+    <item
+        android:id="@+id/action_shortcut_remove"
+        android:title="@string/app_item_menu_remove_shortcut"
+        app:showAsAction="ifRoom|withText"
+        />
+
 </menu>

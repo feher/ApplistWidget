@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.applistpage.viewmodel;
 
 import net.feheren_fekete.applist.applistpage.model.AppData;
+import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
 import net.feheren_fekete.applist.applistpage.model.ShortcutData;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class ViewModelUtils {
 
-    public static List<BaseItem> modelToView(PageData pageData) {
+    public static List<BaseItem> modelToView(ApplistModel applistModel, PageData pageData) {
         List<BaseItem> result = new ArrayList<>();
         for (SectionData sectionData : pageData.getSections()) {
             result.add(new SectionItem(
@@ -32,7 +33,8 @@ public class ViewModelUtils {
                     result.add(new ShortcutItem(
                             shortcutData.getId(),
                             shortcutData.getName(),
-                            shortcutData.getIntent()));
+                            shortcutData.getIntent(),
+                            applistModel.getShortcutIconPath(shortcutData)));
                 }
             }
         }

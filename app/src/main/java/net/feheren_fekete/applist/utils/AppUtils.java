@@ -98,8 +98,8 @@ public class AppUtils {
         return phoneIntent;
     }
 
-    private static long createAppId(String packageName, String componentName) {
-        return (packageName + componentName).hashCode();
+    private static long createAppId(String packageName, String className) {
+        return (packageName + className).hashCode();
     }
 
 }

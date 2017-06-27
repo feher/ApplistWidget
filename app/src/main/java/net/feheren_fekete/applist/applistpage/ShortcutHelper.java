@@ -27,11 +27,9 @@ public class ShortcutHelper {
     private ApplistModel mApplistModel = ApplistModel.getInstance();
 
     private Context mContext;
-    private String mPageName;
 
-    public ShortcutHelper(Context context, String pageName) {
+    public ShortcutHelper(Context context) {
         mContext = context;
-        mPageName = pageName;
     }
 
     public void registerInstallShortcutReceiver() {
@@ -50,16 +48,7 @@ public class ShortcutHelper {
             String action = intent.getAction();
             if (ACTION_INSTALL_SHORTCUT.equals(action)) {
                 final String shortcutName = intent.getStringExtra(Intent.EXTRA_SHORTCUT_NAME);
-
-                final String shortcutIntentString = intent.getStringExtra(Intent.EXTRA_SHORTCUT_INTENT);
-                Intent shortcutIntent = null;
-                try {
-                    shortcutIntent = Intent.parseUri(shortcutIntentString, 0);
-                } catch (URISyntaxException e) {
-                    ApplistLog.getInstance().log(e);
-                    return;
-                }
-
+                final Intent shortcutIntent = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
                 Bitmap shortcutIconBitmap = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON);
                 if (shortcutIconBitmap == null) {
                     final Intent.ShortcutIconResource shortcutIconResource = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
@@ -77,7 +66,7 @@ public class ShortcutHelper {
                     }
                 }
                 if (shortcutIconBitmap == null) {
-                    ApplistLog.getInstance().log(new RuntimeException("Missing icon for shortcut: " + shortcutIntentString));
+                    ApplistLog.getInstance().log(new RuntimeException("Missing icon for shortcut: " + shortcutIntent.toUri(0)));
                     return;
                 }
 
@@ -89,7 +78,7 @@ public class ShortcutHelper {
                 Task.callInBackground(new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
-                        mApplistModel.createShortcut(mPageName, shortcutData, finalShortcutIconBitmap);
+                        mApplistModel.addInstalledShortcut(shortcutData, finalShortcutIconBitmap);
                         return null;
                     }
                 });

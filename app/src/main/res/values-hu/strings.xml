@@ -61,4 +61,6 @@
     <string name="use_launcher_tip">Tudtad, hogy az Appert <b>kezdőképernyőként</b> is használhatod?\n\nÁllítsd be az Appert <b>kezdőképernyőnek</b> a telefon Beállításokban.</string>
     <string name="widget_page_change_wallpaper">Háttérkép beállítása</string>
     <string name="change_wallpaper_dialog_title">Válassz háttérkép forrást</string>
+    <string name="app_item_menu_remove_shortcut">Gyorsindító törlése</string>
+    <string name="cannot_start_shortcut">A gyorsindító nem müködik! Az alkalmazás nem található.</string>
 </resources>

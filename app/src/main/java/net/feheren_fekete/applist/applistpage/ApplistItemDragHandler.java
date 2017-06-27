@@ -15,9 +15,9 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.PageData;
+import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.utils.ScreenUtils;
-import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
@@ -111,10 +111,10 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         mListener.onItemDragStart();
 
         final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
-        if (draggedItem instanceof AppItem) {
+        if (draggedItem instanceof StartableItem) {
             mAdapter.setEnabled(draggedItem, false);
         } else if (draggedItem instanceof SectionItem) {
-            mAdapter.setAllAppsEnabled(false);
+            mAdapter.setAllStartablesEnabled(false);
             mAdapter.setSectionsHighlighted(true);
         }
 
@@ -166,10 +166,10 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     @Override
     public void onStopDragging(DragGestureRecognizer gestureRecognizer) {
         final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
-        if (draggedItem instanceof AppItem) {
+        if (draggedItem instanceof StartableItem) {
             mAdapter.setEnabled(draggedItem, true);
         } else if (draggedItem instanceof SectionItem) {
-            mAdapter.setAllAppsEnabled(true);
+            mAdapter.setAllStartablesEnabled(true);
             mAdapter.setSectionsHighlighted(false);
         }
 
@@ -192,11 +192,11 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     }
 
     private void addDraggedView(DragGestureRecognizer gestureRecognizer, BaseItem draggedItem) {
-        if (draggedItem instanceof AppItem) {
-            ApplistAdapter.AppItemHolder appItemHolder =
-                    (ApplistAdapter.AppItemHolder) mRecyclerView.findViewHolderForItemId(draggedItem.getId());
+        if (draggedItem instanceof StartableItem) {
+            ApplistAdapter.StartableItemHolder startableItemHolder =
+                    (ApplistAdapter.StartableItemHolder) mRecyclerView.findViewHolderForItemId(draggedItem.getId());
             ImageView imageView = new ImageView(mContext);
-            imageView.setImageDrawable(appItemHolder.appIcon.getDrawable());
+            imageView.setImageDrawable(startableItemHolder.appIcon.getDrawable());
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mDraggedAppViewSize, mDraggedAppViewSize);
             imageView.setLayoutParams(layoutParams);
             mDraggedView = imageView;
@@ -225,7 +225,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         mRecyclerView.getLocationOnScreen(mRecyclerViewLocation);
         layoutParams.leftMargin = Math.round(fingerRawX - mRecyclerViewLocation[0]);
         layoutParams.topMargin = Math.round(fingerRawY - mRecyclerViewLocation[1]);
-        if (draggedItem instanceof AppItem) {
+        if (draggedItem instanceof StartableItem) {
             layoutParams.leftMargin -= mDraggedAppViewSize / 2;
             layoutParams.topMargin -= mDraggedAppViewSize * 1.5f;
         } else {
@@ -246,7 +246,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         final float fingerCurrentPosY = event.getRawY();
         float draggedViewPosX = fingerCurrentPosX;
         float draggedViewPosY = fingerCurrentPosY;
-        if (draggedItem instanceof AppItem) {
+        if (draggedItem instanceof StartableItem) {
             draggedViewPosX -= mDraggedAppViewSize / 2;
             draggedViewPosY -= mDraggedAppViewSize;
         } else {
@@ -269,7 +269,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
             for (int i = firstItemPos; i <= lastItemPos; ++i) {
                 boolean considerItem = true;
                 BaseItem item = mAdapter.getItem(i);
-                if (draggedItem instanceof AppItem
+                if (draggedItem instanceof StartableItem
                         && item instanceof SectionItem) {
                     SectionItem sectionItem = (SectionItem) item;
                     if (!sectionItem.isCollapsed() && !mAdapter.isSectionEmpty(sectionItem)) {
@@ -279,7 +279,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                     }
                 }
                 if (draggedItem instanceof SectionItem
-                        && item instanceof AppItem) {
+                        && item instanceof StartableItem) {
                     // We don't allow dragging sections over app items, unless it's the very last
                     // app item.
                     considerItem = (i == mAdapter.getItemCount() - 1);
@@ -315,9 +315,9 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
             } else {
                 cleanDraggedOverItem();
                 mDraggedOverItem = candidateItem;
-                if (draggedItem instanceof AppItem) {
-                    if (mDraggedOverItem instanceof AppItem) {
-                        if (mAdapter.isAppLastInSection((AppItem) mDraggedOverItem)) {
+                if (draggedItem instanceof StartableItem) {
+                    if (mDraggedOverItem instanceof StartableItem) {
+                        if (mAdapter.isStartableLastInSection((StartableItem) mDraggedOverItem)) {
                             final int viewLeftSideCenterX = candidateViewLeft;
                             final int viewLeftSideCenterY = candidateViewTop + (candidateViewBottom - candidateViewTop) / 2;
                             final double distanceToLeftSideCenter = distanceOfPoints(
@@ -337,7 +337,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                         mAdapter.notifyItemChanged(candidateItemPosition);
                     }
                 } else if (draggedItem instanceof SectionItem) {
-                    if (mDraggedOverItem instanceof AppItem) {
+                    if (mDraggedOverItem instanceof StartableItem) {
                         mDraggedOverItem.setDraggedOver(BaseItem.RIGHT);
                         mAdapter.notifyItemChanged(candidateItemPosition);
                     } else if (mDraggedOverItem instanceof SectionItem) {

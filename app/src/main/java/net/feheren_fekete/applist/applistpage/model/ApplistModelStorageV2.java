@@ -2,9 +2,11 @@ package net.feheren_fekete.applist.applistpage.model;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.utils.FileUtils;
+import net.feheren_fekete.applist.utils.ImageUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +30,7 @@ public class ApplistModelStorageV2 {
     private static final String JSON_SECTION_IS_REMOVABLE = "is-removable";
     private static final String JSON_SECTION_IS_COLLAPSED = "is-collapsed";
 
+    private static final String JSON_INSTALLED_STARTABLES = "installed-apps";
     private static final String JSON_STARTABLES = "startables";
     private static final String JSON_STARTABLE_ID = "id";
     private static final String JSON_STARTABLE_TYPE = "type";
@@ -38,20 +41,16 @@ public class ApplistModelStorageV2 {
     private static final String JSON_APP_CLASS_NAME = "class-name";
     private static final String JSON_SHORTCUT_INTENT = "intent";
 
-    private static final String JSON_INSTALLED_APPS = "installed-apps";
-    private static final String JSON_INSTALLED_APP_ID = "id";
-    private static final String JSON_INSTALLED_APP_PACKAGE_NAME = "package-name";
-    private static final String JSON_INSTALLED_APP_CLASS_NAME = "class-name";
-    private static final String JSON_INSATLLED_APP_NAME = "app-name";
-
     private FileUtils mFileUtils = new FileUtils();
 
     private String mPagesFilePath;
-    private String mInstalledAppsFilePath;
+    private String mInstalledStartablesFilePath;
+    private String mShortcutIconsDirPath;
 
     public ApplistModelStorageV2(Context context) {
         mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-pages-v2.json";
-        mInstalledAppsFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-installed-apps-v2.json";
+        mInstalledStartablesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-installed-startables-v2.json";
+        mShortcutIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "shortcut-icons";
     }
 
     public boolean exists() {
@@ -59,27 +58,34 @@ public class ApplistModelStorageV2 {
         return file.exists();
     }
 
-    public List<AppData> loadInstalledApps() {
-        List<AppData> installedApps = new ArrayList<>();
-        String fileContent = mFileUtils.readFile(mInstalledAppsFilePath);
+    public String getShortcutIconFilePath(long shortcutId) {
+        return mShortcutIconsDirPath + File.separator + "shortcut-icon-" + shortcutId + ".png";
+    }
+
+    public void storeShortcutIcon(ShortcutData shortcutData, Bitmap shortcutIcon) {
+        ImageUtils.saveBitmap(
+                shortcutIcon,
+                getShortcutIconFilePath(shortcutData.getId()));
+    }
+
+    public void deleteShortcutIcon(long shortcutId) {
+        new File(getShortcutIconFilePath(shortcutId)).delete();
+    }
+
+    public List<StartableData> loadInstalledStartables() {
+        List<StartableData> installedStartables = new ArrayList<>();
+        String fileContent = mFileUtils.readFile(mInstalledStartablesFilePath);
         try {
             JSONObject jsonObject = new JSONObject(fileContent);
-
-            JSONArray jsonInstalledApps = jsonObject.getJSONArray(JSON_INSTALLED_APPS);
-            for (int k = 0; k < jsonInstalledApps.length(); ++k) {
-                JSONObject jsonApp = jsonInstalledApps.getJSONObject(k);
-                AppData app = new AppData(
-                        jsonApp.getLong(JSON_INSTALLED_APP_ID),
-                        jsonApp.getString(JSON_INSTALLED_APP_PACKAGE_NAME),
-                        jsonApp.getString(JSON_INSTALLED_APP_CLASS_NAME),
-                        jsonApp.getString(JSON_INSATLLED_APP_NAME));
-                installedApps.add(app);
+            JSONArray jsonInstalledStartables = jsonObject.getJSONArray(JSON_INSTALLED_STARTABLES);
+            for (int k = 0; k < jsonInstalledStartables.length(); ++k) {
+                JSONObject jsonStartable = jsonInstalledStartables.getJSONObject(k);
+                installedStartables.add(loadStartable(jsonStartable));
             }
-
         } catch (JSONException e) {
             return new ArrayList<>();
         }
-        return installedApps;
+        return installedStartables;
     }
 
     public List<PageData> loadPages() {
@@ -115,25 +121,7 @@ public class ApplistModelStorageV2 {
         JSONArray jsonStartables = jsonSection.getJSONArray(JSON_STARTABLES);
         for (int k = 0; k < jsonStartables.length(); ++k) {
             JSONObject jsonStartable = jsonStartables.getJSONObject(k);
-            final String type = jsonStartable.getString(JSON_STARTABLE_TYPE);
-            if (JSON_STARTABLE_TYPE_APP.equals(type)) {
-                AppData app = new AppData(
-                        jsonStartable.getLong(JSON_STARTABLE_ID),
-                        jsonStartable.getString(JSON_APP_PACKAGE_NAME),
-                        jsonStartable.getString(JSON_APP_CLASS_NAME),
-                        jsonStartable.getString(JSON_STARTABLE_NAME));
-                startableDatas.add(app);
-            } else if (type.equals(JSON_STARTABLE_TYPE_SHORTCUT)) {
-                try {
-                    ShortcutData shortcutData = new ShortcutData(
-                            jsonStartable.getLong(JSON_STARTABLE_ID),
-                            jsonStartable.getString(JSON_STARTABLE_NAME),
-                            Intent.parseUri(jsonStartable.getString(JSON_SHORTCUT_INTENT), 0));
-                    startableDatas.add(shortcutData);
-                } catch (URISyntaxException e) {
-                    ApplistLog.getInstance().log(e);
-                }
-            }
+            startableDatas.add(loadStartable(jsonStartable));
         }
         return new SectionData(
                 jsonSection.getLong(JSON_SECTION_ID),
@@ -141,6 +129,31 @@ public class ApplistModelStorageV2 {
                 startableDatas,
                 loadJsonBoolean(jsonSection, JSON_SECTION_IS_REMOVABLE, true),
                 loadJsonBoolean(jsonSection, JSON_SECTION_IS_COLLAPSED, false));
+    }
+
+    private StartableData loadStartable(JSONObject jsonStartable) throws JSONException {
+        final String type = jsonStartable.getString(JSON_STARTABLE_TYPE);
+        if (JSON_STARTABLE_TYPE_APP.equals(type)) {
+            AppData appData = new AppData(
+                    jsonStartable.getLong(JSON_STARTABLE_ID),
+                    jsonStartable.getString(JSON_APP_PACKAGE_NAME),
+                    jsonStartable.getString(JSON_APP_CLASS_NAME),
+                    jsonStartable.getString(JSON_STARTABLE_NAME));
+            return appData;
+        } else if (type.equals(JSON_STARTABLE_TYPE_SHORTCUT)) {
+            try {
+                ShortcutData shortcutData = new ShortcutData(
+                        jsonStartable.getLong(JSON_STARTABLE_ID),
+                        jsonStartable.getString(JSON_STARTABLE_NAME),
+                        Intent.parseUri(jsonStartable.getString(JSON_SHORTCUT_INTENT), 0));
+                return shortcutData;
+            } catch (URISyntaxException e) {
+                ApplistLog.getInstance().log(e);
+                throw new JSONException(e.getMessage());
+            }
+        } else {
+            throw new RuntimeException("Unknown type startable " + type);
+        }
     }
 
     private boolean loadJsonBoolean(JSONObject json, String name, boolean defaultValue) {
@@ -177,28 +190,7 @@ public class ApplistModelStorageV2 {
                     jsonSection.put(JSON_SECTION_IS_REMOVABLE, section.isRemovable());
                     jsonSection.put(JSON_SECTION_IS_COLLAPSED, section.isCollapsed());
 
-                    JSONArray jsonStartables = new JSONArray();
-                    for (StartableData startableData : section.getStartables()) {
-                        if (startableData instanceof AppData) {
-                            AppData app = (AppData) startableData;
-                            JSONObject jsonApp = new JSONObject();
-                            jsonApp.put(JSON_STARTABLE_ID, app.getId());
-                            jsonApp.put(JSON_STARTABLE_TYPE, "app");
-                            jsonApp.put(JSON_STARTABLE_NAME, app.getName());
-                            jsonApp.put(JSON_APP_PACKAGE_NAME, app.getPackageName());
-                            jsonApp.put(JSON_APP_CLASS_NAME, app.getClassName());
-                            jsonStartables.put(jsonApp);
-                        } else if (startableData instanceof ShortcutData) {
-                            ShortcutData shortcut = (ShortcutData) startableData;
-                            JSONObject jsonShortcut = new JSONObject();
-                            jsonShortcut.put(JSON_STARTABLE_ID, shortcut.getId());
-                            jsonShortcut.put(JSON_STARTABLE_TYPE, "shortcut");
-                            jsonShortcut.put(JSON_STARTABLE_NAME, shortcut.getName());
-                            jsonShortcut.put(JSON_SHORTCUT_INTENT, shortcut.getIntent());
-                            jsonStartables.put(jsonShortcut);
-                        }
-                    }
-
+                    JSONArray jsonStartables = createStartablesArray(section.getStartables());
                     jsonSection.put(JSON_STARTABLES, jsonStartables);
                     jsonSections.put(jsonSection);
                 }
@@ -217,27 +209,44 @@ public class ApplistModelStorageV2 {
         mFileUtils.writeFile(mPagesFilePath, data);
     }
 
-    public void storeInstalledApps(List<AppData> installedApps) {
+    public void storeInstalledStartables(List<StartableData> installedStartables) {
         String data = "";
         JSONObject jsonObject = new JSONObject();
         try {
-            JSONArray jsonApps = new JSONArray();
-            for (AppData app : installedApps) {
-                JSONObject jsonApp = new JSONObject();
-                jsonApp.put(JSON_INSTALLED_APP_ID, app.getId());
-                jsonApp.put(JSON_INSTALLED_APP_PACKAGE_NAME, app.getPackageName());
-                jsonApp.put(JSON_INSTALLED_APP_CLASS_NAME, app.getClassName());
-                jsonApp.put(JSON_INSATLLED_APP_NAME, app.getName());
-                jsonApps.put(jsonApp);
-            }
-            jsonObject.put(JSON_INSTALLED_APPS, jsonApps);
+            JSONArray jsonApps = createStartablesArray(installedStartables);
+            jsonObject.put(JSON_INSTALLED_STARTABLES, jsonApps);
             data = jsonObject.toString(2);
         } catch (JSONException e) {
             ApplistLog.getInstance().log(e);
             return;
         }
 
-        mFileUtils.writeFile(mInstalledAppsFilePath, data);
+        mFileUtils.writeFile(mInstalledStartablesFilePath, data);
+    }
+
+    private JSONArray createStartablesArray(List<StartableData> startableDatas) throws JSONException {
+        JSONArray jsonStartables = new JSONArray();
+        for (StartableData startableData : startableDatas) {
+            if (startableData instanceof AppData) {
+                AppData app = (AppData) startableData;
+                JSONObject jsonApp = new JSONObject();
+                jsonApp.put(JSON_STARTABLE_ID, app.getId());
+                jsonApp.put(JSON_STARTABLE_TYPE, "app");
+                jsonApp.put(JSON_STARTABLE_NAME, app.getName());
+                jsonApp.put(JSON_APP_PACKAGE_NAME, app.getPackageName());
+                jsonApp.put(JSON_APP_CLASS_NAME, app.getClassName());
+                jsonStartables.put(jsonApp);
+            } else if (startableData instanceof ShortcutData) {
+                ShortcutData shortcut = (ShortcutData) startableData;
+                JSONObject jsonShortcut = new JSONObject();
+                jsonShortcut.put(JSON_STARTABLE_ID, shortcut.getId());
+                jsonShortcut.put(JSON_STARTABLE_TYPE, "shortcut");
+                jsonShortcut.put(JSON_STARTABLE_NAME, shortcut.getName());
+                jsonShortcut.put(JSON_SHORTCUT_INTENT, shortcut.getIntent().toUri(0));
+                jsonStartables.put(jsonShortcut);
+            }
+        }
+        return jsonStartables;
     }
 
 }

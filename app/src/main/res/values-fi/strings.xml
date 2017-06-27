@@ -61,4 +61,6 @@
     <string name="use_launcher_tip">Tiesitkö, että voit käyttää Apperia <b>aloitusnäyttönä</b>?\n\nAseta Apper <b>aloitusnäytöksi</b> puhelimen Asetuksissa.</string>
     <string name="widget_page_change_wallpaper">Vaihda taustakuva</string>
     <string name="change_wallpaper_dialog_title">Valitse taustakuvan lähde</string>
+    <string name="app_item_menu_remove_shortcut">Poista pikakuvake</string>
+    <string name="cannot_start_shortcut">Pikakuvake ei toimi! Appi ei löydy.</string>
 </resources>

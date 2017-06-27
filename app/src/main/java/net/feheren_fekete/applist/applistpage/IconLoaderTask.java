@@ -18,18 +18,18 @@ import bolts.Task;
 
 public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
     private AppItem appItem;
-    private WeakReference<ApplistAdapter.AppItemHolder> appItemHolderRef;
+    private WeakReference<ApplistAdapter.StartableItemHolder> appItemHolderRef;
     private PackageManager packageManager;
     private WeakReference<IconCache> iconCacheRef;
     private String cachedIconPath;
 
     public IconLoaderTask(AppItem appItem,
-                          ApplistAdapter.AppItemHolder appItemHolder,
+                          ApplistAdapter.StartableItemHolder startableItemHolder,
                           PackageManager packageManager,
                           IconCache iconCache,
                           String iconCacheDirPath) {
         this.appItem = appItem;
-        this.appItemHolderRef = new WeakReference<>(appItemHolder);
+        this.appItemHolderRef = new WeakReference<>(startableItemHolder);
         this.packageManager = packageManager;
         this.iconCacheRef = new WeakReference<>(iconCache);
         this.cachedIconPath = iconCacheDirPath
@@ -80,24 +80,24 @@ public class IconLoaderTask extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap iconBitmap) {
-        ApplistAdapter.AppItemHolder appItemHolder = appItemHolderRef.get();
+        ApplistAdapter.StartableItemHolder startableItemHolder = appItemHolderRef.get();
         IconCache iconCache = iconCacheRef.get();
         if (iconBitmap != null
                 && isStillValid()
                 && iconCache != null) {
             String key = iconCache.createKey(appItem);
             iconCache.addIcon(key, iconBitmap);
-            appItemHolder.appIcon.setBackgroundColor(Color.TRANSPARENT);
-            appItemHolder.appIcon.setImageBitmap(iconBitmap);
-            appItemHolder.iconLoader = null;
+            startableItemHolder.appIcon.setBackgroundColor(Color.TRANSPARENT);
+            startableItemHolder.appIcon.setImageBitmap(iconBitmap);
+            startableItemHolder.iconLoader = null;
         }
     }
 
     private boolean isStillValid() {
-        ApplistAdapter.AppItemHolder appItemHolder = appItemHolderRef.get();
+        ApplistAdapter.StartableItemHolder startableItemHolder = appItemHolderRef.get();
         return (!isCancelled()
-                && appItemHolder != null
-                && appItemHolder.iconLoader == this);
+                && startableItemHolder != null
+                && startableItemHolder.iconLoader == this);
     }
 
 }

@@ -21,6 +21,9 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
+import net.feheren_fekete.applist.launcher.GlideApp;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
@@ -28,6 +31,8 @@ import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
 
+import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +43,7 @@ public class ApplistAdapter
 
     private static final String TAG = ApplistAdapter.class.getSimpleName();
 
-    public static final int APP_ITEM_VIEW = 1;
+    public static final int STARTABLE_ITEM_VIEW = 1;
     public static final int SECTION_ITEM_VIEW = 2;
 
     private Context mContext;
@@ -59,9 +64,9 @@ public class ApplistAdapter
     private TypedValue mTypedValue = new TypedValue();
 
     public interface ItemListener {
-        void onAppTapped(AppItem appItem);
-        void onAppLongTapped(AppItem appItem);
-        void onAppTouched(AppItem appItem);
+        void onStartableTapped(StartableItem startableItem);
+        void onStartableLongTapped(StartableItem startableItem);
+        void onStartableTouched(StartableItem startableItem);
         void onSectionTapped(SectionItem sectionItem);
         void onSectionLongTapped(SectionItem sectionItem);
         void onSectionTouched(SectionItem sectionItem);
@@ -75,7 +80,7 @@ public class ApplistAdapter
         }
     }
 
-    public static class AppItemHolder extends ViewHolderBase {
+    public static class StartableItemHolder extends ViewHolderBase {
         public final View draggedOverIndicatorLeft;
         public final View draggedOverIndicatorRight;
         public final ImageView appIcon;
@@ -84,7 +89,9 @@ public class ApplistAdapter
         public TextView appName;
         public final TextView badgeCount;
         public IconLoaderTask iconLoader;
-        public AppItemHolder(View view) {
+        public StartableItem item;
+        private WeakReference<ItemListener> itemListenerRef;
+        public StartableItemHolder(View view, ItemListener itemListener) {
             super(view, R.id.applist_app_item_layout);
             this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_app_item_dragged_over_indicator_left);
             this.draggedOverIndicatorRight = view.findViewById(R.id.applist_app_item_dragged_over_indicator_right);
@@ -92,6 +99,38 @@ public class ApplistAdapter
             this.appNameWithoutShadow = (TextView) view.findViewById(R.id.applist_app_item_app_name);
             this.appNameWithShadow = (TextView) view.findViewById(R.id.applist_app_item_app_name_with_shadow);
             this.badgeCount = (TextView) view.findViewById(R.id.applist_app_item_badge_count);
+            this.itemListenerRef = new WeakReference<>(itemListener);
+            this.layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ItemListener itemListener = itemListenerRef.get();
+                    if (itemListener != null) {
+                        itemListener.onStartableTapped(item);
+                    }
+                }
+            });
+            this.layout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ItemListener itemListener = itemListenerRef.get();
+                    if (itemListener != null) {
+                        itemListener.onStartableLongTapped(item);
+                    }
+                    return true;
+                }
+            });
+            this.layout.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                        ItemListener itemListener = itemListenerRef.get();
+                        if (itemListener != null) {
+                            itemListener.onStartableTouched(item);
+                        }
+                    }
+                    return false;
+                }
+            });
         }
     }
 
@@ -99,11 +138,45 @@ public class ApplistAdapter
         public final View draggedOverIndicatorLeft;
         public final View draggedOverIndicatorRight;
         public final TextView sectionName;
-        public SectionItemHolder(View view) {
+        public SectionItem item;
+        private WeakReference<ItemListener> itemListenerRef;
+        public SectionItemHolder(View view, ItemListener itemListener) {
             super(view, R.id.applist_section_item_layout);
             this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_section_item_dragged_over_indicator_left);
             this.draggedOverIndicatorRight = view.findViewById(R.id.applist_section_item_dragged_over_indicator_right);
             this.sectionName = (TextView) view.findViewById(R.id.applist_section_item_section_name);
+            this.itemListenerRef = new WeakReference<>(itemListener);
+            this.layout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ItemListener itemListener = itemListenerRef.get();
+                    if (itemListener != null) {
+                        itemListener.onSectionLongTapped(item);
+                    }
+                    return true;
+                }
+            });
+            this.layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ItemListener itemListener = itemListenerRef.get();
+                    if (itemListener != null) {
+                        itemListener.onSectionTapped(item);
+                    }
+                }
+            });
+            this.layout.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                        ItemListener itemListener = itemListenerRef.get();
+                        if (itemListener != null) {
+                            itemListener.onSectionTouched(item);
+                        }
+                    }
+                    return false;
+                }
+            });
         }
     }
 
@@ -136,13 +209,13 @@ public class ApplistAdapter
     @Override
     public ViewHolderBase onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
-            case APP_ITEM_VIEW: {
-                View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.applist_app_item, parent, false);
-                return new AppItemHolder(itemView);
+            case STARTABLE_ITEM_VIEW: {
+                View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.applist_startable_item, parent, false);
+                return new StartableItemHolder(itemView, mItemListener);
             }
             case SECTION_ITEM_VIEW: {
                 View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.applist_section_item, parent, false);
-                return new SectionItemHolder(itemView);
+                return new SectionItemHolder(itemView, mItemListener);
             }
             default:
                 return null;
@@ -151,8 +224,8 @@ public class ApplistAdapter
 
     @Override
     public void onBindViewHolder(ViewHolderBase holder, int position) {
-        if (holder instanceof AppItemHolder) {
-            bindAppItemHolder((AppItemHolder) holder, position);
+        if (holder instanceof StartableItemHolder) {
+            bindStartableItemHolder((StartableItemHolder) holder, position);
         } else if (holder instanceof SectionItemHolder) {
             bindSectionItemHolder((SectionItemHolder) holder, position);
         }
@@ -257,8 +330,8 @@ public class ApplistAdapter
         List<BaseItem> items = getItems();
         if (position < items.size()) {
             BaseItem item = items.get(position);
-            if (item instanceof AppItem) {
-                return APP_ITEM_VIEW;
+            if (item instanceof StartableItem) {
+                return STARTABLE_ITEM_VIEW;
             }
             if (item instanceof SectionItem) {
                 return SECTION_ITEM_VIEW;
@@ -291,12 +364,12 @@ public class ApplistAdapter
         final int realToPosition = getRealItemPosition(items.get(toPosition));
 
         BaseItem movedItem = mAllItems.get(realFromPosition);
-        if (movedItem instanceof AppItem && realToPosition == 0) {
+        if (movedItem instanceof StartableItem && realToPosition == 0) {
             // Cannot move app above the first section header.
             return false;
         }
 
-        if (movedItem instanceof AppItem) {
+        if (movedItem instanceof StartableItem) {
             if (realFromPosition < realToPosition) {
                 for (int i = realFromPosition; i < realToPosition; i++) {
                     Collections.swap(mAllItems, i, i + 1);
@@ -307,27 +380,27 @@ public class ApplistAdapter
                 }
             }
         } else if (movedItem instanceof SectionItem) {
-            List<BaseItem> sectionAndApps = new ArrayList<>();
+            List<BaseItem> sectionAndStartables = new ArrayList<>();
             for (BaseItem item : mAllItems) {
                 if (item instanceof SectionItem
                         && item.getId() == movedItem.getId()) {
-                    sectionAndApps.add(item);
-                } else if (item instanceof AppItem
-                        && !sectionAndApps.isEmpty()) {
-                    sectionAndApps.add(item);
+                    sectionAndStartables.add(item);
+                } else if (item instanceof StartableItem
+                        && !sectionAndStartables.isEmpty()) {
+                    sectionAndStartables.add(item);
                 } else if (item instanceof SectionItem
-                        && !sectionAndApps.isEmpty()
+                        && !sectionAndStartables.isEmpty()
                         && item.getId() != movedItem.getId()) {
                     break;
                 }
             }
-            mAllItems.removeAll(sectionAndApps);
+            mAllItems.removeAll(sectionAndStartables);
 
             int adjustedToPosition = realToPosition;
             if (realFromPosition < realToPosition) {
-                adjustedToPosition = realToPosition - sectionAndApps.size() + 1;
+                adjustedToPosition = realToPosition - sectionAndStartables.size() + 1;
             }
-            mAllItems.addAll(adjustedToPosition, sectionAndApps);
+            mAllItems.addAll(adjustedToPosition, sectionAndStartables);
         }
 
         updateCollapsedAndFilteredItems();
@@ -344,7 +417,7 @@ public class ApplistAdapter
         return new ArrayList<>(mAllItems);
     }
 
-    public boolean isAppLastInSection(AppItem item) {
+    public boolean isStartableLastInSection(StartableItem item) {
         boolean result = false;
         final int position = getRealItemPosition(item);
         if (position == mAllItems.size() - 1) {
@@ -383,9 +456,9 @@ public class ApplistAdapter
         notifyItemChanged(getRealItemPosition(item));
     }
 
-    public void setAllAppsEnabled(boolean enabled) {
+    public void setAllStartablesEnabled(boolean enabled) {
         for (BaseItem baseItem : mAllItems) {
-            if (baseItem instanceof AppItem) {
+            if (baseItem instanceof StartableItem) {
                 baseItem.setEnabled(enabled);
             }
         }
@@ -448,7 +521,7 @@ public class ApplistAdapter
         if (mFilterName.isEmpty()) {
             List<BaseItem> result = new ArrayList<>();
             for (BaseItem item : mAllItems) {
-                if (item instanceof AppItem) {
+                if (item instanceof StartableItem) {
                     result.add(item);
                 }
             }
@@ -457,7 +530,7 @@ public class ApplistAdapter
             List<BaseItem> result = new ArrayList<>();
             String lowercaseFilterText = mFilterName.toLowerCase();
             for (BaseItem item : mAllItems) {
-                if (item instanceof AppItem) {
+                if (item instanceof StartableItem) {
                     String lowercaseItemName = item.getName().toLowerCase();
                     if (lowercaseItemName.contains(lowercaseFilterText)) {
                         result.add(item);
@@ -481,12 +554,47 @@ public class ApplistAdapter
         return result;
     }
 
-    private void bindAppItemHolder(AppItemHolder holder, int position) {
+    private void bindStartableItemHolder(StartableItemHolder holder, int position) {
         if (mFragment.getActivity() == null) {
             return;
         }
 
-        final AppItem item = (AppItem) getItems().get(position);
+        final StartableItem item = (StartableItem) getItems().get(position);
+        holder.item = item;
+
+        // REF: 2017_06_22_22_08_setShadowLayer_not_working
+        if (mSettingsUtils.isThemeTransparent()) {
+            holder.appNameWithShadow.setVisibility(View.VISIBLE);
+            holder.appNameWithoutShadow.setVisibility(View.INVISIBLE);
+            holder.appName = holder.appNameWithShadow;
+        } else {
+            holder.appNameWithoutShadow.setVisibility(View.VISIBLE);
+            holder.appNameWithShadow.setVisibility(View.INVISIBLE);
+            holder.appName = holder.appNameWithoutShadow;
+        }
+
+        holder.appName.setText(item.getName());
+
+        final float alpha = item.isEnabled() ? 1.0f : 0.3f;
+        holder.appIcon.setAlpha(alpha);
+        holder.appName.setAlpha(alpha);
+        holder.badgeCount.setAlpha(alpha);
+
+        holder.draggedOverIndicatorLeft.setVisibility(
+                item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);
+        holder.draggedOverIndicatorRight.setVisibility(
+                item.isDraggedOverRight() ? View.VISIBLE : View.INVISIBLE);
+
+        if (item instanceof AppItem) {
+            bindAppItemHolder(holder, (AppItem) item);
+        } else if (item instanceof ShortcutItem) {
+            bindShortcutItemHolder(holder, (ShortcutItem) item);
+        }
+    }
+
+    private void bindAppItemHolder(StartableItemHolder holder, AppItem item) {
+        // Cancel loading of ShortcutItem icons into this holder.
+        GlideApp.with(mContext).clear(holder.appIcon);
 
         Bitmap icon = mIconCache.getIcon(mIconCache.createKey(item));
         if (icon == null) {
@@ -514,19 +622,6 @@ public class ApplistAdapter
             holder.appIcon.setImageBitmap(icon);
         }
 
-        // REF: 2017_06_22_22_08_setShadowLayer_not_working
-        if (mSettingsUtils.isThemeTransparent()) {
-            holder.appNameWithShadow.setVisibility(View.VISIBLE);
-            holder.appNameWithoutShadow.setVisibility(View.INVISIBLE);
-            holder.appName = holder.appNameWithShadow;
-        } else {
-            holder.appNameWithoutShadow.setVisibility(View.VISIBLE);
-            holder.appNameWithShadow.setVisibility(View.INVISIBLE);
-            holder.appName = holder.appNameWithoutShadow;
-        }
-
-        holder.appName.setText(item.getName());
-
         if (mSettingsUtils.getShowBadge()) {
             int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getClassName());
             if (badgeCount > 0) {
@@ -543,44 +638,29 @@ public class ApplistAdapter
             holder.badgeCount.setVisibility(View.GONE);
         }
 
-        final float alpha = item.isEnabled() ? 1.0f : 0.3f;
-        holder.appIcon.setAlpha(alpha);
-        holder.appName.setAlpha(alpha);
-        holder.badgeCount.setAlpha(alpha);
+    }
 
-        holder.draggedOverIndicatorLeft.setVisibility(
-                item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);
-        holder.draggedOverIndicatorRight.setVisibility(
-                item.isDraggedOverRight() ? View.VISIBLE : View.INVISIBLE);
+    private void bindShortcutItemHolder(StartableItemHolder holder, ShortcutItem item) {
+        // Cancel loading of AppItem icons into this holder.
+        if (holder.iconLoader != null) {
+            holder.iconLoader.cancel(true);
+            holder.iconLoader = null;
+        }
 
-        holder.layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mItemListener.onAppTapped(item);
-            }
-        });
-
-        holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                mItemListener.onAppLongTapped(item);
-                return true;
-            }
-        });
-
-        holder.layout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                    mItemListener.onAppTouched(item);
-                }
-                return false;
-            }
-        });
+        File iconFile = new File(item.getIconPath());
+        if (iconFile.exists()) {
+            holder.appIcon.setBackgroundColor(Color.TRANSPARENT);
+            GlideApp.with(mContext).load(iconFile).into(holder.appIcon);
+        } else {
+            holder.appIcon.setBackgroundColor(mIconPlaceholderColors[mNextPlaceholderColor]);
+            mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
+        }
+        holder.badgeCount.setVisibility(View.GONE);
     }
 
     private void bindSectionItemHolder(final SectionItemHolder holder, int position) {
         final SectionItem item = (SectionItem) getItems().get(position);
+        holder.item = item;
 
         holder.sectionName.setText(
                 item.isCollapsed()
@@ -602,31 +682,6 @@ public class ApplistAdapter
                 item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);
         holder.draggedOverIndicatorRight.setVisibility(
                 item.isDraggedOverRight() ? View.VISIBLE : View.INVISIBLE);
-
-        holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                mItemListener.onSectionLongTapped(item);
-                return true;
-            }
-        });
-
-        holder.layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mItemListener.onSectionTapped(item);
-            }
-        });
-
-        holder.layout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                    mItemListener.onSectionTouched(item);
-                }
-                return false;
-            }
-        });
     }
 
 }

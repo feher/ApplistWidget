@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist.applistpage;
 
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +18,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.AppData;
@@ -25,6 +28,9 @@ import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
+import net.feheren_fekete.applist.applistpage.model.ShortcutData;
+import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.settings.SettingsUtils;
@@ -68,7 +74,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private @Nullable PopupMenu mItemMenu;
     private @Nullable BaseItem mItemMenuTarget;
     private ApplistItemDragHandler.Listener mListener;
-    private ShortcutHelper mShortcutHelper;
 
     public static ApplistPagePageFragment newInstance(String pageName,
                                                       long launcherPageId,
@@ -95,8 +100,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 getContext().getPackageManager(),
                 new BadgeUtils(getContext()));
         mApplistPreferences = new ApplistPreferences(getContext());
-        mShortcutHelper = new ShortcutHelper(getContext(), getPageName());
-        mShortcutHelper.registerInstallShortcutReceiver();
     }
 
     @Nullable
@@ -122,7 +125,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             @Override
             public int getSpanSize(int position) {
                 switch (mAdapter.getItemViewType(position)) {
-                    case ApplistAdapter.APP_ITEM_VIEW:
+                    case ApplistAdapter.STARTABLE_ITEM_VIEW:
                         return 1;
                     case ApplistAdapter.SECTION_ITEM_VIEW:
                         return columnCount;
@@ -161,7 +164,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mShortcutHelper.unregisterInstallShortcutReceiver();
     }
 
     @Override
@@ -293,12 +295,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     @Override
-    public void onAppLongTapped(final AppItem appItem) {
-        ApplistAdapter.AppItemHolder appItemHolder =
-                (ApplistAdapter.AppItemHolder) mRecyclerView.findViewHolderForItemId(
-                        appItem.getId());
-        mItemMenuTarget = appItem;
-        mItemMenu = new PopupMenu(getContext(), appItemHolder.layout);
+    public void onStartableLongTapped(final StartableItem startableItem) {
+        ApplistAdapter.StartableItemHolder startableItemHolder =
+                (ApplistAdapter.StartableItemHolder) mRecyclerView.findViewHolderForItemId(
+                        startableItem.getId());
+        mItemMenuTarget = startableItem;
+        mItemMenu = new PopupMenu(getContext(), startableItemHolder.layout);
         mItemMenu.setOnMenuItemClickListener(mItemMenuClickListener);
         mItemMenu.inflate(R.menu.app_item_menu);
         mItemMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
@@ -307,42 +309,55 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 mItemMenu = null;
             }
         });
+        final boolean isApp = (startableItem instanceof AppItem);
+        final boolean isShortcut = (startableItem instanceof ShortcutItem);
+        mItemMenu.getMenu().findItem(R.id.action_app_info).setVisible(isApp);
+        mItemMenu.getMenu().findItem(R.id.action_app_uninstall).setVisible(isApp);
+        mItemMenu.getMenu().findItem(R.id.action_shortcut_remove).setVisible(isShortcut);
         mItemMenu.show();
     }
 
     @Override
-    public void onAppTapped(AppItem appItem) {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        ComponentName appComponentName = new ComponentName(
-                appItem.getPackageName(), appItem.getClassName());
-        intent.setComponent(appComponentName);
-        getContext().startActivity(intent);
+    public void onStartableTapped(StartableItem startableItem) {
+        Intent launchIntent = null;
+        if (startableItem instanceof AppItem) {
+            AppItem appItem = (AppItem) startableItem;
 
-        ComponentName smsAppComponentName = AppUtils.getSmsApp(getContext());
-        if (appComponentName.equals(smsAppComponentName)) {
-            mBadgeStore.setBadgeCount(
-                    smsAppComponentName.getPackageName(),
-                    smsAppComponentName.getClassName(),
-                    0);
-        }
-        ComponentName phoneAppComponentName = AppUtils.getPhoneApp(getContext().getApplicationContext());
-        if (appComponentName.equals(phoneAppComponentName)) {
-            mBadgeStore.setBadgeCount(
-                    phoneAppComponentName.getPackageName(),
-                    phoneAppComponentName.getClassName(),
-                    0);
-        }
+            launchIntent = new Intent(Intent.ACTION_MAIN);
+            launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+            ComponentName appComponentName = new ComponentName(
+                    appItem.getPackageName(), appItem.getClassName());
+            launchIntent.setComponent(appComponentName);
 
-        if (getActivity() != null) {
-            getActivity().finish();
+            ComponentName smsAppComponentName = AppUtils.getSmsApp(getContext());
+            if (appComponentName.equals(smsAppComponentName)) {
+                mBadgeStore.setBadgeCount(
+                        smsAppComponentName.getPackageName(),
+                        smsAppComponentName.getClassName(),
+                        0);
+            }
+            ComponentName phoneAppComponentName = AppUtils.getPhoneApp(getContext().getApplicationContext());
+            if (appComponentName.equals(phoneAppComponentName)) {
+                mBadgeStore.setBadgeCount(
+                        phoneAppComponentName.getPackageName(),
+                        phoneAppComponentName.getClassName(),
+                        0);
+            }
+        } else if (startableItem instanceof ShortcutItem) {
+            ShortcutItem shortcutItem = (ShortcutItem) startableItem;
+            launchIntent = shortcutItem.getIntent();
+        }
+        try {
+            getContext().startActivity(launchIntent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public void onAppTouched(final AppItem appItem) {
+    public void onStartableTouched(final StartableItem startableItem) {
     }
 
     @Override
@@ -426,6 +441,10 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     uninstallApp((AppItem) mItemMenuTarget);
                     handled = true;
                     break;
+                case R.id.action_shortcut_remove:
+                    removeShortcut((ShortcutItem) mItemMenuTarget);
+                    handled = true;
+                    break;
                 case R.id.action_section_rename:
                     renameSection((SectionItem) mItemMenuTarget);
                     handled = true;
@@ -449,7 +468,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         if (pageData == null) {
             pageData = new PageData(ApplistModel.INVALID_ID, getPageName(), new ArrayList<SectionData>());
         }
-        mAdapter.setItems(ViewModelUtils.modelToView(pageData));
+        mAdapter.setItems(ViewModelUtils.modelToView(mApplistModel, pageData));
         mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), 500);
     }
 
@@ -467,6 +486,16 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         intent.setData(uri);
         intent.putExtra(Intent.EXTRA_RETURN_RESULT, false);
         getContext().startActivity(intent);
+    }
+
+    private void removeShortcut(final ShortcutItem shortcutItem) {
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mApplistModel.removeInstalledShortcut(shortcutItem.getId());
+                return null;
+            }
+        });
     }
 
     private void renameSection(SectionItem sectionItem) {

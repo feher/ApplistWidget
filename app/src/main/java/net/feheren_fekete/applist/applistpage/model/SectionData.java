@@ -1,6 +1,5 @@
 package net.feheren_fekete.applist.applistpage.model;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -51,26 +50,12 @@ public class SectionData extends BaseData {
         return mStartables;
     }
 
-    public List<AppData> getApps() {
-        ArrayList<AppData> result = new ArrayList<>();
-        for (StartableData startableData : mStartables) {
-            if (startableData instanceof AppData) {
-                result.add((AppData) startableData);
-            }
-        }
-        return result;
-    }
-
     public void setStartables(List<StartableData> startables) {
         mStartables = startables;
     }
 
     public void addStartables(int index, List<StartableData> startableDatas) {
         mStartables.addAll(index, startableDatas);
-    }
-
-    public void addApps(int index, List<AppData> apps) {
-        mStartables.addAll(index, apps);
     }
 
     public void addStartable(StartableData startableData) {

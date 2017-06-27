@@ -57,8 +57,8 @@ public class ApplistModelStorageV1 {
         new File(mInstalledAppsFilePath).delete();
     }
 
-    public List<AppData> loadInstalledApps() {
-        List<AppData> installedApps = new ArrayList<>();
+    public List<StartableData> loadInstalledApps() {
+        List<StartableData> installedApps = new ArrayList<>();
         String fileContent = mFileUtils.readFile(mInstalledAppsFilePath);
         try {
             JSONObject jsonObject = new JSONObject(fileContent);
