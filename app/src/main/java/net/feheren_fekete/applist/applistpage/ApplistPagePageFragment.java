@@ -311,7 +311,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         });
         final boolean isApp = (startableItem instanceof AppItem);
         final boolean isShortcut = (startableItem instanceof ShortcutItem);
-        mItemMenu.getMenu().findItem(R.id.action_app_info).setVisible(isApp);
         mItemMenu.getMenu().findItem(R.id.action_app_uninstall).setVisible(isApp);
         mItemMenu.getMenu().findItem(R.id.action_shortcut_remove).setVisible(isShortcut);
         mItemMenu.show();
@@ -434,7 +433,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             boolean handled = false;
             switch (menuItem.getItemId()) {
                 case R.id.action_app_info:
-                    showAppInfo((AppItem) mItemMenuTarget);
+                    showAppInfo((StartableItem) mItemMenuTarget);
                     handled = true;
                     break;
                 case R.id.action_app_uninstall:
@@ -472,12 +471,30 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), 500);
     }
 
-    private void showAppInfo(AppItem appItem) {
-        Intent intent = new Intent();
-        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", appItem.getPackageName(), null);
-        intent.setData(uri);
-        getContext().startActivity(intent);
+    private void showAppInfo(StartableItem startableItem) {
+        String packageName = null;
+        if (startableItem instanceof AppItem) {
+            final AppItem appItem = (AppItem) startableItem;
+            packageName = appItem.getPackageName();
+        } else if (startableItem instanceof ShortcutItem) {
+            final ShortcutItem shortcutItem = (ShortcutItem) startableItem;
+            packageName = shortcutItem.getIntent().getPackage();
+            if (packageName == null) {
+                ComponentName componentName = shortcutItem.getIntent().getComponent();
+                if (componentName != null) {
+                    packageName = componentName.getPackageName();
+                }
+            }
+        }
+        if (packageName != null) {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", packageName, null);
+            intent.setData(uri);
+            getContext().startActivity(intent);
+        } else {
+            throw new RuntimeException("Package name is not available for shortcut");
+        }
     }
 
     private void uninstallApp(AppItem appItem) {
