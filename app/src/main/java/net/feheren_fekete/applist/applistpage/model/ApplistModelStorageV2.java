@@ -231,7 +231,7 @@ public class ApplistModelStorageV2 {
                 AppData app = (AppData) startableData;
                 JSONObject jsonApp = new JSONObject();
                 jsonApp.put(JSON_STARTABLE_ID, app.getId());
-                jsonApp.put(JSON_STARTABLE_TYPE, "app");
+                jsonApp.put(JSON_STARTABLE_TYPE, JSON_STARTABLE_TYPE_APP);
                 jsonApp.put(JSON_STARTABLE_NAME, app.getName());
                 jsonApp.put(JSON_APP_PACKAGE_NAME, app.getPackageName());
                 jsonApp.put(JSON_APP_CLASS_NAME, app.getClassName());
@@ -240,7 +240,7 @@ public class ApplistModelStorageV2 {
                 ShortcutData shortcut = (ShortcutData) startableData;
                 JSONObject jsonShortcut = new JSONObject();
                 jsonShortcut.put(JSON_STARTABLE_ID, shortcut.getId());
-                jsonShortcut.put(JSON_STARTABLE_TYPE, "shortcut");
+                jsonShortcut.put(JSON_STARTABLE_TYPE, JSON_STARTABLE_TYPE_SHORTCUT);
                 jsonShortcut.put(JSON_STARTABLE_NAME, shortcut.getName());
                 jsonShortcut.put(JSON_SHORTCUT_INTENT, shortcut.getIntent().toUri(0));
                 jsonStartables.put(jsonShortcut);
