@@ -88,6 +88,7 @@ public class ApplistAdapter
         public final TextView appNameWithShadow;
         public TextView appName;
         public final TextView badgeCount;
+        public final ImageView shortcutIndicator;
         public IconLoaderTask iconLoader;
         public StartableItem item;
         private WeakReference<ItemListener> itemListenerRef;
@@ -99,6 +100,7 @@ public class ApplistAdapter
             this.appNameWithoutShadow = (TextView) view.findViewById(R.id.applist_app_item_app_name);
             this.appNameWithShadow = (TextView) view.findViewById(R.id.applist_app_item_app_name_with_shadow);
             this.badgeCount = (TextView) view.findViewById(R.id.applist_app_item_badge_count);
+            this.shortcutIndicator = (ImageView) view.findViewById(R.id.applist_app_item_shortcut_indicator);
             this.itemListenerRef = new WeakReference<>(itemListener);
             this.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -638,6 +640,7 @@ public class ApplistAdapter
             holder.badgeCount.setVisibility(View.GONE);
         }
 
+        holder.shortcutIndicator.setVisibility(View.GONE);
     }
 
     private void bindShortcutItemHolder(StartableItemHolder holder, ShortcutItem item) {
@@ -657,6 +660,7 @@ public class ApplistAdapter
             mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
         }
         holder.badgeCount.setVisibility(View.GONE);
+        holder.shortcutIndicator.setVisibility(View.VISIBLE);
     }
 
     private void bindSectionItemHolder(final SectionItemHolder holder, int position) {

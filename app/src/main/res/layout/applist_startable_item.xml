@@ -92,6 +92,18 @@
         android:background="@drawable/badge"
         />
 
+    <ImageView
+        android:layout_width="@dimen/appitem_shortcut_indicator_size"
+        android:layout_height="@dimen/appitem_shortcut_indicator_size"
+        android:id="@+id/applist_app_item_shortcut_indicator"
+        app:layout_constraintTop_toTopOf="@id/applist_app_item_icon"
+        app:layout_constraintLeft_toLeftOf="@id/applist_app_item_icon"
+        android:layout_marginLeft="@dimen/appitem_shortcut_indicator_offset"
+        android:layout_marginTop="@dimen/appitem_shortcut_indicator_offset"
+        android:scaleX="-1"
+        app:srcCompat="@drawable/ic_shortcut"
+        />
+
     <View
         android:id="@+id/applist_app_item_dragged_over_indicator_left"
         android:layout_width="@dimen/dragged_over_indicator_width"
