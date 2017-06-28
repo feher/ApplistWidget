@@ -101,6 +101,7 @@
         android:layout_marginLeft="@dimen/appitem_shortcut_indicator_offset"
         android:layout_marginTop="@dimen/appitem_shortcut_indicator_offset"
         android:scaleX="-1"
+        android:rotation="-30"
         app:srcCompat="@drawable/ic_shortcut"
         />
 
