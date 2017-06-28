@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/assumed_status_bar_height"
             android:background="@android:color/transparent"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
         </android.support.v7.widget.Toolbar>
 
