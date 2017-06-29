@@ -7,35 +7,24 @@
     android:layout_height="match_parent"
     >
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/applist_page_fragment_appbar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:background="?attr/toolbarBackgroundColor"
-        >
-
-        <!--
-         We add a top padding to the toolbar to "push it down" below the status bar.
-         REF: 2017_06_22_12_00_transparent_status_bar_top_padding
-         -->
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/applist_page_fragment_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/assumed_status_bar_height"
-            android:background="@android:color/transparent"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-        </android.support.v7.widget.Toolbar>
-
-    </android.support.design.widget.AppBarLayout>
-
     <FrameLayout
         android:id="@+id/applist_page_fragment_page_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
+
+    <!--
+     We add a top padding to the toolbar to "push it down" below the status bar.
+     REF: 2017_06_22_12_00_transparent_status_bar_top_padding
+     -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/applist_page_fragment_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/assumed_status_bar_height"
+        android:background="@drawable/applist_page_fragment_toolbar_background"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+    </android.support.v7.widget.Toolbar>
 
 </android.support.design.widget.CoordinatorLayout>

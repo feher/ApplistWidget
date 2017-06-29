@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -86,6 +87,20 @@ public class ScreenUtils {
             }
         }
         return mStatusBarHeight;
+    }
+
+    public int getActionBarHeight(Context context) {
+        // Calculate ActionBar height
+        TypedValue tv = new TypedValue();
+        if (context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            if (mDisplayMetrics == null) {
+                mDisplayMetrics = context.getResources().getDisplayMetrics();
+            }
+            return TypedValue.complexToDimensionPixelSize(
+                    tv.data, mDisplayMetrics);
+        } else {
+            return Math.round(dpToPx(context, 32));
+        }
     }
 
     public boolean hasNavigationBar(Context context) {

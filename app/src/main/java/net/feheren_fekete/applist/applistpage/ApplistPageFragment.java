@@ -66,12 +66,10 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private IconCache mIconCache = new IconCache();
     private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
-    private AppBarLayout mAppBarLayout;
     private Toolbar mToolbar;
     private FrameLayout mFragmentContainer;
     private Menu mMenu;
     private SearchView mSearchView;
-    private int mAppBarBottomBeforeItemDrag;
 
     public static ApplistPageFragment newInstance(long pageId) {
         ApplistPageFragment fragment = new ApplistPageFragment();
@@ -90,7 +88,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         mBadgeStore = new BadgeStore(getContext(), getContext().getPackageManager(), new BadgeUtils(getContext()));
         mApplistPreferences = new ApplistPreferences(getContext());
 
-        mAppBarLayout = (AppBarLayout) view.findViewById(R.id.applist_page_fragment_appbar_layout);
         mToolbar = (Toolbar) view.findViewById(R.id.applist_page_fragment_toolbar);
 
         // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
@@ -264,31 +261,10 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     @Override
     public void onItemDragStart() {
-        // Manually move the appbar out of the screen.
-        // I tried all kinds of other ways to achieve this but I gave up. This one works.
-        //
-        // We use CoordinatorLayout with AppBarLayout and RecyclerView (inside a fragment).
-        // For this reason, we must also manually restore the translation values otherwise
-        // AppBarLayout gets confused about its own location.
-        //
-        // REF: 2017_06_22_12_00_app_item_drag_top_padding
-        mAppBarBottomBeforeItemDrag = mAppBarLayout.getBottom();
-        mAppBarLayout.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
-        mFragmentContainer.animate().translationYBy(-mAppBarBottomBeforeItemDrag).setDuration(150);
     }
 
     @Override
     public void onItemDragEnd() {
-        // Manually restore the appbar's position on the screen.
-        // I tried all kinds of other ways to achieve this but I gave up. This one works.
-        //
-        // We use CoordinatorLayout with AppBarLayout and RecyclerView (inside a fragment).
-        // For this reason, we must also manually restore the translation values otherwise
-        // AppBarLayout gets confused about its own location.
-        //
-        // REF: 2017_06_22_12_00_app_item_drag_top_padding
-        mAppBarLayout.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
-        mFragmentContainer.animate().translationYBy(mAppBarBottomBeforeItemDrag).setDuration(150);
     }
 
     private void showPageEditor() {

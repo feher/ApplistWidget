@@ -99,15 +99,6 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     public void onStartDragging(DragGestureRecognizer gestureRecognizer) {
         mApplistPagePageFragment.closeItemMenu();
 
-        // The RecyclerView is under the AppBarLayout. But the AppBarLayout is
-        // behind the transparent status bar. So, if we hide the AppBarLayout the
-        // RecyclerView would get behind the status bar.
-        // We don't want that. So we add a top padding.
-        // REF: 2017_06_22_12_00_app_item_drag_top_padding
-        final int statusBarHeight = mScreenUtils.getStatusBarHeight(mContext);
-        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
-        final int navigationBarHeight = mScreenUtils.hasNavigationBar(mContext) ? mScreenUtils.getNavigationBarHeight(mContext) : 0;
-        mRecyclerView.setPadding(0, statusBarHeight, 0, navigationBarHeight);
         mListener.onItemDragStart();
 
         final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
@@ -180,14 +171,6 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
         removeDraggedView();
 
-        // Remove the top padding we added in onStartDragging().
-        // REF: 2017_06_22_12_00_app_item_drag_top_padding
-        final int topPadding = 0;
-
-        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
-        final int navigationBarHeight = mScreenUtils.hasNavigationBar(mContext) ? mScreenUtils.getNavigationBarHeight(mContext) : 0;
-
-        mRecyclerView.setPadding(0, topPadding, 0, navigationBarHeight);
         mListener.onItemDragEnd();
     }
 
