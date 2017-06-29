@@ -78,13 +78,18 @@ public class ScreenshotUtils {
             return;
         }
 
-        View rootView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
-        View screenView = rootView.getRootView();
+        final View rootView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
+        final View screenView = rootView.getRootView();
 
         screenView.setDrawingCacheEnabled(true);
-        Point screenSize = mScreenUtils.getScreenSize(activity);
+        final Bitmap fullSizedBitmap = screenView.getDrawingCache();
+        if (fullSizedBitmap == null) {
+            ApplistLog.getInstance().log(new RuntimeException("Cannot get drawing cache"));
+            return;
+        }
+        final Point screenSize = mScreenUtils.getScreenSize(activity);
         final Bitmap bitmap = Bitmap.createScaledBitmap(
-                screenView.getDrawingCache(),
+                fullSizedBitmap,
                 screenSize.x / 4,
                 screenSize.y / 4,
                 true);
@@ -94,7 +99,7 @@ public class ScreenshotUtils {
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                File file = new File(filePath);
+                final File file = new File(filePath);
                 FileOutputStream outputStream = null;
                 try {
                     outputStream = new FileOutputStream(file);
