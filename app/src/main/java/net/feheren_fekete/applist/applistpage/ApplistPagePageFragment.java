@@ -2,11 +2,16 @@ package net.feheren_fekete.applist.applistpage;
 
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.LauncherApps;
+import android.content.pm.ShortcutInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,7 +33,6 @@ import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
-import net.feheren_fekete.applist.applistpage.model.ShortcutData;
 import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
@@ -73,6 +77,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private ApplistItemDragHandler mItemDragCallback;
     private @Nullable PopupMenu mItemMenu;
     private @Nullable BaseItem mItemMenuTarget;
+    private List<ShortcutInfo> mItemShortcutInfos = new ArrayList<>();
     private ApplistItemDragHandler.Listener mListener;
 
     public static ApplistPagePageFragment newInstance(String pageName,
@@ -315,6 +320,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         final boolean isShortcut = (startableItem instanceof ShortcutItem);
         mItemMenu.getMenu().findItem(R.id.action_app_uninstall).setVisible(isApp);
         mItemMenu.getMenu().findItem(R.id.action_shortcut_remove).setVisible(isShortcut);
+
+        if (startableItem instanceof AppItem) {
+            AppItem appItem = (AppItem) startableItem;
+            addAppShortcutsToItemMenu(appItem);
+        }
+
         mItemMenu.show();
     }
 
@@ -458,11 +469,88 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     sortSection((SectionItem) mItemMenuTarget);
                     handled = true;
                     break;
+                case R.id.app_shortcut_1: // Fall through.
+                case R.id.app_shortcut_2: // Fall through.
+                case R.id.app_shortcut_3: // Fall through.
+                case R.id.app_shortcut_4: // Fall through.
+                case R.id.app_shortcut_5:
+                    startAppShortcut(menuItem.getItemId());
+                    handled = true;
+                    break;
             }
             mItemMenu = null;
             return handled;
         }
     };
+
+    private void addAppShortcutsToItemMenu(AppItem appItem) {
+        mItemShortcutInfos.clear();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
+            if (launcherApps.hasShortcutHostPermission()) {
+                List<UserHandle> profiles = new ArrayList<>();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    profiles.addAll(launcherApps.getProfiles());
+                } else {
+                    profiles.add(android.os.Process.myUserHandle());
+                }
+                final int[] menuItemIds = new int[] {
+                        R.id.app_shortcut_1,
+                        R.id.app_shortcut_2,
+                        R.id.app_shortcut_3,
+                        R.id.app_shortcut_4,
+                        R.id.app_shortcut_5 };
+                // REF: 2017_06_30_app_shortcuts_order
+                final int appShortcutItemsOrder = 1;
+                for (UserHandle userHandle : profiles) {
+                    LauncherApps.ShortcutQuery shortcutQuery = new LauncherApps.ShortcutQuery();
+                    shortcutQuery.setPackage(appItem.getPackageName());
+                    shortcutQuery.setQueryFlags(
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
+                                    | LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST
+                                    | LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED);
+                    List<ShortcutInfo> shortcutInfos = launcherApps.getShortcuts(shortcutQuery, userHandle);
+                    if (shortcutInfos != null) {
+                        for (ShortcutInfo shortcutInfo : shortcutInfos) {
+                            final int appShortcutCount = mItemShortcutInfos.size();
+                            if (appShortcutCount < 5) {
+                                mItemMenu.getMenu().add(
+                                        1,
+                                        menuItemIds[appShortcutCount],
+                                        appShortcutItemsOrder,
+                                        shortcutInfo.getShortLabel());
+                                mItemShortcutInfos.add(shortcutInfo);
+                            } else {
+                                ApplistLog.getInstance().log(new RuntimeException("Max 5 app shortcuts are supported!"));
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void startAppShortcut(int menuItemId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            int appShortcutIndex;
+            switch (menuItemId) {
+                case R.id.app_shortcut_1: appShortcutIndex = 0; break;
+                case R.id.app_shortcut_2: appShortcutIndex = 1; break;
+                case R.id.app_shortcut_3: appShortcutIndex = 2; break;
+                case R.id.app_shortcut_4: appShortcutIndex = 3; break;
+                case R.id.app_shortcut_5: appShortcutIndex = 4; break;
+                default: throw new RuntimeException("Invalid app shortcut menu item id " + menuItemId);
+            }
+            ShortcutInfo shortcutInfo = mItemShortcutInfos.get(appShortcutIndex);
+            LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
+            try {
+                launcherApps.startShortcut(shortcutInfo, null, null);
+            } catch (ActivityNotFoundException | IllegalStateException e) {
+                Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     private void loadAllItems() {
         PageData pageData = mApplistModel.getPage(getPageName());
