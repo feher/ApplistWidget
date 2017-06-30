@@ -560,13 +560,15 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             if (shortcutInfo == null) {
                 Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
-            } else {
+            } else if (shortcutInfo.isEnabled()) {
                 LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
                 try {
                     launcherApps.startShortcut(shortcutInfo, null, null);
                 } catch (ActivityNotFoundException | IllegalStateException e) {
                     Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Toast.makeText(getActivity(), R.string.cannot_start_disabled_shortcut, Toast.LENGTH_SHORT).show();
             }
         }
     }

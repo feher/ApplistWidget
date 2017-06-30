@@ -12,8 +12,10 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.widget.Toast;
 
 import net.feheren_fekete.applist.ApplistLog;
+import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.AppShortcutData;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.ShortcutData;
@@ -65,7 +67,21 @@ public class ShortcutHelper {
         final LauncherApps.PinItemRequest pinItemRequest = intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST);
         final ShortcutInfo shortcutInfo = pinItemRequest.getShortcutInfo();
 
-        final String shortcutName = shortcutInfo.getShortLabel().toString();
+        if (!shortcutInfo.isEnabled()) {
+            Toast.makeText(mContext, R.string.cannot_pin_disabled_shortcut, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String shortcutName = null;
+        if (shortcutInfo.getShortLabel() != null) {
+            shortcutName = shortcutInfo.getShortLabel().toString();
+        } else if (shortcutInfo.getLongLabel() != null) {
+            shortcutName = shortcutInfo.getLongLabel().toString();
+        } else {
+            ApplistLog.getInstance().log(new RuntimeException("Shortcut has no label"));
+            return;
+        }
+
         final String shortcutId = shortcutInfo.getId();
         final String packageName = shortcutInfo.getPackage();
 
@@ -77,11 +93,10 @@ public class ShortcutHelper {
                 shortcutName,
                 packageName,
                 shortcutId);
-        final Bitmap finalShortcutIconBitmap = shortcutIconBitmap;
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mApplistModel.addInstalledShortcut(shortcutData, finalShortcutIconBitmap);
+                mApplistModel.addInstalledShortcut(shortcutData, shortcutIconBitmap);
                 return null;
             }
         });
