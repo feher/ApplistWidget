@@ -34,14 +34,13 @@
         >
 
         <!--
-        launchMode must be singleInstance, otherwise it breaks the re-start code
-        in SettingsActivity.
-        REF: 2017_06_22_22_36_singleInstance_needed_for_restart
+        launchMode is significant! It affects the re-start code in SettingsActivity.
+        REF: 2017_06_22_22_36_launchMode_needed_for_restart
         -->
         <activity
             android:name="net.feheren_fekete.applist.MainActivity"
             android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:clearTaskOnLaunch="true"
             android:stateNotNeeded="true"
             android:resumeWhilePausing="true"

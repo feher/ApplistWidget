@@ -283,11 +283,10 @@ public class SettingsActivity extends PreferenceActivity {
             }
         }
 
-        // REF: 2017_06_22_22_36_singleInstance_needed_for_restart
+        // REF: 2017_06_22_22_36_launchMode_needed_for_restart
         private void restartMainActivity() {
             Intent i = new Intent(getActivity(), MainActivity.class);
             i.setAction(MainActivity.ACTION_RESTART);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
             startActivity(i);
             getActivity().finish();
         }
