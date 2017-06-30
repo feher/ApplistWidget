@@ -36,10 +36,12 @@ public class ApplistModelStorageV2 {
     private static final String JSON_STARTABLE_TYPE = "type";
     private static final String JSON_STARTABLE_TYPE_APP = "app";
     private static final String JSON_STARTABLE_TYPE_SHORTCUT = "shortcut";
+    private static final String JSON_STARTABLE_TYPE_APP_SHORTCUT = "app-shortcut";
     private static final String JSON_STARTABLE_NAME = "name";
     private static final String JSON_APP_PACKAGE_NAME = "package-name";
     private static final String JSON_APP_CLASS_NAME = "class-name";
     private static final String JSON_SHORTCUT_INTENT = "intent";
+    private static final String JSON_APP_SHORTCUT_ID = "shortcut-id";
 
     private FileUtils mFileUtils = new FileUtils();
 
@@ -62,10 +64,10 @@ public class ApplistModelStorageV2 {
         return mShortcutIconsDirPath + File.separator + "shortcut-icon-" + shortcutId + ".png";
     }
 
-    public void storeShortcutIcon(ShortcutData shortcutData, Bitmap shortcutIcon) {
+    public void storeShortcutIcon(StartableData startableData, Bitmap shortcutIcon) {
         ImageUtils.saveBitmap(
                 shortcutIcon,
-                getShortcutIconFilePath(shortcutData.getId()));
+                getShortcutIconFilePath(startableData.getId()));
     }
 
     public void deleteShortcutIcon(long shortcutId) {
@@ -151,6 +153,13 @@ public class ApplistModelStorageV2 {
                 ApplistLog.getInstance().log(e);
                 throw new JSONException(e.getMessage());
             }
+        } else if (type.equals(JSON_STARTABLE_TYPE_APP_SHORTCUT)) {
+            AppShortcutData appShortcutData = new AppShortcutData(
+                    jsonStartable.getLong(JSON_STARTABLE_ID),
+                    jsonStartable.getString(JSON_APP_PACKAGE_NAME),
+                    jsonStartable.getString(JSON_APP_SHORTCUT_ID),
+                    jsonStartable.getString(JSON_STARTABLE_NAME));
+            return appShortcutData;
         } else {
             throw new RuntimeException("Unknown type startable " + type);
         }
@@ -244,6 +253,15 @@ public class ApplistModelStorageV2 {
                 jsonShortcut.put(JSON_STARTABLE_NAME, shortcut.getName());
                 jsonShortcut.put(JSON_SHORTCUT_INTENT, shortcut.getIntent().toUri(0));
                 jsonStartables.put(jsonShortcut);
+            } else if (startableData instanceof AppShortcutData) {
+                AppShortcutData appShortcut = (AppShortcutData) startableData;
+                JSONObject jsonAppShortcut = new JSONObject();
+                jsonAppShortcut.put(JSON_STARTABLE_ID, appShortcut.getId());
+                jsonAppShortcut.put(JSON_STARTABLE_TYPE, JSON_STARTABLE_TYPE_APP_SHORTCUT);
+                jsonAppShortcut.put(JSON_STARTABLE_NAME, appShortcut.getName());
+                jsonAppShortcut.put(JSON_APP_PACKAGE_NAME, appShortcut.getPackageName());
+                jsonAppShortcut.put(JSON_APP_SHORTCUT_ID, appShortcut.getShortcutId());
+                jsonStartables.put(jsonAppShortcut);
             }
         }
         return jsonStartables;

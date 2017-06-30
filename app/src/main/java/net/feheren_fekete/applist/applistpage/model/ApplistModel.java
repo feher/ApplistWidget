@@ -405,10 +405,10 @@ public class ApplistModel {
         }
     }
 
-    public void addInstalledShortcut(ShortcutData shortcutData, Bitmap shortcutIcon) {
+    public void addInstalledShortcut(StartableData startableData, Bitmap shortcutIcon) {
         synchronized (this) {
-            mApplistModelStorageV2.storeShortcutIcon(shortcutData, shortcutIcon);
-            mInstalledStartables.add(shortcutData);
+            mApplistModelStorageV2.storeShortcutIcon(startableData, shortcutIcon);
+            mInstalledStartables.add(startableData);
 
             boolean isSectionChanged = updatePages(mPages);
             if (isSectionChanged) {
@@ -440,6 +440,10 @@ public class ApplistModel {
 
     public String getShortcutIconPath(ShortcutData shortcutData) {
         return mApplistModelStorageV2.getShortcutIconFilePath(shortcutData.getId());
+    }
+
+    public String getShortcutIconPath(AppShortcutData appShortcutData) {
+        return mApplistModelStorageV2.getShortcutIconFilePath(appShortcutData.getId());
     }
 
     private long createPageId() {

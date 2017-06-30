@@ -4,9 +4,11 @@ import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
+import net.feheren_fekete.applist.applistpage.ShortcutHelper;
 import net.feheren_fekete.applist.launcher.LauncherFragment;
 import net.feheren_fekete.applist.launcher.PageEditorFragment;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
@@ -43,19 +45,32 @@ public class MainActivity extends AppCompatActivity {
         mAppWidgetHost = new MyAppWidgetHost(getApplicationContext(), 1234567);
 
         showLauncherFragment();
+
+        handleIntent(getIntent());
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (ACTION_RESTART.equals(intent.getAction())) {
-            finish();
-            startActivity(intent);
-        } else {
-            // This occurs when the Home button is pressed.
-            // Be careful! It may not be true in the future or on some devices.
-            mIsHomePressed = true;
+        boolean handled = handleIntent(intent);
+        if (!handled) {
+            if (ACTION_RESTART.equals(intent.getAction())) {
+                finish();
+                startActivity(intent);
+            } else {
+                // This occurs when the Home button is pressed.
+                // Be careful! It may not be true in the future or on some devices.
+                mIsHomePressed = true;
+            }
         }
+    }
+
+    private boolean handleIntent(@Nullable Intent intent) {
+        boolean handled = false;
+        if (intent != null) {
+            handled = new ShortcutHelper(this).handleIntent(intent);
+        }
+        return handled;
     }
 
     @Override

@@ -1,15 +1,20 @@
 package net.feheren_fekete.applist.applistpage;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
+import android.content.pm.ShortcutInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 
 import net.feheren_fekete.applist.ApplistLog;
+import net.feheren_fekete.applist.applistpage.model.AppShortcutData;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.ShortcutData;
 import net.feheren_fekete.applist.utils.ImageUtils;
@@ -40,6 +45,48 @@ public class ShortcutHelper {
 
     public void unregisterInstallShortcutReceiver() {
         mContext.unregisterReceiver(mInstallShortcutReceiver);
+    }
+
+    public boolean handleIntent(Intent intent) {
+        if (LauncherApps.ACTION_CONFIRM_PIN_SHORTCUT.equals(intent.getAction())) {
+            handleShortcutRequest(intent);
+            return true;
+        }
+        return false;
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private void handleShortcutRequest(Intent intent) {
+        LauncherApps launcherApps = (LauncherApps) mContext.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        if (!launcherApps.hasShortcutHostPermission()) {
+            return;
+        }
+
+        final LauncherApps.PinItemRequest pinItemRequest = intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST);
+        final ShortcutInfo shortcutInfo = pinItemRequest.getShortcutInfo();
+
+        final String shortcutName = shortcutInfo.getShortLabel().toString();
+        final String shortcutId = shortcutInfo.getId();
+        final String packageName = shortcutInfo.getPackage();
+
+        final Drawable iconDrawable = launcherApps.getShortcutIconDrawable(shortcutInfo, 0);
+        final Bitmap shortcutIconBitmap = ImageUtils.drawableToBitmap(iconDrawable);
+
+        final AppShortcutData shortcutData = new AppShortcutData(
+                System.currentTimeMillis(),
+                shortcutName,
+                packageName,
+                shortcutId);
+        final Bitmap finalShortcutIconBitmap = shortcutIconBitmap;
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mApplistModel.addInstalledShortcut(shortcutData, finalShortcutIconBitmap);
+                return null;
+            }
+        });
+
+        pinItemRequest.accept();
     }
 
     private BroadcastReceiver mInstallShortcutReceiver = new BroadcastReceiver() {

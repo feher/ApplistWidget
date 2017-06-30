@@ -21,20 +21,20 @@ repositories {
 apply plugin: 'com.jakewharton.hugo'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     defaultConfig {
         applicationId "net.feheren_fekete.applist"
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 26
 
         // Even versionCode are release versions.
         // Odd versionCode are developer/debug versions.
-        versionCode 18
+        versionCode 19
 
         // versionName is major.minor
         // Even minor versions are release versions.
         // Odd minor versions are developer/debug versions.
-        versionName "1.8"
+        versionName "1.9"
 
         multiDexEnabled true
 
@@ -54,9 +54,9 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:percent:25.3.1'
+    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support:design:26.+'
+    compile 'com.android.support:percent:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
     compile 'com.parse.bolts:bolts-tasks:1.4.0'
@@ -64,7 +64,7 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
 
     // Glide
-    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:support-v4:26.+'
     compile 'com.github.bumptech.glide:glide:4.0.0-RC0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC0'
 

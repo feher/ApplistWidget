@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.applistpage.viewmodel;
 
 import net.feheren_fekete.applist.applistpage.model.AppData;
+import net.feheren_fekete.applist.applistpage.model.AppShortcutData;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
@@ -35,6 +36,14 @@ public class ViewModelUtils {
                             shortcutData.getName(),
                             shortcutData.getIntent(),
                             applistModel.getShortcutIconPath(shortcutData)));
+                } else if (startableData instanceof AppShortcutData) {
+                    AppShortcutData appShortcutData = (AppShortcutData) startableData;
+                    result.add(new AppShortcutItem(
+                            appShortcutData.getId(),
+                            appShortcutData.getName(),
+                            appShortcutData.getPackageName(),
+                            appShortcutData.getShortcutId(),
+                            applistModel.getShortcutIconPath(appShortcutData)));
                 }
             }
         }
@@ -72,6 +81,13 @@ public class ViewModelUtils {
                         shortcutItem.getId(),
                         shortcutItem.getName(),
                         shortcutItem.getIntent()));
+            } else if (item instanceof AppShortcutItem) {
+                AppShortcutItem appShortcutItem = (AppShortcutItem) item;
+                startableDatas.add(new AppShortcutData(
+                        appShortcutItem.getId(),
+                        appShortcutItem.getName(),
+                        appShortcutItem.getPackageName(),
+                        appShortcutItem.getShortcutId()));
             }
         }
         if (sectionData != null) {
