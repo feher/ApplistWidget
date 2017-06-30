@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="app_shortcut_1" type="id"/>
+    <item name="app_shortcut_2" type="id"/>
+    <item name="app_shortcut_3" type="id"/>
+    <item name="app_shortcut_4" type="id"/>
+    <item name="app_shortcut_5" type="id"/>
+</resources>
