@@ -17,12 +17,15 @@
      We add a top padding to the toolbar to "push it down" below the status bar.
      REF: 2017_06_22_12_00_transparent_status_bar_top_padding
      -->
+    <!--
+     We create the toolbar background programmatically.
+     REF: 2017_06_30_toolbar_gradient
+    -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/applist_page_fragment_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/assumed_status_bar_height"
-        android:background="@drawable/applist_page_fragment_toolbar_background"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
     </android.support.v7.widget.Toolbar>

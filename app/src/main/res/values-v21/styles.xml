@@ -10,7 +10,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#55000000</item>
-        <item name="toolbarBackgroundColor">#EE000000</item>
+        <item name="toolbarBackgroundColor">#FF000000</item>
         <item name="listBackgroundColor">#88000000</item>
         <item name="sectionBackgroundColor">#88000000</item>
         <item name="sectionTextColor">#555555</item>
@@ -34,7 +34,7 @@
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
         <item name="dividerColor">#55FFFFFF</item>
-        <item name="toolbarBackgroundColor">#CC000000</item>
+        <item name="toolbarBackgroundColor">#FF000000</item>
         <item name="listBackgroundColor">#55000000</item>
         <item name="sectionBackgroundColor">#33FFFFFF</item>
         <item name="sectionTextColor">#DDDDDD</item>

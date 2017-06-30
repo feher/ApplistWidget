@@ -6,6 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
@@ -15,6 +18,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,6 +71,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
     private Toolbar mToolbar;
+    private Drawable mToolbarGradient;
     private FrameLayout mFragmentContainer;
     private Menu mMenu;
     private SearchView mSearchView;
@@ -117,6 +122,10 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     @Override
     public void onStart() {
         super.onStart();
+        if (mToolbarGradient == null) {
+            mToolbarGradient = createToolbarGradient();
+        }
+        mToolbar.setBackground(mToolbarGradient);
         if (mSettingsUtils.getShowBadge()) {
             Task.callInBackground(new Callable<Void>() {
                 @Override
@@ -265,6 +274,25 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     @Override
     public void onItemDragEnd() {
+    }
+
+    private Drawable createToolbarGradient() {
+        // REF: 2017_06_30_toolbar_gradient
+        TypedValue typedValue = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.toolbarBackgroundColor, typedValue, true);
+        int startColor = typedValue.data;
+        int endColor;
+        if (mSettingsUtils.isThemeTransparent()) {
+            endColor = (startColor & 0xffffff) | 0x55000000;
+        } else {
+            startColor = (startColor & 0xffffff) | 0x88000000;
+            endColor = startColor;
+        }
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
+        drawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+        drawable.setColors(new int[]{startColor, endColor});
+        return drawable;
     }
 
     private void showPageEditor() {
