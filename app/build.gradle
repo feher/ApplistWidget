@@ -41,7 +41,7 @@ android {
         // http://developer.android.com/tools/help/vector-asset-studio.html
         vectorDrawables.useSupportLibrary = true
     }
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '26.0.0'
     buildTypes {
         release {
             minifyEnabled true
