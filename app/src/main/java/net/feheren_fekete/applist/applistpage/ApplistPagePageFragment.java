@@ -52,6 +52,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -490,6 +492,18 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         mItemShortcutInfos.clear();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             mItemShortcutInfos = performAppShortcutQuery(appItem.getPackageName(), null);
+            Collections.sort(mItemShortcutInfos, new Comparator<ShortcutInfo>() {
+                @Override
+                public int compare(ShortcutInfo a, ShortcutInfo b) {
+                    if (!a.isDynamic() && b.isDynamic()) {
+                        return -1;
+                    }
+                    if (a.isDynamic() && !b.isDynamic()) {
+                        return 1;
+                    }
+                    return Integer.compare(a.getRank(), b.getRank());
+                }
+            });
             if (mItemShortcutInfos.size() > 5) {
                 ApplistLog.getInstance().log(new RuntimeException("Max 5 app shortcuts are supported!"));
             }
