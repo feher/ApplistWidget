@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.LauncherApps;
 import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -567,7 +568,17 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             default: throw new RuntimeException("Invalid app shortcut menu item id " + menuItemId);
         }
         ShortcutInfo shortcutInfo = mItemShortcutInfos.get(appShortcutIndex);
-        startAppShortcut(shortcutInfo);
+        testPinShortcut(shortcutInfo);
+//        startAppShortcut(shortcutInfo);
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private void testPinShortcut(ShortcutInfo shortcutInfo) {
+        ShortcutManager mShortcutManager;
+        mShortcutManager = getContext().getSystemService(ShortcutManager.class);
+        if (mShortcutManager.isRequestPinShortcutSupported()) {
+            mShortcutManager.requestPinShortcut(shortcutInfo, null);
+        }
     }
 
     private void startAppShortcut(@Nullable ShortcutInfo shortcutInfo) {

@@ -67,6 +67,10 @@ public class ShortcutHelper {
         final LauncherApps.PinItemRequest pinItemRequest = intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST);
         final ShortcutInfo shortcutInfo = pinItemRequest.getShortcutInfo();
 
+        if (shortcutInfo.isPinned()) {
+            return;
+        }
+
         if (!shortcutInfo.isEnabled()) {
             Toast.makeText(mContext, R.string.cannot_pin_disabled_shortcut, Toast.LENGTH_SHORT).show();
             return;
