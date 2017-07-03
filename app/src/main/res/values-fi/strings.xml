@@ -63,4 +63,7 @@
     <string name="change_wallpaper_dialog_title">Valitse taustakuvan lähde</string>
     <string name="app_item_menu_remove_shortcut">Poista pikakuvake</string>
     <string name="cannot_start_shortcut">Pikakuvake ei toimi! Appi ei löydy.</string>
+    <string name="cannot_pin_disabled_shortcut">Pikakuvake on pois käytöstä.</string>
+    <string name="cannot_start_disabled_shortcut">Pikakuvake on pois käytöstä.</string>
+    <string name="cannot_pin_pinned_shortcut">Pikakuvake on jo lisätty.</string>
 </resources>

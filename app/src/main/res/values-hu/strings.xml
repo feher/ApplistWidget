@@ -63,4 +63,7 @@
     <string name="change_wallpaper_dialog_title">Válassz háttérkép forrást</string>
     <string name="app_item_menu_remove_shortcut">Gyorsindító törlése</string>
     <string name="cannot_start_shortcut">A gyorsindító nem müködik! Az alkalmazás nem található.</string>
+    <string name="cannot_pin_disabled_shortcut">Gyorsindító letiltva.</string>
+    <string name="cannot_start_disabled_shortcut">Gyorsindító letiltva.</string>
+    <string name="cannot_pin_pinned_shortcut">Gyorsindító már létezik.</string>
 </resources>
