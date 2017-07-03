@@ -482,7 +482,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 case R.id.app_shortcut_2: // Fall through.
                 case R.id.app_shortcut_3: // Fall through.
                 case R.id.app_shortcut_4: // Fall through.
-                case R.id.app_shortcut_5:
+                case R.id.app_shortcut_5: // Fall through.
+                case R.id.app_shortcut_6: // Fall through.
+                case R.id.app_shortcut_7: // Fall through.
+                case R.id.app_shortcut_8: // Fall through.
+                case R.id.app_shortcut_9: // Fall through.
+                case R.id.app_shortcut_10:
                     startAppShortcut(menuItem.getItemId());
                     handled = true;
                     break;
@@ -495,7 +500,11 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private void addAppShortcutsToItemMenu(AppItem appItem) {
         mItemShortcutInfos.clear();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            mItemShortcutInfos = performAppShortcutQuery(appItem.getPackageName(), null);
+            mItemShortcutInfos = performAppShortcutQuery(
+                    appItem.getPackageName(),
+                    null,
+                    LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
+                            | LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST);
             Collections.sort(mItemShortcutInfos, new Comparator<ShortcutInfo>() {
                 @Override
                 public int compare(ShortcutInfo a, ShortcutInfo b) {
@@ -508,19 +517,25 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     return Integer.compare(a.getRank(), b.getRank());
                 }
             });
-            if (mItemShortcutInfos.size() > 5) {
-                ApplistLog.getInstance().log(new RuntimeException("Max 5 app shortcuts are supported!"));
+            final int maxShortcutCount = 10;
+            if (mItemShortcutInfos.size() > maxShortcutCount) {
+                ApplistLog.getInstance().log(new RuntimeException("Max " + maxShortcutCount + " app shortcuts are supported!"));
             }
             final int[] menuItemIds = new int[] {
                     R.id.app_shortcut_1,
                     R.id.app_shortcut_2,
                     R.id.app_shortcut_3,
                     R.id.app_shortcut_4,
-                    R.id.app_shortcut_5 };
+                    R.id.app_shortcut_5,
+                    R.id.app_shortcut_6,
+                    R.id.app_shortcut_7,
+                    R.id.app_shortcut_8,
+                    R.id.app_shortcut_9,
+                    R.id.app_shortcut_10 };
             // REF: 2017_06_30_app_shortcuts_order
             final int appShortcutItemsOrder = 1;
             LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
-            for (int i = 0; i < mItemShortcutInfos.size(); ++i) {
+            for (int i = 0; i < mItemShortcutInfos.size() && i < maxShortcutCount; ++i) {
                 ShortcutInfo shortcutInfo = mItemShortcutInfos.get(i);
                 MenuItem menuItem = mItemMenu.getMenu().add(
                         1,
@@ -555,7 +570,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1)
-    private List<ShortcutInfo> performAppShortcutQuery(String packageName, @Nullable String shortcutId) {
+    private List<ShortcutInfo> performAppShortcutQuery(String packageName,
+                                                       @Nullable String shortcutId,
+                                                       int queryFlags) {
         List<ShortcutInfo> result = new ArrayList<>();
         LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
         if (launcherApps.hasShortcutHostPermission()) {
@@ -568,12 +585,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             for (UserHandle userHandle : profiles) {
                 LauncherApps.ShortcutQuery shortcutQuery = new LauncherApps.ShortcutQuery();
                 shortcutQuery.setPackage(packageName);
-                shortcutQuery.setQueryFlags(
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
-                                | LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST
-                                | LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED);
+                shortcutQuery.setQueryFlags(queryFlags);
                 if (shortcutId != null) {
-                    shortcutQuery.setShortcutIds(Arrays.asList(shortcutId));
+                    shortcutQuery.setShortcutIds(Collections.singletonList(shortcutId));
                 }
                 List<ShortcutInfo> shortcutInfos = launcherApps.getShortcuts(shortcutQuery, userHandle);
                 if (shortcutInfos != null) {
@@ -592,6 +606,11 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             case R.id.app_shortcut_3: appShortcutIndex = 2; break;
             case R.id.app_shortcut_4: appShortcutIndex = 3; break;
             case R.id.app_shortcut_5: appShortcutIndex = 4; break;
+            case R.id.app_shortcut_6: appShortcutIndex = 5; break;
+            case R.id.app_shortcut_7: appShortcutIndex = 6; break;
+            case R.id.app_shortcut_8: appShortcutIndex = 7; break;
+            case R.id.app_shortcut_9: appShortcutIndex = 8; break;
+            case R.id.app_shortcut_10: appShortcutIndex = 9; break;
             default: throw new RuntimeException("Invalid app shortcut menu item id " + menuItemId);
         }
         ShortcutInfo shortcutInfo = mItemShortcutInfos.get(appShortcutIndex);
@@ -638,7 +657,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     @Nullable
     private ShortcutInfo resolveAppShortcutInfo(AppShortcutItem appShortcutItem) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            List<ShortcutInfo> shortcutInfos = performAppShortcutQuery(appShortcutItem.getPackageName(), appShortcutItem.getShortcutId());
+            List<ShortcutInfo> shortcutInfos = performAppShortcutQuery(
+                    appShortcutItem.getPackageName(),
+                    appShortcutItem.getShortcutId(),
+                    LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
+                            | LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST
+                            | LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED);
             if (!shortcutInfos.isEmpty()) {
                 return shortcutInfos.get(0);
             }
