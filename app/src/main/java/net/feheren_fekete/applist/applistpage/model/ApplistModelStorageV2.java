@@ -156,9 +156,9 @@ public class ApplistModelStorageV2 {
         } else if (type.equals(JSON_STARTABLE_TYPE_APP_SHORTCUT)) {
             AppShortcutData appShortcutData = new AppShortcutData(
                     jsonStartable.getLong(JSON_STARTABLE_ID),
+                    jsonStartable.getString(JSON_STARTABLE_NAME),
                     jsonStartable.getString(JSON_APP_PACKAGE_NAME),
-                    jsonStartable.getString(JSON_APP_SHORTCUT_ID),
-                    jsonStartable.getString(JSON_STARTABLE_NAME));
+                    jsonStartable.getString(JSON_APP_SHORTCUT_ID));
             return appShortcutData;
         } else {
             throw new RuntimeException("Unknown type startable " + type);
