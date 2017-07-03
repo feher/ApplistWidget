@@ -405,6 +405,21 @@ public class ApplistModel {
         }
     }
 
+    public boolean hasInstalledAppShortcut(String packageName, String shortcutId) {
+        synchronized (this) {
+            for (StartableData startableData : mInstalledStartables) {
+                if (startableData instanceof AppShortcutData) {
+                    AppShortcutData appShortcutData = (AppShortcutData) startableData;
+                    if (appShortcutData.getPackageName().equals(packageName)
+                            && appShortcutData.getShortcutId().equals(shortcutId)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
     public void addInstalledShortcut(StartableData startableData, Bitmap shortcutIcon) {
         synchronized (this) {
             mApplistModelStorageV2.storeShortcutIcon(startableData, shortcutIcon);

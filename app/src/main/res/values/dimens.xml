@@ -12,8 +12,8 @@
     <dimen name="appitem_icon_size">48dp</dimen>
     <dimen name="appitem_badge_size">24dp</dimen>
     <dimen name="appitem_shortcut_indicator_size">20dp</dimen>
-    <!-- appitem_shortcut_indicator_offset = appitem_icon_size - (appitem_shortcut_indicator_size / 2) -->
-    <dimen name="appitem_shortcut_indicator_offset">38dp</dimen>
+    <!-- appitem_shortcut_indicator_offset = appitem_icon_size - (appitem_shortcut_indicator_size / 2) - 8 -->
+    <dimen name="appitem_shortcut_indicator_offset">30dp</dimen>
     <dimen name="dragged_over_indicator_width">4dp</dimen>
     <dimen name="dragged_section_item_width">86dp</dimen>
 

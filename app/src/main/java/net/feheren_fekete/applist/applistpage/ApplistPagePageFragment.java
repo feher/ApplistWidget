@@ -21,6 +21,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -460,7 +461,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     handled = true;
                     break;
                 case R.id.action_shortcut_remove:
-                    removeShortcut((ShortcutItem) mItemMenuTarget);
+                    removeShortcut((StartableItem) mItemMenuTarget);
                     handled = true;
                     break;
                 case R.id.action_section_rename:
@@ -568,12 +569,14 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             default: throw new RuntimeException("Invalid app shortcut menu item id " + menuItemId);
         }
         ShortcutInfo shortcutInfo = mItemShortcutInfos.get(appShortcutIndex);
-        testPinShortcut(shortcutInfo);
-//        startAppShortcut(shortcutInfo);
+//        testPinShortcut(shortcutInfo);
+        startAppShortcut(shortcutInfo);
     }
 
+    // This is used only for testing pinning of app shortcuts.
     @TargetApi(Build.VERSION_CODES.O)
     private void testPinShortcut(ShortcutInfo shortcutInfo) {
+        Log.d(TAG, "REQUEST PIN " + shortcutInfo.getPackage() + " " + shortcutInfo.getId());
         ShortcutManager mShortcutManager;
         mShortcutManager = getContext().getSystemService(ShortcutManager.class);
         if (mShortcutManager.isRequestPinShortcutSupported()) {
@@ -660,7 +663,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         getContext().startActivity(intent);
     }
 
-    private void removeShortcut(final ShortcutItem shortcutItem) {
+    private void removeShortcut(final StartableItem shortcutItem) {
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

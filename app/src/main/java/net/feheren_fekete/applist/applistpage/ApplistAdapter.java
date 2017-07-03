@@ -21,6 +21,7 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
 import net.feheren_fekete.applist.launcher.GlideApp;
@@ -589,8 +590,8 @@ public class ApplistAdapter
 
         if (item instanceof AppItem) {
             bindAppItemHolder(holder, (AppItem) item);
-        } else if (item instanceof ShortcutItem) {
-            bindShortcutItemHolder(holder, (ShortcutItem) item);
+        } else if ((item instanceof ShortcutItem) || (item instanceof AppShortcutItem)) {
+            bindShortcutItemHolder(holder, item);
         }
     }
 
@@ -643,14 +644,21 @@ public class ApplistAdapter
         holder.shortcutIndicator.setVisibility(View.GONE);
     }
 
-    private void bindShortcutItemHolder(StartableItemHolder holder, ShortcutItem item) {
+    private void bindShortcutItemHolder(StartableItemHolder holder, StartableItem item) {
         // Cancel loading of AppItem icons into this holder.
         if (holder.iconLoader != null) {
             holder.iconLoader.cancel(true);
             holder.iconLoader = null;
         }
 
-        File iconFile = new File(item.getIconPath());
+        File iconFile;
+        if (item instanceof ShortcutItem) {
+            ShortcutItem shortcutItem = (ShortcutItem) item;
+            iconFile = new File(shortcutItem.getIconPath());
+        } else {
+            AppShortcutItem appShortcutItem = (AppShortcutItem) item;
+            iconFile = new File(appShortcutItem.getIconPath());
+        }
         if (iconFile.exists()) {
             holder.appIcon.setBackgroundColor(Color.TRANSPARENT);
             GlideApp.with(mContext).load(iconFile).into(holder.appIcon);

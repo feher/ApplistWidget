@@ -19,6 +19,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import hugo.weaving.DebugLog;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private AppWidgetManager mAppWidgetManager;
     private boolean mIsHomePressed;
 
+    @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         handleIntent(getIntent());
     }
 
+    @DebugLog
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -73,24 +77,28 @@ public class MainActivity extends AppCompatActivity {
         return handled;
     }
 
+    @DebugLog
     @Override
     protected void onStart() {
         super.onStart();
         mAppWidgetHost.startListening();
     }
 
+    @DebugLog
     @Override
     protected void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
     }
 
+    @DebugLog
     @Override
     protected void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
     }
 
+    @DebugLog
     @Override
     protected void onStop() {
         super.onStop();

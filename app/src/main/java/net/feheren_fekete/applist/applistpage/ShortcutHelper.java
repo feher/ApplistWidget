@@ -12,6 +12,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
 import android.widget.Toast;
 
 import net.feheren_fekete.applist.ApplistLog;
@@ -24,10 +25,12 @@ import net.feheren_fekete.applist.utils.ImageUtils;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
+import bolts.Continuation;
 import bolts.Task;
 
 public class ShortcutHelper {
 
+    private static final String TAG = ShortcutHelper.class.getSimpleName();
     private static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
 
     // TODO: Inject
@@ -59,53 +62,78 @@ public class ShortcutHelper {
 
     @TargetApi(Build.VERSION_CODES.O)
     private void handleShortcutRequest(Intent intent) {
-        LauncherApps launcherApps = (LauncherApps) mContext.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        final LauncherApps launcherApps = (LauncherApps) mContext.getSystemService(Context.LAUNCHER_APPS_SERVICE);
         if (!launcherApps.hasShortcutHostPermission()) {
             return;
         }
 
         final LauncherApps.PinItemRequest pinItemRequest = intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST);
         final ShortcutInfo shortcutInfo = pinItemRequest.getShortcutInfo();
-
-        if (shortcutInfo.isPinned()) {
-            return;
-        }
+        Log.d(TAG, "PINNING " + shortcutInfo.getPackage() + " " + shortcutInfo.getId());
 
         if (!shortcutInfo.isEnabled()) {
             Toast.makeText(mContext, R.string.cannot_pin_disabled_shortcut, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String shortcutName = null;
-        if (shortcutInfo.getShortLabel() != null) {
-            shortcutName = shortcutInfo.getShortLabel().toString();
-        } else if (shortcutInfo.getLongLabel() != null) {
-            shortcutName = shortcutInfo.getLongLabel().toString();
-        } else {
-            ApplistLog.getInstance().log(new RuntimeException("Shortcut has no label"));
-            return;
-        }
-
-        final String shortcutId = shortcutInfo.getId();
         final String packageName = shortcutInfo.getPackage();
+        final String shortcutId = shortcutInfo.getId();
 
-        final Drawable iconDrawable = launcherApps.getShortcutIconDrawable(shortcutInfo, 0);
-        final Bitmap shortcutIconBitmap = ImageUtils.drawableToBitmap(iconDrawable);
-
-        final AppShortcutData shortcutData = new AppShortcutData(
-                System.currentTimeMillis(),
-                shortcutName,
-                packageName,
-                shortcutId);
-        Task.callInBackground(new Callable<Void>() {
+        // BUG: Framework or app?
+        //
+        // We receive the LauncherApps.ACTION_CONFIRM_PIN_SHORTCUT intent twice.
+        // First in MainActivity.onNewINtent() and then in MainActivity.onCreate(). Why is this?
+        // Then we crash on the second call to LauncherApps.PinItemRequest.accept(). We are not allowed
+        // to call it twice.
+        //
+        // Workaround: Use ApplistModel.hasInstalledAppShortcut() to check if we have already pinned
+        // this shortcut (i.e. called accept() on it).
+        //
+        Task.callInBackground(new Callable<Boolean>() {
             @Override
-            public Void call() throws Exception {
-                mApplistModel.addInstalledShortcut(shortcutData, shortcutIconBitmap);
+            public Boolean call() throws Exception {
+                return mApplistModel.hasInstalledAppShortcut(packageName, shortcutId);
+            }
+        }).continueWith(new Continuation<Boolean, Void>() {
+            @Override
+            public Void then(Task<Boolean> task) throws Exception {
+                boolean isShortcutInstalled = task.getResult();
+                if (isShortcutInstalled) {
+                    Toast.makeText(mContext, R.string.cannot_pin_pinned_shortcut, Toast.LENGTH_SHORT).show();
+                    return null;
+                }
+                if (!pinItemRequest.accept()) {
+                    return null;
+                }
+
+                String shortcutName = null;
+                if (shortcutInfo.getShortLabel() != null) {
+                    shortcutName = shortcutInfo.getShortLabel().toString();
+                } else if (shortcutInfo.getLongLabel() != null) {
+                    shortcutName = shortcutInfo.getLongLabel().toString();
+                } else {
+                    ApplistLog.getInstance().log(new RuntimeException("Shortcut has no label"));
+                    return null;
+                }
+
+                final Drawable iconDrawable = launcherApps.getShortcutBadgedIconDrawable(shortcutInfo, 0);
+                final Bitmap shortcutIconBitmap = ImageUtils.drawableToBitmap(iconDrawable);
+
+                final AppShortcutData shortcutData = new AppShortcutData(
+                        System.currentTimeMillis(),
+                        shortcutName,
+                        packageName,
+                        shortcutId);
+                Task.callInBackground(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        mApplistModel.addInstalledShortcut(shortcutData, shortcutIconBitmap);
+                        return null;
+                    }
+                });
                 return null;
             }
-        });
-
-        pinItemRequest.accept();
+        }, Task.UI_THREAD_EXECUTOR);
     }
 
     private BroadcastReceiver mInstallShortcutReceiver = new BroadcastReceiver() {
