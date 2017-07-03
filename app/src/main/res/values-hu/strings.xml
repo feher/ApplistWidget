@@ -66,4 +66,5 @@
     <string name="cannot_pin_disabled_shortcut">Gyorsindító letiltva.</string>
     <string name="cannot_start_disabled_shortcut">Gyorsindító letiltva.</string>
     <string name="cannot_pin_pinned_shortcut">Gyorsindító már létezik.</string>
+    <string name="app_item_menu_clear_badge">Üzenetjelzés eltávolítása</string>
 </resources>

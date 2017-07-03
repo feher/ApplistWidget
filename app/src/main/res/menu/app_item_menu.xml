@@ -7,25 +7,33 @@
     The orderInCategory has to be 2. We add app shortcuts above these items with orderInCategory 1.
     REF: 2017_06_30_app_shortcuts_order
     -->
+
+    <item
+        android:orderInCategory="2"
+        android:id="@+id/action_app_clear_badge"
+        android:title="@string/app_item_menu_clear_badge"
+        app:showAsAction="never|withText"
+        />
+
     <item
         android:orderInCategory="2"
         android:id="@+id/action_app_info"
         android:title="@string/app_item_menu_information"
-        app:showAsAction="ifRoom|withText"
+        app:showAsAction="never|withText"
         />
 
     <item
         android:orderInCategory="2"
         android:id="@+id/action_app_uninstall"
         android:title="@string/app_item_menu_uninstall"
-        app:showAsAction="ifRoom|withText"
+        app:showAsAction="never|withText"
         />
 
     <item
         android:orderInCategory="2"
         android:id="@+id/action_shortcut_remove"
         android:title="@string/app_item_menu_remove_shortcut"
-        app:showAsAction="ifRoom|withText"
+        app:showAsAction="never|withText"
         />
 
 </menu>

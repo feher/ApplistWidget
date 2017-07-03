@@ -329,9 +329,19 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         final boolean isShortcut = (startableItem instanceof ShortcutItem) || (startableItem instanceof AppShortcutItem);
         mItemMenu.getMenu().findItem(R.id.action_app_uninstall).setVisible(isApp);
         mItemMenu.getMenu().findItem(R.id.action_shortcut_remove).setVisible(isShortcut);
+        mItemMenu.getMenu().findItem(R.id.action_app_clear_badge).setVisible(false);
 
-        if (startableItem instanceof AppItem) {
+        if (isApp) {
             AppItem appItem = (AppItem) startableItem;
+            if (mSettingsUtils.getShowBadge()) {
+                final int badgeCount = mBadgeStore.getBadgeCount(
+                        appItem.getPackageName(),
+                        appItem.getClassName());
+                if (badgeCount > 0) {
+                    mItemMenu.getMenu().findItem(R.id.action_app_clear_badge).setVisible(true);
+                }
+            }
+
             addAppShortcutsToItemMenu(appItem);
         }
 
@@ -454,6 +464,10 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         public boolean onMenuItemClick(MenuItem menuItem) {
             boolean handled = false;
             switch (menuItem.getItemId()) {
+                case R.id.action_app_clear_badge:
+                    clearAppBadge((AppItem) mItemMenuTarget);
+                    handled = true;
+                    break;
                 case R.id.action_app_info:
                     showAppInfo((StartableItem) mItemMenuTarget);
                     handled = true;
@@ -678,6 +692,13 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         }
         mAdapter.setItems(ViewModelUtils.modelToView(mApplistModel, pageData));
         mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), 500);
+    }
+
+    private void clearAppBadge(AppItem appItem) {
+        mBadgeStore.setBadgeCount(
+                appItem.getPackageName(),
+                appItem.getClassName(),
+                0);
     }
 
     private void showAppInfo(StartableItem startableItem) {
