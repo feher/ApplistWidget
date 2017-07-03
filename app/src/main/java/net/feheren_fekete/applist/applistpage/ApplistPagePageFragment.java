@@ -52,6 +52,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -517,14 +519,38 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     R.id.app_shortcut_5 };
             // REF: 2017_06_30_app_shortcuts_order
             final int appShortcutItemsOrder = 1;
+            LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
             for (int i = 0; i < mItemShortcutInfos.size(); ++i) {
                 ShortcutInfo shortcutInfo = mItemShortcutInfos.get(i);
-                mItemMenu.getMenu().add(
+                MenuItem menuItem = mItemMenu.getMenu().add(
                         1,
                         menuItemIds[i],
                         appShortcutItemsOrder,
                         shortcutInfo.getShortLabel());
+                // REF: 2017_07_03_app_shortcut_icons
+                menuItem.setIcon(launcherApps.getShortcutIconDrawable(shortcutInfo, 0));
             }
+            if (!mItemShortcutInfos.isEmpty()) {
+                // REF: 2017_07_03_app_shortcut_icons
+                popupMenuShowIconsHack(mItemMenu);
+            }
+        }
+    }
+
+    // We want to show the app shortcut icons in the popup menu.
+    // Unfortunately the PopupMenu class does not show icons by default.
+    // REF: 2017_07_03_app_shortcut_icons
+    private void popupMenuShowIconsHack(PopupMenu popupMenu) {
+        Object menuHelper;
+        Class[] argTypes;
+        try {
+            Field fMenuHelper = PopupMenu.class.getDeclaredField("mPopup");
+            fMenuHelper.setAccessible(true);
+            menuHelper = fMenuHelper.get(popupMenu);
+            argTypes = new Class[]{boolean.class};
+            menuHelper.getClass().getDeclaredMethod("setForceShowIcon", argTypes).invoke(menuHelper, true);
+        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            ApplistLog.getInstance().log(e);
         }
     }
 
