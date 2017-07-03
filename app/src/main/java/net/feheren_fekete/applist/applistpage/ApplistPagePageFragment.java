@@ -497,6 +497,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         }
     };
 
+    @TargetApi(Build.VERSION_CODES.N_MR1)
     private void addAppShortcutsToItemMenu(AppItem appItem) {
         mItemShortcutInfos.clear();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
