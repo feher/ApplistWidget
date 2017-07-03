@@ -643,6 +643,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     packageName = componentName.getPackageName();
                 }
             }
+        } else if (startableItem instanceof AppShortcutItem) {
+            final AppShortcutItem appShortcutItem = (AppShortcutItem) startableItem;
+            packageName = appShortcutItem.getPackageName();
         }
         if (packageName != null) {
             Intent intent = new Intent();
