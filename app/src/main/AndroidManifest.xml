@@ -41,9 +41,7 @@
             android:name="net.feheren_fekete.applist.MainActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
-            android:clearTaskOnLaunch="true"
             android:stateNotNeeded="true"
-            android:resumeWhilePausing="true"
             android:screenOrientation="portrait"
             android:taskAffinity=""
             >
