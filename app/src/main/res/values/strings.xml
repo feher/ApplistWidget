@@ -26,10 +26,10 @@
     <string name="app_item_menu_uninstall">Uninstall</string>
     <string name="app_item_menu_remove_shortcut">Delete shortcut</string>
 
-    <string name="cannot_start_shortcut">The app cannot be found. Cannot start shortcut.</string>
-    <string name="cannot_start_disabled_shortcut">This shortcut is disabled. Cannot start.</string>
-    <string name="cannot_pin_disabled_shortcut">This shortcut is disabled. Cannot pin.</string>
-    <string name="cannot_pin_pinned_shortcut">This shortcut is already pinned.</string>
+    <string name="cannot_start_shortcut">App cannot be found. Cannot start shortcut.</string>
+    <string name="cannot_start_disabled_shortcut">Shortcut is disabled. Cannot start.</string>
+    <string name="cannot_pin_disabled_shortcut">Shortcut is disabled. Cannot pin.</string>
+    <string name="cannot_pin_pinned_shortcut">Shortcut is already pinned.</string>
 
     <string name="section_item_menu_rename">Rename</string>
     <string name="section_item_menu_delete">Delete</string>
