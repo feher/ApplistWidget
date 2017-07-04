@@ -20,6 +20,7 @@ public class AppData extends StartableData {
         mClassName = appItem.getClassName();
     }
 
+    @Override
     public String getPackageName() {
         return mPackageName;
     }

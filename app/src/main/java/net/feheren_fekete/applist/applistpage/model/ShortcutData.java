@@ -12,6 +12,11 @@ public class ShortcutData extends StartableData {
         mIntent = intent;
     }
 
+    @Override
+    public String getPackageName() {
+        return mIntent.getPackage();
+    }
+
     public Intent getIntent(){
         return mIntent;
     }
@@ -28,7 +33,7 @@ public class ShortcutData extends StartableData {
         if (o == null || !(o instanceof ShortcutData)) {
             return false;
         }
-        ShortcutData other = (ShortcutData) o;
-        return getIntentUri().equals(((ShortcutData) o).getIntentUri());
+        final ShortcutData other = (ShortcutData) o;
+        return getIntentUri().equals(other.getIntentUri());
     }
 }

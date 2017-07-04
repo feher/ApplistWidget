@@ -15,6 +15,7 @@ public class AppShortcutData extends StartableData {
         return mShortcutId;
     }
 
+    @Override
     public String getPackageName() {
         return mPackageName;
     }
@@ -25,6 +26,7 @@ public class AppShortcutData extends StartableData {
             return false;
         }
         AppShortcutData other = (AppShortcutData) o;
-        return mShortcutId.equals(((AppShortcutData) o).mShortcutId);
+        return mPackageName.equals(other.mPackageName)
+                && mShortcutId.equals(other.mShortcutId);
     }
 }

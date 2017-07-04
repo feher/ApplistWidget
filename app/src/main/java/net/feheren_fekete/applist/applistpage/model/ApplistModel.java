@@ -101,15 +101,38 @@ public class ApplistModel {
     public void updateInstalledApps() {
         List<AppData> newInstalledApps = AppUtils.getInstalledApps(mPackageManager);
         synchronized (this) {
-            // Replace old installed apps with new installed apps.
             List<StartableData> oldInstalledApps = new ArrayList<>();
+            List<StartableData> oldInstalledShortcuts = new ArrayList<>();
             for (StartableData startableData : mInstalledStartables) {
                 if (startableData instanceof AppData) {
                     oldInstalledApps.add(startableData);
                 }
+                if (startableData instanceof ShortcutData
+                        || startableData instanceof AppShortcutData) {
+                    oldInstalledShortcuts.add(startableData);
+                }
             }
+
+            // Replace old installed apps with new installed apps.
             mInstalledStartables.removeAll(oldInstalledApps);
             mInstalledStartables.addAll(newInstalledApps);
+
+            // Remove uninstalled shortcuts (i.e. shortcuts with uninstalled apps).
+            List<StartableData> uninstalledShortcuts = new ArrayList<>();
+            for (StartableData startableData : oldInstalledShortcuts) {
+                final String shortcutPackage = startableData.getPackageName();
+                boolean hasApp = false;
+                for (AppData appData : newInstalledApps) {
+                    if (shortcutPackage.equals(appData.getPackageName())) {
+                        hasApp = true;
+                        break;
+                    }
+                }
+                if (!hasApp) {
+                    uninstalledShortcuts.add(startableData);
+                }
+            }
+            mInstalledStartables.removeAll(uninstalledShortcuts);
 
             boolean isSectionChanged = updatePages(mPages);
             if (isSectionChanged) {

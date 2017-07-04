@@ -2,7 +2,7 @@ package net.feheren_fekete.applist.applistpage.model;
 
 import java.util.Comparator;
 
-public class StartableData extends BaseData {
+public abstract class StartableData extends BaseData {
 
     private String mName;
 
@@ -18,6 +18,8 @@ public class StartableData extends BaseData {
     public void setName(String name) {
         mName = name;
     }
+
+    public abstract String getPackageName();
 
     public static final class NameComparator implements Comparator<StartableData> {
         @Override
