@@ -99,9 +99,9 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         mToolbar.setPadding(0, mScreenUtils.getStatusBarHeight(getContext()), 0, 0);
 
         mToolbar.setOnClickListener(mToolbarClickListener);
-        mToolbar.setTitle(R.string.toolbar_title);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(mToolbar);
+        activity.getSupportActionBar().setTitle(R.string.toolbar_title);
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         setHasOptionsMenu(true);
 
@@ -374,11 +374,15 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     }
 
     private void startFilteringByName(ApplistPagePageFragment fragment) {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setTitle("");
         fragment.activateNameFilter();
         onPrepareOptionsMenu(mMenu);
     }
 
     private void stopFilteringByName(ApplistPagePageFragment fragment) {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setTitle(R.string.toolbar_title);
         fragment.deactivateNameFilter();
         mSearchView.setIconified(true);
         onPrepareOptionsMenu(mMenu);
