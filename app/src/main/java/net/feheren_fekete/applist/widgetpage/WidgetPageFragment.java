@@ -1,7 +1,6 @@
 package net.feheren_fekete.applist.widgetpage;
 
 import android.app.Activity;
-import android.app.WallpaperManager;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
@@ -31,6 +30,7 @@ import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 import net.feheren_fekete.applist.utils.ScreenUtils;
+import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -45,8 +45,7 @@ import bolts.Task;
 public class WidgetPageFragment extends Fragment {
 
     private static final int REQUEST_PICK_APPWIDGET = 1;
-    private static final int REQUEST_CREATE_APPWIDGET = 2;
-    private static final int REQUEST_BIND_APPWIDGET = 3;
+    private static final int REQUEST_CONFIGURE_APPWIDGET = 2;
 
     private static final int NO_BORDER = 0;
     private static final int TOP_BORDER = 1;
@@ -128,16 +127,10 @@ public class WidgetPageFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_PICK_APPWIDGET) {
-                if (bindWidget(data)) {
-                    if (configureWidget(data)) {
-                        addWidgetToModelDelayed(data);
-                    }
-                }
-            } else if (requestCode == REQUEST_BIND_APPWIDGET) {
                 if (configureWidget(data)) {
                     addWidgetToModelDelayed(data);
                 }
-            } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
+            } else if (requestCode == REQUEST_CONFIGURE_APPWIDGET) {
                 addWidgetToModelDelayed(data);
             }
         } else if (resultCode == Activity.RESULT_CANCELED && data != null) {
@@ -262,8 +255,11 @@ public class WidgetPageFragment extends Fragment {
 
     private void pickWidget() {
         int appWidgetId = mAppWidgetHost.allocateAppWidgetId();
-        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
+//        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
+        Intent pickIntent = new Intent(getContext(), WidgetPickerActivity.class);
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_WIDTH, DEFAULT_WIDGET_WIDTH);
+        pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_HEIGHT, DEFAULT_WIDGET_HEIGHT);
         addEmptyData(pickIntent);
         startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
     }
@@ -277,39 +273,6 @@ public class WidgetPageFragment extends Fragment {
                 AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras);
     }
 
-    private boolean bindWidget(Intent data) {
-        // If we use ACTION_APPWIDGET_PICK we don't need to bind manually.
-        // It's needed only if we implement our own custom widget picker.
-        return true;
-//        int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-//        if (appWidgetId == -1) {
-//            return true;
-//        }
-//        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
-//
-//        Bundle options = new Bundle();
-//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, DEFAULT_WIDGET_WIDTH);
-//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, DEFAULT_WIDGET_HEIGHT);
-//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, DEFAULT_WIDGET_WIDTH);
-//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, DEFAULT_WIDGET_HEIGHT);
-//        options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
-//
-//        boolean success = mAppWidgetManager.bindAppWidgetIdIfAllowed(
-//                appWidgetId, appWidgetInfo.provider, options);
-//        if (success) {
-//            return true;
-//        } else {
-//            Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
-//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, appWidgetInfo.provider);
-////            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, android.os.Process.myUserHandle());
-//            // This is the options bundle discussed above
-//            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);
-//            startActivityForResult(intent, REQUEST_BIND_APPWIDGET);
-//            return false;
-//        }
-    }
-
     private boolean configureWidget(Intent data) {
         Bundle extras = data.getExtras();
         int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
@@ -321,7 +284,7 @@ public class WidgetPageFragment extends Fragment {
             Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
             intent.setComponent(appWidgetInfo.configure);
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            startActivityForResult(intent, REQUEST_CREATE_APPWIDGET);
+            startActivityForResult(intent, REQUEST_CONFIGURE_APPWIDGET);
             return false;
         }
         return true;

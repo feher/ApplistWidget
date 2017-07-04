@@ -65,6 +65,11 @@
                 android:value="net.feheren_fekete.applist.MainActivity" />
         </activity>
 
+        <activity
+            android:name="net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerActivity"
+            android:parentActivityName=".MainActivity"
+            />
+
         <receiver android:name=".applistpage.shortcutbadge.BadgeReceiver">
             <!-- Samsung, LG, Asus -->
             <intent-filter>
