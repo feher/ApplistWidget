@@ -16,15 +16,12 @@ public class WidgetPickerAdapter extends RecyclerView.Adapter<WidgetPickerViewHo
     private WidgetPickerViewHolder.Listener mListener;
     private List<WidgetPickerItem> mItems = new ArrayList<>();
 
-    public WidgetPickerAdapter(Context context, WidgetPickerViewHolder.Listener listener) {
+    public WidgetPickerAdapter(WidgetPickerViewHolder.Listener listener) {
         mListener = listener;
     }
 
-    public void setItems(List<WidgetPickerData> widgetPickerDatas) {
-        mItems.clear();
-        for (WidgetPickerData widgetPickerData : widgetPickerDatas) {
-            mItems.add(new WidgetPickerItem(widgetPickerData));
-        }
+    public void setItems(List<WidgetPickerItem> widgetPickerItems) {
+        mItems = widgetPickerItems;
         notifyDataSetChanged();
     }
 

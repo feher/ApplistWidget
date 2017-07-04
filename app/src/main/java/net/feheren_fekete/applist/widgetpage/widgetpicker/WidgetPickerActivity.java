@@ -18,6 +18,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import bolts.Task;
@@ -53,7 +57,7 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
         getSupportActionBar().setTitle(R.string.widget_picker_title);
 
         mWidgetPickerModel = new WidgetPickerModel(this);
-        mWidgetPickerAdapter = new WidgetPickerAdapter(this, this);
+        mWidgetPickerAdapter = new WidgetPickerAdapter(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.widget_picker_activity_widget_list);
         mRecyclerView.setLayoutManager(new GridLayoutManager(mRecyclerView.getContext(), 2));
         mRecyclerView.setAdapter(mWidgetPickerAdapter);
@@ -92,9 +96,27 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDataLoadedEvent(WidgetPickerModel.DataLoadedEvent event) {
-        mWidgetPickerAdapter.setItems(mWidgetPickerModel.getWidgets());
+        List<WidgetPickerData> widgetPickerDatas = mWidgetPickerModel.getWidgets();
+        List<WidgetPickerItem> widgetPickerItems = new ArrayList<>();
+        for (WidgetPickerData widgetPickerData : widgetPickerDatas) {
+            widgetPickerItems.add(new WidgetPickerItem(widgetPickerData));
+        }
+        Collections.sort(widgetPickerItems, new Comparator<WidgetPickerItem>() {
+            @Override
+            public int compare(WidgetPickerItem a, WidgetPickerItem b) {
+                final String labelA = a.getLabel(WidgetPickerActivity.this);
+                final String labelB = b.getLabel(WidgetPickerActivity.this);
+                if (labelB == null) {
+                    return 1;
+                }
+                if (labelA == null) {
+                    return -1;
+                }
+                return labelA.compareTo(labelB);
+            }
+        });
+        mWidgetPickerAdapter.setItems(widgetPickerItems);
     }
-
 
     @Override
     public void onWidgetTapped(int position) {
