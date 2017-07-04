@@ -255,15 +255,26 @@ public class WidgetPageFragment extends Fragment {
 
     private void pickWidget() {
         int appWidgetId = mAppWidgetHost.allocateAppWidgetId();
+
 //        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
+//        addEmptyData(pickIntent);
+
         Intent pickIntent = new Intent(getContext(), WidgetPickerActivity.class);
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_WIDTH, DEFAULT_WIDGET_WIDTH);
         pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_HEIGHT, DEFAULT_WIDGET_HEIGHT);
-        addEmptyData(pickIntent);
+
+        // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
+        final int topPadding = mScreenUtils.getStatusBarHeight(getActivity());
+        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
+        final int bottomPadding = mScreenUtils.hasNavigationBar(getActivity()) ? mScreenUtils.getNavigationBarHeight(getActivity()) : 0;
+        pickIntent.putExtra(WidgetPickerActivity.EXTRA_TOP_PADDING, topPadding);
+        pickIntent.putExtra(WidgetPickerActivity.EXTRA_BOTTOM_PADDING, bottomPadding);
+
         startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
     }
 
+    // This is needed only when using AppWidgetManager.ACTION_APPWIDGET_PICK.
     private void addEmptyData(Intent pickIntent) {
         ArrayList<AppWidgetProviderInfo> customInfo = new ArrayList<>();
         pickIntent.putParcelableArrayListExtra(

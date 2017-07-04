@@ -10,9 +10,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -24,13 +24,12 @@ import bolts.Task;
 
 public class WidgetPickerActivity extends AppCompatActivity implements WidgetPickerViewHolder.Listener {
 
+    public static final String EXTRA_TOP_PADDING = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_TOP_PADDING";
+    public static final String EXTRA_BOTTOM_PADDING = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_BOTTOM_PADDING";
     public static final String EXTRA_WIDGET_WIDTH = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_WIDGET_WIDTH";
     public static final String EXTRA_WIDGET_HEIGHT = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_WIDGET_HEIGHT";
 
     private static final int REQUEST_BIND_APPWIDGET = 1;
-
-    // TODO: Inject
-    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 
     private WidgetPickerModel mWidgetPickerModel;
     private WidgetPickerAdapter mWidgetPickerAdapter;
@@ -45,11 +44,13 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.widget_picker_activity);
 
-        // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
-        final int topPadding = mScreenUtils.getStatusBarHeight(this);
-        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
-        final int bottomPadding = mScreenUtils.hasNavigationBar(this) ? mScreenUtils.getNavigationBarHeight(this) : 0;
+        final int topPadding = getIntent().getIntExtra(EXTRA_TOP_PADDING, 0);
+        final int bottomPadding = getIntent().getIntExtra(EXTRA_BOTTOM_PADDING, 0);
         findViewById(R.id.widget_picker_activity_layout).setPadding(0, topPadding, 0, bottomPadding);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.widget_picker_activity_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.widget_picker_title);
 
         mWidgetPickerModel = new WidgetPickerModel(this);
         mWidgetPickerAdapter = new WidgetPickerAdapter(this, this);

@@ -59,6 +59,8 @@
         <item>@string/widget_page_change_wallpaper</item>
     </string-array>
 
+    <string name="widget_picker_title">Pick a widget</string>
+
     <string name="launcher_page_editor_new_page">New Page</string>
     <string name="launcher_page_editor_done">Done</string>
     <string name="launcher_page_editor_remove_dialog_title">Delete page</string>
