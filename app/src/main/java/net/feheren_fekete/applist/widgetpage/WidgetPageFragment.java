@@ -1,17 +1,14 @@
 package net.feheren_fekete.applist.widgetpage;
 
-import android.app.Activity;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -30,7 +27,6 @@ import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 import net.feheren_fekete.applist.utils.ScreenUtils;
-import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -44,17 +40,11 @@ import bolts.Task;
 
 public class WidgetPageFragment extends Fragment {
 
-    private static final int REQUEST_PICK_APPWIDGET = 1;
-    private static final int REQUEST_CONFIGURE_APPWIDGET = 2;
-
     private static final int NO_BORDER = 0;
     private static final int TOP_BORDER = 1;
     private static final int BOTTOM_BORDER = 1 << 1;
     private static final int LEFT_BORDER = 1 << 2;
     private static final int RIGHT_BORDER = 1 << 3;
-
-    private static final int DEFAULT_WIDGET_WIDTH = 300; // dp
-    private static final int DEFAULT_WIDGET_HEIGHT = 200; // dp
 
     public static final class ShowPageEditorEvent {}
     public static final class WidgetMoveStartedEvent {}
@@ -70,8 +60,8 @@ public class WidgetPageFragment extends Fragment {
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
     private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
+    private WidgetHelper mWidgetHelper = WidgetHelper.getInstance();
 
-    private Handler mHandler = new Handler();
     private AppWidgetManager mAppWidgetManager;
     private MyAppWidgetHost mAppWidgetHost;
     private ViewGroup mWidgetContainer;
@@ -125,20 +115,7 @@ public class WidgetPageFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_PICK_APPWIDGET) {
-                if (configureWidget(data)) {
-                    addWidgetToModelDelayed(data);
-                }
-            } else if (requestCode == REQUEST_CONFIGURE_APPWIDGET) {
-                addWidgetToModelDelayed(data);
-            }
-        } else if (resultCode == Activity.RESULT_CANCELED && data != null) {
-            int appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-            if (appWidgetId != -1) {
-                mAppWidgetHost.deleteAppWidgetId(appWidgetId);
-            }
-        }
+        mWidgetHelper.handleActivityResult(requestCode, resultCode, data, mAppWidgetHost);
     }
 
     @Override
@@ -253,54 +230,6 @@ public class WidgetPageFragment extends Fragment {
         EventBus.getDefault().post(new ShowPageEditorEvent());
     }
 
-    private void pickWidget() {
-        int appWidgetId = mAppWidgetHost.allocateAppWidgetId();
-
-//        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
-//        addEmptyData(pickIntent);
-
-        Intent pickIntent = new Intent(getContext(), WidgetPickerActivity.class);
-        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_WIDTH, DEFAULT_WIDGET_WIDTH);
-        pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_HEIGHT, DEFAULT_WIDGET_HEIGHT);
-
-        // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
-        final int topPadding = mScreenUtils.getStatusBarHeight(getActivity());
-        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
-        final int bottomPadding = mScreenUtils.hasNavigationBar(getActivity()) ? mScreenUtils.getNavigationBarHeight(getActivity()) : 0;
-        pickIntent.putExtra(WidgetPickerActivity.EXTRA_TOP_PADDING, topPadding);
-        pickIntent.putExtra(WidgetPickerActivity.EXTRA_BOTTOM_PADDING, bottomPadding);
-
-        startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
-    }
-
-    // This is needed only when using AppWidgetManager.ACTION_APPWIDGET_PICK.
-    private void addEmptyData(Intent pickIntent) {
-        ArrayList<AppWidgetProviderInfo> customInfo = new ArrayList<>();
-        pickIntent.putParcelableArrayListExtra(
-                AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo);
-        ArrayList<Bundle> customExtras = new ArrayList<>();
-        pickIntent.putParcelableArrayListExtra(
-                AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras);
-    }
-
-    private boolean configureWidget(Intent data) {
-        Bundle extras = data.getExtras();
-        int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-        if (appWidgetId == -1) {
-            return true;
-        }
-        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
-        if (appWidgetInfo.configure != null) {
-            Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
-            intent.setComponent(appWidgetInfo.configure);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            startActivityForResult(intent, REQUEST_CONFIGURE_APPWIDGET);
-            return false;
-        }
-        return true;
-    }
-
     private void updateScreenFromModel() {
         removeAllWidgetsFromScreen();
         List<WidgetData> widgetDatas = mWidgetModel.getWidgets(getPageId());
@@ -368,46 +297,6 @@ public class WidgetPageFragment extends Fragment {
         mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
     }
 
-    private void addWidgetToModelDelayed(final Intent data) {
-        // The widget picker and configuration activity sent this fragment to the PAUSED state.
-        // But we want to be in the RESUMED state. Otherwise we don't receive EventBus events
-        // from the WidgetModel.
-        // So delay the model update to the next event loop.
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                addWidgetToModel(data);
-            }
-        }, 500);
-    }
-
-    private void addWidgetToModel(Intent data) {
-        final int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-        if (appWidgetId == -1) {
-            return;
-        }
-        final AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
-        final Point screenSize = mScreenUtils.getScreenSizeDp(getContext());
-        final WidgetData widgetData = new WidgetData(
-                System.currentTimeMillis(),
-                appWidgetId,
-                appWidgetInfo.provider.getPackageName(),
-                appWidgetInfo.provider.getClassName(),
-                getPageId(),
-                (screenSize.x / 2) - (DEFAULT_WIDGET_WIDTH / 2),
-                (screenSize.y / 2) - (DEFAULT_WIDGET_HEIGHT / 2),
-                DEFAULT_WIDGET_WIDTH,
-                DEFAULT_WIDGET_HEIGHT);
-
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mWidgetModel.addWidget(widgetData);
-                return null;
-            }
-        });
-    }
-
     private void bringWidgetToTop(final WidgetItem widgetItem) {
         Task.callInBackground(new Callable<Void>() {
             @Override
@@ -453,7 +342,8 @@ public class WidgetPageFragment extends Fragment {
                         switch (which) {
                             case 0:
                                 // Add widget
-                                pickWidget();
+                                mWidgetHelper.pickWidget(
+                                        WidgetPageFragment.this, mAppWidgetManager, mAppWidgetHost, getPageId());
                                 break;
                             case 1:
                                 // Edit pages
