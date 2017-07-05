@@ -11,6 +11,7 @@ import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
 import net.feheren_fekete.applist.launcher.LauncherFragment;
 import net.feheren_fekete.applist.launcher.PageEditorFragment;
+import net.feheren_fekete.applist.widgetpage.WidgetHelper;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 import net.feheren_fekete.applist.widgetpage.MyAppWidgetHost;
 import net.feheren_fekete.applist.settings.SettingsUtils;
@@ -29,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.class.getCanonicalName()+ "ACTION_RESTART";
 
     // TODO: Inject these singletons.
+    private ShortcutHelper mShortcutHelper = ShortcutHelper.getInstance();
+    private WidgetHelper mWidgetHelper = WidgetHelper.getInstance();
     private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
 
     private MyAppWidgetHost mAppWidgetHost;
@@ -72,9 +75,18 @@ public class MainActivity extends AppCompatActivity {
     private boolean handleIntent(@Nullable Intent intent) {
         boolean handled = false;
         if (intent != null) {
-            handled = new ShortcutHelper(this).handleIntent(intent);
+            handled = mShortcutHelper.handleIntent(this, intent);
+            if (!handled) {
+                handled = mWidgetHelper.handleIntent(this, intent, mAppWidgetManager, mAppWidgetHost);
+            }
         }
         return handled;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mWidgetHelper.handleActivityResult(requestCode, resultCode, data, mAppWidgetHost);
     }
 
     @DebugLog

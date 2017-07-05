@@ -15,6 +15,7 @@ import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.utils.ScreenUtils;
+import net.feheren_fekete.applist.widgetpage.WidgetHelper;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 
 
@@ -44,9 +45,9 @@ public class ApplistApp extends MultiDexApplication {
         LauncherModel.initInstance(this);
         ApplistModel.initInstance(this, getPackageManager());
         WidgetModel.initInstance(this);
-
-        mShortcutHelper = new ShortcutHelper(this);
-        mShortcutHelper.registerInstallShortcutReceiver();
+        WidgetHelper.initInstance();
+        ShortcutHelper.initInstance();
+        ShortcutHelper.getInstance().registerInstallShortcutReceiver(this);
     }
 
 }

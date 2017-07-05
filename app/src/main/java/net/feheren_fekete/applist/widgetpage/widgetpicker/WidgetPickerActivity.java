@@ -28,6 +28,11 @@ import bolts.Task;
 
 public class WidgetPickerActivity extends AppCompatActivity implements WidgetPickerViewHolder.Listener {
 
+    public static final String ACTION_PICK_AND_BIND_WIDGET = WidgetPickerActivity.class.getCanonicalName() + ".ACTION_PICK_AND_BIND_WIDGET";
+    public static final String ACTION_BIND_WIDGET = WidgetPickerActivity.class.getCanonicalName() + ".ACTION_BIND_WIDGET";
+
+    public static final String EXTRA_WIDGET_PROVIDER = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_WIDGET_PROVIDER";
+
     public static final String EXTRA_TOP_PADDING = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_TOP_PADDING";
     public static final String EXTRA_BOTTOM_PADDING = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_BOTTOM_PADDING";
     public static final String EXTRA_WIDGET_WIDTH = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_WIDGET_WIDTH";
@@ -46,21 +51,6 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.widget_picker_activity);
-
-        final int topPadding = getIntent().getIntExtra(EXTRA_TOP_PADDING, 0);
-        final int bottomPadding = getIntent().getIntExtra(EXTRA_BOTTOM_PADDING, 0);
-        findViewById(R.id.widget_picker_activity_layout).setPadding(0, topPadding, 0, bottomPadding);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.widget_picker_activity_toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.widget_picker_title);
-
-        mWidgetPickerModel = new WidgetPickerModel(this);
-        mWidgetPickerAdapter = new WidgetPickerAdapter(this);
-        mRecyclerView = (RecyclerView) findViewById(R.id.widget_picker_activity_widget_list);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(mRecyclerView.getContext(), 2));
-        mRecyclerView.setAdapter(mWidgetPickerAdapter);
 
         setResult(Activity.RESULT_CANCELED);
 
@@ -71,6 +61,28 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
                 || mWidgetWidth == -1
                 || mWidgetHeight == -1) {
             finish();
+            return;
+        }
+
+        if (ACTION_BIND_WIDGET.equals(getIntent().getAction())) {
+            ComponentName widgetProvider = getIntent().getParcelableExtra(EXTRA_WIDGET_PROVIDER);
+            bindWidget(widgetProvider);
+        } else {
+            setContentView(R.layout.widget_picker_activity);
+
+            final int topPadding = getIntent().getIntExtra(EXTRA_TOP_PADDING, 0);
+            final int bottomPadding = getIntent().getIntExtra(EXTRA_BOTTOM_PADDING, 0);
+            findViewById(R.id.widget_picker_activity_layout).setPadding(0, topPadding, 0, bottomPadding);
+
+            Toolbar toolbar = (Toolbar) findViewById(R.id.widget_picker_activity_toolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setTitle(R.string.widget_picker_title);
+
+            mWidgetPickerModel = new WidgetPickerModel(this);
+            mWidgetPickerAdapter = new WidgetPickerAdapter(this);
+            mRecyclerView = (RecyclerView) findViewById(R.id.widget_picker_activity_widget_list);
+            mRecyclerView.setLayoutManager(new GridLayoutManager(mRecyclerView.getContext(), 2));
+            mRecyclerView.setAdapter(mWidgetPickerAdapter);
         }
     }
 
@@ -121,7 +133,10 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
     @Override
     public void onWidgetTapped(int position) {
         WidgetPickerItem widgetPickerItem = mWidgetPickerAdapter.getItem(position);
+        bindWidget(widgetPickerItem.getWidgetPickerData().getAppWidgetProviderInfo().provider);
+    }
 
+    private void bindWidget(ComponentName widgetProvider) {
         Bundle options = new Bundle();
         options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, mWidgetWidth);
         options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, mWidgetHeight);
@@ -131,14 +146,13 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
 
-        ComponentName provider = widgetPickerItem.getWidgetPickerData().getAppWidgetProviderInfo().provider;
-        boolean success = appWidgetManager.bindAppWidgetIdIfAllowed(mAppWidgetId, provider, options);
+        boolean success = appWidgetManager.bindAppWidgetIdIfAllowed(mAppWidgetId, widgetProvider, options);
         if (success) {
             finishWithSuccess();
         } else {
             Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, widgetProvider);
 //            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, android.os.Process.myUserHandle());
             // This is the options bundle discussed above
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, options);

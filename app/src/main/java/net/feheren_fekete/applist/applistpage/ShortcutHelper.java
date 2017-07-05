@@ -22,7 +22,6 @@ import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.ShortcutData;
 import net.feheren_fekete.applist.utils.ImageUtils;
 
-import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
@@ -36,33 +35,47 @@ public class ShortcutHelper {
     // TODO: Inject
     private ApplistModel mApplistModel = ApplistModel.getInstance();
 
-    private Context mContext;
+    private static ShortcutHelper sInstance;
 
-    public ShortcutHelper(Context context) {
-        mContext = context;
+    public static void initInstance() {
+        if (sInstance == null) {
+            sInstance = new ShortcutHelper();
+        }
     }
 
-    public void registerInstallShortcutReceiver() {
+    public static ShortcutHelper getInstance() {
+        if (sInstance != null) {
+            return sInstance;
+        } else {
+            throw new RuntimeException(ShortcutHelper.class.getSimpleName() + " singleton is not initialized");
+        }
+    }
+
+    private ShortcutHelper() {
+    }
+
+    public void registerInstallShortcutReceiver(Context context) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_INSTALL_SHORTCUT);
-        mContext.registerReceiver(mInstallShortcutReceiver, intentFilter);
+        context.registerReceiver(mInstallShortcutReceiver, intentFilter);
     }
 
-    public void unregisterInstallShortcutReceiver() {
-        mContext.unregisterReceiver(mInstallShortcutReceiver);
+    public void unregisterInstallShortcutReceiver(Context context) {
+        context.unregisterReceiver(mInstallShortcutReceiver);
     }
 
-    public boolean handleIntent(Intent intent) {
-        if (LauncherApps.ACTION_CONFIRM_PIN_SHORTCUT.equals(intent.getAction())) {
-            handleShortcutRequest(intent);
+    public boolean handleIntent(Context context, Intent intent) {
+        final String action = intent.getAction();
+        if (LauncherApps.ACTION_CONFIRM_PIN_SHORTCUT.equals(action)) {
+            handleShortcutRequest(context, intent);
             return true;
         }
         return false;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    private void handleShortcutRequest(Intent intent) {
-        final LauncherApps launcherApps = (LauncherApps) mContext.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+    private void handleShortcutRequest(final Context context, Intent intent) {
+        final LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
         if (!launcherApps.hasShortcutHostPermission()) {
             return;
         }
@@ -72,7 +85,7 @@ public class ShortcutHelper {
         Log.d(TAG, "PINNING " + shortcutInfo.getPackage() + " " + shortcutInfo.getId());
 
         if (!shortcutInfo.isEnabled()) {
-            Toast.makeText(mContext, R.string.cannot_pin_disabled_shortcut, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.cannot_pin_disabled_shortcut, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -99,7 +112,7 @@ public class ShortcutHelper {
             public Void then(Task<Boolean> task) throws Exception {
                 boolean isShortcutInstalled = task.getResult();
                 if (isShortcutInstalled) {
-                    Toast.makeText(mContext, R.string.cannot_pin_pinned_shortcut, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.cannot_pin_pinned_shortcut, Toast.LENGTH_SHORT).show();
                     return null;
                 }
                 if (!pinItemRequest.accept()) {
@@ -136,6 +149,8 @@ public class ShortcutHelper {
         }, Task.UI_THREAD_EXECUTOR);
     }
 
+
+
     private BroadcastReceiver mInstallShortcutReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -147,7 +162,7 @@ public class ShortcutHelper {
                 if (shortcutIconBitmap == null) {
                     final Intent.ShortcutIconResource shortcutIconResource = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
                     if (shortcutIconResource != null) {
-                        PackageManager packageManager = mContext.getPackageManager();
+                        PackageManager packageManager = context.getPackageManager();
                         Resources resources = null;
                         try {
                             resources = packageManager.getResourcesForApplication(shortcutIconResource.packageName);
