@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist.widgetpage.widgetpicker;
 
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,8 +34,10 @@ public class WidgetPickerViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(WidgetPickerItem widgetPickerItem) {
-        mIcon.setImageDrawable(widgetPickerItem.getIcon(mIcon.getContext()));
-        mImage.setImageDrawable(widgetPickerItem.getPreviewImage(mIcon.getContext()));
+        final Drawable icon = widgetPickerItem.getIcon(mIcon.getContext());
+        final Drawable previewImage = widgetPickerItem.getPreviewImage(mIcon.getContext());
+        mIcon.setImageDrawable(icon);
+        mImage.setImageDrawable(previewImage != null ? previewImage : icon);
         mTitle.setText(widgetPickerItem.getLabel(mTitle.getContext()));
     }
 
