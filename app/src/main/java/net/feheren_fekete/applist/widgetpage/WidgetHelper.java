@@ -114,6 +114,7 @@ public class WidgetHelper {
                                 return null;
                             }
                         });
+                        break;
                     }
                 }
                 return null;
