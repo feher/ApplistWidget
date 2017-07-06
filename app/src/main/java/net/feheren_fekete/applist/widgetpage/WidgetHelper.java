@@ -7,13 +7,14 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.LauncherApps;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
@@ -31,6 +32,7 @@ import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
+import hugo.weaving.DebugLog;
 
 public class WidgetHelper {
 
@@ -50,7 +52,6 @@ public class WidgetHelper {
 
     private Handler mHandler = new Handler();
     private WeakReference<Activity> mActivityRef;
-    private WeakReference<Fragment> mFragmentRef;
     private AppWidgetManager mAppWidgetManager;
     private long mPageId;
 
@@ -93,6 +94,30 @@ public class WidgetHelper {
         final LauncherApps.PinItemRequest pinItemRequest = intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST);
         final AppWidgetProviderInfo appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(activity);
         Log.d(TAG, "PINNING WIDGET " + appWidgetProviderInfo.provider);
+
+        AlertDialog alertDialog = new AlertDialog.Builder(activity)
+                .setMessage("Pin this? " + appWidgetProviderInfo.provider)
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        pinWidget(activity, appWidgetManager, appWidgetHost, appWidgetProviderInfo.provider);
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Nothing.
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        alertDialog.show();
+    }
+
+    private void pinWidget(final Activity activity,
+                           final AppWidgetManager appWidgetManager,
+                           final AppWidgetHost appWidgetHost,
+                           final ComponentName appWidgetProvider) {
         Task.callInBackground(new Callable<PageData>() {
             @Override
             public PageData call() throws Exception {
@@ -117,23 +142,20 @@ public class WidgetHelper {
                     bindWidget(
                             activity, appWidgetManager, appWidgetHost,
                             pageData.getId(),
-                            appWidgetProviderInfo.provider);
+                            appWidgetProvider);
                 }
                 return null;
             }
         }, Task.UI_THREAD_EXECUTOR);
     }
 
+    @DebugLog
     private void bindWidget(Activity activity,
                            AppWidgetManager appWidgetManager,
                            AppWidgetHost appWidgetHost,
                            long pageId,
                            ComponentName widgetProvider) {
         mActivityRef = new WeakReference<>(activity);
-        if (mFragmentRef != null) {
-            mFragmentRef.clear();
-            mFragmentRef = null;
-        }
         mAppWidgetManager = appWidgetManager;
         mPageId = pageId;
 
@@ -149,12 +171,8 @@ public class WidgetHelper {
         activity.startActivityForResult(bindIntent, REQUEST_BIND_APPWIDGET);
     }
 
-    public void pickWidget(Fragment fragment, AppWidgetManager appWidgetManager, AppWidgetHost appWidgetHost, long pageId) {
-        mFragmentRef = new WeakReference<>(fragment);
-        if (mActivityRef != null) {
-            mActivityRef.clear();
-            mActivityRef = null;
-        }
+    public void pickWidget(Activity activity, AppWidgetManager appWidgetManager, AppWidgetHost appWidgetHost, long pageId) {
+        mActivityRef = new WeakReference<>(activity);
         mAppWidgetManager = appWidgetManager;
         mPageId = pageId;
 
@@ -163,21 +181,21 @@ public class WidgetHelper {
 //        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
 //        addEmptyData(pickIntent);
 
-        Intent pickIntent = new Intent(fragment.getContext(), WidgetPickerActivity.class);
+        Intent pickIntent = new Intent(activity, WidgetPickerActivity.class);
         pickIntent.setAction(WidgetPickerActivity.ACTION_PICK_AND_BIND_WIDGET);
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_WIDTH, DEFAULT_WIDGET_WIDTH);
         pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_HEIGHT, DEFAULT_WIDGET_HEIGHT);
 
         // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
-        final int topPadding = mScreenUtils.getStatusBarHeight(fragment.getContext());
+        final int topPadding = mScreenUtils.getStatusBarHeight(activity);
         // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
-        final int bottomPadding = mScreenUtils.hasNavigationBar(fragment.getContext())
-                ? mScreenUtils.getNavigationBarHeight(fragment.getContext()) : 0;
+        final int bottomPadding = mScreenUtils.hasNavigationBar(activity)
+                ? mScreenUtils.getNavigationBarHeight(activity) : 0;
         pickIntent.putExtra(WidgetPickerActivity.EXTRA_TOP_PADDING, topPadding);
         pickIntent.putExtra(WidgetPickerActivity.EXTRA_BOTTOM_PADDING, bottomPadding);
 
-        fragment.startActivityForResult(pickIntent, REQUEST_PICK_AND_BIND_APPWIDGET);
+        activity.startActivityForResult(pickIntent, REQUEST_PICK_AND_BIND_APPWIDGET);
     }
 
     // This is needed only when using AppWidgetManager.ACTION_APPWIDGET_PICK.
@@ -190,6 +208,7 @@ public class WidgetHelper {
                 AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras);
     }
 
+    @DebugLog
     public boolean handleActivityResult(int requestCode, int resultCode, Intent data,
                                         AppWidgetHost appWidgetHost) {
         if (requestCode != REQUEST_PICK_AND_BIND_APPWIDGET
@@ -221,6 +240,7 @@ public class WidgetHelper {
         return true;
     }
 
+    @DebugLog
     private boolean configureWidget(Intent data) {
         Bundle extras = data.getExtras();
         int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
@@ -238,6 +258,7 @@ public class WidgetHelper {
         return true;
     }
 
+    @DebugLog
     private void addWidgetToModelDelayed(final Intent data) {
         // The widget picker and configuration activity sent this fragment to the PAUSED state.
         // But we want to be in the RESUMED state. Otherwise we don't receive EventBus events
@@ -251,6 +272,7 @@ public class WidgetHelper {
         }, 500);
     }
 
+    @DebugLog
     private void addWidgetToModel(Intent data) {
         final int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
         if (appWidgetId == -1) {
@@ -284,11 +306,6 @@ public class WidgetHelper {
             if (activity != null) {
                 return activity;
             }
-        } else if (mFragmentRef != null) {
-            Fragment fragment = mFragmentRef.get();
-            if (fragment != null) {
-                return fragment.getContext();
-            }
         }
         return null;
     }
@@ -298,12 +315,6 @@ public class WidgetHelper {
             Activity activity = mActivityRef.get();
             if (activity != null) {
                 activity.startActivityForResult(intent, requestCode);
-                return true;
-            }
-        } else if (mFragmentRef != null) {
-            Fragment fragment = mFragmentRef.get();
-            if (fragment != null) {
-                fragment.startActivityForResult(intent, requestCode);
                 return true;
             }
         }

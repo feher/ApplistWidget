@@ -343,7 +343,7 @@ public class WidgetPageFragment extends Fragment {
                             case 0:
                                 // Add widget
                                 mWidgetHelper.pickWidget(
-                                        WidgetPageFragment.this, mAppWidgetManager, mAppWidgetHost, getPageId());
+                                        getActivity(), mAppWidgetManager, mAppWidgetHost, getPageId());
                                 break;
                             case 1:
                                 // Edit pages
