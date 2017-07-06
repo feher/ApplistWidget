@@ -93,28 +93,31 @@ public class WidgetHelper {
         final LauncherApps.PinItemRequest pinItemRequest = intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST);
         final AppWidgetProviderInfo appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(activity);
         Log.d(TAG, "PINNING WIDGET " + appWidgetProviderInfo.provider);
-        Task.callInBackground(new Callable<List<PageData>>() {
+        Task.callInBackground(new Callable<PageData>() {
             @Override
-            public List<PageData> call() throws Exception {
-                return mLauncherModel.getPages();
-            }
-        }).continueWith(new Continuation<List<PageData>, Void>() {
-            @Override
-            public Void then(Task<List<PageData>> task) throws Exception {
-                List<PageData> pageDatas = task.getResult();
+            public PageData call() throws Exception {
+                PageData result = null;
+                List<PageData> pageDatas = mLauncherModel.getPages();
                 for (final PageData pageData : pageDatas) {
                     if (pageData.getType() == PageData.TYPE_WIDGET_PAGE) {
-                        Task.callInBackground(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                bindWidget(
-                                        activity, appWidgetManager, appWidgetHost,
-                                        pageData.getId(),
-                                        appWidgetProviderInfo.provider);
-                                return null;
-                            }
-                        });
+                        result = pageData;
                     }
+                }
+                if (result == null) {
+                    result = new PageData(System.currentTimeMillis(), PageData.TYPE_WIDGET_PAGE, false);
+                    mLauncherModel.addPage(result);
+                }
+                return result;
+            }
+        }).continueWith(new Continuation<PageData, Void>() {
+            @Override
+            public Void then(Task<PageData> task) throws Exception {
+                PageData pageData = task.getResult();
+                if (pageData != null && pageData.getType() == PageData.TYPE_WIDGET_PAGE) {
+                    bindWidget(
+                            activity, appWidgetManager, appWidgetHost,
+                            pageData.getId(),
+                            appWidgetProviderInfo.provider);
                 }
                 return null;
             }
