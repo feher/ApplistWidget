@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     private void showPageEditorFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_activity_fragment_container, new PageEditorFragment())
+                .replace(R.id.main_activity_fragment_container, PageEditorFragment.newInstance(false))
                 .commit();
     }
 

@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -32,10 +31,14 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     private List<PageData> mPages = Collections.emptyList();
     private @Nullable Drawable mWallpaper;
 
+    private boolean mShowMovePageIndicator = true;
+    private boolean mShowMainPageIndicator = true;
+
     public interface Listener {
         void onHomeTapped(int position);
         void onRemoveTapped(int position);
-        void onPageTouched(int position, RecyclerView.ViewHolder viewHolder);
+        void onPageMoverTouched(int position, RecyclerView.ViewHolder viewHolder);
+        void onPageTapped(int position, RecyclerView.ViewHolder viewHolder);
     }
 
     public class PageViewHolder extends RecyclerView.ViewHolder {
@@ -47,16 +50,18 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         public TextView pageNumber;
         public PageViewHolder(View itemView) {
             super(itemView);
-            layout = (ViewGroup) itemView.findViewById(R.id.launcher_page_editor_item_layout);
-            wallpaper = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_wallpaper);
-            screenshot = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_screenshot);
-            homeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_home_icon);
-            removeIcon = (ImageView) itemView.findViewById(R.id.launcher_page_editor_item_remove_icon);
-            pageNumber = (TextView) itemView.findViewById(R.id.launcher_page_editor_item_page_number);
+            layout = itemView.findViewById(R.id.launcher_page_editor_item_layout);
+            wallpaper = itemView.findViewById(R.id.launcher_page_editor_item_wallpaper);
+            screenshot = itemView.findViewById(R.id.launcher_page_editor_item_screenshot);
+            homeIcon = itemView.findViewById(R.id.launcher_page_editor_item_home_icon);
+            removeIcon = itemView.findViewById(R.id.launcher_page_editor_item_remove_icon);
+            pageNumber = itemView.findViewById(R.id.launcher_page_editor_item_page_number);
             homeIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mListener.onHomeTapped(getAdapterPosition());
+                    if (mShowMainPageIndicator) {
+                        mListener.onHomeTapped(getAdapterPosition());
+                    }
                 }
             });
             removeIcon.setOnClickListener(new View.OnClickListener() {
@@ -68,11 +73,18 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
             pageNumber.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) ==
-                            MotionEvent.ACTION_DOWN) {
-                        mListener.onPageTouched(getAdapterPosition(), PageViewHolder.this);
+                    if (mShowMovePageIndicator) {
+                        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                            mListener.onPageMoverTouched(getAdapterPosition(), PageViewHolder.this);
+                        }
                     }
                     return false;
+                }
+            });
+            screenshot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.onPageTapped(getAdapterPosition(), PageViewHolder.this);
                 }
             });
         }
@@ -81,6 +93,16 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     public PageEditorAdapter(ScreenshotUtils screenshotUtils, Listener listener) {
         mScreenshotUtils = screenshotUtils;
         mListener = listener;
+    }
+
+    public void showMainPageIndicator(boolean show) {
+        mShowMainPageIndicator = show;
+        notifyDataSetChanged();
+    }
+
+    public void showMovePageIndicator(boolean show) {
+        mShowMovePageIndicator = show;
+        notifyDataSetChanged();
     }
 
     public void setPages(List<PageData> pages) {
@@ -139,10 +161,16 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     @Override
     public void onBindViewHolder(PageViewHolder holder, int position) {
         PageData pageData = mPages.get(position);
-        if (pageData.isMainPage()) {
-            holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_left_corner_selected);
+
+        if (mShowMainPageIndicator) {
+            holder.homeIcon.setVisibility(View.VISIBLE);
+            if (pageData.isMainPage()) {
+                holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_left_corner_selected);
+            } else {
+                holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_left_corner);
+            }
         } else {
-            holder.homeIcon.setBackgroundResource(R.drawable.page_editor_button_left_corner);
+            holder.homeIcon.setVisibility(View.GONE);
         }
 
         holder.removeIcon.setVisibility(
@@ -169,7 +197,14 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
             }
         }
         holder.wallpaper.setImageDrawable(mWallpaper);
+
         holder.pageNumber.setText(String.valueOf(position + 1));
+        // REF: 2017_07_06_set_pagenumber_drawable
+        if (mShowMovePageIndicator) {
+            holder.pageNumber.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_move, 0);
+        } else {
+            holder.pageNumber.setCompoundDrawables(null, null, null, null);
+        }
     }
 
     @Override

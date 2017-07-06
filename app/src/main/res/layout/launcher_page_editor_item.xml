@@ -60,6 +60,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
+    <!--
+    We also change/set the drawableRight from code.
+    REF: 2017_07_06_set_pagenumber_drawable
+    -->
     <TextView
         android:id="@+id/launcher_page_editor_item_page_number"
         android:layout_width="wrap_content"

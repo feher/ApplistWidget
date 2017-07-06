@@ -28,7 +28,15 @@ import bolts.Task;
 
 public class PageEditorFragment extends Fragment {
 
+    private static final String FRAGMENT_ARG_USE_AS_PAGE_PICKER = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_USE_AS_PAGE_PICKER";
+
     public static final class DoneEvent {}
+    public static final class PageTappedEvent {
+        public final PageData pageData;
+        public PageTappedEvent(PageData pageData) {
+            this.pageData = pageData;
+        }
+    }
 
     // TODO: Inject these singletons
     private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
@@ -108,6 +116,14 @@ public class PageEditorFragment extends Fragment {
         }
     }
 
+    public static PageEditorFragment newInstance(boolean useAsPagePicker) {
+        PageEditorFragment fragment = new PageEditorFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER, useAsPagePicker);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public PageEditorFragment() {
     }
 
@@ -123,9 +139,12 @@ public class PageEditorFragment extends Fragment {
         final int bottomPadding = mScreenUtils.hasNavigationBar(getContext()) ? mScreenUtils.getNavigationBarHeight(getContext()) : 0;
         view.findViewById(R.id.launcher_page_editor_fragment_layout).setPadding(0, topPadding, 0, bottomPadding);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.launcher_page_editor_page_list);
+        mRecyclerView = view.findViewById(R.id.launcher_page_editor_page_list);
         mRecyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 2));
         mAdapter = new PageEditorAdapter(mScreenshotUtils, mPageEditorAdapterListener);
+        final boolean useAsPagePicker = getArguments().getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER);
+        mAdapter.showMainPageIndicator(!useAsPagePicker);
+        mAdapter.showMovePageIndicator(!useAsPagePicker);
         mRecyclerView.setAdapter(mAdapter);
 
         mItemTouchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback());
@@ -194,8 +213,13 @@ public class PageEditorFragment extends Fragment {
         }
 
         @Override
-        public void onPageTouched(int position, RecyclerView.ViewHolder viewHolder) {
+        public void onPageMoverTouched(int position, RecyclerView.ViewHolder viewHolder) {
             mItemTouchHelper.startDrag(viewHolder);
+        }
+
+        @Override
+        public void onPageTapped(int position, RecyclerView.ViewHolder viewHolder) {
+            handlePageTapped(position);
         }
     };
 
@@ -250,6 +274,11 @@ public class PageEditorFragment extends Fragment {
                 .setCancelable(true)
                 .create();
         alertDialog.show();
+    }
+
+    private void handlePageTapped(int position) {
+        final PageData pageData = mAdapter.getItem(position);
+        EventBus.getDefault().post(new PageTappedEvent(pageData));
     }
 
     private void doneWithEditing() {
