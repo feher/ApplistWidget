@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.launcher;
+package net.feheren_fekete.applist.launcher.pageeditor;
 
 import android.app.WallpaperInfo;
 import android.app.WallpaperManager;
@@ -18,6 +18,8 @@ import android.widget.TextView;
 import com.bumptech.glide.signature.ObjectKey;
 
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.launcher.GlideApp;
+import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.model.PageData;
 
 import java.io.File;

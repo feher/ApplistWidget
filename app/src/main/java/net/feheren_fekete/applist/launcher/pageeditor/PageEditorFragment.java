@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.launcher;
+package net.feheren_fekete.applist.launcher.pageeditor;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.launcher.LauncherStateManager;
+import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.utils.ScreenUtils;

@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
 import net.feheren_fekete.applist.launcher.LauncherFragment;
-import net.feheren_fekete.applist.launcher.PageEditorFragment;
+import net.feheren_fekete.applist.launcher.pageeditor.PageEditorFragment;
 import net.feheren_fekete.applist.widgetpage.WidgetHelper;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 import net.feheren_fekete.applist.widgetpage.MyAppWidgetHost;
