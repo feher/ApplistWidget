@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
@@ -23,8 +22,6 @@ import net.feheren_fekete.applist.settings.SettingsUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import hugo.weaving.DebugLog;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -87,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         EventBus.getDefault().register(this);
         if (mShouldHandleIntent) {
-            handleIntent(getIntent());
             mShouldHandleIntent = false;
+            handleIntent(getIntent());
         }
     }
 
@@ -165,8 +162,11 @@ public class MainActivity extends AppCompatActivity {
             }
             if (!handled) {
                 if (ACTION_RESTART.equals(intent.getAction())) {
-                    finish();
-                    startActivity(intent);
+                    Intent restartIntent = new Intent(this, MainActivity.class);
+                    restartIntent.setAction(Intent.ACTION_MAIN);
+                    restartIntent.addCategory(Intent.CATEGORY_HOME);
+                    setIntent(restartIntent);
+                    recreate();
                 }
             }
         }
