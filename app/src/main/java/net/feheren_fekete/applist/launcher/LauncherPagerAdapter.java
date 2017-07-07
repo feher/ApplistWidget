@@ -28,6 +28,10 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         notifyDataSetChanged();
     }
 
+    public List<PageData> getPages() {
+        return mPages;
+    }
+
     public PageData getPageData(int position) {
         return mPages.get(position);
     }

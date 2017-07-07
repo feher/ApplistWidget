@@ -184,6 +184,19 @@ public class WidgetModel {
         }
     }
 
+    public void deleteWidget(int appWidgetId) {
+        synchronized (this) {
+            for (WidgetData widget : mWidgets) {
+                if (widget.getAppWidgetId() == appWidgetId) {
+                    mWidgets.remove(widget);
+                    scheduleStoreData();
+                    EventBus.getDefault().post(new WidgetDeletedEvent(widget));
+                    return;
+                }
+            }
+        }
+    }
+
     public void deleteWidgetsOfPage(long pageId) {
         synchronized (this) {
             List<WidgetData> widgetsOfPage = new ArrayList<>();

@@ -50,7 +50,6 @@ public class WidgetHelper {
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 
-    private Handler mHandler = new Handler();
     private WeakReference<Activity> mActivityRef;
     private AppWidgetManager mAppWidgetManager;
     private long mPageId;
@@ -219,21 +218,14 @@ public class WidgetHelper {
 
         Context context = getContext();
         if (context == null || resultCode == Activity.RESULT_CANCELED) {
-            if (data != null) {
-                int appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-                if (appWidgetId != -1) {
-                    appWidgetHost.deleteAppWidgetId(appWidgetId);
-                }
-            }
+            cancelPendingWidget(data, appWidgetHost);
         } else {
             if (resultCode == Activity.RESULT_OK) {
                 if (requestCode == REQUEST_PICK_AND_BIND_APPWIDGET
                         || requestCode == REQUEST_BIND_APPWIDGET) {
-                    if (configureWidget(data)) {
-                        addWidgetToModelDelayed(data);
+                    if (addWidgetToModel(data)) {
+                        configureWidget(data);
                     }
-                } else if (requestCode == REQUEST_CONFIGURE_APPWIDGET) {
-                    addWidgetToModelDelayed(data);
                 }
             }
         }
@@ -259,24 +251,10 @@ public class WidgetHelper {
     }
 
     @DebugLog
-    private void addWidgetToModelDelayed(final Intent data) {
-        // The widget picker and configuration activity sent this fragment to the PAUSED state.
-        // But we want to be in the RESUMED state. Otherwise we don't receive EventBus events
-        // from the WidgetModel.
-        // So delay the model update to the next event loop.
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                addWidgetToModel(data);
-            }
-        }, 500);
-    }
-
-    @DebugLog
-    private void addWidgetToModel(Intent data) {
+    private boolean addWidgetToModel(Intent data) {
         final int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
         if (appWidgetId == -1) {
-            return;
+            return false;
         }
         final AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         final Point screenSize = mScreenUtils.getScreenSizeDp(getContext());
@@ -295,6 +273,23 @@ public class WidgetHelper {
             @Override
             public Void call() throws Exception {
                 mWidgetModel.addWidget(widgetData);
+                return null;
+            }
+        });
+        return true;
+    }
+
+    private void cancelPendingWidget(Intent data, AppWidgetHost appWidgetHost) {
+        Bundle extras = data.getExtras();
+        final int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+        if (appWidgetId == -1) {
+            return;
+        }
+        appWidgetHost.deleteAppWidgetId(appWidgetId);
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                mWidgetModel.deleteWidget(appWidgetId);
                 return null;
             }
         });

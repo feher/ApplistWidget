@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.MainActivity;
@@ -22,6 +21,8 @@ import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
 
 public class LauncherFragment extends Fragment {
 
@@ -81,13 +82,19 @@ public class LauncherFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        EventBus.getDefault().register(this);
+        // We do this check in case we missed some eventbus events while we were NOT in resumed
+        // state.
+        if (havePagesChangedInModel()) {
+            initPages();
+        }
 
         if (((MainActivity)getActivity()).isHomePressed()) {
             handleHomeButtonPress();
         } else {
             mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 1000);
         }
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -113,6 +120,27 @@ public class LauncherFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onWidgetMoveFinishedEvent(WidgetPageFragment.WidgetMoveFinishedEvent event) {
         mPager.setInterceptingTouchEvents(false, null, null);
+    }
+
+    private boolean havePagesChangedInModel() {
+        List<PageData> modelPages = mLauncherModel.getPages();
+        List<PageData> adapterPages = mPagerAdapter.getPages();
+        if (adapterPages.size() != modelPages.size()) {
+            return true;
+        }
+        for (PageData modelPage : modelPages) {
+            boolean adapterHasPage = false;
+            for (PageData adapterPage : adapterPages) {
+                if (adapterPage.getId() == modelPage.getId()) {
+                    adapterHasPage = true;
+                    break;
+                }
+            }
+            if (!adapterHasPage) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void initPages() {

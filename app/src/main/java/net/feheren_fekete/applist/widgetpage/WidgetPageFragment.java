@@ -127,6 +127,13 @@ public class WidgetPageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        // We do this check in case we missed some eventbus events while we were NOT in resumed
+        // state.
+        if (haveWidgetsChangedInModel()) {
+            updateScreenFromModel();
+        }
+
         EventBus.getDefault().register(this);
     }
 
@@ -228,6 +235,26 @@ public class WidgetPageFragment extends Fragment {
 
     private void showPageEditor() {
         EventBus.getDefault().post(new ShowPageEditorEvent());
+    }
+
+    private boolean haveWidgetsChangedInModel() {
+        List<WidgetData> widgetDatas = mWidgetModel.getWidgets(getPageId());
+        if (widgetDatas.size() != mWidgets.size()) {
+            return true;
+        }
+        for (WidgetData widgetData : widgetDatas) {
+            boolean exists = false;
+            for (WidgetItem widgetItem : mWidgets) {
+                if (widgetItem.widgetData.getId() == widgetData.getId()) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void updateScreenFromModel() {
