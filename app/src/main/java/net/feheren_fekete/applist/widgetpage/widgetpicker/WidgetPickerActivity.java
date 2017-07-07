@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.widgetpage.WidgetUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -39,6 +40,9 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
     public static final String EXTRA_WIDGET_HEIGHT = WidgetPickerActivity.class.getCanonicalName() + ".EXTRA_WIDGET_HEIGHT";
 
     private static final int REQUEST_BIND_APPWIDGET = 1;
+
+    // TODO: Inject
+    private final WidgetUtils mWidgetUtils = WidgetUtils.getInstance();
 
     private WidgetPickerModel mWidgetPickerModel;
     private WidgetPickerAdapter mWidgetPickerAdapter;
@@ -116,8 +120,8 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
         Collections.sort(widgetPickerItems, new Comparator<WidgetPickerItem>() {
             @Override
             public int compare(WidgetPickerItem a, WidgetPickerItem b) {
-                final String labelA = a.getLabel(WidgetPickerActivity.this);
-                final String labelB = b.getLabel(WidgetPickerActivity.this);
+                final String labelA = a.getLabel(WidgetPickerActivity.this, mWidgetUtils);
+                final String labelB = b.getLabel(WidgetPickerActivity.this, mWidgetUtils);
                 if (labelB == null) {
                     return 1;
                 }

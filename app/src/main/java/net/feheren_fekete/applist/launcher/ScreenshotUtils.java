@@ -54,7 +54,6 @@ public class ScreenshotUtils {
         }
     };
 
-    @DebugLog
     public void scheduleScreenshot(Activity activity, long pageId, int delayMillis) {
         mActivity = activity;
         mPageId = pageId;
@@ -72,7 +71,6 @@ public class ScreenshotUtils {
         return context.getFilesDir().getAbsolutePath() + File.separator + "applist-page-" + pageId + ".png";
     }
 
-    @DebugLog
     private void takeScreenshot(Activity activity, long pageId) {
         if (activity == null || pageId == PageData.INVALID_PAGE_ID || !mLauncherStateManager.isPageVisible(pageId)) {
             return;

@@ -1,16 +1,20 @@
 package net.feheren_fekete.applist;
 
 import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
 import net.feheren_fekete.applist.launcher.LauncherFragment;
 import net.feheren_fekete.applist.launcher.pageeditor.PageEditorFragment;
+import net.feheren_fekete.applist.launcher.pagepicker.PagePickerFragment;
 import net.feheren_fekete.applist.widgetpage.WidgetHelper;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 import net.feheren_fekete.applist.widgetpage.MyAppWidgetHost;
@@ -37,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private MyAppWidgetHost mAppWidgetHost;
     private AppWidgetManager mAppWidgetManager;
     private boolean mIsHomePressed;
+    private boolean mShouldHandleIntent;
 
-    @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
@@ -51,36 +55,19 @@ public class MainActivity extends AppCompatActivity {
         mAppWidgetHost = new MyAppWidgetHost(getApplicationContext(), 1234567);
 
         showLauncherFragment();
-
-        handleIntent(getIntent());
+        mShouldHandleIntent = true;
     }
 
-    @DebugLog
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        boolean handled = handleIntent(intent);
-        if (!handled) {
-            if (ACTION_RESTART.equals(intent.getAction())) {
-                finish();
-                startActivity(intent);
-            } else {
-                // This occurs when the Home button is pressed.
-                // Be careful! It may not be true in the future or on some devices.
-                mIsHomePressed = true;
-            }
+        setIntent(intent);
+        mShouldHandleIntent = true;
+        if (Intent.ACTION_MAIN.equals(intent.getAction()) && intent.hasCategory(Intent.CATEGORY_HOME)) {
+            // This occurs when the Home button is pressed.
+            // Be careful! It may not be true in the future or on some devices.
+            mIsHomePressed = true;
         }
-    }
-
-    private boolean handleIntent(@Nullable Intent intent) {
-        boolean handled = false;
-        if (intent != null) {
-            handled = mShortcutHelper.handleIntent(this, intent);
-            if (!handled) {
-                handled = mWidgetHelper.handleIntent(this, intent, mAppWidgetManager, mAppWidgetHost);
-            }
-        }
-        return handled;
     }
 
     @Override
@@ -89,28 +76,28 @@ public class MainActivity extends AppCompatActivity {
         mWidgetHelper.handleActivityResult(requestCode, resultCode, data, mAppWidgetHost);
     }
 
-    @DebugLog
     @Override
     protected void onStart() {
         super.onStart();
         mAppWidgetHost.startListening();
     }
 
-    @DebugLog
     @Override
     protected void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
+        if (mShouldHandleIntent) {
+            handleIntent(getIntent());
+            mShouldHandleIntent = false;
+        }
     }
 
-    @DebugLog
     @Override
     protected void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
     }
 
-    @DebugLog
     @Override
     protected void onStop() {
         super.onStop();
@@ -136,8 +123,23 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onShowPagePickerEvent(WidgetHelper.ShowPagePickerEvent event) {
+        showPagePickerFragment(event.appWidgetProviderInfo);
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPageEditorDoneEvent(PageEditorFragment.DoneEvent event) {
         showLauncherFragment();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPageEditorPageTappedEvent(PageEditorFragment.PageTappedEvent event) {
+        if (mWidgetHelper.handlePagePicked(event.pageData)) {
+            getSupportFragmentManager().popBackStack(
+                    PagePickerFragment.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
     }
 
     public boolean isHomePressed() {
@@ -154,6 +156,22 @@ public class MainActivity extends AppCompatActivity {
         return mAppWidgetManager;
     }
 
+    private void handleIntent(@Nullable Intent intent) {
+        boolean handled;
+        if (intent != null) {
+            handled = mShortcutHelper.handleIntent(this, intent);
+            if (!handled) {
+                handled = mWidgetHelper.handleIntent(this, intent, mAppWidgetManager, mAppWidgetHost);
+            }
+            if (!handled) {
+                if (ACTION_RESTART.equals(intent.getAction())) {
+                    finish();
+                    startActivity(intent);
+                }
+            }
+        }
+    }
+
     private void showLauncherFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
@@ -164,7 +182,15 @@ public class MainActivity extends AppCompatActivity {
     private void showPageEditorFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_activity_fragment_container, PageEditorFragment.newInstance(false))
+                .replace(R.id.main_activity_fragment_container, PageEditorFragment.newInstance(true, false))
+                .commit();
+    }
+
+    private void showPagePickerFragment(AppWidgetProviderInfo appWidgetProviderInfo) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_activity_fragment_container, PagePickerFragment.newInstance(appWidgetProviderInfo))
+                .addToBackStack(PagePickerFragment.class.getName())
                 .commit();
     }
 

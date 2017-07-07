@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/page_picker_fragment_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    >
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/page_picker_fragment_toolbar"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:visibility="visible"
+        android:text="@string/page_picker_title"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:text="Add widget"
+        />
+
+    <ImageView
+        android:id="@+id/page_picker_fragment_widget_preview"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="10dp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/page_picker_fragment_widget_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/page_picker_fragment_widget_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textColor="@android:color/white"
+        android:shadowRadius="10"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:visibility="visible"
+        android:drawablePadding="10dp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/page_picker_fragment_toolbar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/page_picker_fragment_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingTop="10dp"
+        android:paddingLeft="10dp"
+        android:visibility="visible"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:text="@string/page_picker_message"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@+id/page_picker_fragment_widget_preview"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:text="Pick a page for this widget"
+        />
+
+    <FrameLayout
+        android:id="@+id/page_picker_fragment_fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/page_picker_fragment_message"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+</android.support.constraint.ConstraintLayout>

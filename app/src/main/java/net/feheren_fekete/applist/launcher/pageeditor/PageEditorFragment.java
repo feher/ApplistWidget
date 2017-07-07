@@ -1,5 +1,7 @@
 package net.feheren_fekete.applist.launcher.pageeditor;
 
+import android.appwidget.AppWidgetHost;
+import android.appwidget.AppWidgetManager;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,7 +13,9 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.LauncherStateManager;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
@@ -31,6 +35,7 @@ import bolts.Task;
 public class PageEditorFragment extends Fragment {
 
     private static final String FRAGMENT_ARG_USE_AS_PAGE_PICKER = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_USE_AS_PAGE_PICKER";
+    private static final String FRAGMENT_ARG_ADD_PADDING = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_ADD_PADDING";
 
     public static final class DoneEvent {}
     public static final class PageTappedEvent {
@@ -118,9 +123,10 @@ public class PageEditorFragment extends Fragment {
         }
     }
 
-    public static PageEditorFragment newInstance(boolean useAsPagePicker) {
+    public static PageEditorFragment newInstance(boolean addPadding, boolean useAsPagePicker) {
         PageEditorFragment fragment = new PageEditorFragment();
         Bundle args = new Bundle();
+        args.putBoolean(FRAGMENT_ARG_ADD_PADDING, addPadding);
         args.putBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER, useAsPagePicker);
         fragment.setArguments(args);
         return fragment;
@@ -134,12 +140,13 @@ public class PageEditorFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_page_editor_fragment, container, false);
 
-
-        // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
-        final int topPadding = mScreenUtils.getStatusBarHeight(getContext());
-        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
-        final int bottomPadding = mScreenUtils.hasNavigationBar(getContext()) ? mScreenUtils.getNavigationBarHeight(getContext()) : 0;
-        view.findViewById(R.id.launcher_page_editor_fragment_layout).setPadding(0, topPadding, 0, bottomPadding);
+        if (getArguments().getBoolean(FRAGMENT_ARG_ADD_PADDING)) {
+            // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
+            final int topPadding = mScreenUtils.getStatusBarHeight(getContext());
+            // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
+            final int bottomPadding = mScreenUtils.hasNavigationBar(getContext()) ? mScreenUtils.getNavigationBarHeight(getContext()) : 0;
+            view.findViewById(R.id.launcher_page_editor_fragment_layout).setPadding(0, topPadding, 0, bottomPadding);
+        }
 
         mRecyclerView = view.findViewById(R.id.launcher_page_editor_page_list);
         mRecyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 2));
@@ -160,13 +167,20 @@ public class PageEditorFragment extends Fragment {
             }
         });
 
-        View doneButton = view.findViewById(R.id.launcher_page_editor_done);
+        Button doneButton = view.findViewById(R.id.launcher_page_editor_done);
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 doneWithEditing();
             }
         });
+        if (useAsPagePicker) {
+            doneButton.setText(R.string.launcher_page_editor_cancel);
+            doneButton.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_close, 0, 0);
+        } else {
+            doneButton.setText(R.string.launcher_page_editor_done);
+            doneButton.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_done, 0, 0);
+        }
 
         return view;
     }
@@ -255,11 +269,12 @@ public class PageEditorFragment extends Fragment {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        final AppWidgetHost appWidgetHost = ((MainActivity)getActivity()).getAppWidgetHost();
                         Task.callInBackground(new Callable<Void>() {
                             @Override
                             public Void call() throws Exception {
                                 mScreenshotUtils.deleteScreenshot(screenshotPath);
-                                mWidgetModel.deleteWidgetsOfPage(pageId);
+                                mWidgetModel.deleteWidgetsOfPage(pageId, appWidgetHost);
                                 mLauncherModel.removePage(position);
                                 mLauncherStateManager.clearPageVisible(pageId);
                                 return null;

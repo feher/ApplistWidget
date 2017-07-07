@@ -1,5 +1,7 @@
 package net.feheren_fekete.applist.widgetpage.model;
 
+import android.appwidget.AppWidgetHost;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -197,12 +199,13 @@ public class WidgetModel {
         }
     }
 
-    public void deleteWidgetsOfPage(long pageId) {
+    public void deleteWidgetsOfPage(long pageId, AppWidgetHost appWidgetHost) {
         synchronized (this) {
             List<WidgetData> widgetsOfPage = new ArrayList<>();
             for (WidgetData widget : mWidgets) {
                 if (widget.getPageId() == pageId) {
                     widgetsOfPage.add(widget);
+                    appWidgetHost.deleteAppWidgetId(widget.getAppWidgetId());
                 }
             }
             mWidgets.removeAll(widgetsOfPage);

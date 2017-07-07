@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.widgetpage.WidgetUtils;
 
 public class WidgetPickerViewHolder extends RecyclerView.ViewHolder {
 
@@ -33,12 +34,12 @@ public class WidgetPickerViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    public void bind(WidgetPickerItem widgetPickerItem) {
-        final Drawable icon = widgetPickerItem.getIcon(mIcon.getContext());
-        final Drawable previewImage = widgetPickerItem.getPreviewImage(mIcon.getContext());
+    public void bind(WidgetPickerItem widgetPickerItem, WidgetUtils widgetUtils) {
+        final Drawable icon = widgetPickerItem.getIcon(mIcon.getContext(), widgetUtils);
+        final Drawable previewImage = widgetPickerItem.getPreviewImage(mIcon.getContext(), widgetUtils);
         mIcon.setImageDrawable(icon);
         mImage.setImageDrawable(previewImage != null ? previewImage : icon);
-        mTitle.setText(widgetPickerItem.getLabel(mTitle.getContext()));
+        mTitle.setText(widgetPickerItem.getLabel(mTitle.getContext(), widgetUtils));
     }
 
 }

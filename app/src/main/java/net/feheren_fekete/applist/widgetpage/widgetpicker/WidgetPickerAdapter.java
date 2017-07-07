@@ -1,17 +1,20 @@
 package net.feheren_fekete.applist.widgetpage.widgetpicker;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.widgetpage.WidgetUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class WidgetPickerAdapter extends RecyclerView.Adapter<WidgetPickerViewHolder> {
+
+    // TODO: Inject
+    private final WidgetUtils mWidgetUtils = WidgetUtils.getInstance();
 
     private WidgetPickerViewHolder.Listener mListener;
     private List<WidgetPickerItem> mItems = new ArrayList<>();
@@ -37,7 +40,7 @@ public class WidgetPickerAdapter extends RecyclerView.Adapter<WidgetPickerViewHo
 
     @Override
     public void onBindViewHolder(WidgetPickerViewHolder holder, int position) {
-        holder.bind(mItems.get(position));
+        holder.bind(mItems.get(position), mWidgetUtils);
     }
 
     @Override

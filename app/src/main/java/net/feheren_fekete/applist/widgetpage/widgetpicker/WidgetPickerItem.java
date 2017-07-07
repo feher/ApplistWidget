@@ -2,13 +2,10 @@ package net.feheren_fekete.applist.widgetpage.widgetpicker;
 
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.Nullable;
 
-import net.feheren_fekete.applist.ApplistLog;
+import net.feheren_fekete.applist.widgetpage.WidgetUtils;
 
 public class WidgetPickerItem {
 
@@ -26,52 +23,28 @@ public class WidgetPickerItem {
     }
 
     @Nullable
-    public Drawable getIcon(Context context) {
+    public Drawable getIcon(Context context, WidgetUtils widgetUtils) {
         if (mIcon == null) {
             AppWidgetProviderInfo appWidgetProviderInfo = getWidgetPickerData().getAppWidgetProviderInfo();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mIcon = appWidgetProviderInfo.loadIcon(context, 0);
-            } else {
-                try {
-                    PackageManager manager = context.getPackageManager();
-                    Resources resources = manager.getResourcesForApplication(appWidgetProviderInfo.provider.getPackageName());
-                    mIcon = resources.getDrawable(appWidgetProviderInfo.icon);
-                } catch (Exception e) {
-                    ApplistLog.getInstance().log(e);
-                }
-            }
+            mIcon = widgetUtils.getIcon(context, appWidgetProviderInfo);
         }
         return mIcon;
     }
 
     @Nullable
-    public Drawable getPreviewImage(Context context) {
+    public Drawable getPreviewImage(Context context, WidgetUtils widgetUtils) {
         if (mPreviewImage == null) {
             AppWidgetProviderInfo appWidgetProviderInfo = getWidgetPickerData().getAppWidgetProviderInfo();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mPreviewImage = appWidgetProviderInfo.loadPreviewImage(context, 0);
-            } else {
-                try {
-                    PackageManager manager = context.getPackageManager();
-                    Resources resources = manager.getResourcesForApplication(appWidgetProviderInfo.provider.getPackageName());
-                    mPreviewImage = resources.getDrawable(appWidgetProviderInfo.icon);
-                } catch (Exception e) {
-                    ApplistLog.getInstance().log(e);
-                }
-            }
+            mPreviewImage = widgetUtils.getPreviewImage(context, appWidgetProviderInfo);
         }
         return mPreviewImage;
     }
 
     @Nullable
-    public String getLabel(Context context) {
+    public String getLabel(Context context, WidgetUtils widgetUtils) {
         if (mLabel == null) {
             AppWidgetProviderInfo appWidgetProviderInfo = getWidgetPickerData().getAppWidgetProviderInfo();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mLabel = appWidgetProviderInfo.loadLabel(context.getPackageManager());
-            } else {
-                mLabel = appWidgetProviderInfo.label;
-            }
+            mLabel = widgetUtils.getLabel(context, appWidgetProviderInfo);
         }
         return mLabel;
     }

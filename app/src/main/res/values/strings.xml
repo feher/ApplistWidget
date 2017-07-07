@@ -63,8 +63,13 @@
 
     <string name="launcher_page_editor_new_page">New Page</string>
     <string name="launcher_page_editor_done">Done</string>
+    <string name="launcher_page_editor_cancel">Cancel</string>
     <string name="launcher_page_editor_remove_dialog_title">Delete page</string>
     <string name="launcher_page_editor_remove_dialog_message">Are you sure you want to delete this page?</string>
+
+    <string name="page_picker_title">Adding widget</string>
+    <string name="page_picker_message">Choose a page for this widget</string>
+    <string name="page_picker_cannot_add_to_page">Cannot add Widgets to this page</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>
