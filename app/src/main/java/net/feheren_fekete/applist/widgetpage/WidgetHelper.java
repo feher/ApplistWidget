@@ -13,10 +13,10 @@ import android.content.pm.LauncherApps;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcher.model.PageData;
@@ -53,6 +53,7 @@ public class WidgetHelper {
     private WeakReference<Activity> mActivityRef;
     private AppWidgetManager mAppWidgetManager;
     private long mPageId;
+    private int mAllocatedAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
     private static WidgetHelper sInstance;
 
@@ -158,12 +159,12 @@ public class WidgetHelper {
         mAppWidgetManager = appWidgetManager;
         mPageId = pageId;
 
-        int appWidgetId = appWidgetHost.allocateAppWidgetId();
+        mAllocatedAppWidgetId = appWidgetHost.allocateAppWidgetId();
 
         Intent bindIntent = new Intent(activity, WidgetPickerActivity.class);
         bindIntent.setAction(WidgetPickerActivity.ACTION_BIND_WIDGET);
         bindIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_PROVIDER, widgetProvider);
-        bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        bindIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAllocatedAppWidgetId);
         bindIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_WIDTH, DEFAULT_WIDGET_WIDTH);
         bindIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_HEIGHT, DEFAULT_WIDGET_HEIGHT);
 
@@ -175,14 +176,14 @@ public class WidgetHelper {
         mAppWidgetManager = appWidgetManager;
         mPageId = pageId;
 
-        int appWidgetId = appWidgetHost.allocateAppWidgetId();
+        mAllocatedAppWidgetId = appWidgetHost.allocateAppWidgetId();
 
 //        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
 //        addEmptyData(pickIntent);
 
         Intent pickIntent = new Intent(activity, WidgetPickerActivity.class);
         pickIntent.setAction(WidgetPickerActivity.ACTION_PICK_AND_BIND_WIDGET);
-        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAllocatedAppWidgetId);
         pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_WIDTH, DEFAULT_WIDGET_WIDTH);
         pickIntent.putExtra(WidgetPickerActivity.EXTRA_WIDGET_HEIGHT, DEFAULT_WIDGET_HEIGHT);
 
@@ -216,16 +217,27 @@ public class WidgetHelper {
             return false;
         }
 
+        if (data == null) {
+            cancelPendingWidget(appWidgetHost);
+            return true;
+        }
+
+        Bundle extras = data.getExtras();
+        final int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            cancelPendingWidget(appWidgetHost);
+            return true;
+        }
+
         Context context = getContext();
         if (context == null || resultCode == Activity.RESULT_CANCELED) {
-            cancelPendingWidget(data, appWidgetHost);
+            cancelPendingWidget(appWidgetId, appWidgetHost);
         } else {
             if (resultCode == Activity.RESULT_OK) {
                 if (requestCode == REQUEST_PICK_AND_BIND_APPWIDGET
                         || requestCode == REQUEST_BIND_APPWIDGET) {
-                    if (addWidgetToModel(data)) {
-                        configureWidget(data);
-                    }
+                    addWidgetToModel(appWidgetId);
+                    configureWidget(appWidgetId);
                 }
             }
         }
@@ -233,12 +245,7 @@ public class WidgetHelper {
     }
 
     @DebugLog
-    private boolean configureWidget(Intent data) {
-        Bundle extras = data.getExtras();
-        int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-        if (appWidgetId == -1) {
-            return true;
-        }
+    private boolean configureWidget(int appWidgetId) {
         AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         if (appWidgetInfo.configure != null) {
             Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
@@ -251,11 +258,7 @@ public class WidgetHelper {
     }
 
     @DebugLog
-    private boolean addWidgetToModel(Intent data) {
-        final int appWidgetId = data.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-        if (appWidgetId == -1) {
-            return false;
-        }
+    private void addWidgetToModel(int appWidgetId) {
         final AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         final Point screenSize = mScreenUtils.getScreenSizeDp(getContext());
         final WidgetData widgetData = new WidgetData(
@@ -276,15 +279,15 @@ public class WidgetHelper {
                 return null;
             }
         });
-        return true;
     }
 
-    private void cancelPendingWidget(Intent data, AppWidgetHost appWidgetHost) {
-        Bundle extras = data.getExtras();
-        final int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-        if (appWidgetId == -1) {
-            return;
+    private void cancelPendingWidget(AppWidgetHost appWidgetHost) {
+        if (mAllocatedAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+            cancelPendingWidget(mAllocatedAppWidgetId, appWidgetHost);
         }
+    }
+
+    private void cancelPendingWidget(final int appWidgetId, AppWidgetHost appWidgetHost) {
         appWidgetHost.deleteAppWidgetId(appWidgetId);
         Task.callInBackground(new Callable<Void>() {
             @Override
@@ -293,6 +296,12 @@ public class WidgetHelper {
                 return null;
             }
         });
+        if (mAllocatedAppWidgetId == appWidgetId) {
+            mAllocatedAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+        } else {
+            ApplistLog.getInstance().log(new RuntimeException(
+                    "Allocated app widget ID does not match: " + mAllocatedAppWidgetId + " != " + appWidgetId));
+        }
     }
 
     private Context getContext() {
