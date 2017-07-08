@@ -18,7 +18,6 @@ import android.widget.Toast;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
-import net.feheren_fekete.applist.launcher.model.LauncherModel;
 import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import bolts.Task;
-import hugo.weaving.DebugLog;
 
 public class WidgetHelper {
 
@@ -53,7 +51,6 @@ public class WidgetHelper {
     }
 
     // TODO: Inject
-    private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 
