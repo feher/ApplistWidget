@@ -691,7 +691,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             pageData = new PageData(ApplistModel.INVALID_ID, getPageName(), new ArrayList<SectionData>());
         }
         mAdapter.setItems(ViewModelUtils.modelToView(mApplistModel, pageData));
-        mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), 500);
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), 200);
     }
 
     private void clearAppBadge(AppItem appItem) {

@@ -1,63 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/launcher_page_editor_item_layout"
     android:layout_centerInParent="true"
-    android:layout_width="match_parent"
-    android:layout_height="300dp"
+    android:layout_width="300dp"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
     >
 
     <ImageView
         android:id="@+id/launcher_page_editor_item_wallpaper"
         android:layout_margin="10dp"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_centerInParent="true"
         />
 
     <ImageView
         android:id="@+id/launcher_page_editor_item_screenshot"
         android:layout_margin="10dp"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:layout_centerInParent="true"
         />
 
     <ImageView
         android:id="@+id/launcher_page_editor_item_remove_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
         android:padding="10dp"
         android:tint="@android:color/white"
         android:background="@drawable/page_editor_button_right_corner"
         app:srcCompat="@drawable/ic_delete"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_alignBottom="@id/launcher_page_editor_item_screenshot"
+        android:layout_alignRight="@id/launcher_page_editor_item_screenshot"
         />
 
     <ImageView
         android:id="@+id/launcher_page_editor_item_home_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="10dp"
         android:padding="10dp"
         android:background="@drawable/page_editor_button_left_corner"
         app:srcCompat="@drawable/ic_home_filled"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_alignBottom="@id/launcher_page_editor_item_screenshot"
+        android:layout_alignLeft="@id/launcher_page_editor_item_screenshot"
         />
 
     <!--
@@ -68,7 +59,6 @@
         android:id="@+id/launcher_page_editor_item_page_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:padding="8dp"
         android:background="@drawable/page_editor_button_top"
         android:gravity="center"
@@ -80,11 +70,10 @@
         android:shadowDy="5"
         android:shadowRadius="5"
         android:shadowColor="@android:color/black"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_centerHorizontal="true"
+        android:layout_alignTop="@id/launcher_page_editor_item_screenshot"
         tools:text="1"
         tools:textColor="@android:color/black"
         />
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

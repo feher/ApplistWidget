@@ -190,7 +190,7 @@ public class WidgetPageFragment extends Fragment {
     public void handleUp(MotionEvent event) {
         if (mWidgetMenuTarget != null) {
             updateWidgetOptions(mWidgetMenuTarget.appWidgetHostView, mWidgetMenuTarget.widgetData);
-            mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
+            mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 200);
         }
     }
 
@@ -297,7 +297,7 @@ public class WidgetPageFragment extends Fragment {
         mWidgetContainer.addView(hostView);
         mWidgetContainer.invalidate();
 
-        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 200);
     }
 
     private void updateWidgetOptions(AppWidgetHostView appWidgetHostView, WidgetData widgetData) {
@@ -327,7 +327,7 @@ public class WidgetPageFragment extends Fragment {
             mWidgets.remove(widgetItem);
         }
 
-        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 200);
     }
 
     private void moveWidgetToOtherPage(WidgetItem widgetItem) {

@@ -7,7 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -153,15 +156,20 @@ public class PageEditorFragment extends Fragment {
         }
 
         mRecyclerView = view.findViewById(R.id.launcher_page_editor_page_list);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 2));
-        mAdapter = new PageEditorAdapter(mScreenshotUtils, mPageEditorAdapterListener);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
         final boolean useAsPagePicker = getArguments().getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER);
+        mAdapter = new PageEditorAdapter(useAsPagePicker ? 0.5f : 0.7f, mPageEditorAdapterListener);
         mAdapter.showMainPageIndicator(!useAsPagePicker);
         mAdapter.showMovePageIndicator(!useAsPagePicker);
         mRecyclerView.setAdapter(mAdapter);
 
         mItemTouchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback());
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+
+        if (!useAsPagePicker) {
+            SnapHelper helper = new PagerSnapHelper();
+            helper.attachToRecyclerView(mRecyclerView);
+        }
 
         View addPageButton = view.findViewById(R.id.launcher_page_editor_add_page);
         addPageButton.setOnClickListener(new View.OnClickListener() {

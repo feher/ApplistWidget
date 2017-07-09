@@ -4,15 +4,18 @@ import android.app.WallpaperInfo;
 import android.app.WallpaperManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.signature.ObjectKey;
@@ -21,6 +24,7 @@ import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.GlideApp;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.model.PageData;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import java.io.File;
 import java.util.Collections;
@@ -28,10 +32,14 @@ import java.util.List;
 
 public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.PageViewHolder> {
 
-    private ScreenshotUtils mScreenshotUtils;
+    // TODO: Inject these
+    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+
     private Listener mListener;
     private List<PageData> mPages = Collections.emptyList();
     private @Nullable Drawable mWallpaper;
+    private float mPagePreviewSizeMultiplier;
 
     private boolean mShowMovePageIndicator = true;
     private boolean mShowMainPageIndicator = true;
@@ -58,6 +66,23 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
             homeIcon = itemView.findViewById(R.id.launcher_page_editor_item_home_icon);
             removeIcon = itemView.findViewById(R.id.launcher_page_editor_item_remove_icon);
             pageNumber = itemView.findViewById(R.id.launcher_page_editor_item_page_number);
+
+            final Point screenSize = mScreenUtils.getScreenSize(layout.getContext());
+            ViewGroup.LayoutParams rootLayoutParams = layout.getLayoutParams();
+            rootLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier);
+            rootLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            layout.setLayoutParams(rootLayoutParams);
+
+            RelativeLayout.LayoutParams imageLayoutParams = (RelativeLayout.LayoutParams) wallpaper.getLayoutParams();
+            imageLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier);
+            imageLayoutParams.height = Math.round(screenSize.y * mPagePreviewSizeMultiplier);
+            wallpaper.setLayoutParams(imageLayoutParams);
+
+            imageLayoutParams = (RelativeLayout.LayoutParams) screenshot.getLayoutParams();
+            imageLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier);
+            imageLayoutParams.height = Math.round(screenSize.y * mPagePreviewSizeMultiplier);
+            screenshot.setLayoutParams(imageLayoutParams);
+
             homeIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -92,8 +117,8 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         }
     }
 
-    public PageEditorAdapter(ScreenshotUtils screenshotUtils, Listener listener) {
-        mScreenshotUtils = screenshotUtils;
+    public PageEditorAdapter(float pagePreviewSizeMultiplier, Listener listener) {
+        mPagePreviewSizeMultiplier = pagePreviewSizeMultiplier;
         mListener = listener;
     }
 

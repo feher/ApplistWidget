@@ -64,7 +64,7 @@ public class LauncherFragment extends Fragment {
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
-                    mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
+                    mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 200);
                 } else {
                     mScreenshotUtils.cancelScheduledScreenshot();
                 }
@@ -173,7 +173,7 @@ public class LauncherFragment extends Fragment {
                 }, 100);
             } else {
                 setPageVisibility(mActivePagePosition, true);
-                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 500);
+                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 200);
             }
         }
     }

@@ -68,4 +68,11 @@
     <string name="cannot_pin_pinned_shortcut">Pikakuvake on jo lisätty.</string>
     <string name="app_item_menu_clear_badge">Poista viestimerkki</string>
     <string name="widget_picker_title">Valitse widget</string>
+    <string name="launcher_page_editor_cancel">Hylkää</string>
+    <string name="page_picker_already_on_page">Widget on jo tässä sivussa</string>
+    <string name="page_picker_cannot_add_to_page">Widgettejä ei voi laittaa tähän sivuun</string>
+    <string name="page_picker_message">Valitse sivu</string>
+    <string name="page_picker_move_widget_title">Siirrä widget</string>
+    <string name="page_picker_pin_widget_title">Lisää widget</string>
+    <string name="widget_menu_move_to_page">Siirrä toiseen sivuun</string>
 </resources>

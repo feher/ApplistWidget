@@ -68,4 +68,11 @@
     <string name="cannot_pin_pinned_shortcut">Gyorsindító már létezik.</string>
     <string name="app_item_menu_clear_badge">Üzenetjelzés eltávolítása</string>
     <string name="widget_picker_title">Válassz widgetet</string>
+    <string name="launcher_page_editor_cancel">Mégse</string>
+    <string name="page_picker_already_on_page">A widget már ezen az oldalon van</string>
+    <string name="page_picker_pin_widget_title">Widget hozzáadása</string>
+    <string name="page_picker_move_widget_title">Widget áthelyezése</string>
+    <string name="page_picker_message">Válassz oldalt</string>
+    <string name="page_picker_cannot_add_to_page">Erre az oldalra nem lehet widgetet tenni</string>
+    <string name="widget_menu_move_to_page">Áthelyez másik oldalra</string>
 </resources>
