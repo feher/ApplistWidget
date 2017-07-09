@@ -7,33 +7,40 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.pageeditor.PageEditorFragment;
 import net.feheren_fekete.applist.utils.ScreenUtils;
+import net.feheren_fekete.applist.widgetpage.WidgetHelper;
 import net.feheren_fekete.applist.widgetpage.WidgetUtils;
 
 public class PagePickerFragment extends Fragment {
 
-    private static final String FRAGMENT_ARG_WIDGET_PROVIDER_INFO = PagePickerFragment.class.getCanonicalName() + ".FRAGMENT_ARG_WIDGET_PROVIDER_INFO";
+    private static final String FRAGMENT_ARG_REQUEST_DATA = PagePickerFragment.class.getSimpleName() + ".FRAGMENT_ARG_REQUEST_DATA";
+    private static final String FRAGMENT_ARG_TITLE = PagePickerFragment.class.getCanonicalName() + ".FRAGMENT_ARG_TITLE";
+    private static final String FRAGMENT_ARG_MESSAGE = PagePickerFragment.class.getCanonicalName() + ".FRAGMENT_ARG_MESSAGE";
 
     // TODO: Inject
     private final ScreenUtils mScreenUtils = ScreenUtils.getInstance();
     private final ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private final WidgetUtils mWidgetUtils = WidgetUtils.getInstance();
 
-    public static PagePickerFragment newInstance(AppWidgetProviderInfo appWidgetProviderInfo) {
+    private Bundle mRequestData;
+
+    public static PagePickerFragment newInstance(String title,
+                                                 String message,
+                                                 Bundle requestData) {
         PagePickerFragment pagePickerFragment = new PagePickerFragment();
         Bundle args = new Bundle();
-        args.putParcelable(FRAGMENT_ARG_WIDGET_PROVIDER_INFO, appWidgetProviderInfo);
+        args.putString(FRAGMENT_ARG_TITLE, title);
+        args.putString(FRAGMENT_ARG_MESSAGE, message);
+        args.putBundle(FRAGMENT_ARG_REQUEST_DATA, requestData);
         pagePickerFragment.setArguments(args);
         return pagePickerFragment;
     }
@@ -55,10 +62,12 @@ public class PagePickerFragment extends Fragment {
         Toolbar toolbar = view.findViewById(R.id.page_picker_fragment_toolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setTitle(R.string.page_picker_title);
+        activity.getSupportActionBar().setTitle(getArguments().getString(FRAGMENT_ARG_TITLE));
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        AppWidgetProviderInfo appWidgetProviderInfo = getArguments().getParcelable(FRAGMENT_ARG_WIDGET_PROVIDER_INFO);
+        mRequestData = getArguments().getBundle(FRAGMENT_ARG_REQUEST_DATA);
+
+        AppWidgetProviderInfo appWidgetProviderInfo = mRequestData.getParcelable(WidgetHelper.APP_WIDGET_PROVIDER_INFO_KEY);
         Drawable widgetIcon = mWidgetUtils.getIcon(getContext(), appWidgetProviderInfo);
         Drawable widgetPreview = mWidgetUtils.getPreviewImage(getContext(), appWidgetProviderInfo);
         String widgetLabel = mWidgetUtils.getLabel(getContext(), appWidgetProviderInfo);
@@ -75,6 +84,9 @@ public class PagePickerFragment extends Fragment {
         ImageView preview = view.findViewById(R.id.page_picker_fragment_widget_preview);
         preview.setImageDrawable(widgetPreview != null ? widgetPreview : widgetIcon);
 
+        TextView message = view.findViewById(R.id.page_picker_fragment_message);
+        message.setText(getArguments().getString(FRAGMENT_ARG_MESSAGE));
+
         return view;
     }
 
@@ -83,7 +95,8 @@ public class PagePickerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         getChildFragmentManager()
                 .beginTransaction()
-                .replace(R.id.page_picker_fragment_fragment_container, PageEditorFragment.newInstance(false, true))
+                .replace(R.id.page_picker_fragment_fragment_container,
+                        PageEditorFragment.newInstance(false, true, mRequestData))
                 .commit();
     }
 

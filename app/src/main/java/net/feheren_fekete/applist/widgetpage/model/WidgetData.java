@@ -1,6 +1,11 @@
 package net.feheren_fekete.applist.widgetpage.model;
 
-public class WidgetData {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerData;
+
+public class WidgetData implements Parcelable {
 
     private long mId;
     private int mAppWidgetId;
@@ -32,6 +37,18 @@ public class WidgetData {
         mHeight = height;
     }
 
+    public WidgetData(Parcel in) {
+        mId = in.readLong();
+        mAppWidgetId = in.readInt();
+        mProviderPackage = in.readString();
+        mProviderClass = in.readString();
+        mPageId = in.readLong();
+        mPositionX = in.readInt();
+        mPositionY = in.readInt();
+        mWidth = in.readInt();
+        mHeight = in.readInt();
+    }
+
     public WidgetData(WidgetData other) {
         updateFrom(other);
     }
@@ -47,6 +64,34 @@ public class WidgetData {
         mWidth = other.mWidth;
         mHeight = other.mHeight;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(mId);
+        parcel.writeInt(mAppWidgetId);
+        parcel.writeString(mProviderPackage);
+        parcel.writeString(mProviderClass);
+        parcel.writeLong(mPageId);
+        parcel.writeInt(mPositionX);
+        parcel.writeInt(mPositionY);
+        parcel.writeInt(mWidth);
+        parcel.writeInt(mHeight);
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public WidgetData createFromParcel(Parcel in) {
+            return new WidgetData(in);
+        }
+
+        public WidgetData[] newArray(int size) {
+            return new WidgetData[size];
+        }
+    };
 
     public long getId() {
         return mId;
@@ -116,4 +161,5 @@ public class WidgetData {
                 + ", width " + mWidth
                 + ", height " + mHeight;
     }
+
 }

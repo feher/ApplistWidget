@@ -1,7 +1,6 @@
 package net.feheren_fekete.applist.launcher.pageeditor;
 
 import android.appwidget.AppWidgetHost;
-import android.appwidget.AppWidgetManager;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,13 +33,16 @@ import bolts.Task;
 
 public class PageEditorFragment extends Fragment {
 
+    private static final String FRAGMENT_ARG_REQUEST_DATA = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_REQUEST_DATA";
     private static final String FRAGMENT_ARG_USE_AS_PAGE_PICKER = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_USE_AS_PAGE_PICKER";
     private static final String FRAGMENT_ARG_ADD_PADDING = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_ADD_PADDING";
 
     public static final class DoneEvent {}
     public static final class PageTappedEvent {
+        public final Bundle requestData;
         public final PageData pageData;
-        public PageTappedEvent(PageData pageData) {
+        public PageTappedEvent(Bundle requestData, PageData pageData) {
+            this.requestData = requestData;
             this.pageData = pageData;
         }
     }
@@ -55,6 +57,7 @@ public class PageEditorFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private PageEditorAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
+    private Bundle mRequestData;
 
     private class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
@@ -123,11 +126,12 @@ public class PageEditorFragment extends Fragment {
         }
     }
 
-    public static PageEditorFragment newInstance(boolean addPadding, boolean useAsPagePicker) {
+    public static PageEditorFragment newInstance(boolean addPadding, boolean useAsPagePicker, Bundle requestData) {
         PageEditorFragment fragment = new PageEditorFragment();
         Bundle args = new Bundle();
         args.putBoolean(FRAGMENT_ARG_ADD_PADDING, addPadding);
         args.putBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER, useAsPagePicker);
+        args.putBundle(FRAGMENT_ARG_REQUEST_DATA, requestData);
         fragment.setArguments(args);
         return fragment;
     }
@@ -181,6 +185,8 @@ public class PageEditorFragment extends Fragment {
             doneButton.setText(R.string.launcher_page_editor_done);
             doneButton.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_done, 0, 0);
         }
+
+        mRequestData = getArguments().getBundle(FRAGMENT_ARG_REQUEST_DATA);
 
         return view;
     }
@@ -295,7 +301,7 @@ public class PageEditorFragment extends Fragment {
 
     private void handlePageTapped(int position) {
         final PageData pageData = mAdapter.getItem(position);
-        EventBus.getDefault().post(new PageTappedEvent(pageData));
+        EventBus.getDefault().post(new PageTappedEvent(mRequestData, pageData));
     }
 
     private void doneWithEditing() {

@@ -23,6 +23,7 @@ import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerActivity;
+import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerData;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -36,6 +37,12 @@ public class WidgetHelper {
 
     private static final String TAG = WidgetHelper.class.getSimpleName();
 
+    public static final int PICK_PAGE_FOR_PINNING_WIDGET_REQUEST = 1;
+    public static final int PICK_PAGE_FOR_MOVING_WIDGET_REQUEST = 2;
+    public static final String PAGE_PICK_REQUEST_KEY = WidgetHelper.class.getSimpleName() + ".PAGE_PICK_REQUEST_KEY";
+    public static final String APP_WIDGET_PROVIDER_INFO_KEY = WidgetHelper.class.getSimpleName() + ".APP_WIDGET_PROVIDER_INFO_KEY";
+    public static final String WIDGET_DATA_KEY = WidgetHelper.class.getSimpleName() + ".WIDGET_DATA_KEY";
+
     private static final int REQUEST_PICK_AND_BIND_APPWIDGET = 1000;
     private static final int REQUEST_BIND_APPWIDGET = 2000;
     private static final int REQUEST_CONFIGURE_APPWIDGET = 3000;
@@ -44,9 +51,9 @@ public class WidgetHelper {
     private static final int DEFAULT_WIDGET_HEIGHT = 200; // dp
 
     public static final class ShowPagePickerEvent {
-        public final AppWidgetProviderInfo appWidgetProviderInfo;
-        public ShowPagePickerEvent(AppWidgetProviderInfo appWidgetProviderInfo) {
-            this.appWidgetProviderInfo = appWidgetProviderInfo;
+        public final Bundle data;
+        public ShowPagePickerEvent(Bundle data) {
+            this.data = data;
         }
     }
 
@@ -106,10 +113,25 @@ public class WidgetHelper {
         mAppWidgetHostRef = new WeakReference<>(appWidgetHost);
         mPinnedAppWidgetProviderInfo = appWidgetProviderInfo;
 
-        EventBus.getDefault().post(new ShowPagePickerEvent(mPinnedAppWidgetProviderInfo));
+        Bundle data = new Bundle();
+        data.putInt(PAGE_PICK_REQUEST_KEY, PICK_PAGE_FOR_PINNING_WIDGET_REQUEST);
+        data.putParcelable(APP_WIDGET_PROVIDER_INFO_KEY, mPinnedAppWidgetProviderInfo);
+        EventBus.getDefault().post(new ShowPagePickerEvent(data));
     }
 
-    public boolean handlePagePicked(PageData pageData) {
+    public boolean handlePagePicked(Context context,
+                                    PageData pageData,
+                                    Bundle pickRequestData) {
+        final int requestCode = pickRequestData.getInt(PAGE_PICK_REQUEST_KEY);
+        if (requestCode == PICK_PAGE_FOR_PINNING_WIDGET_REQUEST) {
+            return pinWidgetToPage(pageData);
+        } else if (requestCode == PICK_PAGE_FOR_MOVING_WIDGET_REQUEST) {
+            return moveWidgetToPage(context, pageData, pickRequestData);
+        }
+        return false;
+    }
+
+    private boolean pinWidgetToPage(PageData pageData) {
         boolean handled = false;
         Activity activity = mActivityRef.get();
         AppWidgetHost appWidgetHost = mAppWidgetHostRef.get();
@@ -120,6 +142,31 @@ public class WidgetHelper {
             } else {
                 Toast.makeText(activity, R.string.page_picker_cannot_add_to_page, Toast.LENGTH_SHORT).show();
             }
+        }
+        return handled;
+    }
+
+    private boolean moveWidgetToPage(Context context,
+                                    final PageData pageData,
+                                    Bundle pagePickRequestData) {
+        boolean handled = false;
+        if (pageData.getType() == PageData.TYPE_WIDGET_PAGE) {
+            final WidgetData widgetData = pagePickRequestData.getParcelable(WIDGET_DATA_KEY);
+            if (widgetData.getPageId() != pageData.getId()) {
+                widgetData.setPageId(pageData.getId());
+                Task.callInBackground(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        mWidgetModel.updateWidget(widgetData, true);
+                        return null;
+                    }
+                });
+                handled = true;
+            } else {
+                Toast.makeText(context, R.string.page_picker_already_on_page, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(context, R.string.page_picker_cannot_add_to_page, Toast.LENGTH_SHORT).show();
         }
         return handled;
     }

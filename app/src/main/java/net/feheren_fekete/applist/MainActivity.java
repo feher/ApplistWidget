@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
@@ -121,7 +120,19 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onShowPagePickerEvent(WidgetHelper.ShowPagePickerEvent event) {
-        showPagePickerFragment(event.appWidgetProviderInfo);
+        showPagePickerFragment(
+                getResources().getString(R.string.page_picker_pin_widget_title),
+                getResources().getString(R.string.page_picker_message),
+                event.data);
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onShowPagePickerEvent(WidgetPageFragment.ShowPagePickerEvent event) {
+        showPagePickerFragment(
+                getResources().getString(R.string.page_picker_move_widget_title),
+                getResources().getString(R.string.page_picker_message),
+                event.data);
     }
 
     @SuppressWarnings("unused")
@@ -133,9 +144,8 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPageEditorPageTappedEvent(PageEditorFragment.PageTappedEvent event) {
-        if (mWidgetHelper.handlePagePicked(event.pageData)) {
-            getSupportFragmentManager().popBackStack(
-                    PagePickerFragment.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (mWidgetHelper.handlePagePicked(this, event.pageData, event.requestData)) {
+            showLauncherFragment();
         }
     }
 
@@ -182,15 +192,18 @@ public class MainActivity extends AppCompatActivity {
     private void showPageEditorFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_activity_fragment_container, PageEditorFragment.newInstance(true, false))
+                .replace(R.id.main_activity_fragment_container,
+                        PageEditorFragment.newInstance(true, false, new Bundle()))
                 .commit();
     }
 
-    private void showPagePickerFragment(AppWidgetProviderInfo appWidgetProviderInfo) {
+    private void showPagePickerFragment(String title,
+                                        String message,
+                                        Bundle data) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_activity_fragment_container, PagePickerFragment.newInstance(appWidgetProviderInfo))
-                .addToBackStack(PagePickerFragment.class.getName())
+                .replace(R.id.main_activity_fragment_container,
+                        PagePickerFragment.newInstance(title, message, data))
                 .commit();
     }
 

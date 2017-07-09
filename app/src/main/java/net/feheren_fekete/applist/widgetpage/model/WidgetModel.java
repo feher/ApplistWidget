@@ -151,12 +151,15 @@ public class WidgetModel {
         }
     }
 
-    public void updateWidget(WidgetData widgetData) {
+    public void updateWidget(WidgetData widgetData, boolean sendEvent) {
         synchronized (this) {
             WidgetData existingWidgetData = getWidgetData(widgetData);
             if (existingWidgetData != null) {
                 existingWidgetData.updateFrom(widgetData);
                 scheduleStoreData();
+                if (sendEvent) {
+                    EventBus.getDefault().post(new WidgetChangedEvent(widgetData));
+                }
             }
         }
     }

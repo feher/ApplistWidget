@@ -49,6 +49,12 @@ public class WidgetPageFragment extends Fragment {
     public static final class ShowPageEditorEvent {}
     public static final class WidgetMoveStartedEvent {}
     public static final class WidgetMoveFinishedEvent {}
+    public static final class ShowPagePickerEvent {
+        public final Bundle data;
+        public ShowPagePickerEvent(Bundle data) {
+            this.data = data;
+        }
+    }
 
     private static final class WidgetItem {
         public WidgetData widgetData;
@@ -324,6 +330,16 @@ public class WidgetPageFragment extends Fragment {
         mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 500);
     }
 
+    private void moveWidgetToOtherPage(WidgetItem widgetItem) {
+        AppWidgetProviderInfo appWidgetProviderInfo = mAppWidgetManager.getAppWidgetInfo(
+                widgetItem.widgetData.getAppWidgetId());
+        Bundle data = new Bundle();
+        data.putInt(WidgetHelper.PAGE_PICK_REQUEST_KEY, WidgetHelper.PICK_PAGE_FOR_MOVING_WIDGET_REQUEST);
+        data.putParcelable(WidgetHelper.WIDGET_DATA_KEY, widgetItem.widgetData);
+        data.putParcelable(WidgetHelper.APP_WIDGET_PROVIDER_INFO_KEY, appWidgetProviderInfo);
+        EventBus.getDefault().post(new ShowPagePickerEvent(data));
+    }
+
     private void bringWidgetToTop(final WidgetItem widgetItem) {
         Task.callInBackground(new Callable<Void>() {
             @Override
@@ -408,9 +424,13 @@ public class WidgetPageFragment extends Fragment {
                                 break;
                             case 1:
                                 mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
-                                bringWidgetToTop(mWidgetMenuTarget);
+                                moveWidgetToOtherPage(mWidgetMenuTarget);
                                 break;
                             case 2:
+                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
+                                bringWidgetToTop(mWidgetMenuTarget);
+                                break;
+                            case 3:
                                 mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
                                 removeWidgetFromModel(mWidgetMenuTarget);
                                 break;
@@ -506,7 +526,7 @@ public class WidgetPageFragment extends Fragment {
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                mWidgetModel.updateWidget(widgetItem.widgetData);
+                mWidgetModel.updateWidget(widgetItem.widgetData, false);
                 return null;
             }
         });

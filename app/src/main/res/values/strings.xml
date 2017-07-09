@@ -36,11 +36,13 @@
     <string name="section_item_menu_delete">Delete</string>
     <string name="section_item_menu_sort_apps">Sort apps alphabetically</string>
 
-    <string name="widget_menu_move_resize">Move &amp; resize</string>
+    <string name="widget_menu_move_resize">Resize and move</string>
+    <string name="widget_menu_move_to_page">Move to page</string>
     <string name="widget_menu_bring_to_top">Bring to top</string>
     <string name="widget_menu_remove">Remove</string>
     <string-array name="widget_menu">
         <item>@string/widget_menu_move_resize</item>
+        <item>@string/widget_menu_move_to_page</item>
         <item>@string/widget_menu_bring_to_top</item>
         <item>@string/widget_menu_remove</item>
     </string-array>
@@ -67,9 +69,11 @@
     <string name="launcher_page_editor_remove_dialog_title">Delete page</string>
     <string name="launcher_page_editor_remove_dialog_message">Are you sure you want to delete this page?</string>
 
-    <string name="page_picker_title">Adding widget</string>
-    <string name="page_picker_message">Choose a page for this widget</string>
+    <string name="page_picker_pin_widget_title">Adding widget</string>
+    <string name="page_picker_move_widget_title">Moving widget</string>
+    <string name="page_picker_message">Choose a page for the widget</string>
     <string name="page_picker_cannot_add_to_page">Cannot add Widgets to this page</string>
+    <string name="page_picker_already_on_page">Widget is already on this page</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>
