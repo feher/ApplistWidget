@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+We also change/set the layout from code.
+REF: 2017_07_10_set_page_editor_root_layout
+-->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,6 +14,10 @@
     android:layout_gravity="center"
     >
 
+    <!--
+    We also change/set the layout from code.
+    REF: 2017_07_10_set_page_editor_wallpaper_layout
+    -->
     <ImageView
         android:id="@+id/launcher_page_editor_item_wallpaper"
         android:layout_margin="10dp"
@@ -19,6 +27,10 @@
         android:layout_centerInParent="true"
         />
 
+    <!--
+    We also change/set the layout from code.
+    REF: 2017_07_10_set_page_editor_screenshot_layout
+    -->
     <ImageView
         android:id="@+id/launcher_page_editor_item_screenshot"
         android:layout_margin="10dp"

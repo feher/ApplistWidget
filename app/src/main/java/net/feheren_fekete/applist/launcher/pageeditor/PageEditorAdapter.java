@@ -67,17 +67,20 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
             removeIcon = itemView.findViewById(R.id.launcher_page_editor_item_remove_icon);
             pageNumber = itemView.findViewById(R.id.launcher_page_editor_item_page_number);
 
+            // REF: 2017_07_10_set_page_editor_root_layout
             final Point screenSize = mScreenUtils.getScreenSize(layout.getContext());
             ViewGroup.LayoutParams rootLayoutParams = layout.getLayoutParams();
             rootLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier);
             rootLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
             layout.setLayoutParams(rootLayoutParams);
 
+            // REF: 2017_07_10_set_page_editor_wallpaper_layout
             RelativeLayout.LayoutParams imageLayoutParams = (RelativeLayout.LayoutParams) wallpaper.getLayoutParams();
             imageLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier);
             imageLayoutParams.height = Math.round(screenSize.y * mPagePreviewSizeMultiplier);
             wallpaper.setLayoutParams(imageLayoutParams);
 
+            // REF: 2017_07_10_set_page_editor_screenshot_layout
             imageLayoutParams = (RelativeLayout.LayoutParams) screenshot.getLayoutParams();
             imageLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier);
             imageLayoutParams.height = Math.round(screenSize.y * mPagePreviewSizeMultiplier);
