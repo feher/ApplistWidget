@@ -178,18 +178,19 @@ public class PageEditorFragment extends Fragment {
 
         mRecyclerView = view.findViewById(R.id.launcher_page_editor_page_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
+
         final boolean useAsPagePicker = getArguments().getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER);
+
         final float pagePreviewSizeMultiplier = useAsPagePicker ? 0.5f : 0.7f;
         mAdapter = new PageEditorAdapter(pagePreviewSizeMultiplier, mPageEditorAdapterListener);
         mAdapter.showMainPageIndicator(!useAsPagePicker);
         mAdapter.showMovePageIndicator(!useAsPagePicker);
         mRecyclerView.setAdapter(mAdapter);
 
-        mItemTouchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback());
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-
         mMaxDragScroll = Math.round(mScreenUtils.dpToPx(getContext(), 3));
         mDragScrollThreshold = Math.round(mScreenUtils.dpToPx(getContext(), 100));
+        mItemTouchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback());
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         if (!useAsPagePicker) {
             SnapHelper helper = new PagerSnapHelper();
