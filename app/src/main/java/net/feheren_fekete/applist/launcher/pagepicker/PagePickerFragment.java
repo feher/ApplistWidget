@@ -7,11 +7,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
@@ -84,9 +86,6 @@ public class PagePickerFragment extends Fragment {
         ImageView preview = view.findViewById(R.id.page_picker_fragment_widget_preview);
         preview.setImageDrawable(widgetPreview != null ? widgetPreview : widgetIcon);
 
-        TextView message = view.findViewById(R.id.page_picker_fragment_message);
-        message.setText(getArguments().getString(FRAGMENT_ARG_MESSAGE));
-
         return view;
     }
 
@@ -104,6 +103,9 @@ public class PagePickerFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mScreenshotUtils.cancelScheduledScreenshot();
+        Toast toast = Toast.makeText(getContext(), getArguments().getString(FRAGMENT_ARG_MESSAGE), Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
 }
