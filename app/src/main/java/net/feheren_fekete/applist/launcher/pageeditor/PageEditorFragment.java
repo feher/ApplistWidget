@@ -2,6 +2,7 @@ package net.feheren_fekete.applist.launcher.pageeditor;
 
 import android.appwidget.AppWidgetHost;
 import android.content.DialogInterface;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +37,8 @@ import java.util.concurrent.Callable;
 import bolts.Task;
 
 public class PageEditorFragment extends Fragment {
+
+    private static final String TAG = PageEditorFragment.class.getSimpleName();
 
     private static final String FRAGMENT_ARG_REQUEST_DATA = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_REQUEST_DATA";
     private static final String FRAGMENT_ARG_USE_AS_PAGE_PICKER = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_USE_AS_PAGE_PICKER";
@@ -60,6 +64,9 @@ public class PageEditorFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private PageEditorAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
+    private int mDragScrollThreshold;
+    private int mMaxDragScroll;
+
     private Bundle mRequestData;
 
     private class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
@@ -127,6 +134,20 @@ public class PageEditorFragment extends Fragment {
                 mAdapter.notifyDataSetChanged();
             }
         }
+
+        @Override
+        public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+            int scrollX = 0;
+            final int absOutOfBounds = Math.abs(viewSizeOutOfBounds);
+            if (absOutOfBounds > mDragScrollThreshold) {
+                final int direction = (int) Math.signum(viewSizeOutOfBounds);
+                scrollX = direction * mMaxDragScroll;
+                if (scrollX == 0) {
+                    scrollX = viewSizeOutOfBounds > 0 ? 1 : -1;
+                }
+            }
+            return scrollX;
+        }
     }
 
     public static PageEditorFragment newInstance(boolean addPadding, boolean useAsPagePicker, Bundle requestData) {
@@ -158,7 +179,8 @@ public class PageEditorFragment extends Fragment {
         mRecyclerView = view.findViewById(R.id.launcher_page_editor_page_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
         final boolean useAsPagePicker = getArguments().getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER);
-        mAdapter = new PageEditorAdapter(useAsPagePicker ? 0.5f : 0.7f, mPageEditorAdapterListener);
+        final float pagePreviewSizeMultiplier = useAsPagePicker ? 0.5f : 0.7f;
+        mAdapter = new PageEditorAdapter(pagePreviewSizeMultiplier, mPageEditorAdapterListener);
         mAdapter.showMainPageIndicator(!useAsPagePicker);
         mAdapter.showMovePageIndicator(!useAsPagePicker);
         mRecyclerView.setAdapter(mAdapter);
@@ -166,9 +188,15 @@ public class PageEditorFragment extends Fragment {
         mItemTouchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback());
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
 
+        mMaxDragScroll = Math.round(mScreenUtils.dpToPx(getContext(), 3));
+        mDragScrollThreshold = Math.round(mScreenUtils.dpToPx(getContext(), 100));
+
         if (!useAsPagePicker) {
             SnapHelper helper = new PagerSnapHelper();
             helper.attachToRecyclerView(mRecyclerView);
+            final Point screenSize = mScreenUtils.getScreenSize(getContext());
+            final int padding = Math.round((screenSize.x * (pagePreviewSizeMultiplier / 2)) / 2);
+            mRecyclerView.setPadding(padding, 0, padding, 0);
         }
 
         View addPageButton = view.findViewById(R.id.launcher_page_editor_add_page);
