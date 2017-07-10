@@ -170,8 +170,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
         mTouchOverlay = view.findViewById(R.id.applist_page_page_fragment_touch_overlay);
         mItemDragCallback = new ApplistItemDragHandler(
-                getContext(), mScreenUtils, mSettingsUtils, this,
-                mApplistModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
+                getContext(), this, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
         mItemDragGestureRecognizer = new DragGestureRecognizer(mItemDragCallback, mTouchOverlay, mRecyclerView);
 
         return view;

@@ -34,11 +34,12 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         void onItemDragEnd();
     }
 
+    // TODO: Inject these
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private ApplistModel mApplistModel = ApplistModel.getInstance();
+
     private Context mContext;
-    private ScreenUtils mScreenUtils;
-    private SettingsUtils mSettingsUtils;
     private ApplistPagePageFragment mApplistPagePageFragment;
-    private ApplistModel mApplistModel;
     private ViewGroup mTouchOverlay;
     private RecyclerView mRecyclerView;
     private MyGridLayoutManager mLayoutManager;
@@ -54,20 +55,14 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     private float mItemMoveThreshold;
 
     public ApplistItemDragHandler(Context context,
-                                  ScreenUtils screenUtils,
-                                  SettingsUtils settingsUtils,
                                   ApplistPagePageFragment applistPagePageFragment,
-                                  ApplistModel applistModel,
                                   ViewGroup touchOverlay,
                                   RecyclerView recyclerView,
                                   MyGridLayoutManager layoutManager,
                                   ApplistAdapter adapter,
                                   Listener listener) {
         mContext = context;
-        mScreenUtils = screenUtils;
-        mSettingsUtils = settingsUtils;
         mApplistPagePageFragment = applistPagePageFragment;
-        mApplistModel = applistModel;
         mTouchOverlay = touchOverlay;
         mRecyclerView = recyclerView;
         mLayoutManager = layoutManager;
