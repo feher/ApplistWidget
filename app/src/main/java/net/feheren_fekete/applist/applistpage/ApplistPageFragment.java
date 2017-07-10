@@ -1,17 +1,14 @@
 package net.feheren_fekete.applist.applistpage;
 
 import android.app.Activity;
-import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.os.Bundle;
@@ -26,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.FrameLayout;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.ApplistPreferences;
@@ -34,7 +30,6 @@ import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.launcher.LauncherUtils;
-import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.settings.SettingsActivity;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
@@ -60,7 +55,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     // TODO: Inject these singletons.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
-    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
     private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
@@ -72,7 +66,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private ApplistPreferences mApplistPreferences;
     private Toolbar mToolbar;
     private Drawable mToolbarGradient;
-    private FrameLayout mFragmentContainer;
     private Menu mMenu;
     private SearchView mSearchView;
 
@@ -104,8 +97,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         activity.getSupportActionBar().setTitle(R.string.toolbar_title);
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         setHasOptionsMenu(true);
-
-        mFragmentContainer = (FrameLayout) view.findViewById(R.id.applist_page_fragment_page_container);
 
         IntentFilter packageIntentFilter = new IntentFilter();
         packageIntentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -461,7 +452,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         } else {
             loadApplistFragment();
         }
-        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), ScreenshotUtils.DELAY_LONG);
     }
 
     private void showApplistFragment(String pageName) {

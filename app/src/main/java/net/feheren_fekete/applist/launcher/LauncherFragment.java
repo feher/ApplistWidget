@@ -1,10 +1,13 @@
 package net.feheren_fekete.applist.launcher;
 
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -49,7 +52,7 @@ public class LauncherFragment extends Fragment {
 
         mApplistPreferences = new ApplistPreferences(getContext().getApplicationContext());
 
-        mPager = (MyViewPager) view.findViewById(R.id.launcher_fragment_view_pager);
+        mPager = view.findViewById(R.id.launcher_fragment_view_pager);
         mPagerAdapter = new LauncherPagerAdapter(getChildFragmentManager());
         mPager.setAdapter(mPagerAdapter);
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -90,17 +93,18 @@ public class LauncherFragment extends Fragment {
 
         if (((MainActivity)getActivity()).isHomePressed()) {
             handleHomeButtonPress();
-        } else {
-            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_LONG);
         }
 
         EventBus.getDefault().register(this);
+        mPagerAdapter.registerDataSetObserver(mAdapterDataObserver);
+        mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
+        mPagerAdapter.unregisterDataSetObserver(mAdapterDataObserver);
         mApplistPreferences.setLastActiveLauncherPagePosition(mActivePagePosition);
     }
 
@@ -173,7 +177,6 @@ public class LauncherFragment extends Fragment {
                 }, 100);
             } else {
                 setPageVisibility(mActivePagePosition, true);
-                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
             }
         }
     }
@@ -191,6 +194,24 @@ public class LauncherFragment extends Fragment {
             mLauncherStateManager.setPageVisibile(pageData.getId(), false);
         }
     }
+
+    private DataSetObserver mAdapterDataObserver = new DataSetObserver() {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            scheduleScreenshot();
+        }
+
+        @Override
+        public void onInvalidated() {
+            super.onInvalidated();
+            scheduleScreenshot();
+        }
+
+        private void scheduleScreenshot() {
+            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
+        }
+    };
 
     private GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override

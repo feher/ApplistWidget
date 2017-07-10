@@ -189,8 +189,7 @@ public class WidgetPageFragment extends Fragment {
 
     public void handleUp(MotionEvent event) {
         if (mWidgetMenuTarget != null) {
-            updateWidgetOptions(mWidgetMenuTarget.appWidgetHostView, mWidgetMenuTarget.widgetData);
-            mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), ScreenshotUtils.DELAY_SHORT);
+            updateWidgetOnScreen(mWidgetMenuTarget.appWidgetHostView, mWidgetMenuTarget.widgetData);
         }
     }
 
@@ -286,21 +285,19 @@ public class WidgetPageFragment extends Fragment {
         layoutParams.topMargin = Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getPositionY()));
         hostView.setLayoutParams(layoutParams);
 
-        updateWidgetOptions(hostView, widgetData);
-
         final WidgetItem widgetItem = new WidgetItem();
         widgetItem.widgetData = widgetData;
         widgetItem.appWidgetHostView = hostView;
         widgetItem.appWidgetHostView.setGestureListener(new WidgetGestureListener(widgetItem));
 
+        updateWidgetOnScreen(hostView, widgetData);
+
         mWidgets.add(widgetItem);
         mWidgetContainer.addView(hostView);
         mWidgetContainer.invalidate();
-
-        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), ScreenshotUtils.DELAY_SHORT);
     }
 
-    private void updateWidgetOptions(AppWidgetHostView appWidgetHostView, WidgetData widgetData) {
+    private void updateWidgetOnScreen(AppWidgetHostView appWidgetHostView, WidgetData widgetData) {
         Bundle options = new Bundle();
         options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetData.getWidth());
         options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetData.getHeight());
@@ -308,6 +305,7 @@ public class WidgetPageFragment extends Fragment {
         options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetData.getHeight());
         options.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN);
         appWidgetHostView.updateAppWidgetOptions(options);
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), ScreenshotUtils.DELAY_SHORT);
     }
 
     private void removeAllWidgetsFromScreen() {

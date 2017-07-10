@@ -202,6 +202,7 @@ public class PageEditorFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        mScreenshotUtils.cancelScheduledScreenshot();
         EventBus.getDefault().register(this);
         mAdapter.setPages(mLauncherModel.getPages());
     }

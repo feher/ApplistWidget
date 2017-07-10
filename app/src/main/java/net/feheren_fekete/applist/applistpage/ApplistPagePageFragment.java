@@ -121,7 +121,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.applist_page_page_fragment, container, false);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.applist_page_page_fragment_recycler_view);
+        mRecyclerView = view.findViewById(R.id.applist_page_page_fragment_recycler_view);
 
         // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
         final int topPadding = mScreenUtils.getStatusBarHeight(getContext()) + mScreenUtils.getActionBarHeight(getContext());
@@ -168,7 +168,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
         loadAllItems();
 
-        mTouchOverlay = (ViewGroup) view.findViewById(R.id.applist_page_page_fragment_touch_overlay);
+        mTouchOverlay = view.findViewById(R.id.applist_page_page_fragment_touch_overlay);
         mItemDragCallback = new ApplistItemDragHandler(
                 getContext(), mScreenUtils, mSettingsUtils, this,
                 mApplistModel, mTouchOverlay, mRecyclerView, mLayoutManager, mAdapter, mListener);
@@ -215,12 +215,14 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                     })
                     .show();
         }
+        mAdapter.registerAdapterDataObserver(mAdapterDataObserver);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
+        mAdapter.unregisterAdapterDataObserver(mAdapterDataObserver);
     }
 
     @Override
@@ -459,6 +461,48 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     public void onSectionTouched(final SectionItem sectionItem) {
     }
 
+    private RecyclerView.AdapterDataObserver mAdapterDataObserver = new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            scheduleScreenshot();
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount) {
+            super.onItemRangeChanged(positionStart, itemCount);
+            scheduleScreenshot();
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+            super.onItemRangeChanged(positionStart, itemCount, payload);
+            scheduleScreenshot();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            super.onItemRangeInserted(positionStart, itemCount);
+            scheduleScreenshot();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            super.onItemRangeRemoved(positionStart, itemCount);
+            scheduleScreenshot();
+        }
+
+        @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            super.onItemRangeMoved(fromPosition, toPosition, itemCount);
+            scheduleScreenshot();
+        }
+
+        private void scheduleScreenshot() {
+            mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), ScreenshotUtils.DELAY_SHORT);
+        }
+    };
+
     private PopupMenu.OnMenuItemClickListener mItemMenuClickListener = new PopupMenu.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem menuItem) {
@@ -691,7 +735,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             pageData = new PageData(ApplistModel.INVALID_ID, getPageName(), new ArrayList<SectionData>());
         }
         mAdapter.setItems(ViewModelUtils.modelToView(mApplistModel, pageData));
-        mScreenshotUtils.scheduleScreenshot(getActivity(), getLauncherPageId(), ScreenshotUtils.DELAY_SHORT);
     }
 
     private void clearAppBadge(AppItem appItem) {

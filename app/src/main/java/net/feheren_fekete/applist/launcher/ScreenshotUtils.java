@@ -14,10 +14,10 @@ import net.feheren_fekete.applist.utils.ScreenUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 
 import bolts.Task;
-import hugo.weaving.DebugLog;
 
 public class ScreenshotUtils {
 
@@ -28,7 +28,7 @@ public class ScreenshotUtils {
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 
     private Handler mHandler = new Handler();
-    private Activity mActivity;
+    private WeakReference<Activity> mActivityRef = new WeakReference<>(null);
     private long mPageId;
 
     private static ScreenshotUtils sInstance;
@@ -53,19 +53,19 @@ public class ScreenshotUtils {
     private Runnable mScreenshotRunnable = new Runnable() {
         @Override
         public void run() {
-            takeScreenshot(mActivity, mPageId);
+            takeScreenshot(mActivityRef, mPageId);
         }
     };
 
     public void scheduleScreenshot(Activity activity, long pageId, int delayMillis) {
-        mActivity = activity;
+        mActivityRef = new WeakReference<>(activity);
         mPageId = pageId;
         mHandler.removeCallbacks(mScreenshotRunnable);
         mHandler.postDelayed(mScreenshotRunnable, delayMillis);
     }
 
     public void cancelScheduledScreenshot() {
-        mActivity = null;
+        mActivityRef.clear();
         mPageId = PageData.INVALID_PAGE_ID;
         mHandler.removeCallbacks(mScreenshotRunnable);
     }
@@ -74,7 +74,8 @@ public class ScreenshotUtils {
         return context.getFilesDir().getAbsolutePath() + File.separator + "applist-page-" + pageId + ".png";
     }
 
-    private void takeScreenshot(Activity activity, long pageId) {
+    private void takeScreenshot(WeakReference<Activity> activityRef, long pageId) {
+        Activity activity = activityRef.get();
         if (activity == null || pageId == PageData.INVALID_PAGE_ID || !mLauncherStateManager.isPageVisible(pageId)) {
             return;
         }
