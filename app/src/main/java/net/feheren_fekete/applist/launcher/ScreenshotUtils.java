@@ -21,6 +21,9 @@ import hugo.weaving.DebugLog;
 
 public class ScreenshotUtils {
 
+    public static final int DELAY_SHORT = 200;
+    public static final int DELAY_LONG = 1000;
+
     private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
 

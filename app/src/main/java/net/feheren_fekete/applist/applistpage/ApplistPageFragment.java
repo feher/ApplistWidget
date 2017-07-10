@@ -461,7 +461,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         } else {
             loadApplistFragment();
         }
-        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), 1000);
+        mScreenshotUtils.scheduleScreenshot(getActivity(), getPageId(), ScreenshotUtils.DELAY_LONG);
     }
 
     private void showApplistFragment(String pageName) {

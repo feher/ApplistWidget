@@ -64,7 +64,7 @@ public class LauncherFragment extends Fragment {
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
-                    mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 200);
+                    mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
                 } else {
                     mScreenshotUtils.cancelScheduledScreenshot();
                 }
@@ -91,7 +91,7 @@ public class LauncherFragment extends Fragment {
         if (((MainActivity)getActivity()).isHomePressed()) {
             handleHomeButtonPress();
         } else {
-            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 1000);
+            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_LONG);
         }
 
         EventBus.getDefault().register(this);
@@ -173,7 +173,7 @@ public class LauncherFragment extends Fragment {
                 }, 100);
             } else {
                 setPageVisibility(mActivePagePosition, true);
-                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), 200);
+                mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
             }
         }
     }
