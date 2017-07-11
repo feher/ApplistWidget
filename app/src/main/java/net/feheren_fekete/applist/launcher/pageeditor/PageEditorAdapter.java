@@ -217,9 +217,11 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
             holder.screenshot.setImageDrawable(null);
         }
         if (mWallpaper == null) {
-            final WallpaperManager wallpaperManager = WallpaperManager.getInstance(holder.screenshot.getContext());
+            final WallpaperManager wallpaperManager = WallpaperManager.getInstance(holder.wallpaper.getContext());
             WallpaperInfo wallpaperInfo = wallpaperManager.getWallpaperInfo();
             if (wallpaperInfo != null) {
+                // User has a live wallpaper. We don't know how to capture the live wallpaper,
+                // so we just use a constant color bitmap as a placeholder for now.
                 final Bitmap bmp = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
                 final Canvas canvas = new Canvas(bmp);
                 canvas.drawColor(0xbb5d1e66);
