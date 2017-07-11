@@ -20,7 +20,6 @@ REF: 2017_07_10_set_page_editor_root_layout
     -->
     <ImageView
         android:id="@+id/launcher_page_editor_item_wallpaper"
-        android:layout_margin="10dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
@@ -33,10 +32,9 @@ REF: 2017_07_10_set_page_editor_root_layout
     -->
     <ImageView
         android:id="@+id/launcher_page_editor_item_screenshot"
-        android:layout_margin="10dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:layout_centerInParent="true"
         />
 

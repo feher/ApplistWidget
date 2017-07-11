@@ -74,16 +74,19 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
             rootLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
             layout.setLayoutParams(rootLayoutParams);
 
+            // We add an extra multiplier to have margins between the pages.
+            final float marginMultiplier = 0.9f;
+
             // REF: 2017_07_10_set_page_editor_wallpaper_layout
             RelativeLayout.LayoutParams imageLayoutParams = (RelativeLayout.LayoutParams) wallpaper.getLayoutParams();
-            imageLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier);
-            imageLayoutParams.height = Math.round(screenSize.y * mPagePreviewSizeMultiplier);
+            imageLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier * marginMultiplier);
+            imageLayoutParams.height = Math.round(screenSize.y * mPagePreviewSizeMultiplier * marginMultiplier);
             wallpaper.setLayoutParams(imageLayoutParams);
 
             // REF: 2017_07_10_set_page_editor_screenshot_layout
             imageLayoutParams = (RelativeLayout.LayoutParams) screenshot.getLayoutParams();
-            imageLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier);
-            imageLayoutParams.height = Math.round(screenSize.y * mPagePreviewSizeMultiplier);
+            imageLayoutParams.width = Math.round(screenSize.x * mPagePreviewSizeMultiplier * marginMultiplier);
+            imageLayoutParams.height = Math.round(screenSize.y * mPagePreviewSizeMultiplier * marginMultiplier);
             screenshot.setLayoutParams(imageLayoutParams);
 
             homeIcon.setOnClickListener(new View.OnClickListener() {
