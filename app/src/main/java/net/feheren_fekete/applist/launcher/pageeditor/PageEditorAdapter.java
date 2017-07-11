@@ -213,6 +213,8 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
                     .load(file)
                     .signature(new ObjectKey(String.valueOf(file.lastModified())))
                     .into(holder.screenshot);
+        } else {
+            holder.screenshot.setImageDrawable(null);
         }
         if (mWallpaper == null) {
             final WallpaperManager wallpaperManager = WallpaperManager.getInstance(holder.screenshot.getContext());
