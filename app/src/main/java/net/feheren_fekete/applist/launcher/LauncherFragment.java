@@ -232,19 +232,15 @@ public class LauncherFragment extends Fragment {
         @Override
         public void onChanged() {
             super.onChanged();
-            scheduleScreenshot();
+            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
         }
 
         @Override
         public void onInvalidated() {
             super.onInvalidated();
-            scheduleScreenshot();
+            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
         }
     };
-
-    private void scheduleScreenshot() {
-        mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
-    }
 
     private GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
