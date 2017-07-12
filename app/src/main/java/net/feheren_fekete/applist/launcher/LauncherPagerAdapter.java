@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist.launcher;
 
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -10,6 +11,7 @@ import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
 import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +19,7 @@ import java.util.Map;
 public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<PageData> mPages = Collections.emptyList();
-    private Map<Integer, Fragment> mPageFragments = new ArrayMap<>();
+    private Map<Integer, WeakReference<Fragment>> mPageFragments = new ArrayMap<>();
 
     public LauncherPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -65,7 +67,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         } else {
             fragment = WidgetPageFragment.newInstance(pageData.getId());
         }
-        mPageFragments.put(position, fragment);
+        mPageFragments.put(position, new WeakReference<>(fragment));
 
         return fragment;
     }
@@ -81,8 +83,13 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         return mPages.size();
     }
 
+    @Nullable
     public Fragment getPageFragment(int position) {
-        return mPageFragments.get(position);
+        WeakReference<Fragment> fragmentWeakReference = mPageFragments.get(position);
+        if (fragmentWeakReference == null) {
+            return null;
+        }
+        return fragmentWeakReference.get();
     }
 
 }
