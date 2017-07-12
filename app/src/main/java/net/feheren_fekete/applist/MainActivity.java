@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         mAppWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         mAppWidgetHost = new MyAppWidgetHost(getApplicationContext(), 1234567);
 
-        showLauncherFragment();
+        showLauncherFragment(-1);
         mShouldHandleIntent = true;
     }
 
@@ -138,14 +138,14 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPageEditorDoneEvent(PageEditorFragment.DoneEvent event) {
-        showLauncherFragment();
+        showLauncherFragment(-1);
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPageEditorPageTappedEvent(PageEditorFragment.PageTappedEvent event) {
         if (mWidgetHelper.handlePagePicked(this, event.pageData, event.requestData)) {
-            showLauncherFragment();
+            showLauncherFragment(event.pageData.getId());
         }
     }
 
@@ -182,10 +182,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showLauncherFragment() {
+    private void showLauncherFragment(long activePageId) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_activity_fragment_container, new LauncherFragment())
+                .replace(R.id.main_activity_fragment_container, LauncherFragment.newInstance(activePageId))
                 .commit();
     }
 

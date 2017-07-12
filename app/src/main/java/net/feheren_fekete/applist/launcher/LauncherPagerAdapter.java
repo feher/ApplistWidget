@@ -46,6 +46,16 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         return -1;
     }
 
+    public int getPagePosition(long pageId) {
+        for (int i = 0; i < mPages.size(); ++i) {
+            PageData pageData = mPages.get(i);
+            if (pageData.getId() == pageId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     @Override
     public Fragment getItem(int position) {
         Fragment fragment;

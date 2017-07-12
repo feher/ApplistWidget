@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -31,6 +29,8 @@ public class LauncherFragment extends Fragment {
 
     private static final String TAG = LauncherFragment.class.getSimpleName();
 
+    private static final String FRAGMENT_ARG_SCROLL_TO_PAGE_ID = LauncherFragment.class.getSimpleName() + ".FRAGMENT_ARG_SCROLL_TO_PAGE_ID";
+
     // TODO: Inject these singletons
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
@@ -41,6 +41,14 @@ public class LauncherFragment extends Fragment {
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
     private int mActivePagePosition = -1;
+
+    public static LauncherFragment newInstance(long scrollToPageId) {
+        LauncherFragment fragment = new LauncherFragment();
+        Bundle args = new Bundle();
+        args.putLong(FRAGMENT_ARG_SCROLL_TO_PAGE_ID, scrollToPageId);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     public LauncherFragment() {
     }
@@ -93,6 +101,12 @@ public class LauncherFragment extends Fragment {
 
         if (((MainActivity)getActivity()).isHomePressed()) {
             handleHomeButtonPress();
+        }
+
+        final long pageId = getArguments().getLong(FRAGMENT_ARG_SCROLL_TO_PAGE_ID, -1);
+        if (pageId != -1) {
+            getArguments().remove(FRAGMENT_ARG_SCROLL_TO_PAGE_ID);
+            scrollToRequestedPage(pageId);
         }
 
         EventBus.getDefault().register(this);
@@ -181,6 +195,21 @@ public class LauncherFragment extends Fragment {
         }
     }
 
+    private void scrollToRequestedPage(final long pageId) {
+        // Wait for the screenshot of the current page.
+        // Scroll to the requested page only after that.
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                final int pagePosition = mPagerAdapter.getPagePosition(pageId);
+                if (pagePosition != -1) {
+                    mActivePagePosition = pagePosition;
+                    scrollToActivePage(true);
+                }
+            }
+        }, ScreenshotUtils.DELAY_SHORT + 500);
+    }
+
     private void setPageVisibility(int pagePosition, boolean visible) {
         if (visible) {
             for (int i = 0; i < mPagerAdapter.getCount(); ++i) {
@@ -207,11 +236,11 @@ public class LauncherFragment extends Fragment {
             super.onInvalidated();
             scheduleScreenshot();
         }
-
-        private void scheduleScreenshot() {
-            mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
-        }
     };
+
+    private void scheduleScreenshot() {
+        mScreenshotUtils.scheduleScreenshot(getActivity(), mPagerAdapter.getPageData(mActivePagePosition).getId(), ScreenshotUtils.DELAY_SHORT);
+    }
 
     private GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
