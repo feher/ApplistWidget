@@ -92,8 +92,8 @@ public class ScreenshotUtils {
         final Point screenSize = mScreenUtils.getScreenSize(activity);
         final Bitmap bitmap = Bitmap.createScaledBitmap(
                 fullSizedBitmap,
-                screenSize.x / 4,
-                screenSize.y / 4,
+                Math.round(screenSize.x / 4.0f),
+                Math.round(screenSize.y / 4.0f),
                 true);
         screenView.setDrawingCacheEnabled(false);
 
