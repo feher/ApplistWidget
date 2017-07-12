@@ -180,15 +180,19 @@ public class LauncherFragment extends Fragment {
             mActivePagePosition = Math.min(mActivePagePosition, mPagerAdapter.getCount() - 1);
             final int currentPagePosition = mPager.getCurrentItem();
             if (currentPagePosition != mActivePagePosition) {
-                // HACK: Without posting a delayed Runnable, the smooth scrolling is very laggy.
-                // The delay time also matters. E.g. 10 ms is too little.
-                // https://stackoverflow.com/questions/11962268/viewpager-setcurrentitempageid-true-does-not-smoothscroll
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPager.setCurrentItem(mActivePagePosition, smoothScroll);
-                    }
-                }, 100);
+                if (smoothScroll) {
+                    // HACK: Without posting a delayed Runnable, the smooth scrolling is very laggy.
+                    // The delay time also matters. E.g. 10 ms is too little.
+                    // https://stackoverflow.com/questions/11962268/viewpager-setcurrentitempageid-true-does-not-smoothscroll
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mPager.setCurrentItem(mActivePagePosition, true);
+                        }
+                    }, 100);
+                } else {
+                    mPager.setCurrentItem(mActivePagePosition, false);
+                }
             } else {
                 setPageVisibility(mActivePagePosition, true);
             }
