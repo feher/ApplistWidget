@@ -58,10 +58,12 @@ public class ScreenshotUtils {
     };
 
     public void scheduleScreenshot(Activity activity, long pageId, int delayMillis) {
-        mActivityRef = new WeakReference<>(activity);
-        mPageId = pageId;
-        mHandler.removeCallbacks(mScreenshotRunnable);
-        mHandler.postDelayed(mScreenshotRunnable, delayMillis);
+        if (mLauncherStateManager.isPageVisible(pageId)) {
+            mActivityRef = new WeakReference<>(activity);
+            mPageId = pageId;
+            mHandler.removeCallbacks(mScreenshotRunnable);
+            mHandler.postDelayed(mScreenshotRunnable, delayMillis);
+        }
     }
 
     public void cancelScheduledScreenshot() {
