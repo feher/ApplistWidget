@@ -113,6 +113,14 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".applistpage.shortcutbadge.NotificationListener"
+                 android:label="Applist Notification Listener"
+                 android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="e03a738384ba7bae3cd843a74fdddef07b259b32" />
