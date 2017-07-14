@@ -73,9 +73,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private BadgeStore mBadgeStore = BadgeStore.getInstance();
 
     private Handler mHandler = new Handler();
-    private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
     private RecyclerView mRecyclerView;
     private ViewGroup mTouchOverlay;
@@ -109,10 +109,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBadgeStore = new BadgeStore(
-                getContext(),
-                getContext().getPackageManager(),
-                new BadgeUtils(getContext()));
         mApplistPreferences = new ApplistPreferences(getContext());
     }
 
@@ -158,10 +154,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 getContext().getPackageManager(),
                 mSettingsUtils,
                 new FileUtils(),
-                new BadgeStore(
-                        getContext(),
-                        getContext().getPackageManager(),
-                        new BadgeUtils(getContext())),
                 this,
                 mIconCache);
         mRecyclerView.setAdapter(mAdapter);

@@ -47,12 +47,14 @@ public class ApplistAdapter
     public static final int STARTABLE_ITEM_VIEW = 1;
     public static final int SECTION_ITEM_VIEW = 2;
 
+    // TODO: Inject
+    private BadgeStore mBadgeStore = BadgeStore.getInstance();
+
     private Context mContext;
     private Fragment mFragment;
     private PackageManager mPackageManager;
     private SettingsUtils mSettingsUtils;
     private FileUtils mFileUtils;
-    private BadgeStore mBadgeStore;
     private List<BaseItem> mCollapsedItems;
     private List<BaseItem> mAllItems;
     private @Nullable String mFilterName;
@@ -188,7 +190,6 @@ public class ApplistAdapter
                           PackageManager packageManager,
                           SettingsUtils settingsUtils,
                           FileUtils fileUtils,
-                          BadgeStore badgeStore,
                           ItemListener itemListener,
                           IconCache iconCache) {
         mContext = context;
@@ -196,7 +197,6 @@ public class ApplistAdapter
         mPackageManager = packageManager;
         mSettingsUtils = settingsUtils;
         mFileUtils = fileUtils;
-        mBadgeStore = badgeStore;
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();
         mItemListener = itemListener;

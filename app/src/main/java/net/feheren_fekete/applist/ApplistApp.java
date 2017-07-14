@@ -9,6 +9,8 @@ import io.fabric.sdk.android.Fabric;
 
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
+import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.launcher.LauncherStateManager;
 import net.feheren_fekete.applist.launcher.LauncherUtils;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
@@ -44,6 +46,8 @@ public class ApplistApp extends MultiDexApplication {
         WidgetUtils.initInstance();
         LauncherUtils.initInstance();
         SettingsUtils.initInstance(this);
+        BadgeUtils.initInstance(getApplicationContext());
+        BadgeStore.initInstance(getApplicationContext(), getApplicationContext().getPackageManager());
         LauncherModel.initInstance(this);
         ApplistModel.initInstance(this, getPackageManager());
         WidgetModel.initInstance(this);

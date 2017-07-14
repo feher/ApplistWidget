@@ -46,22 +46,22 @@ public class BadgeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "RECEIVED: " + intent.toUri(0));
         if (DEFAULT_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleDefault(context, intent);
+            handleDefault(intent);
         } else if (SONY_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleSony(context, intent);
+            handleSony(intent);
         } else if (ADW_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleAdw(context, intent);
+            handleAdw(intent);
         } else if (APEX_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleApex(context, intent);
+            handleApex(intent);
         } else if (HTC_1_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleHtc1(context, intent);
+            handleHtc1(intent);
         } else if (HTC_2_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleHtc2(context, intent);
+            handleHtc2(intent);
         }
         // handle app uninstalls: remove obsolete BadgeStore items.
     }
 
-    public void handleDefault(Context context, Intent intent) {
+    public void handleDefault(Intent intent) {
         String packageName = intent.getStringExtra(DEFAULT_EXTRA_PACKAGE_NAME);
         String className = intent.getStringExtra(DEFAULT_EXTRA_CLASS_NAME);
         int badgeCount = intent.getIntExtra(DEFAULT_EXTRA_BADGE_COUNT, 0);
@@ -69,11 +69,11 @@ public class BadgeReceiver extends BroadcastReceiver {
             if (badgeCount < 0) {
                 badgeCount = 0;
             }
-            setBadgeCount(context, packageName, className, badgeCount);
+            setBadgeCount(packageName, className, badgeCount);
         }
     }
 
-    public void handleSony(Context context, Intent intent) {
+    public void handleSony(Intent intent) {
         String packageName = intent.getStringExtra(SONY_EXTRA_PACKAGE_NAME);
         String className = intent.getStringExtra(SONY_EXTRA_CLASS_NAME);
         String badgeCountString = intent.getStringExtra(SONY_EXTRA_BADGE_COUNT);
@@ -93,11 +93,11 @@ public class BadgeReceiver extends BroadcastReceiver {
             if (!showMessage) {
                 badgeCount = 0;
             }
-            setBadgeCount(context, packageName, className, badgeCount);
+            setBadgeCount(packageName, className, badgeCount);
         }
     }
 
-    public void handleAdw(Context context, Intent intent) {
+    public void handleAdw(Intent intent) {
         String packageName = intent.getStringExtra(ADW_EXTRA_PACKAGE_NAME);
         String className = intent.getStringExtra(ADW_EXTRA_CLASS_NAME);
         int badgeCount = intent.getIntExtra(ADW_EXTRA_BADGE_COUNT, 0);
@@ -105,11 +105,11 @@ public class BadgeReceiver extends BroadcastReceiver {
             if (badgeCount < 0) {
                 badgeCount = 0;
             }
-            setBadgeCount(context, packageName, className, badgeCount);
+            setBadgeCount(packageName, className, badgeCount);
         }
     }
 
-    public void handleApex(Context context, Intent intent) {
+    public void handleApex(Intent intent) {
         String packageName = intent.getStringExtra(APEX_EXTRA_PACKAGE_NAME);
         String className = intent.getStringExtra(APEX_EXTRA_CLASS_NAME);
         int badgeCount = intent.getIntExtra(APEX_EXTRA_BADGE_COUNT, 0);
@@ -117,11 +117,11 @@ public class BadgeReceiver extends BroadcastReceiver {
             if (badgeCount < 0) {
                 badgeCount = 0;
             }
-            setBadgeCount(context, packageName, className, badgeCount);
+            setBadgeCount(packageName, className, badgeCount);
         }
     }
 
-    public void handleHtc1(Context context, Intent intent) {
+    public void handleHtc1(Intent intent) {
         String componentNameString = intent.getStringExtra(HTC_1_EXTRA_COMPONENT);
         int badgeCount = intent.getIntExtra(HTC_1_EXTRA_BADGE_COUNT, 0);
         if (componentNameString != null) {
@@ -131,30 +131,25 @@ public class BadgeReceiver extends BroadcastReceiver {
             if (badgeCount < 0) {
                 badgeCount = 0;
             }
-            setBadgeCount(context, packageName, className, badgeCount);
+            setBadgeCount(packageName, className, badgeCount);
         }
     }
 
-    public void handleHtc2(Context context, Intent intent) {
+    public void handleHtc2(Intent intent) {
         String packageName = intent.getStringExtra(HTC_2_EXTRA_PACKAGE_NAME);
         int badgeCount = intent.getIntExtra(HTC_2_EXTRA_BADGE_COUNT, 0);
         if (packageName != null) {
             if (badgeCount < 0) {
                 badgeCount = 0;
             }
-            setBadgeCount(context, packageName, "", badgeCount);
+            setBadgeCount(packageName, "", badgeCount);
         }
     }
 
-    private void setBadgeCount(Context context,
-                               String packageName,
+    private void setBadgeCount(String packageName,
                                String className,
                                int badgeCount) {
-        BadgeStore badgeStore = new BadgeStore(
-                context,
-                context.getPackageManager(),
-                new BadgeUtils(context));
-        badgeStore.setBadgeCount(packageName, className, badgeCount);
+        BadgeStore.getInstance().setBadgeCount(packageName, className, badgeCount);
     }
 
 }

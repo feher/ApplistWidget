@@ -58,10 +58,26 @@ public class BadgeUtils {
     private static final String NOVA_COLUMN_TAG = "tag";
     private static final String NOVA_COLUMN_COUNT = "count";
 
-    private Context mContext;
+    private Context mAppContext;
 
-    public BadgeUtils(Context context) {
-        mContext = context;
+    private static BadgeUtils sInstance;
+
+    public static void initInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new BadgeUtils(context.getApplicationContext());
+        }
+    }
+
+    public static BadgeUtils getInstance() {
+        if (sInstance != null) {
+            return sInstance;
+        } else {
+            throw new RuntimeException(BadgeUtils.class.getSimpleName() + " singleton is not initialized");
+        }
+    }
+
+    private BadgeUtils(Context appContext) {
+        mAppContext = appContext;
     }
 
     public int getBadgeCountFromLauncher(String packageName, String className) {
@@ -81,7 +97,7 @@ public class BadgeUtils {
 
     private int getSamsungBadgeCount(String packageName, String className) {
         int result = INVALID_BADGE_COUNT;
-        ContentResolver contentResolver = mContext.getContentResolver();
+        ContentResolver contentResolver = mAppContext.getContentResolver();
         Cursor cursor = null;
         try {
             cursor = contentResolver.query(
@@ -114,7 +130,7 @@ public class BadgeUtils {
 
     private int getNovaBadgeCount(String packageName, String className) {
         int result = INVALID_BADGE_COUNT;
-        ContentResolver contentResolver = mContext.getContentResolver();
+        ContentResolver contentResolver = mAppContext.getContentResolver();
         Cursor cursor = null;
         try {
             cursor = contentResolver.query(
@@ -146,7 +162,7 @@ public class BadgeUtils {
 
     private int getSonyBadgeCount(String packageName, String className) {
         int result = INVALID_BADGE_COUNT;
-        ContentResolver contentResolver = mContext.getContentResolver();
+        ContentResolver contentResolver = mAppContext.getContentResolver();
         Cursor cursor = null;
         try {
             cursor = contentResolver.query(
@@ -179,7 +195,7 @@ public class BadgeUtils {
 
     private int getHuaweiBadgeCount(String packageName, String className) {
         int result = INVALID_BADGE_COUNT;
-        ContentResolver contentResolver = mContext.getContentResolver();
+        ContentResolver contentResolver = mAppContext.getContentResolver();
         Cursor cursor = null;
         try {
             cursor = contentResolver.query(
@@ -213,7 +229,7 @@ public class BadgeUtils {
     private String getLauncherPackageName() {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
-        ResolveInfo resolveInfo = mContext.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        ResolveInfo resolveInfo = mAppContext.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
         if (resolveInfo == null ||
             resolveInfo.activityInfo.name.toLowerCase().contains("resolver")) {
             return "";

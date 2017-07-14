@@ -20,22 +20,16 @@ public class SmsReceiver extends BroadcastReceiver {
         if (smsAppComponentName != null) {
             Log.d(TAG, "RECEIVED: " + smsAppComponentName.flattenToString());
             setBadgeCount(
-                    context,
                     smsAppComponentName.getPackageName(),
                     smsAppComponentName.getClassName(),
                     BadgeUtils.NOT_NUMBERED_BADGE_COUNT);
         }
     }
 
-    private void setBadgeCount(Context context,
-                               String packageName,
+    private void setBadgeCount(String packageName,
                                String className,
                                int badgeCount) {
-        BadgeStore badgeStore = new BadgeStore(
-                context,
-                context.getPackageManager(),
-                new BadgeUtils(context));
-        badgeStore.setBadgeCount(packageName, className, badgeCount);
+        BadgeStore.getInstance().setBadgeCount(packageName, className, badgeCount);
     }
 
 }

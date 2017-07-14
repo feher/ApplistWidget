@@ -53,7 +53,6 @@ public class CallStateReceiver extends BroadcastReceiver {
                 ComponentName phoneAppComponentName = AppUtils.getPhoneApp(context);
                 if (phoneAppComponentName != null) {
                     setBadgeCount(
-                            context,
                             phoneAppComponentName.getPackageName(),
                             phoneAppComponentName.getClassName(),
                             BadgeUtils.NOT_NUMBERED_BADGE_COUNT);
@@ -62,15 +61,10 @@ public class CallStateReceiver extends BroadcastReceiver {
         }
     }
 
-    private void setBadgeCount(Context context,
-                               String packageName,
+    private void setBadgeCount(String packageName,
                                String className,
                                int badgeCount) {
-        BadgeStore badgeStore = new BadgeStore(
-                context,
-                context.getPackageManager(),
-                new BadgeUtils(context));
-        badgeStore.setBadgeCount(packageName, className, badgeCount);
+        BadgeStore.getInstance().setBadgeCount(packageName, className, badgeCount);
     }
 
 }

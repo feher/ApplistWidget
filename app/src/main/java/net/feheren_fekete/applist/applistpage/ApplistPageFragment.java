@@ -58,11 +58,11 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
     private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
+    private BadgeStore mBadgeStore = BadgeStore.getInstance();
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
     private IconCache mIconCache = new IconCache();
-    private BadgeStore mBadgeStore;
     private ApplistPreferences mApplistPreferences;
     private Toolbar mToolbar;
     private Drawable mToolbarGradient;
@@ -83,7 +83,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.applist_page_fragment, container, false);
 
-        mBadgeStore = new BadgeStore(getContext(), getContext().getPackageManager(), new BadgeUtils(getContext()));
         mApplistPreferences = new ApplistPreferences(getContext());
 
         mToolbar = (Toolbar) view.findViewById(R.id.applist_page_fragment_toolbar);

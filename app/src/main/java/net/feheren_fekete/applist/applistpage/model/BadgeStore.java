@@ -32,24 +32,51 @@ public class BadgeStore {
     private static final String KEY_BADGE_COUNT = "badge_count";
     private static final int DEFAULT_BADGE_COUNT = 0;
 
+    // TODO: Inject these
+    private BadgeUtils mBadgeUtils = BadgeUtils.getInstance();
+
     private SharedPreferences mSharedPreferences;
     private PackageManager mPackageManager;
-    private BadgeUtils mBadgeUtils;
 
-    public BadgeStore(Context context, PackageManager packageManager, BadgeUtils badgeUtils) {
+    private static BadgeStore sInstance;
+
+    public static void initInstance(Context context, PackageManager packageManager) {
+        if (sInstance == null) {
+            sInstance = new BadgeStore(context, packageManager);
+        }
+    }
+
+    public static BadgeStore getInstance() {
+        if (sInstance != null) {
+            return sInstance;
+        } else {
+            throw new RuntimeException(BadgeStore.class.getSimpleName() + " singleton is not initialized");
+        }
+    }
+
+    private BadgeStore(Context context, PackageManager packageManager) {
         mSharedPreferences = context.getApplicationContext().getSharedPreferences(
                 SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         mPackageManager = packageManager;
-        mBadgeUtils = badgeUtils;
     }
 
     public int getBadgeCount(String packageName, String className) {
-        String fullKey = createFullKey(KEY_BADGE_COUNT, packageName, className);
-        if (!mSharedPreferences.contains(fullKey)) {
-            int badgeCount = mBadgeUtils.getBadgeCountFromLauncher(packageName, className);
-            if (badgeCount != BadgeUtils.INVALID_BADGE_COUNT) {
-                setBadgeCount(packageName, className, badgeCount, false);
+        final String fullKey = createFullKey(KEY_BADGE_COUNT, packageName, className);
+        if (mSharedPreferences.contains(fullKey)) {
+            final int badgeCount = mSharedPreferences.getInt(fullKey, DEFAULT_BADGE_COUNT);
+            if (badgeCount != 0) {
+                return badgeCount;
             }
+        }
+
+        final String halfKey = createFullKey(KEY_BADGE_COUNT, packageName, "");
+        if (mSharedPreferences.contains(halfKey)) {
+            return mSharedPreferences.getInt(halfKey, DEFAULT_BADGE_COUNT);
+        }
+
+        final int badgeCount = mBadgeUtils.getBadgeCountFromLauncher(packageName, className);
+        if (badgeCount != BadgeUtils.INVALID_BADGE_COUNT) {
+            setBadgeCount(packageName, className, badgeCount, false);
         }
         return mSharedPreferences.getInt(fullKey, DEFAULT_BADGE_COUNT);
     }
