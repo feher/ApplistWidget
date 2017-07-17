@@ -111,11 +111,9 @@ public class BadgeStore {
             String keyName = keyParts[0];
             if (KEY_BADGE_COUNT.equals(keyName)) {
                 String packageName = keyParts[1];
-                String className = keyParts[2];
                 boolean isAppDeleted = true;
                 for (AppData appData : installedApps) {
-                    if (packageName.equals(appData.getPackageName())
-                            && className.equals(appData.getClassName())) {
+                    if (packageName.equals(appData.getPackageName())) {
                         isAppDeleted = false;
                         break;
                     }
