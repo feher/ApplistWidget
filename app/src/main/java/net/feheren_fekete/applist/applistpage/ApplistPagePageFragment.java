@@ -42,7 +42,6 @@ import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.settings.SettingsUtils;
-import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.*;
 import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
@@ -55,7 +54,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -729,10 +727,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void clearAppBadge(AppItem appItem) {
-        mBadgeStore.setBadgeCount(
-                appItem.getPackageName(),
-                appItem.getClassName(),
-                0);
+        mBadgeStore.setBadgeCount(appItem.getPackageName(), appItem.getClassName(), 0);
+
+        // Clear the badgecount also for the whole package.
+        // This is necessary to get rid of notification badges that got stuck due to missed
+        // notifications.
+        mBadgeStore.setBadgeCount(appItem.getPackageName(), "", 0);
     }
 
     private void showAppInfo(StartableItem startableItem) {
