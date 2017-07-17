@@ -75,4 +75,9 @@
     <string name="page_picker_message">Válassz oldalt</string>
     <string name="page_picker_cannot_add_to_page">Erre az oldalra nem lehet widgetet tenni</string>
     <string name="widget_menu_move_to_page">Áthelyez másik oldalra</string>
+    <string name="settings_open_system_settings">Beállítások megnyitása</string>
+    <string name="settings_show_notification_badge">Értesítések</string>
+    <string name="settings_show_notification_badge_dialog_message">Bizonyosodj meg róla, hogy az Apper-nek engedélyezve legyen a Hozzáférés az értesítésekhez a rendszer beállításokban.</string>
+    <string name="settings_show_notification_badge_dialog_title">Hozzáférés értesítesekhez</string>
+    <string name="settings_show_notification_badge_summary">Jelzés megjelenítése, ha egy alkalmazásnak van aktív Értesítése. Hozzáférés az értesítésekhez szükséges</string>
 </resources>

@@ -75,4 +75,9 @@
     <string name="page_picker_move_widget_title">Siirrä widget</string>
     <string name="page_picker_pin_widget_title">Lisää widget</string>
     <string name="widget_menu_move_to_page">Siirrä toiseen sivuun</string>
+    <string name="settings_open_system_settings">Avaa asetukset</string>
+    <string name="settings_show_notification_badge">Ilmoitukset</string>
+    <string name="settings_show_notification_badge_dialog_message">Varmista, että Pääsy ilmoituksiin on luvattu Apperille järjestelmän asetuksissa.</string>
+    <string name="settings_show_notification_badge_dialog_title">Pääsy ilmoituksiin</string>
+    <string name="settings_show_notification_badge_summary">Näytä merkki kun appeilla on ilmoitkusia. Vaatii pääsyä ilmoituksiin</string>
 </resources>
