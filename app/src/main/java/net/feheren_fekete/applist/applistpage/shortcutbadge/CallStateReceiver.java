@@ -14,6 +14,7 @@ import android.util.Log;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.utils.AppUtils;
 
 public class CallStateReceiver extends BroadcastReceiver {
@@ -23,11 +24,18 @@ public class CallStateReceiver extends BroadcastReceiver {
     private static final String SHARED_PREFERENCES_NAME = "CallState";
     private static final String PREFERENCE_KEY_PREVIOUS_STATE = "PreviousState";
 
+    // TODO: Inject
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+
     private SharedPreferences mSharedPreferences;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "RECEIVED: " + intent.toUri(0));
+
+        if (!mSettingsUtils.getShowPhoneBadge()) {
+            return;
+        }
 
         mSharedPreferences = context.getApplicationContext().getSharedPreferences(
                 SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);

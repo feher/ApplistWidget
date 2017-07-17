@@ -5,12 +5,14 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.settings.SettingsUtils;
 
 public class NotificationListener extends NotificationListenerService {
 
     private static final String TAG = NotificationListener.class.getSimpleName();
 
     // TODO: Inject
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
     private BadgeStore mBadgeStore = BadgeStore.getInstance();
 
     @Override
@@ -32,6 +34,10 @@ public class NotificationListener extends NotificationListenerService {
     }
 
     private void setBadgeCount(boolean notificationPosted, String packageName, int badgeCount) {
+        if (!mSettingsUtils.getShowNotificationBadge()) {
+            return;
+        }
+
         if (notificationPosted) {
             mBadgeStore.setBadgeCount(
                     packageName, "",

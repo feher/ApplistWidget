@@ -81,7 +81,26 @@ public class SettingsUtils {
     }
 
     public boolean getShowBadge() {
-        return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_SHOW_BADGE, false);
+        return getShowNewContentBadge()
+                || getShowPhoneBadge()
+                || getShowSmsBadge()
+                || getShowNotificationBadge();
+    }
+
+    public boolean getShowNewContentBadge() {
+        return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_SHOW_NEW_CONTENT_BADGE, false);
+    }
+
+    public boolean getShowPhoneBadge() {
+        return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_SHOW_PHONE_BADGE, false);
+    }
+
+    public boolean getShowSmsBadge() {
+        return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_SHOW_SMS_BADGE, false);
+    }
+
+    public boolean getShowNotificationBadge() {
+        return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_SHOW_NOTIFICATION_BADGE, false);
     }
 
     private Map<String, Integer> createColorThemeMap() {

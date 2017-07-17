@@ -32,7 +32,6 @@ import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.launcher.LauncherUtils;
 import net.feheren_fekete.applist.settings.SettingsActivity;
 import net.feheren_fekete.applist.settings.SettingsUtils;
-import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 
@@ -116,7 +115,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
             mToolbarGradient = createToolbarGradient();
         }
         mToolbar.setBackground(mToolbarGradient);
-        if (mSettingsUtils.getShowBadge()) {
+        if (mSettingsUtils.getShowNewContentBadge()) {
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {

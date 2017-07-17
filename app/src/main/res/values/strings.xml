@@ -82,13 +82,18 @@
     <string name="settings_color_theme">Color theme</string>
     <string name="settings_column_width">Icon size</string>
     <string name="settings_badges">Message indicators</string>
-    <string name="settings_show_badge">New content</string>
-    <string name="settings_show_badge_summary">Show an indicator of new content for supported applications (e.g. Facebook)</string>
+    <string name="settings_show_new_content_badge">New content</string>
+    <string name="settings_show_new_content_badge_summary">Show an indicator of new content for supported applications (e.g. Facebook)</string>
     <string name="settings_show_sms_badge">Unread text messages</string>
     <string name="settings_show_sms_badge_summary">Show an indicator for unread messages on the default SMS app</string>
     <string name="settings_show_phone_badge">Missed phone calls</string>
     <string name="settings_show_phone_badge_summary">Show an indicator for missed calls on the default phone app</string>
     <string name="settings_show_phone_badge_select_default_app">Select your default phone app</string>
+    <string name="settings_show_notification_badge">Notifications</string>
+    <string name="settings_show_notification_badge_summary">Show an indicator for app notifications. Requires Notification access</string>
+    <string name="settings_show_notification_badge_dialog_title">Notification access needed</string>
+    <string name="settings_show_notification_badge_dialog_message">Make sure Notification access is enabled for Apper in the System Settings</string>
+    <string name="settings_open_system_settings">Open settings</string>
 
     <string name="color_theme_transparent_light">Transparent Light</string>
     <string name="color_theme_transparent_dark">Transparent Dark</string>

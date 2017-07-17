@@ -39,9 +39,14 @@
             android:summary="@string/settings_show_sms_badge_summary"
             android:defaultValue="false"/>
         <SwitchPreference
-            android:key="pref_key_show_badge"
-            android:title="@string/settings_show_badge"
-            android:summary="@string/settings_show_badge_summary"
+            android:key="pref_key_show_new_content_badge"
+            android:title="@string/settings_show_new_content_badge"
+            android:summary="@string/settings_show_new_content_badge_summary"
+            android:defaultValue="false"/>
+        <SwitchPreference
+            android:key="pref_key_show_notification_badge"
+            android:title="@string/settings_show_notification_badge"
+            android:summary="@string/settings_show_notification_badge_summary"
             android:defaultValue="false"/>
     </PreferenceCategory>
 </PreferenceScreen>

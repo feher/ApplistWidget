@@ -8,6 +8,7 @@ import android.util.Log;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.settings.SettingsUtils;
 
 public class BadgeReceiver extends BroadcastReceiver {
 
@@ -42,9 +43,17 @@ public class BadgeReceiver extends BroadcastReceiver {
     private static final String APEX_EXTRA_CLASS_NAME = "class";
     private static final String APEX_EXTRA_BADGE_COUNT = "count";
 
+    // TODO: Inject
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "RECEIVED: " + intent.toUri(0));
+
+        if (!mSettingsUtils.getShowNewContentBadge()) {
+            return;
+        }
+
         if (DEFAULT_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
             handleDefault(intent);
         } else if (SONY_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
@@ -58,7 +67,6 @@ public class BadgeReceiver extends BroadcastReceiver {
         } else if (HTC_2_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
             handleHtc2(intent);
         }
-        // handle app uninstalls: remove obsolete BadgeStore items.
     }
 
     public void handleDefault(Intent intent) {

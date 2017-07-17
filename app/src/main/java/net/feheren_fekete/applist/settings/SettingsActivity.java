@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -16,9 +17,11 @@ import android.preference.PreferenceFragment;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -43,9 +46,10 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String PREF_KEY_COLOR_THEME = "pref_key_color_theme";
     public static final String PREF_KEY_COLUMN_WIDTH = "pref_key_column_width";
     public static final String PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY = "pref_key_keep_apps_sorted_alphabetically";
-    public static final String PREF_KEY_SHOW_BADGE = "pref_key_show_badge";
+    public static final String PREF_KEY_SHOW_NEW_CONTENT_BADGE = "pref_key_show_new_content_badge";
     public static final String PREF_KEY_SHOW_SMS_BADGE = "pref_key_show_sms_badge";
     public static final String PREF_KEY_SHOW_PHONE_BADGE = "pref_key_show_phone_badge";
+    public static final String PREF_KEY_SHOW_NOTIFICATION_BADGE = "pref_key_show_notification_badge";
 
     // TODO: Inject these singletons.
     private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
@@ -153,6 +157,8 @@ public class SettingsActivity extends PreferenceActivity {
                 handleChangeShowSmsBadge();
             } else if (key.equals(PREF_KEY_SHOW_PHONE_BADGE)) {
                 handleChangeShowPhoneBadge();
+            } else if (key.equals(PREF_KEY_SHOW_NOTIFICATION_BADGE)) {
+                handleChangeShowNotificationBadge();
             }
         }
 
@@ -210,6 +216,40 @@ public class SettingsActivity extends PreferenceActivity {
                 if (ensurePermission(Manifest.permission.READ_PHONE_STATE, PHONE_PERMISSION_REQUEST_CODE)) {
                     ensureDefaultPhoneApp();
                 }
+            }
+        }
+
+        private void handleChangeShowNotificationBadge() {
+            if (getShowNotificationBadge()) {
+                AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.settings_show_notification_badge_dialog_title)
+                        .setMessage(R.string.settings_show_notification_badge_dialog_message)
+                        .setPositiveButton(R.string.settings_open_system_settings, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                final String intentAction = (Build.VERSION.SDK_INT >= 22)
+                                        ? Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                                        : "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
+                                startActivity(new Intent(intentAction));
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                SwitchPreference showNotificationBadge = (SwitchPreference) findPreference(PREF_KEY_SHOW_NOTIFICATION_BADGE);
+                                showNotificationBadge.setChecked(false);
+                            }
+                        })
+                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialogInterface) {
+                                SwitchPreference showNotificationBadge = (SwitchPreference) findPreference(PREF_KEY_SHOW_NOTIFICATION_BADGE);
+                                showNotificationBadge.setChecked(false);
+                            }
+                        })
+                        .setCancelable(true)
+                        .create();
+                alertDialog.show();
             }
         }
 
@@ -323,6 +363,11 @@ public class SettingsActivity extends PreferenceActivity {
         private boolean getShowPhoneBadge() {
             return getPreferenceScreen().getSharedPreferences().getBoolean(
                     PREF_KEY_SHOW_PHONE_BADGE, false);
+        }
+
+        private boolean getShowNotificationBadge() {
+            return getPreferenceScreen().getSharedPreferences().getBoolean(
+                    PREF_KEY_SHOW_NOTIFICATION_BADGE, false);
         }
 
         private boolean getKeepAppsSortedAlphabetically() {
