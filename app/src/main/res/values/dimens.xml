@@ -23,4 +23,8 @@
     <dimen name="widget_border_width_draw">2dp</dimen>
     <dimen name="widget_min_size">80dp</dimen>
 
+    <dimen name="item_menu_width">240dp</dimen>
+    <dimen name="item_menu_text_width">180dp</dimen>
+    <dimen name="item_menu_item_icon_size">24dp</dimen>
+
 </resources>

@@ -19,18 +19,21 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuAdapter;
+import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuItem;
+import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuListener;
 import net.feheren_fekete.applist.applistpage.model.AppData;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
@@ -51,8 +54,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -65,6 +66,14 @@ import bolts.Task;
 public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.ItemListener {
 
     private static final String TAG = ApplistPagePageFragment.class.getSimpleName();
+
+    private final int ITEM_MENU_ITEM_APP_INFO = 1;
+    private final int ITEM_MENU_ITEM_CLEAR_BADGE = 2;
+    private final int ITEM_MENU_ITEM_REMOVE_SHORTCUT = 3;
+    private final int ITEM_MENU_ITEM_UNINSTALL = 4;
+    private final int ITEM_MENU_ITEM_SECTION_RENAME = 5;
+    private final int ITEM_MENU_ITEM_SECTION_DELETE = 6;
+    private final int ITEM_MENU_ITEM_SECTION_SORT_APPS = 7;
 
     // TODO: Inject these singletons.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
@@ -82,8 +91,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private MyGridLayoutManager mLayoutManager;
     private DragGestureRecognizer mItemDragGestureRecognizer;
     private ApplistItemDragHandler mItemDragCallback;
-    private @Nullable PopupMenu mItemMenu;
+    private @Nullable ListPopupWindow mItemMenu;
     private @Nullable BaseItem mItemMenuTarget;
+    private long mItemMenuDismissedTime;
     private List<ShortcutInfo> mItemShortcutInfos = new ArrayList<>();
     private ApplistItemDragHandler.Listener mListener;
 
@@ -306,22 +316,14 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         ApplistAdapter.StartableItemHolder startableItemHolder =
                 (ApplistAdapter.StartableItemHolder) mRecyclerView.findViewHolderForItemId(
                         startableItem.getId());
-        mItemMenuTarget = startableItem;
-        mItemMenu = new PopupMenu(getContext(), startableItemHolder.layout);
-        mItemMenu.setOnMenuItemClickListener(mItemMenuClickListener);
-        mItemMenu.inflate(R.menu.app_item_menu);
-        mItemMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-            @Override
-            public void onDismiss(PopupMenu menu) {
-                mItemMenu = null;
-            }
-        });
+
         final boolean isApp = (startableItem instanceof AppItem);
         final boolean isShortcut = (startableItem instanceof ShortcutItem) || (startableItem instanceof AppShortcutItem);
-        mItemMenu.getMenu().findItem(R.id.action_app_uninstall).setVisible(isApp);
-        mItemMenu.getMenu().findItem(R.id.action_shortcut_remove).setVisible(isShortcut);
-        mItemMenu.getMenu().findItem(R.id.action_app_clear_badge).setVisible(false);
 
+        List<ItemMenuItem> itemMenuItems = new ArrayList<>();
+        if (isApp) {
+            addAppShortcutsToItemMenu((AppItem) startableItem, itemMenuItems);
+        }
         if (isApp) {
             AppItem appItem = (AppItem) startableItem;
             if (mSettingsUtils.getShowBadge()) {
@@ -329,18 +331,48 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                         appItem.getPackageName(),
                         appItem.getClassName());
                 if (badgeCount > 0) {
-                    mItemMenu.getMenu().findItem(R.id.action_app_clear_badge).setVisible(true);
+                    itemMenuItems.add(new ItemMenuItem(
+                            getResources().getString(R.string.app_item_menu_clear_badge), null, ITEM_MENU_ITEM_CLEAR_BADGE));
                 }
             }
-
-            addAppShortcutsToItemMenu(appItem);
+        }
+        itemMenuItems.add(new ItemMenuItem(
+                getResources().getString(R.string.app_item_menu_information), null, ITEM_MENU_ITEM_APP_INFO));
+        if (isApp) {
+            itemMenuItems.add(new ItemMenuItem(
+                    getResources().getString(R.string.app_item_menu_uninstall), null, ITEM_MENU_ITEM_UNINSTALL));
+        }
+        if (isShortcut) {
+            itemMenuItems.add(new ItemMenuItem(
+                    getResources().getString(R.string.app_item_menu_remove_shortcut), null, ITEM_MENU_ITEM_REMOVE_SHORTCUT));
         }
 
+        ItemMenuAdapter itemMenuAdapter = new ItemMenuAdapter(getContext());
+        itemMenuAdapter.setListener(mItemMenuClickListener);
+        itemMenuAdapter.setItems(itemMenuItems);
+
+        mItemMenuTarget = startableItem;
+        mItemMenu = new ListPopupWindow(getContext());
+        mItemMenu.setContentWidth(getResources().getDimensionPixelSize(R.dimen.item_menu_width));
+        mItemMenu.setHeight(ListPopupWindow.WRAP_CONTENT);
+        mItemMenu.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                mItemMenu = null;
+                mItemMenuDismissedTime = System.currentTimeMillis();
+            }
+        });
+        mItemMenu.setAnchorView(startableItemHolder.layout);
+        mItemMenu.setAdapter(itemMenuAdapter);
         mItemMenu.show();
     }
 
     @Override
     public void onStartableTapped(StartableItem startableItem) {
+        if (wasItemMenuOpenJustNow()) {
+            return;
+        }
+
         if (startableItem instanceof AppItem) {
             AppItem appItem = (AppItem) startableItem;
 
@@ -387,27 +419,51 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         ApplistAdapter.SectionItemHolder sectionItemHolder =
                 (ApplistAdapter.SectionItemHolder) mRecyclerView.findViewHolderForItemId(
                         sectionItem.getId());
+
+        List<ItemMenuItem> itemMenuItems = new ArrayList<>();
+        itemMenuItems.add(new ItemMenuItem(
+                getResources().getString(R.string.section_item_menu_rename),
+                null,
+                ITEM_MENU_ITEM_SECTION_RENAME));
+        if (sectionItem.isRemovable()) {
+            itemMenuItems.add(new ItemMenuItem(
+                    getResources().getString(R.string.section_item_menu_delete),
+                    null,
+                    ITEM_MENU_ITEM_SECTION_DELETE));
+        }
+        if (!mSettingsUtils.isKeepAppsSortedAlphabetically()) {
+            itemMenuItems.add(new ItemMenuItem(
+                    getResources().getString(R.string.section_item_menu_sort_apps),
+                    null,
+                    ITEM_MENU_ITEM_SECTION_SORT_APPS));
+        }
+
+        ItemMenuAdapter itemMenuAdapter = new ItemMenuAdapter(getContext());
+        itemMenuAdapter.setListener(mItemMenuClickListener);
+        itemMenuAdapter.setItems(itemMenuItems);
+
         mItemMenuTarget = sectionItem;
-        mItemMenu = new PopupMenu(getContext(), sectionItemHolder.layout);
-        mItemMenu.setOnMenuItemClickListener(mItemMenuClickListener);
-        mItemMenu.inflate(R.menu.section_item_menu);
-        mItemMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+        mItemMenu = new ListPopupWindow(getContext());
+        mItemMenu.setContentWidth(getResources().getDimensionPixelSize(R.dimen.item_menu_width));
+        mItemMenu.setHeight(ListPopupWindow.WRAP_CONTENT);
+        mItemMenu.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
-            public void onDismiss(PopupMenu menu) {
+            public void onDismiss() {
                 mItemMenu = null;
+                mItemMenuDismissedTime = System.currentTimeMillis();
             }
         });
-        if (!sectionItem.isRemovable()) {
-            mItemMenu.getMenu().findItem(R.id.action_section_delete).setVisible(false);
-        }
-        if (mSettingsUtils.isKeepAppsSortedAlphabetically()) {
-            mItemMenu.getMenu().findItem(R.id.action_section_sort_apps).setVisible(false);
-        }
+        mItemMenu.setAnchorView(sectionItemHolder.layout);
+        mItemMenu.setAdapter(itemMenuAdapter);
         mItemMenu.show();
     }
 
     @Override
     public void onSectionTapped(final SectionItem sectionItem) {
+        if (wasItemMenuOpenJustNow()) {
+            return;
+        }
+
         final String pageName = getPageName();
         final boolean wasSectionCollapsed = sectionItem.isCollapsed();
         if (!mAdapter.isFilteredByName()) {
@@ -492,60 +548,47 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         }
     };
 
-    private PopupMenu.OnMenuItemClickListener mItemMenuClickListener = new PopupMenu.OnMenuItemClickListener() {
+    private ItemMenuListener mItemMenuClickListener = new ItemMenuListener() {
         @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            boolean handled = false;
-            switch (menuItem.getItemId()) {
-                case R.id.action_app_clear_badge:
-                    clearAppBadge((AppItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_app_info:
-                    showAppInfo((StartableItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_app_uninstall:
-                    uninstallApp((AppItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_shortcut_remove:
-                    removeShortcut((StartableItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_section_rename:
-                    renameSection((SectionItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_section_delete:
-                    deleteSection((SectionItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.action_section_sort_apps:
-                    sortSection((SectionItem) mItemMenuTarget);
-                    handled = true;
-                    break;
-                case R.id.app_shortcut_1: // Fall through.
-                case R.id.app_shortcut_2: // Fall through.
-                case R.id.app_shortcut_3: // Fall through.
-                case R.id.app_shortcut_4: // Fall through.
-                case R.id.app_shortcut_5: // Fall through.
-                case R.id.app_shortcut_6: // Fall through.
-                case R.id.app_shortcut_7: // Fall through.
-                case R.id.app_shortcut_8: // Fall through.
-                case R.id.app_shortcut_9: // Fall through.
-                case R.id.app_shortcut_10:
-                    startAppShortcut(menuItem.getItemId());
-                    handled = true;
-                    break;
+        public void onItemSelected(ItemMenuItem item) {
+            if (item.data instanceof Integer) {
+                final int itemId = (Integer) item.data;
+                switch (itemId) {
+                    case ITEM_MENU_ITEM_CLEAR_BADGE:
+                        clearAppBadge((AppItem) mItemMenuTarget);
+                        break;
+                    case ITEM_MENU_ITEM_APP_INFO:
+                        showAppInfo((StartableItem) mItemMenuTarget);
+                        break;
+                    case ITEM_MENU_ITEM_UNINSTALL:
+                        uninstallApp((AppItem) mItemMenuTarget);
+                        break;
+                    case ITEM_MENU_ITEM_REMOVE_SHORTCUT:
+                        removeShortcut((StartableItem) mItemMenuTarget);
+                        break;
+                    case ITEM_MENU_ITEM_SECTION_RENAME:
+                        renameSection((SectionItem) mItemMenuTarget);
+                        break;
+                    case ITEM_MENU_ITEM_SECTION_DELETE:
+                        deleteSection((SectionItem) mItemMenuTarget);
+                        break;
+                    case ITEM_MENU_ITEM_SECTION_SORT_APPS:
+                        sortSection((SectionItem) mItemMenuTarget);
+                        break;
+                }
+            } else if (item.data instanceof ShortcutInfo) {
+                startAppShortcut((ShortcutInfo) item.data);
             }
-            mItemMenu = null;
-            return handled;
+            mItemMenu.dismiss();
         }
     };
 
+    private boolean wasItemMenuOpenJustNow() {
+        return (System.currentTimeMillis() - mItemMenuDismissedTime) < 200;
+    }
+
     @TargetApi(Build.VERSION_CODES.N_MR1)
-    private void addAppShortcutsToItemMenu(AppItem appItem) {
+    private void addAppShortcutsToItemMenu(AppItem appItem, List<ItemMenuItem> itemMenuItems) {
         mItemShortcutInfos.clear();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             mItemShortcutInfos = performAppShortcutQuery(
@@ -569,51 +612,14 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             if (mItemShortcutInfos.size() > maxShortcutCount) {
                 ApplistLog.getInstance().log(new RuntimeException("Max " + maxShortcutCount + " app shortcuts are supported!"));
             }
-            final int[] menuItemIds = new int[] {
-                    R.id.app_shortcut_1,
-                    R.id.app_shortcut_2,
-                    R.id.app_shortcut_3,
-                    R.id.app_shortcut_4,
-                    R.id.app_shortcut_5,
-                    R.id.app_shortcut_6,
-                    R.id.app_shortcut_7,
-                    R.id.app_shortcut_8,
-                    R.id.app_shortcut_9,
-                    R.id.app_shortcut_10 };
-            // REF: 2017_06_30_app_shortcuts_order
-            final int appShortcutItemsOrder = 1;
             LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
             for (int i = 0; i < mItemShortcutInfos.size() && i < maxShortcutCount; ++i) {
                 ShortcutInfo shortcutInfo = mItemShortcutInfos.get(i);
-                MenuItem menuItem = mItemMenu.getMenu().add(
-                        1,
-                        menuItemIds[i],
-                        appShortcutItemsOrder,
-                        shortcutInfo.getShortLabel());
-                // REF: 2017_07_03_app_shortcut_icons
-                menuItem.setIcon(launcherApps.getShortcutIconDrawable(shortcutInfo, 0));
+                itemMenuItems.add(new ItemMenuItem(
+                        shortcutInfo.getShortLabel().toString(),
+                        launcherApps.getShortcutIconDrawable(shortcutInfo, 0),
+                        shortcutInfo));
             }
-            if (!mItemShortcutInfos.isEmpty()) {
-                // REF: 2017_07_03_app_shortcut_icons
-                popupMenuShowIconsHack(mItemMenu);
-            }
-        }
-    }
-
-    // We want to show the app shortcut icons in the popup menu.
-    // Unfortunately the PopupMenu class does not show icons by default.
-    // REF: 2017_07_03_app_shortcut_icons
-    private void popupMenuShowIconsHack(PopupMenu popupMenu) {
-        Object menuHelper;
-        Class[] argTypes;
-        try {
-            Field fMenuHelper = PopupMenu.class.getDeclaredField("mPopup");
-            fMenuHelper.setAccessible(true);
-            menuHelper = fMenuHelper.get(popupMenu);
-            argTypes = new Class[]{boolean.class};
-            menuHelper.getClass().getDeclaredMethod("setForceShowIcon", argTypes).invoke(menuHelper, true);
-        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            ApplistLog.getInstance().log(e);
         }
     }
 
@@ -644,26 +650,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             }
         }
         return result;
-    }
-
-    private void startAppShortcut(int menuItemId) {
-        int appShortcutIndex;
-        switch (menuItemId) {
-            case R.id.app_shortcut_1: appShortcutIndex = 0; break;
-            case R.id.app_shortcut_2: appShortcutIndex = 1; break;
-            case R.id.app_shortcut_3: appShortcutIndex = 2; break;
-            case R.id.app_shortcut_4: appShortcutIndex = 3; break;
-            case R.id.app_shortcut_5: appShortcutIndex = 4; break;
-            case R.id.app_shortcut_6: appShortcutIndex = 5; break;
-            case R.id.app_shortcut_7: appShortcutIndex = 6; break;
-            case R.id.app_shortcut_8: appShortcutIndex = 7; break;
-            case R.id.app_shortcut_9: appShortcutIndex = 8; break;
-            case R.id.app_shortcut_10: appShortcutIndex = 9; break;
-            default: throw new RuntimeException("Invalid app shortcut menu item id " + menuItemId);
-        }
-        ShortcutInfo shortcutInfo = mItemShortcutInfos.get(appShortcutIndex);
-//        testPinShortcut(shortcutInfo);
-        startAppShortcut(shortcutInfo);
     }
 
     // This is used only for testing pinning of app shortcuts.

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_menu_item_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/item_menu_item_icon"
+        android:layout_width="@dimen/item_menu_item_icon_size"
+        android:layout_height="@dimen/item_menu_item_icon_size"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/item_menu_item_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:paddingRight="16dp"
+        android:gravity="center_vertical"
+        android:ellipsize="end"
+        android:maxWidth="@dimen/item_menu_text_width"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        tools:text="Menu item name"
+        app:layout_constraintTop_toTopOf="@id/item_menu_item_icon"
+        app:layout_constraintBottom_toBottomOf="@id/item_menu_item_icon"
+        app:layout_constraintLeft_toRightOf="@id/item_menu_item_icon"
+        />
+
+</android.support.constraint.ConstraintLayout>
