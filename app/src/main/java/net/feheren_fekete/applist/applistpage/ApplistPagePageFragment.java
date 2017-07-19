@@ -607,6 +607,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         }
         List<StatusBarNotification> statusBarNotifications = NotificationListener.getNotificationsForPackage(appItem.getPackageName());
         for (StatusBarNotification sbn : statusBarNotifications) {
+
+            // Show only the summary notification of notification groups.
+            if (sbn.isGroup() && (sbn.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) == 0) {
+                continue;
+            }
+
             final Notification notification = sbn.getNotification();
             final StringBuilder textBuilder = new StringBuilder();
             final Bundle extras = notification.extras;
