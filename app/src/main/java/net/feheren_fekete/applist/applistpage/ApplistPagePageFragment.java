@@ -606,7 +606,10 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             return;
         }
         List<StatusBarNotification> statusBarNotifications = NotificationListener.getNotificationsForPackage(appItem.getPackageName());
-        for (StatusBarNotification sbn : statusBarNotifications) {
+        // Iterate backwards because the notifications are sorted ascending by time.
+        // We want to add the newest first.
+        for (int i = statusBarNotifications.size() - 1; i >= 0; --i) {
+            StatusBarNotification sbn = statusBarNotifications.get(i);
 
             // Show only the summary notification of notification groups.
             if (sbn.isGroup() && (sbn.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) == 0) {
