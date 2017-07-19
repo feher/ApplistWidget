@@ -1,6 +1,8 @@
 package net.feheren_fekete.applist.applistpage;
 
 import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,12 +11,16 @@ import android.content.Intent;
 import android.content.pm.LauncherApps;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.service.notification.StatusBarNotification;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -39,6 +45,7 @@ import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.model.SectionData;
+import net.feheren_fekete.applist.applistpage.shortcutbadge.NotificationListener;
 import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
@@ -94,7 +101,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private @Nullable ListPopupWindow mItemMenu;
     private @Nullable BaseItem mItemMenuTarget;
     private long mItemMenuDismissedTime;
-    private List<ShortcutInfo> mItemShortcutInfos = new ArrayList<>();
     private ApplistItemDragHandler.Listener mListener;
 
     public static ApplistPagePageFragment newInstance(String pageName,
@@ -322,6 +328,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
         List<ItemMenuItem> itemMenuItems = new ArrayList<>();
         if (isApp) {
+            addAppNotificationsToItemMenu((AppItem) startableItem, itemMenuItems);
             addAppShortcutsToItemMenu((AppItem) startableItem, itemMenuItems);
         }
         if (isApp) {
@@ -332,19 +339,19 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                         appItem.getClassName());
                 if (badgeCount > 0) {
                     itemMenuItems.add(new ItemMenuItem(
-                            getResources().getString(R.string.app_item_menu_clear_badge), null, ITEM_MENU_ITEM_CLEAR_BADGE));
+                            getResources().getString(R.string.app_item_menu_clear_badge), "", null, ITEM_MENU_ITEM_CLEAR_BADGE));
                 }
             }
         }
         itemMenuItems.add(new ItemMenuItem(
-                getResources().getString(R.string.app_item_menu_information), null, ITEM_MENU_ITEM_APP_INFO));
+                getResources().getString(R.string.app_item_menu_information), "", null, ITEM_MENU_ITEM_APP_INFO));
         if (isApp) {
             itemMenuItems.add(new ItemMenuItem(
-                    getResources().getString(R.string.app_item_menu_uninstall), null, ITEM_MENU_ITEM_UNINSTALL));
+                    getResources().getString(R.string.app_item_menu_uninstall), "", null, ITEM_MENU_ITEM_UNINSTALL));
         }
         if (isShortcut) {
             itemMenuItems.add(new ItemMenuItem(
-                    getResources().getString(R.string.app_item_menu_remove_shortcut), null, ITEM_MENU_ITEM_REMOVE_SHORTCUT));
+                    getResources().getString(R.string.app_item_menu_remove_shortcut), "", null, ITEM_MENU_ITEM_REMOVE_SHORTCUT));
         }
 
         ItemMenuAdapter itemMenuAdapter = new ItemMenuAdapter(getContext());
@@ -423,17 +430,20 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         List<ItemMenuItem> itemMenuItems = new ArrayList<>();
         itemMenuItems.add(new ItemMenuItem(
                 getResources().getString(R.string.section_item_menu_rename),
+                "",
                 null,
                 ITEM_MENU_ITEM_SECTION_RENAME));
         if (sectionItem.isRemovable()) {
             itemMenuItems.add(new ItemMenuItem(
                     getResources().getString(R.string.section_item_menu_delete),
+                    "",
                     null,
                     ITEM_MENU_ITEM_SECTION_DELETE));
         }
         if (!mSettingsUtils.isKeepAppsSortedAlphabetically()) {
             itemMenuItems.add(new ItemMenuItem(
                     getResources().getString(R.string.section_item_menu_sort_apps),
+                    "",
                     null,
                     ITEM_MENU_ITEM_SECTION_SORT_APPS));
         }
@@ -578,6 +588,8 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 }
             } else if (item.data instanceof ShortcutInfo) {
                 startAppShortcut((ShortcutInfo) item.data);
+            } else if (item.data instanceof StatusBarNotification) {
+                startNotification((StatusBarNotification) item.data);
             }
             mItemMenu.dismiss();
         }
@@ -587,39 +599,96 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         return (System.currentTimeMillis() - mItemMenuDismissedTime) < 200;
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
+    private void addAppNotificationsToItemMenu(AppItem appItem, List<ItemMenuItem> itemMenuItems) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return;
+        }
+        List<StatusBarNotification> statusBarNotifications = NotificationListener.getNotificationsForPackage(appItem.getPackageName());
+        for (StatusBarNotification sbn : statusBarNotifications) {
+            final Notification notification = sbn.getNotification();
+            final StringBuilder textBuilder = new StringBuilder();
+            final Bundle extras = notification.extras;
+            CharSequence extraText = extras.getCharSequence(Notification.EXTRA_TITLE, null);
+            if (extraText != null) {
+                textBuilder.append(extraText).append(", ");
+            }
+            extraText = extras.getCharSequence(Notification.EXTRA_TEXT, null);
+            if (extraText != null) {
+                textBuilder.append(extraText).append(", ");
+            }
+            extraText = extras.getCharSequence(Notification.EXTRA_INFO_TEXT, null);
+            if (extraText != null) {
+                textBuilder.append(extraText).append(", ");
+            }
+            extraText = extras.getCharSequence(Notification.EXTRA_SUMMARY_TEXT, null);
+            if (extraText != null) {
+                textBuilder.append(extraText).append(", ");
+            }
+            extraText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT, null);
+            if (extraText != null) {
+                textBuilder.append(extraText).append(", ");
+            }
+            final CharSequence[] textLines = extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES);
+            if (textLines != null) {
+                for (CharSequence textLine : textLines) {
+                    textBuilder.append(textLine.toString()).append(", ");
+                }
+            }
+            final String text = textBuilder.substring(0, textBuilder.length() - 1);
+
+            Icon icon = null;
+            final int iconType = notification.getBadgeIconType();
+            if (iconType == Notification.BADGE_ICON_LARGE) {
+                icon = notification.getLargeIcon();
+            } else if (iconType == Notification.BADGE_ICON_SMALL
+                    || iconType == Notification.BADGE_ICON_NONE) {
+                icon = notification.getSmallIcon();
+            }
+            Drawable iconDrawable = null;
+            if (icon != null) {
+                icon.setTint((notification.color != 0) ? notification.color : Color.GRAY);
+                iconDrawable = icon.loadDrawable(getContext());
+            }
+
+            itemMenuItems.add(new ItemMenuItem("", text, iconDrawable, sbn));
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.N_MR1)
     private void addAppShortcutsToItemMenu(AppItem appItem, List<ItemMenuItem> itemMenuItems) {
-        mItemShortcutInfos.clear();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            mItemShortcutInfos = performAppShortcutQuery(
-                    appItem.getPackageName(),
-                    null,
-                    LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
-                            | LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST);
-            Collections.sort(mItemShortcutInfos, new Comparator<ShortcutInfo>() {
-                @Override
-                public int compare(ShortcutInfo a, ShortcutInfo b) {
-                    if (!a.isDynamic() && b.isDynamic()) {
-                        return -1;
-                    }
-                    if (a.isDynamic() && !b.isDynamic()) {
-                        return 1;
-                    }
-                    return Integer.compare(a.getRank(), b.getRank());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+            return;
+        }
+        List<ShortcutInfo> shortcutInfos = performAppShortcutQuery(
+                appItem.getPackageName(),
+                null,
+                LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
+                        | LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST);
+        Collections.sort(shortcutInfos, new Comparator<ShortcutInfo>() {
+            @Override
+            public int compare(ShortcutInfo a, ShortcutInfo b) {
+                if (!a.isDynamic() && b.isDynamic()) {
+                    return -1;
                 }
-            });
-            final int maxShortcutCount = 10;
-            if (mItemShortcutInfos.size() > maxShortcutCount) {
-                ApplistLog.getInstance().log(new RuntimeException("Max " + maxShortcutCount + " app shortcuts are supported!"));
+                if (a.isDynamic() && !b.isDynamic()) {
+                    return 1;
+                }
+                return Integer.compare(a.getRank(), b.getRank());
             }
-            LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
-            for (int i = 0; i < mItemShortcutInfos.size() && i < maxShortcutCount; ++i) {
-                ShortcutInfo shortcutInfo = mItemShortcutInfos.get(i);
-                itemMenuItems.add(new ItemMenuItem(
-                        shortcutInfo.getShortLabel().toString(),
-                        launcherApps.getShortcutIconDrawable(shortcutInfo, 0),
-                        shortcutInfo));
-            }
+        });
+        final int maxShortcutCount = 10;
+        if (shortcutInfos.size() > maxShortcutCount) {
+            ApplistLog.getInstance().log(new RuntimeException("Max " + maxShortcutCount + " app shortcuts are supported!"));
+        }
+        LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        for (int i = 0; i < shortcutInfos.size() && i < maxShortcutCount; ++i) {
+            ShortcutInfo shortcutInfo = shortcutInfos.get(i);
+            itemMenuItems.add(new ItemMenuItem(
+                    shortcutInfo.getShortLabel().toString(),
+                    "",
+                    launcherApps.getShortcutIconDrawable(shortcutInfo, 0),
+                    shortcutInfo));
         }
     }
 
@@ -664,19 +733,37 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void startAppShortcut(@Nullable ShortcutInfo shortcutInfo) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            if (shortcutInfo == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+            return;
+        }
+        if (shortcutInfo == null) {
+            Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+        } else if (shortcutInfo.isEnabled()) {
+            LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
+            try {
+                launcherApps.startShortcut(shortcutInfo, null, null);
+            } catch (ActivityNotFoundException | IllegalStateException e) {
                 Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
-            } else if (shortcutInfo.isEnabled()) {
-                LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
-                try {
-                    launcherApps.startShortcut(shortcutInfo, null, null);
-                } catch (ActivityNotFoundException | IllegalStateException e) {
-                    Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getActivity(), R.string.cannot_start_disabled_shortcut, Toast.LENGTH_SHORT).show();
             }
+        } else {
+            Toast.makeText(getActivity(), R.string.cannot_start_disabled_shortcut, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void startNotification(StatusBarNotification statusBarNotification) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        try {
+            statusBarNotification.getNotification().contentIntent.send();
+            if ((statusBarNotification.getNotification().flags & Notification.FLAG_AUTO_CANCEL) != 0) {
+                Intent cancelNotificationIntent = new Intent(getActivity(), NotificationListener.class);
+                cancelNotificationIntent.setAction(NotificationListener.ACTION_CANCEL_NOTIFICATION);
+                cancelNotificationIntent.putExtra(NotificationListener.EXTRA_NOTIFICATION_KEY, statusBarNotification.getKey());
+                getActivity().startService(cancelNotificationIntent);
+            }
+        } catch (PendingIntent.CanceledException e) {
+            // Ignore.
         }
     }
 
@@ -690,18 +777,16 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
     @Nullable
     private ShortcutInfo resolveAppShortcutInfo(AppShortcutItem appShortcutItem) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            List<ShortcutInfo> shortcutInfos = performAppShortcutQuery(
-                    appShortcutItem.getPackageName(),
-                    appShortcutItem.getShortcutId(),
-                    LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
-                            | LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST
-                            | LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED);
-            if (!shortcutInfos.isEmpty()) {
-                return shortcutInfos.get(0);
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+            return null;
         }
-        return null;
+        List<ShortcutInfo> shortcutInfos = performAppShortcutQuery(
+                appShortcutItem.getPackageName(),
+                appShortcutItem.getShortcutId(),
+                LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC
+                        | LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST
+                        | LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED);
+        return !shortcutInfos.isEmpty() ? shortcutInfos.get(0) : null;
     }
 
     private void loadAllItems() {

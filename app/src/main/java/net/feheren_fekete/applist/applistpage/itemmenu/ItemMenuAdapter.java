@@ -57,8 +57,26 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         ItemMenuItem item = getItem(i);
-        viewHolder.icon.setImageDrawable(item.icon);
-        viewHolder.name.setText(item.name);
+        if (item.icon != null) {
+            viewHolder.icon.setVisibility(View.VISIBLE);
+            viewHolder.icon.setImageDrawable(item.icon);
+        } else {
+            viewHolder.icon.setVisibility(View.GONE);
+            viewHolder.icon.setImageDrawable(null);
+        }
+        if (!item.text.isEmpty()) {
+            ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            itemView.setLayoutParams(layoutParams);
+            viewHolder.name.setMaxLines(2);
+            viewHolder.name.setText(item.text);
+        } else {
+            ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
+            layoutParams.height = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_item_height);
+            itemView.setLayoutParams(layoutParams);
+            viewHolder.name.setMaxLines(1);
+            viewHolder.name.setText(item.name);
+        }
         viewHolder.position = i;
         return itemView;
     }
