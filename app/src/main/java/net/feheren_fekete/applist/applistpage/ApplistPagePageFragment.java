@@ -586,7 +586,8 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                         sortSection((SectionItem) mItemMenuTarget);
                         break;
                 }
-            } else if (item.data instanceof ShortcutInfo) {
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
+                    && item.data instanceof ShortcutInfo) {
                 startAppShortcut((ShortcutInfo) item.data);
             } else if (item.data instanceof StatusBarNotification) {
                 startNotification((StatusBarNotification) item.data);
@@ -638,17 +639,27 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             final String text = textBuilder.substring(0, textBuilder.length() - 1);
 
             Icon icon = null;
-            final int iconType = notification.getBadgeIconType();
-            if (iconType == Notification.BADGE_ICON_LARGE) {
-                icon = notification.getLargeIcon();
-            } else if (iconType == Notification.BADGE_ICON_SMALL
-                    || iconType == Notification.BADGE_ICON_NONE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                final int iconType = notification.getBadgeIconType();
+                if (iconType == Notification.BADGE_ICON_LARGE) {
+                    icon = notification.getLargeIcon();
+                } else if (iconType == Notification.BADGE_ICON_SMALL
+                        || iconType == Notification.BADGE_ICON_NONE) {
+                    icon = notification.getSmallIcon();
+                }
+            }
+            if (icon == null) {
                 icon = notification.getSmallIcon();
             }
-            Drawable iconDrawable = null;
+            if (icon == null) {
+                icon = notification.getLargeIcon();
+            }
+            Drawable iconDrawable;
             if (icon != null) {
                 icon.setTint((notification.color != 0) ? notification.color : Color.GRAY);
                 iconDrawable = icon.loadDrawable(getContext());
+            } else {
+                iconDrawable = getContext().getResources().getDrawable(R.drawable.ic_notification, null);
             }
 
             itemMenuItems.add(new ItemMenuItem("", text, iconDrawable, sbn));
