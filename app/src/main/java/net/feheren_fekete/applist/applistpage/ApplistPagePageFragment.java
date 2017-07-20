@@ -338,20 +338,20 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                         appItem.getPackageName(),
                         appItem.getClassName());
                 if (badgeCount > 0) {
-                    itemMenuItems.add(new ItemMenuItem(
-                            getResources().getString(R.string.app_item_menu_clear_badge), "", null, ITEM_MENU_ITEM_CLEAR_BADGE));
+                    itemMenuItems.add(createActionMenuItem(
+                            getResources().getString(R.string.app_item_menu_clear_badge), ITEM_MENU_ITEM_CLEAR_BADGE));
                 }
             }
         }
-        itemMenuItems.add(new ItemMenuItem(
-                getResources().getString(R.string.app_item_menu_information), "", null, ITEM_MENU_ITEM_APP_INFO));
+        itemMenuItems.add(createActionMenuItem(
+                getResources().getString(R.string.app_item_menu_information), ITEM_MENU_ITEM_APP_INFO));
         if (isApp) {
-            itemMenuItems.add(new ItemMenuItem(
-                    getResources().getString(R.string.app_item_menu_uninstall), "", null, ITEM_MENU_ITEM_UNINSTALL));
+            itemMenuItems.add(createActionMenuItem(
+                    getResources().getString(R.string.app_item_menu_uninstall), ITEM_MENU_ITEM_UNINSTALL));
         }
         if (isShortcut) {
-            itemMenuItems.add(new ItemMenuItem(
-                    getResources().getString(R.string.app_item_menu_remove_shortcut), "", null, ITEM_MENU_ITEM_REMOVE_SHORTCUT));
+            itemMenuItems.add(createActionMenuItem(
+                    getResources().getString(R.string.app_item_menu_remove_shortcut), ITEM_MENU_ITEM_REMOVE_SHORTCUT));
         }
 
         ItemMenuAdapter itemMenuAdapter = new ItemMenuAdapter(getContext());
@@ -428,24 +428,15 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                         sectionItem.getId());
 
         List<ItemMenuItem> itemMenuItems = new ArrayList<>();
-        itemMenuItems.add(new ItemMenuItem(
-                getResources().getString(R.string.section_item_menu_rename),
-                "",
-                null,
-                ITEM_MENU_ITEM_SECTION_RENAME));
+        itemMenuItems.add(createActionMenuItem(
+                getResources().getString(R.string.section_item_menu_rename), ITEM_MENU_ITEM_SECTION_RENAME));
         if (sectionItem.isRemovable()) {
-            itemMenuItems.add(new ItemMenuItem(
-                    getResources().getString(R.string.section_item_menu_delete),
-                    "",
-                    null,
-                    ITEM_MENU_ITEM_SECTION_DELETE));
+            itemMenuItems.add(createActionMenuItem(
+                    getResources().getString(R.string.section_item_menu_delete), ITEM_MENU_ITEM_SECTION_DELETE));
         }
         if (!mSettingsUtils.isKeepAppsSortedAlphabetically()) {
-            itemMenuItems.add(new ItemMenuItem(
-                    getResources().getString(R.string.section_item_menu_sort_apps),
-                    "",
-                    null,
-                    ITEM_MENU_ITEM_SECTION_SORT_APPS));
+            itemMenuItems.add(createActionMenuItem(
+                    getResources().getString(R.string.section_item_menu_sort_apps), ITEM_MENU_ITEM_SECTION_SORT_APPS));
         }
 
         ItemMenuAdapter itemMenuAdapter = new ItemMenuAdapter(getContext());
@@ -600,6 +591,19 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         return (System.currentTimeMillis() - mItemMenuDismissedTime) < 200;
     }
 
+    private ItemMenuItem createNotificationMenuItem(String text, Drawable icon, StatusBarNotification statusBarNotification) {
+        return new ItemMenuItem("", text, icon, R.drawable.notification_menu_item_background, statusBarNotification);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N_MR1) // ShortcutInfo
+    private ItemMenuItem createAppShortcutMenuItem(String name, Drawable icon, ShortcutInfo shortcutInfo) {
+        return new ItemMenuItem(name, "", icon, 0, shortcutInfo);
+    }
+
+    private ItemMenuItem createActionMenuItem(String name, Integer actionId) {
+        return new ItemMenuItem(name, "", null, 0, actionId);
+    }
+
     @TargetApi(Build.VERSION_CODES.M)
     private void addAppNotificationsToItemMenu(AppItem appItem, List<ItemMenuItem> itemMenuItems) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -671,7 +675,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 iconDrawable = getContext().getResources().getDrawable(R.drawable.ic_notification, null);
             }
 
-            itemMenuItems.add(new ItemMenuItem("", text, iconDrawable, sbn));
+            itemMenuItems.add(createNotificationMenuItem(text, iconDrawable, sbn));
         }
     }
 
@@ -704,9 +708,8 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
         for (int i = 0; i < shortcutInfos.size() && i < maxShortcutCount; ++i) {
             ShortcutInfo shortcutInfo = shortcutInfos.get(i);
-            itemMenuItems.add(new ItemMenuItem(
+            itemMenuItems.add(createAppShortcutMenuItem(
                     shortcutInfo.getShortLabel().toString(),
-                    "",
                     launcherApps.getShortcutIconDrawable(shortcutInfo, 0),
                     shortcutInfo));
         }

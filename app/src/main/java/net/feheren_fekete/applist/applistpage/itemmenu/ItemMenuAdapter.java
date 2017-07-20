@@ -3,6 +3,7 @@ package net.feheren_fekete.applist.applistpage.itemmenu;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import java.util.List;
 public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
 
     private @Nullable ItemMenuListener mListener;
+    private int mDefaultBackgroundResourceId;
 
     public final class ViewHolder {
         public int position = -1;
@@ -40,6 +42,9 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
 
     public ItemMenuAdapter(Context context) {
         super(context, R.layout.item_menu_item);
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.selectableItemBackground, typedValue, true);
+        mDefaultBackgroundResourceId = typedValue.resourceId;
     }
 
     @Override
@@ -76,6 +81,11 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
             itemView.setLayoutParams(layoutParams);
             viewHolder.name.setMaxLines(1);
             viewHolder.name.setText(item.name);
+        }
+        if (item.backgroundResourceId != 0) {
+            viewHolder.layout.setBackgroundResource(item.backgroundResourceId);
+        } else {
+            viewHolder.layout.setBackgroundResource(mDefaultBackgroundResourceId);
         }
         viewHolder.position = i;
         return itemView;

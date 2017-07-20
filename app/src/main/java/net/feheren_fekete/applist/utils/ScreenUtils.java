@@ -22,6 +22,7 @@ public class ScreenUtils {
     private int mStatusBarHeight = -1;
     private int mNavigationBarHeight = -1;
     private int mHasNavigationBar = -1;
+    private TypedValue mTypedValue;
 
     public static void initInstance() {
         if (sInstance == null) {
@@ -140,6 +141,14 @@ public class ScreenUtils {
             mDisplayMetrics = context.getResources().getDisplayMetrics();
         }
         return Math.round(px / (mDisplayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
+    public int getColorAttribute(final Context context, int attributeId) {
+        if (mTypedValue == null) {
+            mTypedValue = new TypedValue();
+        }
+        context.getTheme().resolveAttribute(attributeId, mTypedValue, true);
+        return mTypedValue.data;
     }
 
 }
