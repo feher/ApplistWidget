@@ -632,7 +632,7 @@ public class ApplistAdapter
                 if (badgeCount != BadgeUtils.NOT_NUMBERED_BADGE_COUNT) {
                     holder.badgeCount.setText(String.valueOf(badgeCount));
                 } else {
-                    holder.badgeCount.setText("\u2022");
+                    holder.badgeCount.setText(null);
                 }
             } else {
                 holder.badgeCount.setVisibility(View.GONE);
