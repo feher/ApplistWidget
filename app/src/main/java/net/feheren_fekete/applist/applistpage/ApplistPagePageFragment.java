@@ -585,6 +585,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             }
             mItemMenu.dismiss();
         }
+
+        @Override
+        public void onItemSwiped(ItemMenuItem item) {
+            cancelNotification((StatusBarNotification) item.data);
+            mItemMenu.dismiss();
+        }
     };
 
     private boolean wasItemMenuOpenJustNow() {
@@ -592,16 +598,16 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private ItemMenuItem createNotificationMenuItem(String text, Drawable icon, StatusBarNotification statusBarNotification) {
-        return new ItemMenuItem("", text, icon, R.drawable.notification_menu_item_background, statusBarNotification);
+        return new ItemMenuItem("", text, icon, R.drawable.notification_menu_item_background, true, statusBarNotification);
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1) // ShortcutInfo
     private ItemMenuItem createAppShortcutMenuItem(String name, Drawable icon, ShortcutInfo shortcutInfo) {
-        return new ItemMenuItem(name, "", icon, 0, shortcutInfo);
+        return new ItemMenuItem(name, "", icon, 0, false, shortcutInfo);
     }
 
     private ItemMenuItem createActionMenuItem(String name, Integer actionId) {
-        return new ItemMenuItem(name, "", null, 0, actionId);
+        return new ItemMenuItem(name, "", null, 0, false, actionId);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -787,6 +793,19 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             }
         } catch (PendingIntent.CanceledException e) {
             // Ignore.
+        }
+    }
+
+    private void cancelNotification(StatusBarNotification statusBarNotification) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        final boolean isOngoing = (statusBarNotification.getNotification().flags & Notification.FLAG_ONGOING_EVENT) != 0;
+        if (!isOngoing) {
+            Intent cancelNotificationIntent = new Intent(getActivity(), NotificationListener.class);
+            cancelNotificationIntent.setAction(NotificationListener.ACTION_CANCEL_NOTIFICATION);
+            cancelNotificationIntent.putExtra(NotificationListener.EXTRA_NOTIFICATION_KEY, statusBarNotification.getKey());
+            getActivity().startService(cancelNotificationIntent);
         }
     }
 

@@ -1,10 +1,13 @@
 package net.feheren_fekete.applist.applistpage.itemmenu;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -19,13 +22,14 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
 
     private @Nullable ItemMenuListener mListener;
     private int mDefaultBackgroundResourceId;
+    private int mItemSwipeThreshold; // px
 
     public final class ViewHolder {
-        public int position = -1;
+        public ItemMenuItem item;
         public ViewGroup layout;
         public ImageView icon;
         public TextView name;
-        public ViewHolder(View itemView) {
+        public ViewHolder(final View itemView) {
             this.layout = itemView.findViewById(R.id.item_menu_item_layout);
             this.icon = itemView.findViewById(R.id.item_menu_item_icon);
             this.name = itemView.findViewById(R.id.item_menu_item_name);
@@ -33,8 +37,75 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
                 @Override
                 public void onClick(View view) {
                     if (mListener != null) {
-                        mListener.onItemSelected(getItem(ViewHolder.this.position));
+                        mListener.onItemSelected(item);
                     }
+                }
+            });
+            this.layout.setOnTouchListener(new View.OnTouchListener() {
+                private float fingerDownX;
+                private boolean isSwiping;
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (!item.isSwipeable) {
+                        return false;
+                    }
+                    boolean handled = false;
+                    final int action = motionEvent.getAction();
+                    switch (action) {
+                        case MotionEvent.ACTION_DOWN: {
+                            fingerDownX = motionEvent.getRawX();
+                            isSwiping = false;
+                            layout.setTranslationX(0);
+                            break;
+                        }
+                        case MotionEvent.ACTION_MOVE: {
+                            final float diffX = motionEvent.getRawX() - fingerDownX;
+                            if (!isSwiping) {
+                                if (Math.abs(diffX) > mItemSwipeThreshold) {
+                                    isSwiping = true;
+                                }
+                            }
+                            if (isSwiping) {
+                                handled = true;
+                                layout.setTranslationX(diffX);
+                            }
+                            break;
+                        }
+                        case MotionEvent.ACTION_UP: {
+                            final float diffX = motionEvent.getRawX() - fingerDownX;
+                            if (isSwiping) {
+                                handled = true;
+                                if (Math.abs(diffX) > (layout.getWidth() / 3.0f)) {
+                                    final float fullTranslation = (Math.signum(diffX) == 1) ? layout.getWidth() : -layout.getWidth();
+                                    layout.animate()
+                                            .translationX(fullTranslation)
+                                            .setDuration(100)
+                                            .setListener(new AnimatorListenerAdapter() {
+                                                @Override
+                                                public void onAnimationEnd(Animator animation) {
+                                                    if (mListener != null) {
+                                                        mListener.onItemSwiped(item);
+                                                    }
+                                                }
+                                            })
+                                            .start();
+                                } else {
+                                    layout.animate().translationX(0).setDuration(150).start();
+                                }
+                            }
+                            isSwiping = false;
+                            break;
+                        }
+                        case MotionEvent.ACTION_CANCEL: {
+                            if (isSwiping) {
+                                handled = true;
+                                layout.animate().translationX(0).setDuration(150).start();
+                            }
+                            isSwiping = false;
+                            break;
+                        }
+                    }
+                    return handled;
                 }
             });
         }
@@ -45,6 +116,7 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
         TypedValue typedValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.selectableItemBackground, typedValue, true);
         mDefaultBackgroundResourceId = typedValue.resourceId;
+        mItemSwipeThreshold = context.getResources().getDimensionPixelSize(R.dimen.item_menu_swipe_threshold);
     }
 
     @Override
@@ -87,7 +159,8 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
         } else {
             viewHolder.layout.setBackgroundResource(mDefaultBackgroundResourceId);
         }
-        viewHolder.position = i;
+        viewHolder.layout.setTranslationX(0);
+        viewHolder.item = item;
         return itemView;
     }
 

@@ -27,5 +27,6 @@
     <dimen name="item_menu_item_height">40dp</dimen>
     <dimen name="item_menu_text_width">180dp</dimen>
     <dimen name="item_menu_item_icon_size">24dp</dimen>
+    <dimen name="item_menu_swipe_threshold">20dp</dimen>
 
 </resources>
