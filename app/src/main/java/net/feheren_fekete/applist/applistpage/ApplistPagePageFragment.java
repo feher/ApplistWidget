@@ -621,8 +621,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         for (int i = statusBarNotifications.size() - 1; i >= 0; --i) {
             StatusBarNotification sbn = statusBarNotifications.get(i);
 
-            // Show only the summary notification of notification groups.
-            if (sbn.isGroup() && (sbn.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) == 0) {
+            if (!shouldShowNotification(sbn, statusBarNotifications)) {
                 continue;
             }
 
@@ -685,6 +684,29 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
             itemMenuItems.add(createNotificationMenuItem(text, iconDrawable, sbn));
         }
+    }
+
+    private boolean shouldShowNotification(StatusBarNotification statusBarNotification,
+                                           List<StatusBarNotification> statusBarNotifications) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            return true;
+        }
+        // In case of grouped notifications
+        // * show only the summary notification or
+        // * if the group has only one item, show it.
+        if (statusBarNotification.isGroup()) {
+            boolean groupSummary = ((statusBarNotification.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0);
+            if (groupSummary) {
+                return true;
+            }
+            for (StatusBarNotification statusBarNotification2 : statusBarNotifications) {
+                if (statusBarNotification2 != statusBarNotification
+                        && statusBarNotification.getGroupKey().equals(statusBarNotification2.getGroupKey())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1)
