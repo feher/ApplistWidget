@@ -657,6 +657,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             final String text = (textBuilder.length() >= 2)
                     ?  textBuilder.substring(0, textBuilder.length() - 2)
                     : textBuilder.toString();
+            if (text.isEmpty()) {
+                continue;
+            }
 
             Icon icon = null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
