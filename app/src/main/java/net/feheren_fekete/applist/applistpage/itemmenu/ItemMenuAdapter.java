@@ -63,6 +63,7 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
                             if (!isSwiping) {
                                 if (Math.abs(diffX) > mItemSwipeThreshold) {
                                     isSwiping = true;
+                                    layout.requestDisallowInterceptTouchEvent(true);
                                 }
                             }
                             if (isSwiping) {
