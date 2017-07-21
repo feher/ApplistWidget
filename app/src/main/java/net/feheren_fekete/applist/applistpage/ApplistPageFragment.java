@@ -182,7 +182,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         boolean isFilteredByName = false;
-        ApplistPagePageFragment fragment = getApplistFragment();
+        ApplistPagePageFragment fragment = getApplistPagePageFragment();
         if (fragment != null) {
             isFilteredByName = fragment.isFilteredByName();
         }
@@ -229,7 +229,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         boolean isHandled = false;
         int id = item.getItemId();
 
-        ApplistPagePageFragment fragment = getApplistFragment();
+        ApplistPagePageFragment fragment = getApplistPagePageFragment();
         if (fragment != null) {
             isHandled = fragment.handleMenuItem(id);
         }
@@ -317,7 +317,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private SearchView.OnFocusChangeListener mSearchFocusListener = new View.OnFocusChangeListener() {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
-            ApplistPagePageFragment fragment = getApplistFragment();
+            ApplistPagePageFragment fragment = getApplistPagePageFragment();
             if (fragment != null) {
                 if (!hasFocus) {
                     stopFilteringByName(fragment);
@@ -336,7 +336,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            ApplistPagePageFragment fragment = getApplistFragment();
+            ApplistPagePageFragment fragment = getApplistPagePageFragment();
             if (fragment != null) {
                 if (newText == null || newText.isEmpty()) {
                     fragment.setNameFilter("");
@@ -461,7 +461,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
                 .commit();
     }
 
-    private ApplistPagePageFragment getApplistFragment() {
+    private ApplistPagePageFragment getApplistPagePageFragment() {
         return (ApplistPagePageFragment) getChildFragmentManager().findFragmentByTag(
                 ApplistPagePageFragment.class.getName());
     }
