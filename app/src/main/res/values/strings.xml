@@ -26,6 +26,7 @@
     <string name="app_item_menu_information">Information</string>
     <string name="app_item_menu_uninstall">Uninstall</string>
     <string name="app_item_menu_remove_shortcut">Delete shortcut</string>
+    <string name="app_item_menu_notification_without_title">Notification</string>
 
     <string name="cannot_start_shortcut">App cannot be found. Cannot start shortcut.</string>
     <string name="cannot_start_disabled_shortcut">Shortcut is disabled.</string>

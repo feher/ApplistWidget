@@ -80,4 +80,5 @@
     <string name="settings_show_notification_badge_dialog_message">Varmista, että Pääsy ilmoituksiin on luvattu Apperille järjestelmän asetuksissa.</string>
     <string name="settings_show_notification_badge_dialog_title">Pääsy ilmoituksiin</string>
     <string name="settings_show_notification_badge_summary">Näytä merkki kun appeilla on ilmoitkusia. Vaatii pääsyä ilmoituksiin</string>
+    <string name="app_item_menu_notification_without_title">Ilmoitus</string>
 </resources>

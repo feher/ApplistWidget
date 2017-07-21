@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import net.feheren_fekete.applist.ApplistLog;
@@ -597,17 +598,20 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         return (System.currentTimeMillis() - mItemMenuDismissedTime) < 200;
     }
 
-    private ItemMenuItem createNotificationMenuItem(String text, Drawable icon, StatusBarNotification statusBarNotification) {
-        return new ItemMenuItem("", text, icon, R.drawable.notification_menu_item_background, true, statusBarNotification);
+    private ItemMenuItem createNotificationMenuItem(String text, Drawable icon, RemoteViews remoteViews, StatusBarNotification statusBarNotification) {
+        if (text.isEmpty() && remoteViews == null) {
+            text = getContext().getString(R.string.app_item_menu_notification_without_title);
+        }
+        return new ItemMenuItem("", text, icon, R.drawable.notification_menu_item_background, true, remoteViews, statusBarNotification);
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1) // ShortcutInfo
     private ItemMenuItem createAppShortcutMenuItem(String name, Drawable icon, ShortcutInfo shortcutInfo) {
-        return new ItemMenuItem(name, "", icon, 0, false, shortcutInfo);
+        return new ItemMenuItem(name, "", icon, 0, false, null, shortcutInfo);
     }
 
     private ItemMenuItem createActionMenuItem(String name, Integer actionId) {
-        return new ItemMenuItem(name, "", null, 0, false, actionId);
+        return new ItemMenuItem(name, "", null, 0, false, null, actionId);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -657,9 +661,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             final String text = (textBuilder.length() >= 2)
                     ?  textBuilder.substring(0, textBuilder.length() - 2)
                     : textBuilder.toString();
-            if (text.isEmpty()) {
-                continue;
-            }
 
             Icon icon = null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -685,7 +686,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 iconDrawable = getContext().getResources().getDrawable(R.drawable.ic_notification, null);
             }
 
-            itemMenuItems.add(createNotificationMenuItem(text, iconDrawable, sbn));
+            itemMenuItems.add(createNotificationMenuItem(text, iconDrawable, sbn.getNotification().contentView, sbn));
         }
     }
 

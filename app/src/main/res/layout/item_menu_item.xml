@@ -39,4 +39,14 @@
         app:layout_constraintLeft_toRightOf="@id/item_menu_item_icon"
         />
 
+    <FrameLayout
+        android:id="@+id/item_menu_item_content_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:paddingRight="8dp"
+        app:layout_constraintLeft_toRightOf="@id/item_menu_item_icon"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
 </android.support.constraint.ConstraintLayout>

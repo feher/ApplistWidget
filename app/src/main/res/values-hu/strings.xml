@@ -80,4 +80,5 @@
     <string name="settings_show_notification_badge_dialog_message">Bizonyosodj meg róla, hogy az Apper-nek engedélyezve legyen a Hozzáférés az értesítésekhez a rendszer beállításokban.</string>
     <string name="settings_show_notification_badge_dialog_title">Hozzáférés értesítesekhez</string>
     <string name="settings_show_notification_badge_summary">Jelzés megjelenítése, ha egy alkalmazásnak van aktív Értesítése. Hozzáférés az értesítésekhez szükséges</string>
+    <string name="app_item_menu_notification_without_title">Értesítés</string>
 </resources>
