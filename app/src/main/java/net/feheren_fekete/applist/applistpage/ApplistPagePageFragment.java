@@ -698,20 +698,22 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         // In case of grouped notifications
         // * show only the summary notification or
         // * every item if there is no group summary.
+        boolean isGroupSummary = false;
+        boolean hasGroupSummary = false;
         if (statusBarNotification.isGroup()) {
-            boolean groupSummary = ((statusBarNotification.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0);
-            if (groupSummary) {
-                return true;
-            }
-            for (StatusBarNotification statusBarNotification2 : statusBarNotifications) {
-                if (statusBarNotification2 != statusBarNotification
-                        && statusBarNotification.getGroupKey().equals(statusBarNotification2.getGroupKey())
-                        && ((statusBarNotification2.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0)) {
-                    return false;
+            isGroupSummary = ((statusBarNotification.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0);
+            if (!isGroupSummary) {
+                for (StatusBarNotification statusBarNotification2 : statusBarNotifications) {
+                    if (statusBarNotification2 != statusBarNotification
+                            && statusBarNotification.getGroupKey().equals(statusBarNotification2.getGroupKey())
+                            && ((statusBarNotification2.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0)) {
+                        hasGroupSummary = true;
+                        break;
+                    }
                 }
             }
         }
-        return true;
+        return isGroupSummary || !hasGroupSummary;
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1)
