@@ -696,7 +696,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         }
         // In case of grouped notifications
         // * show only the summary notification or
-        // * if the group has only one item, show it.
+        // * every item if there is no group summary.
         if (statusBarNotification.isGroup()) {
             boolean groupSummary = ((statusBarNotification.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0);
             if (groupSummary) {
@@ -704,7 +704,8 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             }
             for (StatusBarNotification statusBarNotification2 : statusBarNotifications) {
                 if (statusBarNotification2 != statusBarNotification
-                        && statusBarNotification.getGroupKey().equals(statusBarNotification2.getGroupKey())) {
+                        && statusBarNotification.getGroupKey().equals(statusBarNotification2.getGroupKey())
+                        && ((statusBarNotification2.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0)) {
                     return false;
                 }
             }
