@@ -224,14 +224,6 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         final float fingerCurrentPosY = event.getRawY();
         float draggedViewPosX = fingerCurrentPosX;
         float draggedViewPosY = fingerCurrentPosY;
-        if (draggedItem instanceof StartableItem) {
-            draggedViewPosX -= mDraggedAppViewSize / 2;
-            draggedViewPosY -= mDraggedAppViewSize;
-        } else {
-            draggedViewPosX -= mDraggedSectionViewSize / 2;
-            draggedViewPosY -= mDraggedSectionViewSize / 3;
-        }
-
         final int firstItemPos = mLayoutManager.findFirstVisibleItemPosition();
         final int lastItemPos = mLayoutManager.findLastVisibleItemPosition();
 
