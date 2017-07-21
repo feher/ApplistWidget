@@ -76,7 +76,7 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
                             final float diffX = motionEvent.getRawX() - fingerDownX;
                             if (isSwiping) {
                                 handled = true;
-                                if (Math.abs(diffX) > (layout.getWidth() / 3.0f)) {
+                                if (Math.abs(diffX) > (layout.getWidth() / 2.0f)) {
                                     final float fullTranslation = (Math.signum(diffX) == 1) ? layout.getWidth() : -layout.getWidth();
                                     layout.animate()
                                             .translationX(fullTranslation)
