@@ -147,12 +147,14 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             itemView.setLayoutParams(layoutParams);
             viewHolder.name.setMaxLines(2);
+            viewHolder.name.setMaxWidth(itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_text_width));
             viewHolder.name.setText(item.text);
         } else {
             ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
             layoutParams.height = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_item_height);
             itemView.setLayoutParams(layoutParams);
             viewHolder.name.setMaxLines(1);
+            viewHolder.name.setMaxWidth(Integer.MAX_VALUE);
             viewHolder.name.setText(item.name);
         }
         if (item.backgroundResourceId != 0) {
