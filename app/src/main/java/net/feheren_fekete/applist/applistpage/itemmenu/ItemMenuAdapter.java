@@ -173,7 +173,9 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
             ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             itemView.setLayoutParams(layoutParams);
-            View view = item.contentRemoteViews.apply(getContext(), viewHolder.contentView);
+            // It is important to use Application Context for the RemoteViews. Otherwise, some
+            // RemoteViews cannot be displayed.
+            View view = item.contentRemoteViews.apply(getContext().getApplicationContext(), viewHolder.contentView);
             viewHolder.contentView.addView(view);
         }
 
