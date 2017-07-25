@@ -14,5 +14,6 @@
     <attr name="sectionTextColor" format="reference|color" />
     <attr name="sectionTextHighlightColor" format="reference|color" />
     <attr name="appTextColor" format="reference|color" />
+    <attr name="appHighlightedBackgroundColor" format="reference|color" />
     <attr name="draggedOverIndicatorColor" format="reference|color" />
 </resources>

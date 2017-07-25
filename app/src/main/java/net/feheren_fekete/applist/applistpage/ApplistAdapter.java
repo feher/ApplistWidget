@@ -419,6 +419,11 @@ public class ApplistAdapter
         notifyItemChanged(getRealItemPosition(item));
     }
 
+    public void setHighlighted(BaseItem item, boolean highlighted) {
+        item.setHighlighted(highlighted);
+        notifyItemChanged(getRealItemPosition(item));
+    }
+
     public void setAllStartablesEnabled(boolean enabled) {
         for (BaseItem baseItem : mAllItems) {
             if (baseItem instanceof StartableItem) {
@@ -526,6 +531,12 @@ public class ApplistAdapter
         holder.appIcon.setAlpha(alpha);
         holder.appName.setAlpha(alpha);
         holder.badgeCount.setAlpha(alpha);
+
+        if (item.isHighlighted()) {
+            holder.layout.setBackgroundResource(R.drawable.applist_startable_item_highlighted_background);
+        } else {
+            holder.layout.setBackground(null);
+        }
 
         holder.draggedOverIndicatorLeft.setVisibility(
                 item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);

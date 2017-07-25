@@ -16,6 +16,7 @@
         <item name="sectionTextColor">#555555</item>
         <item name="sectionTextHighlightColor">#DDDDDD</item>
         <item name="appTextColor">#DDDDDD</item>
+        <item name="appHighlightedBackgroundColor">#55CCCCCC</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
@@ -40,6 +41,7 @@
         <item name="sectionTextColor">#DDDDDD</item>
         <item name="sectionTextHighlightColor">#DDDDDD</item>
         <item name="appTextColor">#DDDDDD</item>
+        <item name="appHighlightedBackgroundColor">#44222222</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
@@ -64,6 +66,7 @@
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="appHighlightedBackgroundColor">#55CCCCCC</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
@@ -88,6 +91,7 @@
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="appHighlightedBackgroundColor">#55D7CCC8</item>
         <item name="draggedOverIndicatorColor">#88DD6600</item>
 
         <item name="windowNoTitle">true</item>
@@ -112,6 +116,7 @@
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="appHighlightedBackgroundColor">#55CFD8DC</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
@@ -136,6 +141,7 @@
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="appHighlightedBackgroundColor">#55C5CAE9</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
@@ -148,7 +154,7 @@
     <style name="MyThemeRed" parent="MyThemeBase">
         <item name="primaryColor">#882200</item>
         <item name="primaryDarkColor">#552200</item>
-        <item name="primaryLightColor">#dfd3d3</item>
+        <item name="primaryLightColor">#DFD3D3</item>
         <item name="accentColor">#FF6600</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
@@ -160,6 +166,7 @@
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="appHighlightedBackgroundColor">#55DFD3D3</item>
         <item name="draggedOverIndicatorColor">#88FF6600</item>
 
         <item name="windowNoTitle">true</item>
@@ -171,8 +178,8 @@
 
     <style name="MyThemeGreen" parent="MyThemeBase">
         <item name="primaryColor">#5d7d62</item>
-        <item name="primaryDarkColor">#4a634e</item>
-        <item name="primaryLightColor">#dde3d0</item>
+        <item name="primaryDarkColor">#4A634E</item>
+        <item name="primaryLightColor">#DDE3D0</item>
         <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
@@ -184,6 +191,7 @@
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="appHighlightedBackgroundColor">#55DDE3D0</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="windowNoTitle">true</item>
@@ -208,6 +216,7 @@
         <item name="sectionTextColor">?attr/secondaryTextColor</item>
         <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
+        <item name="appHighlightedBackgroundColor">#55D1C4E9</item>
         <item name="draggedOverIndicatorColor">#88536DFE</item>
 
         <item name="windowNoTitle">true</item>

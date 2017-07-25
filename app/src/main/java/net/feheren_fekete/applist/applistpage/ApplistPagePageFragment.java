@@ -359,12 +359,16 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         itemMenuAdapter.setItems(itemMenuItems);
 
         mItemMenuTarget = startableItem;
+
+        mAdapter.setHighlighted(mItemMenuTarget, true);
+
         mItemMenu = new ListPopupWindow(getContext());
         mItemMenu.setContentWidth(getResources().getDimensionPixelSize(R.dimen.item_menu_width));
         mItemMenu.setHeight(ListPopupWindow.WRAP_CONTENT);
         mItemMenu.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
+                mAdapter.setHighlighted(mItemMenuTarget, false);
                 mItemMenu = null;
                 mItemMenuDismissedTime = System.currentTimeMillis();
             }
