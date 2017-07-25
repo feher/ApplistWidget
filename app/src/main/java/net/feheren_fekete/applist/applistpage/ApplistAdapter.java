@@ -49,11 +49,11 @@ public class ApplistAdapter
 
     // TODO: Inject
     private BadgeStore mBadgeStore = BadgeStore.getInstance();
+    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
 
     private Context mContext;
     private Fragment mFragment;
     private PackageManager mPackageManager;
-    private SettingsUtils mSettingsUtils;
     private FileUtils mFileUtils;
     private List<BaseItem> mCollapsedItems;
     private List<BaseItem> mAllItems;
@@ -187,14 +187,12 @@ public class ApplistAdapter
     public ApplistAdapter(Context context,
                           Fragment fragment,
                           PackageManager packageManager,
-                          SettingsUtils settingsUtils,
                           FileUtils fileUtils,
                           ItemListener itemListener,
                           IconCache iconCache) {
         mContext = context;
         mFragment = fragment;
         mPackageManager = packageManager;
-        mSettingsUtils = settingsUtils;
         mFileUtils = fileUtils;
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();

@@ -167,7 +167,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 getContext(),
                 this,
                 getContext().getPackageManager(),
-                mSettingsUtils,
                 new FileUtils(),
                 this,
                 mIconCache);
