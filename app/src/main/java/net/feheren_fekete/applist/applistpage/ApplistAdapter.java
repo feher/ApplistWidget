@@ -58,7 +58,6 @@ public class ApplistAdapter
     private List<BaseItem> mCollapsedItems;
     private List<BaseItem> mAllItems;
     private @Nullable String mFilterName;
-    private @Nullable Class mFilterType;
     private @Nullable List<BaseItem> mFilteredItems;
     private ItemListener mItemListener;
     private IconCache mIconCache;
@@ -264,18 +263,8 @@ public class ApplistAdapter
         notifyDataSetChanged();
     }
 
-    public void setTypeFilter(@Nullable Class filterType) {
-        mFilterType = filterType;
-        mFilteredItems = filterItemsByType();
-        notifyDataSetChanged();
-    }
-
     public boolean isFilteredByName() {
         return mFilterName != null;
-    }
-
-    public boolean isFilteredByType() {
-        return mFilterType != null;
     }
 
     public int getItemPosition(BaseItem item) {
@@ -301,21 +290,6 @@ public class ApplistAdapter
             }
         }
         return RecyclerView.NO_POSITION;
-    }
-
-    @Nullable
-    public BaseItem getNextSection(BaseItem item) {
-        final int itemPosition = getItemPosition(item);
-        if (itemPosition != RecyclerView.NO_POSITION) {
-            List<BaseItem> items = getItems();
-            for (int i = itemPosition + 1; i < items.size(); ++i) {
-                BaseItem it = items.get(i);
-                if (it instanceof SectionItem) {
-                    return it;
-                }
-            }
-        }
-        return null;
     }
 
     @Override
@@ -442,18 +416,6 @@ public class ApplistAdapter
         return result;
     }
 
-    public boolean isSectionLast(SectionItem item) {
-        boolean result = true;
-        final int position = getRealItemPosition(item);
-        for (int i = position + 1; i < mAllItems.size(); ++i) {
-            if (mAllItems.get(i) instanceof SectionItem) {
-                result = false;
-                break;
-            }
-        }
-        return result;
-    }
-
     public void setEnabled(BaseItem item, boolean enabled) {
         item.setEnabled(enabled);
         notifyItemChanged(getRealItemPosition(item));
@@ -498,9 +460,6 @@ public class ApplistAdapter
         if (mFilterName != null) {
             mFilteredItems = filterItemsByName();
         }
-        if (mFilterType != null) {
-            mFilteredItems = filterItemsByType();
-        }
     }
 
     private List<BaseItem> getCollapsedItems() {
@@ -542,19 +501,6 @@ public class ApplistAdapter
             }
             return result;
         }
-    }
-
-    private List<BaseItem> filterItemsByType() {
-        if (mFilterType == null) {
-            return null;
-        }
-        List<BaseItem> result = new ArrayList<>();
-        for (BaseItem item : mAllItems) {
-            if (mFilterType.isInstance(item)) {
-                result.add(item);
-            }
-        }
-        return result;
     }
 
     private void bindStartableItemHolder(StartableItemHolder holder, int position) {
