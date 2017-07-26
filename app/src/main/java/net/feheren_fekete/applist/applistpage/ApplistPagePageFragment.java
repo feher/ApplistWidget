@@ -319,7 +319,16 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     @Override
     public void onStartableLongTapped(final StartableItem startableItem) {
         mItemMenuTarget = startableItem;
-        mAdapter.setHighlighted(mItemMenuTarget, true);
+
+        // Change the adapter only after the popup window has been displayed.
+        // Otherwise the popup window appears in a jittery way due to simultaneous change in the adapter.
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.setHighlighted(mItemMenuTarget, true);
+            }
+        }, 150);
+
         mItemDragGestureRecognizer.setDelegateEnabled(false);
 
         final boolean isApp = (startableItem instanceof AppItem);
