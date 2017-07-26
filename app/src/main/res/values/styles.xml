@@ -41,7 +41,7 @@
         <item name="sectionTextColor">#DDDDDD</item>
         <item name="sectionTextHighlightColor">#DDDDDD</item>
         <item name="appTextColor">#DDDDDD</item>
-        <item name="appHighlightedBackgroundColor">#44222222</item>
+        <item name="appHighlightedBackgroundColor">#44555555</item>
         <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="colorPrimary">?attr/primaryColor</item>
