@@ -101,7 +101,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private ApplistItemDragHandler mItemDragCallback;
     private @Nullable ListPopupWindow mItemMenu;
     private @Nullable BaseItem mItemMenuTarget;
-    private long mItemMenuDismissedTime;
     private ApplistItemDragHandler.Listener mListener;
 
     public static ApplistPagePageFragment newInstance(String pageName,
@@ -319,14 +318,13 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
     @Override
     public void onStartableLongTapped(final StartableItem startableItem) {
-        ApplistAdapter.StartableItemHolder startableItemHolder =
-                (ApplistAdapter.StartableItemHolder) mRecyclerView.findViewHolderForItemId(
-                        startableItem.getId());
+        mItemMenuTarget = startableItem;
+        mAdapter.setHighlighted(mItemMenuTarget, true);
+        mItemDragGestureRecognizer.setDelegateEnabled(false);
 
         final boolean isApp = (startableItem instanceof AppItem);
         final boolean isShortcut = (startableItem instanceof ShortcutItem) || (startableItem instanceof AppShortcutItem);
-
-        List<ItemMenuItem> itemMenuItems = new ArrayList<>();
+        final List<ItemMenuItem> itemMenuItems = new ArrayList<>();
         if (isApp) {
             addAppNotificationsToItemMenu((AppItem) startableItem, itemMenuItems);
             addAppShortcutsToItemMenu((AppItem) startableItem, itemMenuItems);
@@ -353,14 +351,13 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             itemMenuItems.add(createActionMenuItem(
                     getResources().getString(R.string.app_item_menu_remove_shortcut), ITEM_MENU_ITEM_REMOVE_SHORTCUT));
         }
-
-        ItemMenuAdapter itemMenuAdapter = new ItemMenuAdapter(getContext());
+        final ItemMenuAdapter itemMenuAdapter = new ItemMenuAdapter(getContext());
         itemMenuAdapter.setListener(mItemMenuClickListener);
         itemMenuAdapter.setItems(itemMenuItems);
 
-        mItemMenuTarget = startableItem;
-
-        mAdapter.setHighlighted(mItemMenuTarget, true);
+        final ApplistAdapter.StartableItemHolder startableItemHolder =
+                (ApplistAdapter.StartableItemHolder) mRecyclerView.findViewHolderForItemId(
+                        startableItem.getId());
 
         mItemMenu = new ListPopupWindow(getContext());
         mItemMenu.setContentWidth(getResources().getDimensionPixelSize(R.dimen.item_menu_width));
@@ -368,22 +365,19 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         mItemMenu.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
+                mItemDragGestureRecognizer.setDelegateEnabled(true);
                 mAdapter.setHighlighted(mItemMenuTarget, false);
                 mItemMenu = null;
-                mItemMenuDismissedTime = System.currentTimeMillis();
             }
         });
         mItemMenu.setAnchorView(startableItemHolder.layout);
         mItemMenu.setAdapter(itemMenuAdapter);
+        mItemMenu.setModal(true);
         mItemMenu.show();
     }
 
     @Override
     public void onStartableTapped(StartableItem startableItem) {
-        if (wasItemMenuOpenJustNow()) {
-            return;
-        }
-
         if (startableItem instanceof AppItem) {
             AppItem appItem = (AppItem) startableItem;
 
@@ -427,9 +421,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
     @Override
     public void onSectionLongTapped(final SectionItem sectionItem) {
-        ApplistAdapter.SectionItemHolder sectionItemHolder =
-                (ApplistAdapter.SectionItemHolder) mRecyclerView.findViewHolderForItemId(
-                        sectionItem.getId());
+        mItemDragGestureRecognizer.setDelegateEnabled(false);
 
         List<ItemMenuItem> itemMenuItems = new ArrayList<>();
         itemMenuItems.add(createActionMenuItem(
@@ -442,33 +434,34 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             itemMenuItems.add(createActionMenuItem(
                     getResources().getString(R.string.section_item_menu_sort_apps), ITEM_MENU_ITEM_SECTION_SORT_APPS));
         }
-
         ItemMenuAdapter itemMenuAdapter = new ItemMenuAdapter(getContext());
         itemMenuAdapter.setListener(mItemMenuClickListener);
         itemMenuAdapter.setItems(itemMenuItems);
 
+        ApplistAdapter.SectionItemHolder sectionItemHolder =
+                (ApplistAdapter.SectionItemHolder) mRecyclerView.findViewHolderForItemId(
+                        sectionItem.getId());
+
         mItemMenuTarget = sectionItem;
+
         mItemMenu = new ListPopupWindow(getContext());
         mItemMenu.setContentWidth(getResources().getDimensionPixelSize(R.dimen.item_menu_width));
         mItemMenu.setHeight(ListPopupWindow.WRAP_CONTENT);
         mItemMenu.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
+                mItemDragGestureRecognizer.setDelegateEnabled(true);
                 mItemMenu = null;
-                mItemMenuDismissedTime = System.currentTimeMillis();
             }
         });
         mItemMenu.setAnchorView(sectionItemHolder.layout);
         mItemMenu.setAdapter(itemMenuAdapter);
+        mItemMenu.setModal(true);
         mItemMenu.show();
     }
 
     @Override
     public void onSectionTapped(final SectionItem sectionItem) {
-        if (wasItemMenuOpenJustNow()) {
-            return;
-        }
-
         final String pageName = getPageName();
         final boolean wasSectionCollapsed = sectionItem.isCollapsed();
         if (!mAdapter.isFilteredByName()) {
@@ -596,10 +589,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             mItemMenu.dismiss();
         }
     };
-
-    private boolean wasItemMenuOpenJustNow() {
-        return (System.currentTimeMillis() - mItemMenuDismissedTime) < 200;
-    }
 
     private ItemMenuItem createNotificationMenuItem(String text, Drawable icon, RemoteViews remoteViews, StatusBarNotification statusBarNotification) {
         if (text.isEmpty() && remoteViews == null) {

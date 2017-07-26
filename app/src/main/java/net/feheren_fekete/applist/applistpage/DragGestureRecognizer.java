@@ -20,6 +20,7 @@ public class DragGestureRecognizer {
     private Callback mCallback;
     private ViewGroup mTouchOverlay;
     private View mDelegateView;
+    private boolean mIsDelegateEnabled = true;
     private boolean mIsFingerDown;
     private boolean mIsDraggingItem;
     private PointF mFingerDownPos = new PointF();
@@ -31,6 +32,10 @@ public class DragGestureRecognizer {
         mDelegateView = delegateView;
 
         mTouchOverlay.setOnTouchListener(mTouchOverlayListener);
+    }
+
+    public void setDelegateEnabled(boolean enabled) {
+        mIsDelegateEnabled = enabled;
     }
 
     public MotionEvent getMotionEvent() {
@@ -91,7 +96,9 @@ public class DragGestureRecognizer {
                 }
             }
             if (!mIsDraggingItem) {
-                mDelegateView.dispatchTouchEvent(event);
+                if (mIsDelegateEnabled) {
+                    mDelegateView.dispatchTouchEvent(event);
+                }
             }
             return true;
         }
