@@ -33,11 +33,13 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
         public ViewGroup layout;
         public ImageView icon;
         public TextView name;
+        public ImageView dragHandle;
         public FrameLayout contentView;
         public ViewHolder(final View itemView) {
             this.layout = itemView.findViewById(R.id.item_menu_item_layout);
             this.icon = itemView.findViewById(R.id.item_menu_item_icon);
             this.name = itemView.findViewById(R.id.item_menu_item_name);
+            this.dragHandle = itemView.findViewById(R.id.item_menu_item_drag_handle);
             this.contentView = itemView.findViewById(R.id.item_menu_item_content_view);
             this.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -140,35 +142,40 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
             itemView = convertView;
             viewHolder = (ViewHolder) convertView.getTag();
         }
+
         ItemMenuItem item = getItem(i);
-        if (item.icon != null) {
-            viewHolder.icon.setVisibility(View.VISIBLE);
-            viewHolder.icon.setImageDrawable(item.icon);
+        final boolean isRemoteViews = item.name.isEmpty() && item.text.isEmpty() && item.contentRemoteViews != null;
+
+        if (!isRemoteViews) {
+            viewHolder.dragHandle.setVisibility(View.GONE);
+            viewHolder.contentView.setVisibility(View.GONE);
+            viewHolder.name.setVisibility(View.VISIBLE);
+            if (item.icon != null) {
+                viewHolder.icon.setVisibility(View.VISIBLE);
+                viewHolder.icon.setImageDrawable(item.icon);
+            } else {
+                viewHolder.icon.setVisibility(View.GONE);
+                viewHolder.icon.setImageDrawable(null);
+            }
+            if (!item.name.isEmpty()) {
+                ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
+                layoutParams.height = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_item_height);
+                itemView.setLayoutParams(layoutParams);
+                viewHolder.name.setMaxLines(1);
+                viewHolder.name.setMaxWidth(Integer.MAX_VALUE);
+                viewHolder.name.setText(item.name);
+            } else if (!item.text.isEmpty()) {
+                ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                itemView.setLayoutParams(layoutParams);
+                viewHolder.name.setMaxLines(2);
+                viewHolder.name.setMaxWidth(itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_text_width));
+                viewHolder.name.setText(item.text);
+            }
         } else {
             viewHolder.icon.setVisibility(View.GONE);
-            viewHolder.icon.setImageDrawable(null);
-        }
-
-        if (!item.name.isEmpty()) {
-            viewHolder.name.setVisibility(View.VISIBLE);
-            viewHolder.contentView.setVisibility(View.GONE);
-            ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
-            layoutParams.height = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_item_height);
-            itemView.setLayoutParams(layoutParams);
-            viewHolder.name.setMaxLines(1);
-            viewHolder.name.setMaxWidth(Integer.MAX_VALUE);
-            viewHolder.name.setText(item.name);
-        } else if (!item.text.isEmpty()) {
-            viewHolder.name.setVisibility(View.VISIBLE);
-            viewHolder.contentView.setVisibility(View.GONE);
-            ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            itemView.setLayoutParams(layoutParams);
-            viewHolder.name.setMaxLines(2);
-            viewHolder.name.setMaxWidth(itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_text_width));
-            viewHolder.name.setText(item.text);
-        } else if (item.contentRemoteViews != null) {
             viewHolder.name.setVisibility(View.GONE);
+            viewHolder.dragHandle.setVisibility(View.VISIBLE);
             viewHolder.contentView.setVisibility(View.VISIBLE);
             ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;

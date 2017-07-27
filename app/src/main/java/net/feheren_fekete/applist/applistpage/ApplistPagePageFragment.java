@@ -369,7 +369,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                         startableItem.getId());
 
         mItemMenu = new ListPopupWindow(getContext());
-        mItemMenu.setContentWidth(getResources().getDimensionPixelSize(R.dimen.item_menu_width));
+        final boolean hasNotificationWithRemoteViews = hasNotificationWithRemoteViews(itemMenuItems);
+        mItemMenu.setContentWidth(getResources().getDimensionPixelSize(
+                hasNotificationWithRemoteViews ? R.dimen.item_menu_width_large : R.dimen.item_menu_width));
         mItemMenu.setHeight(ListPopupWindow.WRAP_CONTENT);
         mItemMenu.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
@@ -715,6 +717,15 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             }
         }
         return isGroupSummary || !hasGroupSummary;
+    }
+
+    private boolean hasNotificationWithRemoteViews(List<ItemMenuItem> itemMenuItems) {
+        for (ItemMenuItem itemMenuItem : itemMenuItems) {
+            if (itemMenuItem.name.isEmpty() && itemMenuItem.text.isEmpty() && itemMenuItem.contentRemoteViews != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1)
