@@ -153,9 +153,12 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
             if (item.icon != null) {
                 viewHolder.icon.setVisibility(View.VISIBLE);
                 viewHolder.icon.setImageDrawable(item.icon);
+                viewHolder.name.setPadding(0, 0, 0, 0);
             } else {
                 viewHolder.icon.setVisibility(View.GONE);
                 viewHolder.icon.setImageDrawable(null);
+                final int paddingLeft = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_item_name_padding);
+                viewHolder.name.setPadding(paddingLeft, 0, 0, 0);
             }
             if (!item.name.isEmpty()) {
                 ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
