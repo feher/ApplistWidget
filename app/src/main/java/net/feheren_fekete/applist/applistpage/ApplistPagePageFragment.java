@@ -327,7 +327,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             public void run() {
                 mAdapter.setHighlighted(mItemMenuTarget, true);
             }
-        }, 150);
+        }, 200);
 
         mItemDragGestureRecognizer.setDelegateEnabled(false);
 
