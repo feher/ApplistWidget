@@ -757,9 +757,23 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
         for (int i = 0; i < shortcutInfos.size() && i < maxShortcutCount; ++i) {
             ShortcutInfo shortcutInfo = shortcutInfos.get(i);
+            Drawable iconDrawable = null;
+            try {
+                iconDrawable = launcherApps.getShortcutIconDrawable(shortcutInfo, 0);
+            } catch (Exception e) {
+                ApplistLog.getInstance().log(e);
+            }
+            try {
+                iconDrawable = launcherApps.getShortcutBadgedIconDrawable(shortcutInfo, 0);
+            } catch (Exception e) {
+                ApplistLog.getInstance().log(e);
+            }
+            if (iconDrawable == null) {
+                iconDrawable = getResources().getDrawable(R.drawable.app_shortcut_default, null);
+            }
             itemMenuItems.add(createAppShortcutMenuItem(
                     shortcutInfo.getShortLabel().toString(),
-                    launcherApps.getShortcutIconDrawable(shortcutInfo, 0),
+                    iconDrawable,
                     shortcutInfo));
         }
     }
