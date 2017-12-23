@@ -591,13 +591,17 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             } else if (item.data instanceof StatusBarNotification) {
                 startNotification((StatusBarNotification) item.data);
             }
-            mItemMenu.dismiss();
+            if (mItemMenu != null) {
+                mItemMenu.dismiss();
+            }
         }
 
         @Override
         public void onItemSwiped(ItemMenuItem item) {
             cancelNotification((StatusBarNotification) item.data);
-            mItemMenu.dismiss();
+            if (mItemMenu != null) {
+                mItemMenu.dismiss();
+            }
         }
     };
 
