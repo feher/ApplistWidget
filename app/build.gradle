@@ -30,12 +30,12 @@ android {
 
         // Even versionCode are release versions.
         // Odd versionCode are developer/debug versions.
-        versionCode 30
+        versionCode 31
 
         // versionName is major.minor
         // Even minor versions are release versions.
         // Odd minor versions are developer/debug versions.
-        versionName "3.0"
+        versionName "3.1"
 
         multiDexEnabled true
 
@@ -63,7 +63,7 @@ dependencies {
 
     compile 'com.parse.bolts:bolts-tasks:1.4.0'
 
-    compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'org.greenrobot:eventbus:3.1.1'
 
     // Glide
     compile 'com.android.support:support-v4:27.+'
