@@ -81,4 +81,5 @@
     <string name="settings_show_notification_badge_dialog_title">Hozzáférés értesítesekhez</string>
     <string name="settings_show_notification_badge_summary">Jelzés megjelenítése, ha egy alkalmazásnak van aktív Értesítése. Hozzáférés az értesítésekhez szükséges</string>
     <string name="app_item_menu_notification_without_title">Értesítés</string>
+    <string name="cannot_start_app">Az App nem indítható.</string>
 </resources>

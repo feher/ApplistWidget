@@ -415,10 +415,22 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                         0);
             }
 
-            startAppByIntent(launchIntent);
+            try {
+                getContext().startActivity(launchIntent);
+            } catch (Exception e) {
+                Toast.makeText(getActivity(), R.string.cannot_start_app, Toast.LENGTH_SHORT).show();
+                ApplistLog.getInstance().log(e);
+            }
         } else if (startableItem instanceof ShortcutItem) {
             ShortcutItem shortcutItem = (ShortcutItem) startableItem;
-            startAppByIntent(shortcutItem.getIntent());
+            try {
+                getContext().startActivity(shortcutItem.getIntent());
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+                ApplistLog.getInstance().log(e);
+            }
         } else if (startableItem instanceof AppShortcutItem) {
             AppShortcutItem appShortcutItem = (AppShortcutItem) startableItem;
             ShortcutInfo shortcutInfo = resolveAppShortcutInfo(appShortcutItem);
@@ -867,14 +879,6 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             cancelNotificationIntent.setAction(NotificationListener.ACTION_CANCEL_NOTIFICATION);
             cancelNotificationIntent.putExtra(NotificationListener.EXTRA_NOTIFICATION_KEY, statusBarNotification.getKey());
             getActivity().startService(cancelNotificationIntent);
-        }
-    }
-
-    private void startAppByIntent(Intent intent) {
-        try {
-            getContext().startActivity(intent);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
         }
     }
 
