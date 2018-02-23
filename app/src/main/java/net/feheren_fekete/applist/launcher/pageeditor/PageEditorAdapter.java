@@ -1,7 +1,9 @@
 package net.feheren_fekete.applist.launcher.pageeditor;
 
+import android.Manifest;
 import android.app.WallpaperInfo;
 import android.app.WallpaperManager;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Point;
@@ -9,6 +11,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -229,7 +232,9 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
                 final Canvas canvas = new Canvas(bmp);
                 canvas.drawColor(0xbb5d1e66);
                 mWallpaper = new BitmapDrawable(holder.wallpaper.getResources(), bmp);
-            } else {
+            } else if (ContextCompat.checkSelfPermission(
+                    holder.screenshot.getContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 mWallpaper = wallpaperManager.getDrawable();
             }
         }

@@ -82,4 +82,6 @@
     <string name="settings_show_notification_badge_summary">Näytä merkki kun appeilla on ilmoitkusia. Vaatii pääsyä ilmoituksiin</string>
     <string name="app_item_menu_notification_without_title">Ilmoitus</string>
     <string name="cannot_start_app">Appi ei käynnisty.</string>
+    <string name="launcher_page_editor_permission_title">Käyttöoikeus tarvitaan</string>
+    <string name="launcher_page_editor_permission_message">Tarvitaan käyttöoikeus taustakuvan näyttemiseen</string>
 </resources>

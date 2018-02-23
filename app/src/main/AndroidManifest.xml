@@ -4,6 +4,7 @@
     package="net.feheren_fekete.applist">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <!-- For app badges -->
     <uses-permission android:name="com.sec.android.provider.badge.permission.READ"/>

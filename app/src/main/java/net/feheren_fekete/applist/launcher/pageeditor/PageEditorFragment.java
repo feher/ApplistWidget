@@ -1,19 +1,22 @@
 package net.feheren_fekete.applist.launcher.pageeditor;
 
+import android.Manifest;
 import android.appwidget.AppWidgetHost;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,7 @@ import android.widget.Button;
 
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.ApplistDialogs;
 import net.feheren_fekete.applist.launcher.LauncherStateManager;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.model.LauncherModel;
@@ -43,6 +47,8 @@ public class PageEditorFragment extends Fragment {
     private static final String FRAGMENT_ARG_REQUEST_DATA = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_REQUEST_DATA";
     private static final String FRAGMENT_ARG_USE_AS_PAGE_PICKER = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_USE_AS_PAGE_PICKER";
     private static final String FRAGMENT_ARG_ADD_PADDING = PageEditorFragment.class.getSimpleName() + ".FRAGMENT_ARG_ADD_PADDING";
+
+    private static final int PERMISSIONS_REQUEST_READ_WALLPAPER = 1234;
 
     public static final class DoneEvent {}
     public static final class PageTappedEvent {
@@ -234,6 +240,18 @@ public class PageEditorFragment extends Fragment {
         mScreenshotUtils.cancelScheduledScreenshot();
         EventBus.getDefault().register(this);
         mAdapter.setPages(mLauncherModel.getPages());
+        ensureReadWallpaperPermission();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSIONS_REQUEST_READ_WALLPAPER) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Update the adapter to show the current wallpaper in the items' backgrounds.
+                mAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     @Override
@@ -259,6 +277,38 @@ public class PageEditorFragment extends Fragment {
     public void onPageAddedEvent(LauncherModel.PageAddedEvent event) {
         mAdapter.addPage(event.pageData);
         mRecyclerView.smoothScrollToPosition(mAdapter.getItemPosition(event.pageData));
+    }
+
+    private void ensureReadWallpaperPermission() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_CALENDAR)) {
+                ApplistDialogs.messageDialog(
+                        getActivity(),
+                        getContext().getString(R.string.launcher_page_editor_permission_title),
+                        getContext().getString(R.string.launcher_page_editor_permission_message),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                ActivityCompat.requestPermissions(
+                                        getActivity(),
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                        PERMISSIONS_REQUEST_READ_WALLPAPER);
+                            }
+
+                        },
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                // Nothing
+                            }
+                        });
+            } else {
+                ActivityCompat.requestPermissions(
+                        getActivity(),
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_READ_WALLPAPER);
+            }
+        }
     }
 
     private PageEditorAdapter.Listener mPageEditorAdapterListener = new PageEditorAdapter.Listener() {

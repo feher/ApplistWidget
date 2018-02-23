@@ -82,4 +82,6 @@
     <string name="settings_show_notification_badge_summary">Jelzés megjelenítése, ha egy alkalmazásnak van aktív Értesítése. Hozzáférés az értesítésekhez szükséges</string>
     <string name="app_item_menu_notification_without_title">Értesítés</string>
     <string name="cannot_start_app">Az App nem indítható.</string>
+    <string name="launcher_page_editor_permission_title">Jogosultság szükséges</string>
+    <string name="launcher_page_editor_permission_message">Szükség van jogosultságra a háttérkép megjelenítéséhez</string>
 </resources>
