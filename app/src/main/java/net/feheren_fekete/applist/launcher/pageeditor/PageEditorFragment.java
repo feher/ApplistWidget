@@ -235,12 +235,17 @@ public class PageEditorFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        ensureReadWallpaperPermission();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         mScreenshotUtils.cancelScheduledScreenshot();
         EventBus.getDefault().register(this);
         mAdapter.setPages(mLauncherModel.getPages());
-        ensureReadWallpaperPermission();
     }
 
     @Override
@@ -281,7 +286,7 @@ public class PageEditorFragment extends Fragment {
 
     private void ensureReadWallpaperPermission() {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_CALENDAR)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 ApplistDialogs.messageDialog(
                         getActivity(),
                         getContext().getString(R.string.launcher_page_editor_permission_title),
