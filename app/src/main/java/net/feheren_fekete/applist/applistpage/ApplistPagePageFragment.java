@@ -749,6 +749,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
             return;
         }
+        if (getContext() == null) {
+            return;
+        }
         List<ShortcutInfo> shortcutInfos = performAppShortcutQuery(
                 appItem.getPackageName(),
                 null,
@@ -771,6 +774,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             ApplistLog.getInstance().log(new RuntimeException("Max " + maxShortcutCount + " app shortcuts are supported!"));
         }
         LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        if (launcherApps == null) {
+            return;
+        }
         for (int i = 0; i < shortcutInfos.size() && i < maxShortcutCount; ++i) {
             ShortcutInfo shortcutInfo = shortcutInfos.get(i);
             Drawable iconDrawable = null;
