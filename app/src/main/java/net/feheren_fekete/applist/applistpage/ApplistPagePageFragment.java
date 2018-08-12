@@ -920,6 +920,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void showAppInfo(StartableItem startableItem) {
+        if (getContext() == null) {
+            return;
+        }
         String packageName = null;
         if (startableItem instanceof AppItem) {
             final AppItem appItem = (AppItem) startableItem;
