@@ -943,6 +943,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void uninstallApp(AppItem appItem) {
+        if (getContext() == null) {
+            return;
+        }
         Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
         Uri uri = Uri.fromParts("package", appItem.getPackageName(), null);
         intent.setData(uri);
