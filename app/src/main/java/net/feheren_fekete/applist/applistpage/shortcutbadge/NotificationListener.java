@@ -5,6 +5,7 @@ import android.os.Build;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 
@@ -97,7 +98,14 @@ public class NotificationListener extends NotificationListenerService {
     }
 
     private void updateStatusBarNotifications() {
-        StatusBarNotification[] statusBarNotifications = getActiveNotifications();
+        StatusBarNotification[] statusBarNotifications = null;
+        try {
+            statusBarNotifications = getActiveNotifications();
+        } catch (RuntimeException e) {
+            ApplistLog.getInstance().log(e);
+            sStatusBarNotifications = null;
+            return;
+        }
         if (statusBarNotifications != null) {
             List<StatusBarNotification> statusBarNotificationList = Arrays.asList(statusBarNotifications);
             Collections.sort(statusBarNotificationList, new Comparator<StatusBarNotification>() {
