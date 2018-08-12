@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MotionEventCompat;
@@ -98,11 +99,11 @@ public class ApplistAdapter
             super(view, R.id.applist_app_item_layout);
             this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_app_item_dragged_over_indicator_left);
             this.draggedOverIndicatorRight = view.findViewById(R.id.applist_app_item_dragged_over_indicator_right);
-            this.appIcon = (ImageView) view.findViewById(R.id.applist_app_item_icon);
-            this.appNameWithoutShadow = (TextView) view.findViewById(R.id.applist_app_item_app_name);
-            this.appNameWithShadow = (TextView) view.findViewById(R.id.applist_app_item_app_name_with_shadow);
-            this.badgeCount = (TextView) view.findViewById(R.id.applist_app_item_badge_count);
-            this.shortcutIndicator = (ImageView) view.findViewById(R.id.applist_app_item_shortcut_indicator);
+            this.appIcon = view.findViewById(R.id.applist_app_item_icon);
+            this.appNameWithoutShadow = view.findViewById(R.id.applist_app_item_app_name);
+            this.appNameWithShadow = view.findViewById(R.id.applist_app_item_app_name_with_shadow);
+            this.badgeCount = view.findViewById(R.id.applist_app_item_badge_count);
+            this.shortcutIndicator = view.findViewById(R.id.applist_app_item_shortcut_indicator);
             this.itemListenerRef = new WeakReference<>(itemListener);
             this.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -207,7 +208,8 @@ public class ApplistAdapter
     }
 
     @Override
-    public ViewHolderBase onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public ViewHolderBase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case STARTABLE_ITEM_VIEW: {
                 View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.applist_startable_item, parent, false);
@@ -218,12 +220,12 @@ public class ApplistAdapter
                 return new SectionItemHolder(itemView, mItemListener);
             }
             default:
-                return null;
+                throw new IllegalStateException();
         }
     }
 
     @Override
-    public void onBindViewHolder(ViewHolderBase holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolderBase holder, int position) {
         if (holder instanceof StartableItemHolder) {
             bindStartableItemHolder((StartableItemHolder) holder, position);
         } else if (holder instanceof SectionItemHolder) {
