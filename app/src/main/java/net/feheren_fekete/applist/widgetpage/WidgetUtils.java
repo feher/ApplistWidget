@@ -50,7 +50,11 @@ public class WidgetUtils {
     public Drawable getPreviewImage(Context context, AppWidgetProviderInfo appWidgetProviderInfo) {
         Drawable result = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            result = appWidgetProviderInfo.loadPreviewImage(context, 0);
+            try {
+                result = appWidgetProviderInfo.loadPreviewImage(context, 0);
+            } catch (OutOfMemoryError e) {
+                ApplistLog.getInstance().log(e);
+            }
         } else {
             try {
                 PackageManager manager = context.getPackageManager();
