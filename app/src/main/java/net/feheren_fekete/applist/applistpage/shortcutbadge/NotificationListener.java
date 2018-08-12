@@ -98,14 +98,18 @@ public class NotificationListener extends NotificationListenerService {
 
     private void updateStatusBarNotifications() {
         StatusBarNotification[] statusBarNotifications = getActiveNotifications();
-        List<StatusBarNotification> statusBarNotificationList = Arrays.asList(statusBarNotifications);
-        Collections.sort(statusBarNotificationList, new Comparator<StatusBarNotification>() {
-            @Override
-            public int compare(StatusBarNotification a, StatusBarNotification b) {
-                return Long.compare(a.getPostTime(), b.getPostTime());
-            }
-        });
-        sStatusBarNotifications = statusBarNotificationList;
+        if (statusBarNotifications != null) {
+            List<StatusBarNotification> statusBarNotificationList = Arrays.asList(statusBarNotifications);
+            Collections.sort(statusBarNotificationList, new Comparator<StatusBarNotification>() {
+                @Override
+                public int compare(StatusBarNotification a, StatusBarNotification b) {
+                    return Long.compare(a.getPostTime(), b.getPostTime());
+                }
+            });
+            sStatusBarNotifications = statusBarNotificationList;
+        } else {
+            sStatusBarNotifications = null;
+        }
     }
 
     private void updateBadgeCounts() {
