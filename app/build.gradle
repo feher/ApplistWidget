@@ -25,7 +25,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "net.feheren_fekete.applist"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 27
 
         // Even versionCode are release versions.
