@@ -53,25 +53,25 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:multidex:1.0.3'
-    compile 'com.android.support:appcompat-v7:27.+'
-    compile 'com.android.support:design:27.+'
-    compile 'com.android.support:percent:27.+'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.android.support:appcompat-v7:27.+'
+    implementation 'com.android.support:design:27.+'
+    implementation 'com.android.support:percent:27.+'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
-    compile 'com.parse.bolts:bolts-tasks:1.4.0'
+    implementation 'com.parse.bolts:bolts-tasks:1.4.0'
 
-    compile 'org.greenrobot:eventbus:3.1.1'
+    implementation 'org.greenrobot:eventbus:3.1.1'
 
     // Glide
-    compile 'com.android.support:support-v4:27.+'
-    compile 'com.github.bumptech.glide:glide:4.6.1'
+    implementation 'com.android.support:support-v4:27.+'
+    implementation 'com.github.bumptech.glide:glide:4.6.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
 
     // Crashlytics
-    compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
         transitive = true;
     }
 
