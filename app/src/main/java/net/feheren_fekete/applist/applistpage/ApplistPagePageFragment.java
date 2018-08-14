@@ -144,8 +144,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 mScreenUtils.dpToPx(getContext(),
                         mSettingsUtils.getColumnWidth()));
         final int screenWidth = mScreenUtils.getScreenWidth(getContext());
-        final int columnCount = screenWidth / columnSize;
-        mLayoutManager = new MyGridLayoutManager(getContext(), columnCount);
+        int tempColumnCount = screenWidth / columnSize;
+        if (tempColumnCount <= 0) {
+            ApplistLog.getInstance().log(new IllegalStateException("Invalid column count: " + tempColumnCount));
+            tempColumnCount = 4;
+        }
+        final int columnCount = tempColumnCount;
         mLayoutManager.setSmoothScrollbarEnabled(true);
         mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
