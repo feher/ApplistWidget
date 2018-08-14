@@ -528,8 +528,14 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                                     int firstPosition = mLayoutManager.findFirstVisibleItemPosition();
                                     int firstVisiblePosition = mLayoutManager.findFirstCompletelyVisibleItemPosition();
                                     View firstVisibleView = mRecyclerView.getChildAt(firstVisiblePosition - firstPosition);
+                                    if (firstVisibleView == null) {
+                                        return;
+                                    }
                                     int toY = firstVisibleView.getTop();
                                     View thisView = mRecyclerView.getChildAt(position - firstPosition);
+                                    if (thisView == null) {
+                                        return;
+                                    }
                                     int fromY = thisView.getTop();
                                     mRecyclerView.smoothScrollBy(0, fromY - toY);
                                 }
