@@ -898,7 +898,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             return;
         }
         try {
-            statusBarNotification.getNotification().contentIntent.send();
+            if (statusBarNotification.getNotification().contentIntent != null) {
+                statusBarNotification.getNotification().contentIntent.send();
+            }
             if ((statusBarNotification.getNotification().flags & Notification.FLAG_AUTO_CANCEL) != 0) {
                 Intent cancelNotificationIntent = new Intent(getActivity(), NotificationListener.class);
                 cancelNotificationIntent.setAction(NotificationListener.ACTION_CANCEL_NOTIFICATION);
