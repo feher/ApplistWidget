@@ -150,6 +150,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             tempColumnCount = 4;
         }
         final int columnCount = tempColumnCount;
+        mLayoutManager = new MyGridLayoutManager(getContext(), columnCount);
         mLayoutManager.setSmoothScrollbarEnabled(true);
         mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
