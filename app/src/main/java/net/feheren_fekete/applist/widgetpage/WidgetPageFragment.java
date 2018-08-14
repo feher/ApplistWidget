@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.LauncherUtils;
@@ -293,7 +294,11 @@ public class WidgetPageFragment extends Fragment {
         updateWidgetOnScreen(hostView, widgetData);
 
         mWidgets.add(widgetItem);
-        mWidgetContainer.addView(hostView);
+        try {
+            mWidgetContainer.addView(hostView);
+        } catch (SecurityException e) {
+            ApplistLog.getInstance().log(e);
+        }
         mWidgetContainer.invalidate();
     }
 
