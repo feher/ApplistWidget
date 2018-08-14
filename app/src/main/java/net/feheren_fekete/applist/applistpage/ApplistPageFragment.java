@@ -92,7 +92,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         mToolbar.setOnClickListener(mToolbarClickListener);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(mToolbar);
-        activity.getSupportActionBar().setTitle(R.string.toolbar_title);
+        setTitle();
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         setHasOptionsMenu(true);
 
@@ -265,6 +265,18 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     public void onItemDragEnd() {
     }
 
+    private void setTitle() {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        if (activity == null) {
+            return;
+        }
+        if (mSettingsUtils.shouldShowAppTitle()) {
+            activity.getSupportActionBar().setTitle(R.string.toolbar_title);
+        } else {
+            activity.getSupportActionBar().setTitle("");
+        }
+    }
+
     private Drawable createToolbarGradient() {
         // REF: 2017_06_30_toolbar_gradient
         TypedValue typedValue = new TypedValue();
@@ -370,8 +382,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     }
 
     private void stopFilteringByName(ApplistPagePageFragment fragment) {
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.getSupportActionBar().setTitle(R.string.toolbar_title);
+        setTitle();
         fragment.deactivateNameFilter();
         mSearchView.setIconified(true);
         onPrepareOptionsMenu(mMenu);

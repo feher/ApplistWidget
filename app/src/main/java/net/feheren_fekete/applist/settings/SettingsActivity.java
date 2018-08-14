@@ -46,6 +46,7 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String PREF_KEY_COLOR_THEME = "pref_key_color_theme";
     public static final String PREF_KEY_COLUMN_WIDTH = "pref_key_column_width";
     public static final String PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY = "pref_key_keep_apps_sorted_alphabetically";
+    public static final String PREF_KEY_SHOW_APP_TITLE = "pref_key_show_app_title";
     public static final String PREF_KEY_SHOW_NEW_CONTENT_BADGE = "pref_key_show_new_content_badge";
     public static final String PREF_KEY_SHOW_SMS_BADGE = "pref_key_show_sms_badge";
     public static final String PREF_KEY_SHOW_PHONE_BADGE = "pref_key_show_phone_badge";
@@ -147,7 +148,9 @@ public class SettingsActivity extends PreferenceActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY)) {
+            if (key.equals(PREF_KEY_SHOW_APP_TITLE)) {
+                handleShowAppTitle();
+            } else if (key.equals(PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY)) {
                 handleChangeKeepAppsSorted();
             } else if (key.equals(PREF_KEY_COLOR_THEME)) {
                 handleChangeColorTheme();
@@ -160,6 +163,10 @@ public class SettingsActivity extends PreferenceActivity {
             } else if (key.equals(PREF_KEY_SHOW_NOTIFICATION_BADGE)) {
                 handleChangeShowNotificationBadge();
             }
+        }
+
+        private void handleShowAppTitle() {
+            restartMainActivity();
         }
 
         private void handleChangeKeepAppsSorted() {

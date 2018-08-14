@@ -4,6 +4,11 @@
         android:title="@string/settings_appearance"
         android:key="pref_key_appearance">
         <SwitchPreference
+            android:key="pref_key_show_app_title"
+            android:title="@string/settings_show_app_title"
+            android:summary="@string/settings_show_app_title_summary"
+            android:defaultValue="true"/>
+        <SwitchPreference
             android:key="pref_key_keep_apps_sorted_alphabetically"
             android:title="@string/settings_keep_apps_sorted_alphabetically"
             android:summary="@string/settings_keep_apps_sorted_alphabetically_summary"

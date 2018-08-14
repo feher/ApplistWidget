@@ -80,6 +80,8 @@
     <string name="page_picker_already_on_page">Widget is already on this page</string>
 
     <string name="settings_appearance">Appearance</string>
+    <string name="settings_show_app_title">Show app title</string>
+    <string name="settings_show_app_title_summary">Show/hide the Apper title at the top</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>
     <string name="settings_keep_apps_sorted_alphabetically_summary">Always sort apps alphabetically inside groups</string>
     <string name="settings_keep_apps_sorted_dialog_message">All your apps will be re-arranged alphabetically now.</string>

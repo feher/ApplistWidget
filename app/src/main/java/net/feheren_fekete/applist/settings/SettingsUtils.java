@@ -76,6 +76,10 @@ public class SettingsUtils {
         return mTransparentColorThemes.contains(colorTheme);
     }
 
+    public boolean shouldShowAppTitle() {
+        return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_SHOW_APP_TITLE, true);
+    }
+
     public boolean isKeepAppsSortedAlphabetically() {
         return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY, false);
     }
