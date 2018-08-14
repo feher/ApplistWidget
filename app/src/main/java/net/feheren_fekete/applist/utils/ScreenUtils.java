@@ -3,6 +3,7 @@ package net.feheren_fekete.applist.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.DisplayMetrics;
@@ -95,7 +96,7 @@ public class ScreenUtils {
         TypedValue tv = new TypedValue();
         if (context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
             if (mDisplayMetrics == null) {
-                mDisplayMetrics = context.getResources().getDisplayMetrics();
+                mDisplayMetrics = Resources.getSystem().getDisplayMetrics();
             }
             return TypedValue.complexToDimensionPixelSize(
                     tv.data, mDisplayMetrics);
@@ -131,14 +132,14 @@ public class ScreenUtils {
 
     public float dpToPx(Context context, float dp) {
         if (mDisplayMetrics == null) {
-            mDisplayMetrics = context.getResources().getDisplayMetrics();
+            mDisplayMetrics = Resources.getSystem().getDisplayMetrics();
         }
         return dp * (mDisplayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
     public float pxToDp(Context context, float px) {
         if (mDisplayMetrics == null) {
-            mDisplayMetrics = context.getResources().getDisplayMetrics();
+            mDisplayMetrics = Resources.getSystem().getDisplayMetrics();
         }
         return Math.round(px / (mDisplayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
