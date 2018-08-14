@@ -998,7 +998,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             intent.setData(uri);
             getContext().startActivity(intent);
         } else {
-            throw new RuntimeException("Package name is not available for shortcut");
+            ApplistLog.getInstance().log(new RuntimeException("Package name is not available for shortcut"));
         }
     }
 
