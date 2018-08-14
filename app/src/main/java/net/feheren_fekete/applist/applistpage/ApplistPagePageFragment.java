@@ -322,6 +322,10 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
     @Override
     public void onStartableLongTapped(final StartableItem startableItem) {
+        if (getContext() == null) {
+            return;
+        }
+
         mItemMenuTarget = startableItem;
 
         // Change the adapter only after the popup window has been displayed.
@@ -394,6 +398,10 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     @Override
     public void onStartableTapped(StartableItem startableItem) {
         if (startableItem instanceof AppItem) {
+            if (getContext() == null) {
+                return;
+            }
+
             AppItem appItem = (AppItem) startableItem;
 
             Intent launchIntent = new Intent(Intent.ACTION_MAIN);
@@ -422,17 +430,20 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             try {
                 getContext().startActivity(launchIntent);
             } catch (Exception e) {
-                Toast.makeText(getActivity(), R.string.cannot_start_app, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.cannot_start_app, Toast.LENGTH_SHORT).show();
                 ApplistLog.getInstance().log(e);
             }
         } else if (startableItem instanceof ShortcutItem) {
+            if (getContext() == null) {
+                return;
+            }
             ShortcutItem shortcutItem = (ShortcutItem) startableItem;
             try {
                 getContext().startActivity(shortcutItem.getIntent());
             } catch (ActivityNotFoundException e) {
-                Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
-                Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
                 ApplistLog.getInstance().log(e);
             }
         } else if (startableItem instanceof AppShortcutItem) {
@@ -448,6 +459,10 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
     @Override
     public void onSectionLongTapped(final SectionItem sectionItem) {
+        if (getContext() == null) {
+            return;
+        }
+
         mItemDragGestureRecognizer.setDelegateEnabled(false);
 
         List<ItemMenuItem> itemMenuItems = new ArrayList<>();
@@ -808,9 +823,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private List<ShortcutInfo> performAppShortcutQuery(String packageName,
                                                        @Nullable String shortcutId,
                                                        int queryFlags) {
+        if (getContext() == null) {
+            return Collections.emptyList();
+        }
         List<ShortcutInfo> result = new ArrayList<>();
         LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
-        if (launcherApps.hasShortcutHostPermission()) {
+        if (launcherApps != null && launcherApps.hasShortcutHostPermission()) {
             List<UserHandle> profiles = new ArrayList<>();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 profiles.addAll(launcherApps.getProfiles());
@@ -837,10 +855,13 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     @TargetApi(Build.VERSION_CODES.O)
     private void testPinShortcut(ShortcutInfo shortcutInfo) {
         Log.d(TAG, "REQUEST PIN " + shortcutInfo.getPackage() + " " + shortcutInfo.getId());
-        ShortcutManager mShortcutManager;
-        mShortcutManager = getContext().getSystemService(ShortcutManager.class);
-        if (mShortcutManager.isRequestPinShortcutSupported()) {
-            mShortcutManager.requestPinShortcut(shortcutInfo, null);
+        if (getContext() == null) {
+            return;
+        }
+        ShortcutManager shortcutManager;
+        shortcutManager = getContext().getSystemService(ShortcutManager.class);
+        if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
+            shortcutManager.requestPinShortcut(shortcutInfo, null);
         }
     }
 
@@ -848,22 +869,32 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
             return;
         }
+        if (getContext() == null) {
+            return;
+        }
         if (shortcutInfo == null) {
-            Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
         } else if (shortcutInfo.isEnabled()) {
             LauncherApps launcherApps = (LauncherApps) getContext().getSystemService(Context.LAUNCHER_APPS_SERVICE);
-            try {
-                launcherApps.startShortcut(shortcutInfo, null, null);
-            } catch (ActivityNotFoundException | IllegalStateException e) {
-                Toast.makeText(getActivity(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+            if (launcherApps != null) {
+                try {
+                    launcherApps.startShortcut(shortcutInfo, null, null);
+                } catch (ActivityNotFoundException | IllegalStateException e) {
+                    Toast.makeText(getContext(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(getActivity(), R.string.cannot_start_disabled_shortcut, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.cannot_start_disabled_shortcut, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void startNotification(StatusBarNotification statusBarNotification) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        if (getActivity() == null) {
             return;
         }
         try {
@@ -881,6 +912,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
     private void cancelNotification(StatusBarNotification statusBarNotification) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        if (getActivity() == null) {
             return;
         }
         final boolean isOngoing = (statusBarNotification.getNotification().flags & Notification.FLAG_ONGOING_EVENT) != 0;
@@ -977,6 +1011,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void renameSection(SectionItem sectionItem) {
+        if (getActivity() == null) {
+            return;
+        }
         final String pageName = getPageName();
         final String oldSectionName = sectionItem.getName();
         final List<String> sectionNames = mAdapter.getSectionNames();
@@ -1006,6 +1043,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void deleteSection(SectionItem sectionItem) {
+        if (getActivity() == null) {
+            return;
+        }
         final String sectionName = sectionItem.getName();
         final String pageName = getPageName();
         final String uncategorizedSectionName = mAdapter.getUncategorizedSectionName();
@@ -1046,6 +1086,9 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void createSection(@Nullable final AppItem appToMove) {
+        if (getActivity() == null) {
+            return;
+        }
         final String pageName = getPageName();
         final List<String> sectionNames = mAdapter.getSectionNames();
         ApplistDialogs.textInputDialog(
