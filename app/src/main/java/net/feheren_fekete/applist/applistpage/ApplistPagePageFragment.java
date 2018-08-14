@@ -848,7 +848,12 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 if (shortcutId != null) {
                     shortcutQuery.setShortcutIds(Collections.singletonList(shortcutId));
                 }
-                List<ShortcutInfo> shortcutInfos = launcherApps.getShortcuts(shortcutQuery, userHandle);
+                List<ShortcutInfo> shortcutInfos = null;
+                try {
+                    shortcutInfos = launcherApps.getShortcuts(shortcutQuery, userHandle);
+                } catch (IllegalStateException e) {
+                    // Nothing. Just don't crash.
+                }
                 if (shortcutInfos != null) {
                     result.addAll(shortcutInfos);
                 }
