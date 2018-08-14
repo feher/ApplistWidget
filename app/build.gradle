@@ -30,12 +30,12 @@ android {
 
         // Even versionCode are release versions.
         // Odd versionCode are developer/debug versions.
-        versionCode 32
+        versionCode 35
 
         // versionName is major.minor
         // Even minor versions are release versions.
         // Odd minor versions are developer/debug versions.
-        versionName "3.2"
+        versionName "3.5"
 
         multiDexEnabled true
 
