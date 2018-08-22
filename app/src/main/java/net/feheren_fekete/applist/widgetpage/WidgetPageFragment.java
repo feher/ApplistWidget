@@ -277,6 +277,14 @@ public class WidgetPageFragment extends Fragment {
 
         MyAppWidgetHostView hostView = (MyAppWidgetHostView) mAppWidgetHost.createView(
                 getContext().getApplicationContext(), appWidgetId, appWidgetInfo);
+        if (hostView == null) {
+            ApplistLog.getInstance().log(
+                    new RuntimeException(
+                            "Cannot create view for widget: "
+                                    + "pkg=" + widgetData.getProviderPackage()
+                                    + "class=" + widgetData.getProviderClass()));
+            return;
+        }
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
