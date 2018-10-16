@@ -439,7 +439,9 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                updateApplistFragment();
+                if (isAdded()) {
+                    updateApplistFragment();
+                }
             }
         });
     }
