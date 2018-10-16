@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -336,7 +337,12 @@ public class WidgetHelper {
         if (mActivityRef != null) {
             Activity activity = mActivityRef.get();
             if (activity != null) {
-                activity.startActivityForResult(intent, requestCode);
+                try {
+                    activity.startActivityForResult(intent, requestCode);
+                } catch (ActivityNotFoundException e) {
+                    ApplistLog.getInstance().log(e);
+                    return false;
+                }
                 return true;
             }
         }
