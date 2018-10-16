@@ -67,6 +67,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private Drawable mToolbarGradient;
     private Menu mMenu;
     private SearchView mSearchView;
+    private UpdateInstalledAppsRunnable mUpdateInstalledAppsRunnable = null;
 
     public static ApplistPageFragment newInstance(long pageId) {
         ApplistPageFragment fragment = new ApplistPageFragment();
@@ -293,14 +294,21 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         startActivity(settingsIntent);
     }
 
-    private BroadcastReceiver mPackageStateReceiver = new BroadcastReceiver() {
+    private class UpdateInstalledAppsRunnable implements Runnable {
+        private Context appContext;
+        private Uri uri;
+        UpdateInstalledAppsRunnable(Context appContext, Uri uri) {
+            this.appContext = appContext;
+            this.uri = uri;
+        }
         @Override
-        public void onReceive(Context context, Intent intent) {
-            final Uri uri = (intent != null) ? intent.getData() : null;
-            final Context appContext = context.getApplicationContext();
+        public void run() {
             Task.callInBackground(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
+                    if (appContext == null) {
+                        return null;
+                    }
                     if (uri != null) {
                         mFileUtils.deleteFiles(
                                 mFileUtils.getIconCacheDirPath(appContext),
@@ -308,9 +316,28 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
                     }
                     mApplistModel.updateInstalledApps();
                     mBadgeStore.cleanup();
+                    appContext = null;
                     return null;
                 }
             });
+        }
+    }
+
+    private void scheduleUpdateInstalledApps(Context appContext, Uri uri) {
+        if (mUpdateInstalledAppsRunnable != null) {
+            mHandler.removeCallbacks(mUpdateInstalledAppsRunnable);
+            mUpdateInstalledAppsRunnable = null;
+        }
+        mUpdateInstalledAppsRunnable = new UpdateInstalledAppsRunnable(appContext, uri);
+        mHandler.postDelayed(mUpdateInstalledAppsRunnable, 2000);
+    }
+
+    private BroadcastReceiver mPackageStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final Uri uri = (intent != null) ? intent.getData() : null;
+            final Context appContext = context.getApplicationContext();
+            scheduleUpdateInstalledApps(appContext, uri);
         }
     };
 
