@@ -195,6 +195,9 @@ public class WidgetPageFragment extends Fragment {
     }
 
     public boolean handleScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
+        if (event1 == null || event2 == null) {
+            return false;
+        }
         boolean handled = false;
         if (mWidgetMenuTarget != null) {
             if (mOriginalFingerPos.x != event1.getRawX() || mOriginalFingerPos.y != event1.getRawY()) {
