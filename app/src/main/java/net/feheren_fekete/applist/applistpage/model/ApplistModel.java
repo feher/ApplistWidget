@@ -509,7 +509,7 @@ public class ApplistModel {
 
     private boolean updatePages(List<PageData> pages) {
         boolean isSectionChanged = false;
-        for (PageData page : mPages) {
+        for (PageData page : pages) {
             if (updateSections(page)) {
                 isSectionChanged = true;
             }

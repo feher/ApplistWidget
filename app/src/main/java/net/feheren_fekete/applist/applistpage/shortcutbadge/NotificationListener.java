@@ -121,6 +121,9 @@ public class NotificationListener extends NotificationListenerService {
     }
 
     private void updateBadgeCounts() {
+        if (sStatusBarNotifications == null) {
+            return;
+        }
         for (StatusBarNotification sbn : sStatusBarNotifications) {
             setBadgeCount(true, sbn.getPackageName(), sbn.getNotification().number);
         }

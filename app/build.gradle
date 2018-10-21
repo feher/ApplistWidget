@@ -43,7 +43,7 @@ android {
         // https://stackoverflow.com/questions/35761636/is-it-possible-to-use-vectordrawable-in-buttons-and-textviews-using-androiddraw/41855991#41855991
         vectorDrawables.useSupportLibrary = false
     }
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.2'
     buildTypes {
         release {
             minifyEnabled true
