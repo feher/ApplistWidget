@@ -29,6 +29,7 @@
     <string name="app_item_menu_notification_without_title">Notification</string>
 
     <string name="cannot_start_app">App cannot be started.</string>
+    <string name="cannot_show_app_info">Cannot show app info.</string>
     <string name="cannot_start_shortcut">App cannot be found. Cannot start shortcut.</string>
     <string name="cannot_start_disabled_shortcut">Shortcut is disabled.</string>
     <string name="cannot_pin_disabled_shortcut">Cannot pin. Shortcut is disabled.</string>

@@ -84,4 +84,5 @@
     <string name="cannot_start_app">Az App nem indítható.</string>
     <string name="launcher_page_editor_permission_title">Jogosultság szükséges</string>
     <string name="launcher_page_editor_permission_message">Szükség van jogosultságra a háttérkép megjelenítéséhez</string>
+    <string name="cannot_show_app_info">Alkalmazás információ nem elérhetö</string>
 </resources>

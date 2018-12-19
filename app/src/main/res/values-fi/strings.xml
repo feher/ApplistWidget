@@ -84,4 +84,5 @@
     <string name="cannot_start_app">Appi ei käynnisty.</string>
     <string name="launcher_page_editor_permission_title">Käyttöoikeus tarvitaan</string>
     <string name="launcher_page_editor_permission_message">Tarvitaan käyttöoikeus taustakuvan näyttemiseen</string>
+    <string name="cannot_show_app_info">Appin tietoja ei voi näyttää</string>
 </resources>

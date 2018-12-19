@@ -972,7 +972,8 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void showAppInfo(StartableItem startableItem) {
-        if (getContext() == null) {
+        Context c = getContext();
+        if (c == null) {
             return;
         }
         String packageName = null;
@@ -997,9 +998,15 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
             intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             Uri uri = Uri.fromParts("package", packageName, null);
             intent.setData(uri);
-            getContext().startActivity(intent);
+            try {
+                c.startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                ApplistLog.getInstance().log(e);
+                Toast.makeText(c, R.string.cannot_show_app_info, Toast.LENGTH_SHORT).show();
+            }
         } else {
             ApplistLog.getInstance().log(new RuntimeException("Package name is not available for shortcut"));
+            Toast.makeText(c, R.string.cannot_show_app_info, Toast.LENGTH_SHORT).show();
         }
     }
 
