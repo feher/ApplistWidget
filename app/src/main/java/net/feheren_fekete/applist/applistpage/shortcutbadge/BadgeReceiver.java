@@ -48,7 +48,8 @@ public class BadgeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "RECEIVED: " + intent.toUri(0));
+        // Note: intent.toUri(0) may crash with "Duplicate key in ArrayMap: badge_count"
+        // Log.d(TAG, "RECEIVED: " + intent.toUri(0));
 
         if (!mSettingsUtils.getShowNewContentBadge()) {
             return;
