@@ -17,7 +17,9 @@
     <!--<uses-permission android:name="com.sonyericsson.home.permission.READ_SETTINGS"/>-->
 
     <!-- For SMS badges -->
+    <!-- Not allowed to use: https://support.google.com/googleplay/android-developer/answer/9047303
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    -->
 
     <!-- For Phone badges -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -101,12 +103,14 @@
             </intent-filter>
         </receiver>
 
+        <!--
         <receiver android:name=".applistpage.shortcutbadge.SmsReceiver"
                   android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
+        -->
 
         <receiver android:name=".applistpage.shortcutbadge.CallStateReceiver">
             <intent-filter>
