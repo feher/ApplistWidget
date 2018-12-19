@@ -339,7 +339,7 @@ public class WidgetHelper {
             if (activity != null) {
                 try {
                     activity.startActivityForResult(intent, requestCode);
-                } catch (ActivityNotFoundException e) {
+                } catch (ActivityNotFoundException | SecurityException e) {
                     ApplistLog.getInstance().log(e);
                     return false;
                 }
