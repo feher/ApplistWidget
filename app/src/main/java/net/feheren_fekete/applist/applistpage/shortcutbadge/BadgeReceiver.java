@@ -55,18 +55,22 @@ public class BadgeReceiver extends BroadcastReceiver {
             return;
         }
 
-        if (DEFAULT_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleDefault(intent);
-        } else if (SONY_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleSony(intent);
-        } else if (ADW_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleAdw(intent);
-        } else if (APEX_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleApex(intent);
-        } else if (HTC_1_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleHtc1(intent);
-        } else if (HTC_2_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
-            handleHtc2(intent);
+        try {
+            if (DEFAULT_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
+                handleDefault(intent);
+            } else if (SONY_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
+                handleSony(intent);
+            } else if (ADW_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
+                handleAdw(intent);
+            } else if (APEX_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
+                handleApex(intent);
+            } else if (HTC_1_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
+                handleHtc1(intent);
+            } else if (HTC_2_ACTION_UPDATE_BADGE.equals(intent.getAction())) {
+                handleHtc2(intent);
+            }
+        } catch (IllegalArgumentException e) {
+            ApplistLog.getInstance().log(e);
         }
     }
 
