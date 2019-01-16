@@ -75,4 +75,10 @@ dependencies {
         transitive = true
     }
 
+    // Firebase
+    implementation 'com.google.firebase:firebase-core:16.0.6'
+
 }
+
+// Must be last
+apply plugin: 'com.google.gms.google-services'
