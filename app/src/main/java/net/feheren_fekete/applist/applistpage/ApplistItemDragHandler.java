@@ -219,6 +219,10 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     }
 
     private void updateDraggedOverItem(DragGestureRecognizer gestureRecognizer, BaseItem draggedItem) {
+        if (mAdapter.getItemCount() == 0) {
+            return;
+        }
+
         final MotionEvent event = gestureRecognizer.getMotionEvent();
         final float fingerCurrentPosX = event.getRawX();
         final float fingerCurrentPosY = event.getRawY();
