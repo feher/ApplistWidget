@@ -206,9 +206,6 @@ public class SettingsActivity extends PreferenceActivity {
         }
 
         private void handleChangeShowSmsBadge() {
-//            if (getShowSmsBadge()) {
-//                ensurePermission(Manifest.permission.RECEIVE_SMS, SMS_PERMISSION_REQUEST_CODE);
-//            }
         }
 
         private void handleChangeShowPhoneBadge() {

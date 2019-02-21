@@ -18,11 +18,6 @@
     <!--<uses-permission android:name="com.sonymobile.home.permission.PROVIDER_READ_BADGE"/>-->
     <!--<uses-permission android:name="com.sonyericsson.home.permission.READ_SETTINGS"/>-->
 
-    <!-- For SMS badges -->
-    <!-- Not allowed to use: https://support.google.com/googleplay/android-developer/answer/9047303
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
-    -->
-
     <!-- For Phone badges -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
