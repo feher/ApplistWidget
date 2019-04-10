@@ -61,6 +61,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
+    private IconPackHelper mIconPackHelper = new IconPackHelper();
     private IconCache mIconCache = new IconCache();
     private ApplistPreferences mApplistPreferences;
     private Toolbar mToolbar;
@@ -483,7 +484,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     private void showApplistFragment(String pageName) {
         ApplistPagePageFragment fragment = ApplistPagePageFragment.newInstance(
-                pageName, getPageId(), mIconCache, this);
+                pageName, getPageId(), mIconPackHelper, mIconCache, this);
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.applist_page_fragment_page_container, fragment, ApplistPagePageFragment.class.getName())

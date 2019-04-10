@@ -94,6 +94,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private ApplistPreferences mApplistPreferences;
     private RecyclerView mRecyclerView;
     private ViewGroup mTouchOverlay;
+    private IconPackHelper mIconPackHelper;
     private IconCache mIconCache;
     private ApplistAdapter mAdapter;
     private MyGridLayoutManager mLayoutManager;
@@ -105,6 +106,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
 
     public static ApplistPagePageFragment newInstance(String pageName,
                                                       long launcherPageId,
+                                                      IconPackHelper iconPackHelper,
                                                       IconCache iconCache,
                                                       ApplistItemDragHandler.Listener listener) {
         ApplistPagePageFragment fragment = new ApplistPagePageFragment();
@@ -114,6 +116,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         args.putLong("launcherPageId", launcherPageId);
         fragment.setArguments(args);
 
+        fragment.mIconPackHelper = iconPackHelper;
         fragment.mIconCache = iconCache;
         fragment.mListener = listener;
 
@@ -173,6 +176,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 getContext().getPackageManager(),
                 new FileUtils(),
                 this,
+                mIconPackHelper,
                 mIconCache);
         mRecyclerView.setAdapter(mAdapter);
 

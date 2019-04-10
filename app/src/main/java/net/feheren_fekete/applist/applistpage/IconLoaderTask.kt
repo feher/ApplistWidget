@@ -13,10 +13,12 @@ import java.io.File
 import java.lang.ref.WeakReference
 
 import bolts.Task
+import java.lang.Exception
 
 class IconLoaderTask(private val appItem: AppItem,
                      startableItemHolder: ApplistAdapter.StartableItemHolder,
                      private val packageManager: PackageManager,
+                     private val iconPackHelper: IconPackHelper,
                      iconCache: IconCache,
                      iconCacheDirPath: String) : AsyncTask<Void, Void, Bitmap>() {
 
@@ -40,13 +42,11 @@ class IconLoaderTask(private val appItem: AppItem,
             }
 
             val componentName = ComponentName(appItem.packageName, appItem.className)
-            val iconDrawable = packageManager.getActivityIcon(componentName)
-            if (isCancelled) {
-                return null
-            }
+            val originalIcon = loadIconFromApp(componentName)
+            val iconPackPackageName = "com.natewren.radpackfree"
+            //val iconPackPackageName = "com.natewren.linesfree"
+            return loadIconFromIconPack(componentName, iconPackPackageName, originalIcon)
 
-            val iconBitmap = ImageUtils.drawableToBitmap(iconDrawable)
-            return iconBitmap
         } catch (e: PackageManager.NameNotFoundException) {
             return null
         }
@@ -83,5 +83,23 @@ class IconLoaderTask(private val appItem: AppItem,
         return (!isCancelled
                 && startableItemHolder != null
                 && startableItemHolder.iconLoader === this)
+    }
+
+    private fun loadIconFromApp(componentName: ComponentName): Bitmap {
+        val iconDrawable = packageManager.getActivityIcon(componentName)
+        return ImageUtils.drawableToBitmap(iconDrawable)
+    }
+
+    private fun loadIconFromIconPack(componentName: ComponentName,
+                                     iconPackPackageName: String,
+                                     originalIcon: Bitmap): Bitmap {
+        return try {
+            iconPackHelper.loadIcon(packageManager, iconPackPackageName, componentName)
+                    ?: iconPackHelper.createFallbackIcon(packageManager, iconPackPackageName, 100, 100, originalIcon)
+        } catch (e: Exception) {
+            // Do not log. It may generate too many logs (for every single icon failing) in case of
+            // a broken (or missing) icon pack.
+            originalIcon
+        }
     }
 }
