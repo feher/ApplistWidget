@@ -16,6 +16,30 @@ class IconPackHelper {
         inDither = false
     }
 
+    fun getSupportedApps(packageManager: PackageManager,
+                         iconPackPackageName: String): List<ComponentName> {
+        val result = mutableListOf<ComponentName>()
+        val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
+        findInAppfilterXml(iconPackPackageName, iconPackResources) {
+            if (it.name == "item"
+                    && it.attributeCount >= 2
+                    && it.getAttributeName(0) == "component") {
+                // We assume the component to be in this format:
+                // ComponentInfo{package-name/class-name}
+                var componentString = it.getAttributeValue(0)
+                if (componentString.startsWith("ComponentInfo{")
+                        && componentString.indexOf('/') != -1) {
+                    componentString = componentString.drop("ComponentInfo{".length)
+                    componentString = componentString.dropLast(1)
+                    result.add(ComponentName.unflattenFromString(componentString))
+                    return@findInAppfilterXml true
+                }
+            }
+            return@findInAppfilterXml false
+        }
+        return result
+    }
+
     fun loadIcon(packageManager: PackageManager,
                  iconPackPackageName: String,
                  componentName: ComponentName): Bitmap? {
