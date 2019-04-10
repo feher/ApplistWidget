@@ -169,7 +169,7 @@ public class ShortcutHelper {
                             final int drawableId = resources.getIdentifier(shortcutIconResource.resourceName, null, null);
                             final Drawable drawable = resources.getDrawable(drawableId);
                             shortcutIconBitmap = ImageUtils.drawableToBitmap(drawable);
-                        } catch (PackageManager.NameNotFoundException e) {
+                        } catch (PackageManager.NameNotFoundException | NullPointerException e) {
                             ApplistLog.getInstance().log(e);
                         }
                     }
