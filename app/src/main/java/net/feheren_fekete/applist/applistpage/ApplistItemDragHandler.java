@@ -172,6 +172,9 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         if (draggedItem instanceof StartableItem) {
             ApplistAdapter.StartableItemHolder startableItemHolder =
                     (ApplistAdapter.StartableItemHolder) mRecyclerView.findViewHolderForItemId(draggedItem.getId());
+            if (startableItemHolder == null) {
+                return;
+            }
             ImageView imageView = new ImageView(mContext);
             imageView.setImageDrawable(startableItemHolder.appIcon.getDrawable());
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mDraggedAppViewSize, mDraggedAppViewSize);
