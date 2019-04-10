@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applistpage
+package net.feheren_fekete.applist.applistpage.iconpack
 
 import android.content.ComponentName
 import android.content.pm.PackageManager

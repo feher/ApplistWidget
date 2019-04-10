@@ -26,6 +26,7 @@ import android.view.inputmethod.InputMethodManager;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.launcher.LauncherUtils;

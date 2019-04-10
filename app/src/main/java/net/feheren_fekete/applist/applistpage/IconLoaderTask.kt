@@ -13,6 +13,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 
 import bolts.Task
+import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
 import java.lang.Exception
 
 class IconLoaderTask(private val appItem: AppItem,

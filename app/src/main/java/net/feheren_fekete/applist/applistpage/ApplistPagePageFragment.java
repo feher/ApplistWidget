@@ -32,6 +32,7 @@ import android.widget.Toast;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper;
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuAdapter;
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuItem;
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuListener;

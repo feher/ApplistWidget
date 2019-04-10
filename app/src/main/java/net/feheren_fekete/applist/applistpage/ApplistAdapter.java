@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
