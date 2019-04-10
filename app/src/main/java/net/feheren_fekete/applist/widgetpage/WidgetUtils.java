@@ -6,9 +6,10 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.Nullable;
 
 import net.feheren_fekete.applist.ApplistLog;
+
+import androidx.annotation.Nullable;
 
 public class WidgetUtils {
 

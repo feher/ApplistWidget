@@ -7,11 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +15,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.applistpage.ApplistDialogs;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 
 import java.util.List;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 public class LauncherUtils {
 

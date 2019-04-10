@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.v4.util.ArrayMap;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
@@ -12,6 +11,8 @@ import net.feheren_fekete.applist.R;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import androidx.collection.ArrayMap;
 
 public class SettingsUtils {
 

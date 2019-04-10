@@ -3,9 +3,10 @@ package net.feheren_fekete.applist.widgetpage.widgetpicker;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
 
 import net.feheren_fekete.applist.widgetpage.WidgetUtils;
+
+import androidx.annotation.Nullable;
 
 public class WidgetPickerItem {
 

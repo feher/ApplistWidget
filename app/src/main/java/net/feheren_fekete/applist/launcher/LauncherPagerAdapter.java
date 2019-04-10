@@ -1,10 +1,5 @@
 package net.feheren_fekete.applist.launcher;
 
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.util.ArrayMap;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
@@ -15,6 +10,12 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 

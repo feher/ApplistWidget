@@ -2,8 +2,6 @@ package net.feheren_fekete.applist.applistpage;
 
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -14,6 +12,9 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 import net.feheren_fekete.applist.utils.RunnableWithRetArg;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 public class ApplistDialogs {
     public static void textInputDialog(Activity activity,

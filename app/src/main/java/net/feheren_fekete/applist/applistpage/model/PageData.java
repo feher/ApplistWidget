@@ -1,9 +1,9 @@
 package net.feheren_fekete.applist.applistpage.model;
 
-import android.support.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 public class PageData extends BaseData {
     private String mName;

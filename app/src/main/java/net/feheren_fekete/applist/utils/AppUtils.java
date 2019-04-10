@@ -8,12 +8,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.provider.Telephony;
-import android.support.annotation.Nullable;
 
 import net.feheren_fekete.applist.applistpage.model.AppData;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 public class AppUtils {
 

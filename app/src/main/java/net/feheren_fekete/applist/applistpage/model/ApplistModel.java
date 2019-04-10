@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.utils.AppUtils;
@@ -16,8 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.function.Predicate;
 
+import androidx.annotation.Nullable;
 import bolts.Continuation;
 import bolts.Task;
 

@@ -1,8 +1,8 @@
 package net.feheren_fekete.applist.launcher;
 
-import android.support.v4.util.ArrayMap;
-
 import java.util.Map;
+
+import androidx.collection.ArrayMap;
 
 public class LauncherStateManager {
 

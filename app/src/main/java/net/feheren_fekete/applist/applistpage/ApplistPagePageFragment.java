@@ -21,12 +21,6 @@ import android.os.Handler;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.ListPopupWindow;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +62,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.ListPopupWindow;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import bolts.Continuation;
 import bolts.Task;
 

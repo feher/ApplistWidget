@@ -3,9 +3,6 @@ package net.feheren_fekete.applist.applistpage.itemmenu;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,6 +16,9 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.R;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
 

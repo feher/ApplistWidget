@@ -1,10 +1,8 @@
 package net.feheren_fekete.applist.widgetpage.model;
 
 import android.appwidget.AppWidgetHost;
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import net.feheren_fekete.applist.ApplistLog;
@@ -20,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import androidx.annotation.Nullable;
 import bolts.Task;
 
 public class WidgetModel {

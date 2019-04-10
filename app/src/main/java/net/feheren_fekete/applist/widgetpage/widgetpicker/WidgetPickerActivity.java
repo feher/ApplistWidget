@@ -6,11 +6,6 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.widgetpage.WidgetUtils;
@@ -25,6 +20,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import bolts.Task;
 
 public class WidgetPickerActivity extends AppCompatActivity implements WidgetPickerViewHolder.Listener {
@@ -78,13 +78,13 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
             final int bottomPadding = getIntent().getIntExtra(EXTRA_BOTTOM_PADDING, 0);
             findViewById(R.id.widget_picker_activity_layout).setPadding(0, topPadding, 0, bottomPadding);
 
-            Toolbar toolbar = (Toolbar) findViewById(R.id.widget_picker_activity_toolbar);
+            Toolbar toolbar = findViewById(R.id.widget_picker_activity_toolbar);
             setSupportActionBar(toolbar);
             getSupportActionBar().setTitle(R.string.widget_picker_title);
 
             mWidgetPickerModel = new WidgetPickerModel(this);
             mWidgetPickerAdapter = new WidgetPickerAdapter(this);
-            mRecyclerView = (RecyclerView) findViewById(R.id.widget_picker_activity_widget_list);
+            mRecyclerView = findViewById(R.id.widget_picker_activity_widget_list);
             mRecyclerView.setLayoutManager(new GridLayoutManager(mRecyclerView.getContext(), 2));
             mRecyclerView.setAdapter(mWidgetPickerAdapter);
         }

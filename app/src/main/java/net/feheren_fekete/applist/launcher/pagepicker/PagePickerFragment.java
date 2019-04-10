@@ -3,10 +3,6 @@ package net.feheren_fekete.applist.launcher.pagepicker;
 import android.appwidget.AppWidgetProviderInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +17,11 @@ import net.feheren_fekete.applist.launcher.pageeditor.PageEditorFragment;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.widgetpage.WidgetHelper;
 import net.feheren_fekete.applist.widgetpage.WidgetUtils;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
 public class PagePickerFragment extends Fragment {
 

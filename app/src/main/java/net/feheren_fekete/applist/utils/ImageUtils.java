@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
 
 import net.feheren_fekete.applist.ApplistLog;
 
@@ -13,6 +12,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import androidx.annotation.Nullable;
 
 
 public class ImageUtils {

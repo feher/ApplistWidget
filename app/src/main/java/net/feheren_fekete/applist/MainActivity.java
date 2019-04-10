@@ -1,12 +1,9 @@
 package net.feheren_fekete.applist;
 
 import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
 import net.feheren_fekete.applist.applistpage.ShortcutHelper;
@@ -21,6 +18,9 @@ import net.feheren_fekete.applist.settings.SettingsUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 

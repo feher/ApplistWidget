@@ -1,13 +1,14 @@
 package net.feheren_fekete.applist.widgetpage.widgetpicker;
 
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.widgetpage.WidgetUtils;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 public class WidgetPickerViewHolder extends RecyclerView.ViewHolder {
 

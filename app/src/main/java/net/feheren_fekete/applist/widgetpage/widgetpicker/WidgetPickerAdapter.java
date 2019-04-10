@@ -1,6 +1,5 @@
 package net.feheren_fekete.applist.widgetpage.widgetpicker;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,8 @@ import net.feheren_fekete.applist.widgetpage.WidgetUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 public class WidgetPickerAdapter extends RecyclerView.Adapter<WidgetPickerViewHolder> {
 

@@ -2,8 +2,6 @@ package net.feheren_fekete.applist.applistpage;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,7 +15,6 @@ import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.PageData;
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
 import net.feheren_fekete.applist.settings.SettingsUtils;
-import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
@@ -25,6 +22,8 @@ import net.feheren_fekete.applist.applistpage.viewmodel.ViewModelUtils;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import bolts.Task;
 
 public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {

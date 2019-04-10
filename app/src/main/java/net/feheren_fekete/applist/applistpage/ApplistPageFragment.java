@@ -9,12 +9,11 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,6 +42,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
+import androidx.fragment.app.Fragment;
 import bolts.Continuation;
 import bolts.Task;
 
@@ -173,7 +173,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         mMenu = menu;
 
         MenuItem searchItem = menu.findItem(R.id.action_search_app);
-        mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchView = (SearchView) searchItem.getActionView();
         mSearchView.setIconifiedByDefault(true);
         mSearchView.setOnQueryTextFocusChangeListener(mSearchFocusListener);
         mSearchView.setOnQueryTextListener(mSearchTextListener);
