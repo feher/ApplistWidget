@@ -39,39 +39,20 @@ public class LauncherModel {
         }
     }
 
-    private static LauncherModel sInstance;
-
     private String mPagesFilePath;
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
     private List<PageData> mPages = new ArrayList<>();
 
-    public static void initInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new LauncherModel(context);
-            Task.callInBackground(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    sInstance.loadData();
-                    return null;
-                }
-            });
-        }
-    }
-
-    public static LauncherModel getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(LauncherModel.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-    private LauncherModel(Context context) {
+    public LauncherModel(Context context) {
         mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-launcher-pages.json";
+        Task.callInBackground((Callable<Void>) () -> {
+            loadData();
+            return null;
+        });
     }
 
-    public void loadData() {
+    private void loadData() {
         synchronized (this) {
             mPages.clear();
             String fileContent = mFileUtils.readFile(mPagesFilePath);

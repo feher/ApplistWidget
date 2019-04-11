@@ -34,8 +34,7 @@ public class LauncherFragment extends Fragment {
 
     private static final String FRAGMENT_ARG_SCROLL_TO_PAGE_ID = LauncherFragment.class.getSimpleName() + ".FRAGMENT_ARG_SCROLL_TO_PAGE_ID";
 
-    // TODO: Inject these singletons
-    private LauncherModel mLauncherModel = LauncherModel.getInstance();
+    private LauncherModel mLauncherModel = get(LauncherModel.class);
     private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private LauncherStateManager mLauncherStateManager = get(LauncherStateManager.class);
 
