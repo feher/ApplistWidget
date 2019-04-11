@@ -136,7 +136,7 @@ class IconPackHelper {
         findInAppfilterXml(packageName, resources) {
             if (it.name == elementName
                     && it.attributeCount >= 1
-                    && it.getAttributeName(0) == "img1") {
+                    && it.getAttributeName(0).startsWith("img")) {
                 result = it.getAttributeValue(0)
                 return@findInAppfilterXml true
             } else {
