@@ -27,13 +27,14 @@ import java.util.concurrent.Callable;
 import bolts.Continuation;
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class ShortcutHelper {
 
     private static final String TAG = ShortcutHelper.class.getSimpleName();
     private static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
 
-    // TODO: Inject
-    private ApplistModel mApplistModel = ApplistModel.getInstance();
+    private ApplistModel mApplistModel = get(ApplistModel.class);
 
     private static ShortcutHelper sInstance;
 

@@ -55,7 +55,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     public static final class ShowPageEditorEvent {}
 
     // TODO: Inject these singletons.
-    private ApplistModel mApplistModel = ApplistModel.getInstance();
+    private ApplistModel mApplistModel = get(ApplistModel.class);
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
     private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
@@ -423,11 +423,10 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     }
 
     private void updateData() {
-        final ApplistModel applistModel = ApplistModel.getInstance();
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                applistModel.updateInstalledApps();
+                mApplistModel.updateInstalledApps();
                 return null;
             }
         });

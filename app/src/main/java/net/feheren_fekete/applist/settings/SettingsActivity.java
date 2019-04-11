@@ -99,6 +99,7 @@ public class SettingsActivity extends PreferenceActivity {
         // TODO: Inject these singletons.
         private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
         private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
+        private ApplistModel mApplistModel = get(ApplistModel.class);
 
         private static final int SMS_PERMISSION_REQUEST_CODE = 1;
         private static final int PHONE_PERMISSION_REQUEST_CODE = 2;
@@ -173,11 +174,10 @@ public class SettingsActivity extends PreferenceActivity {
                         new Runnable() {
                             @Override
                             public void run() {
-                                final ApplistModel applistModel = ApplistModel.getInstance();
                                 Task.callInBackground(new Callable<Void>() {
                                     @Override
                                     public Void call() throws Exception {
-                                        applistModel.sortStartables();
+                                        mApplistModel.sortStartables();
                                         return null;
                                     }
                                 });

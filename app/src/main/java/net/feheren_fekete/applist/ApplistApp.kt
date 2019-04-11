@@ -45,7 +45,6 @@ class ApplistApp : MultiDexApplication() {
         WidgetUtils.initInstance()
         LauncherUtils.initInstance()
         LauncherModel.initInstance(this)
-        ApplistModel.initInstance(this, packageManager)
         WidgetModel.initInstance(this)
         WidgetHelper.initInstance()
         ShortcutHelper.initInstance()

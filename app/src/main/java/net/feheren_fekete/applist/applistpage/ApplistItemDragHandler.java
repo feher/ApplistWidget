@@ -35,9 +35,8 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         void onItemDragEnd();
     }
 
-    // TODO: Inject these
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
-    private ApplistModel mApplistModel = ApplistModel.getInstance();
+    private ApplistModel mApplistModel = get(ApplistModel.class);
 
     private Context mContext;
     private ApplistPagePageFragment mApplistPagePageFragment;

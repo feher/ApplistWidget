@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.di
 
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
+import net.feheren_fekete.applist.applistpage.model.ApplistModel
 import net.feheren_fekete.applist.applistpage.model.BadgeStore
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
 import net.feheren_fekete.applist.settings.SettingsUtils
@@ -16,4 +17,5 @@ val applistModule = module {
     single { BadgeStore(androidContext(), get()) }
     single { IconPackHelper() }
     single { WriteSettingsPermissionHelper(androidContext()) }
+    single { ApplistModel(androidContext(), get()) }
 }

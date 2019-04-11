@@ -27,8 +27,6 @@ public class ApplistModel {
 
     public static final int INVALID_ID = 0;
 
-    private static ApplistModel sInstance;
-
     private Handler mHandler;
     private PackageManager mPackageManager;
     private ApplistModelStorageV1 mApplistModelStorageV1;
@@ -41,34 +39,7 @@ public class ApplistModel {
     public static final class SectionsChangedEvent {}
     public static final class DataLoadedEvent {}
 
-    public static void initInstance(Context context, PackageManager packageManager) {
-        if (sInstance == null) {
-            sInstance = new ApplistModel(context, packageManager);
-            Task.callInBackground(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    sInstance.loadData();
-                    return null;
-                }
-            }).continueWith(new Continuation<Void, Void>() {
-                @Override
-                public Void then(Task<Void> task) throws Exception {
-                    sInstance.updateInstalledApps();
-                    return null;
-                }
-            });
-        }
-    }
-
-    public static ApplistModel getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException("ApplistModel singleton is not initialized");
-        }
-    }
-
-    private ApplistModel(Context context, PackageManager packageManager) {
+    public ApplistModel(Context context, PackageManager packageManager) {
         mHandler = new Handler();
         mPackageManager = packageManager;
         mApplistModelStorageV1 = new ApplistModelStorageV1(context);
@@ -76,9 +47,23 @@ public class ApplistModel {
         mUncategorizedSectionName = context.getResources().getString(R.string.uncategorized_group);
         mInstalledStartables = new ArrayList<>();
         mPages = new ArrayList<>();
+
+        Task.callInBackground(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                loadData();
+                return null;
+            }
+        }).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                updateInstalledApps();
+                return null;
+            }
+        });
     }
 
-    public void loadData() {
+    private void loadData() {
         synchronized (this) {
             List<PageData> pages;
             if (mApplistModelStorageV1.exists()) {
