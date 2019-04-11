@@ -59,7 +59,7 @@ public class WidgetModel {
     private FileUtils mFileUtils = new FileUtils();
     private List<WidgetData> mWidgets = new ArrayList<>();
 
-    private WidgetModel(Context context) {
+    public WidgetModel(Context context) {
         mWidgetsFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-widgets.json";
 
         Task.callInBackground((Callable<Void>) () -> {
