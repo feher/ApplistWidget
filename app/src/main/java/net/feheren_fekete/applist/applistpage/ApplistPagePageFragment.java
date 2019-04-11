@@ -85,9 +85,8 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private final int ITEM_MENU_ITEM_SECTION_DELETE = 6;
     private final int ITEM_MENU_ITEM_SECTION_SORT_APPS = 7;
 
-    // TODO: Inject these singletons.
     private ApplistModel mApplistModel = get(ApplistModel.class);
-    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
     private BadgeStore mBadgeStore = get(BadgeStore.class);

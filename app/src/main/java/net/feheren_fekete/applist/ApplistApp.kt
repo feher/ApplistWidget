@@ -6,17 +6,10 @@ import androidx.multidex.MultiDexApplication
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
-import net.feheren_fekete.applist.applistpage.model.ApplistModel
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
-import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
 import net.feheren_fekete.applist.di.applistModule
 import net.feheren_fekete.applist.launcher.LauncherStateManager
-import net.feheren_fekete.applist.launcher.LauncherUtils
-import net.feheren_fekete.applist.launcher.ScreenshotUtils
 import net.feheren_fekete.applist.launcher.model.LauncherModel
-import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
-import net.feheren_fekete.applist.widgetpage.WidgetUtils
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -40,7 +33,6 @@ class ApplistApp : MultiDexApplication() {
 
         ApplistLog.initInstance()
         LauncherStateManager.initInstance()
-        ScreenshotUtils.initInstance()
         LauncherModel.initInstance(this)
         WidgetModel.initInstance(this)
         WidgetHelper.initInstance()

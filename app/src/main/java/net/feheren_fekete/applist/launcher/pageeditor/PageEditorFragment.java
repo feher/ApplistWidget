@@ -67,7 +67,7 @@ public class PageEditorFragment extends Fragment {
     private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
-    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
 
     private RecyclerView mRecyclerView;

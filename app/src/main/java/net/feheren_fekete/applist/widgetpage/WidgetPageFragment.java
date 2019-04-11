@@ -66,7 +66,7 @@ public class WidgetPageFragment extends Fragment {
 
     // TODO: Inject these singletons.
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
-    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
     private LauncherUtils mLauncherUtils = get(LauncherUtils.class);
     private WidgetHelper mWidgetHelper = WidgetHelper.getInstance();

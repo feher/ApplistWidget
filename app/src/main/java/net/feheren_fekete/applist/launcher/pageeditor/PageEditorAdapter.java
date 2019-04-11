@@ -39,7 +39,7 @@ import static org.koin.java.KoinJavaComponent.get;
 public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.PageViewHolder> {
 
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
-    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
 
     private Listener mListener;
     private List<PageData> mPages = Collections.emptyList();

@@ -33,25 +33,6 @@ public class ScreenshotUtils {
     private WeakReference<Activity> mActivityRef = new WeakReference<>(null);
     private long mPageId;
 
-    private static ScreenshotUtils sInstance;
-
-    public static void initInstance() {
-        if (sInstance == null) {
-            sInstance = new ScreenshotUtils();
-        }
-    }
-
-    public static ScreenshotUtils getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(ScreenshotUtils.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-    private ScreenshotUtils() {
-    }
-
     private Runnable mScreenshotRunnable = new Runnable() {
         @Override
         public void run() {

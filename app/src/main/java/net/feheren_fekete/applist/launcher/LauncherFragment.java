@@ -26,6 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class LauncherFragment extends Fragment {
 
     private static final String TAG = LauncherFragment.class.getSimpleName();
@@ -34,7 +36,7 @@ public class LauncherFragment extends Fragment {
 
     // TODO: Inject these singletons
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
-    private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
+    private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
 
     private Handler mHandler = new Handler();
