@@ -64,7 +64,7 @@ public class PageEditorFragment extends Fragment {
     }
 
     // TODO: Inject these singletons
-    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
+    private LauncherStateManager mLauncherStateManager = get(LauncherStateManager.class);
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);

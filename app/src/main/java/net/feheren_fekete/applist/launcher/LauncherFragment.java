@@ -37,7 +37,7 @@ public class LauncherFragment extends Fragment {
     // TODO: Inject these singletons
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
-    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
+    private LauncherStateManager mLauncherStateManager = get(LauncherStateManager.class);
 
     private Handler mHandler = new Handler();
     private ApplistPreferences mApplistPreferences;

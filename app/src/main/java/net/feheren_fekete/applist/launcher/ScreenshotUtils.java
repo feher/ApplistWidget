@@ -26,7 +26,7 @@ public class ScreenshotUtils {
     public static final int DELAY_SHORT = 200;
     public static final int DELAY_LONG = 1000;
 
-    private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
+    private LauncherStateManager mLauncherStateManager = get(LauncherStateManager.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
 
     private Handler mHandler = new Handler();
