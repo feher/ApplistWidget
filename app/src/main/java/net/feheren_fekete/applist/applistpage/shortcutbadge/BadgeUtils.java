@@ -60,24 +60,8 @@ public class BadgeUtils {
 
     private Context mAppContext;
 
-    private static BadgeUtils sInstance;
-
-    public static void initInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new BadgeUtils(context.getApplicationContext());
-        }
-    }
-
-    public static BadgeUtils getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(BadgeUtils.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-    private BadgeUtils(Context appContext) {
-        mAppContext = appContext;
+    public BadgeUtils(Context context) {
+        mAppContext = context.getApplicationContext();
     }
 
     public int getBadgeCountFromLauncher(String packageName, String className) {

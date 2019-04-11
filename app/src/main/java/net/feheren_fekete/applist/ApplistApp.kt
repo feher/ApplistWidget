@@ -44,7 +44,6 @@ class ApplistApp : MultiDexApplication() {
         ScreenshotUtils.initInstance()
         WidgetUtils.initInstance()
         LauncherUtils.initInstance()
-        BadgeUtils.initInstance(applicationContext)
         BadgeStore.initInstance(applicationContext, applicationContext.packageManager)
         LauncherModel.initInstance(this)
         ApplistModel.initInstance(this, packageManager)

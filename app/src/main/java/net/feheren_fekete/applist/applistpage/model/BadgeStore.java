@@ -13,6 +13,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.List;
 import java.util.Map;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class BadgeStore {
 
     private static final String TAG = BadgeStore.class.getSimpleName();
@@ -32,8 +34,7 @@ public class BadgeStore {
     private static final String KEY_BADGE_COUNT = "badge_count";
     private static final int DEFAULT_BADGE_COUNT = 0;
 
-    // TODO: Inject these
-    private BadgeUtils mBadgeUtils = BadgeUtils.getInstance();
+    private BadgeUtils mBadgeUtils = get(BadgeUtils.class);
 
     private SharedPreferences mSharedPreferences;
     private PackageManager mPackageManager;
