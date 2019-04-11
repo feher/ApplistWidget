@@ -34,18 +34,12 @@ public class ApplistDialogs {
         alertDialogBuilder
                 .setView(dialogView)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final String sectionName = editText.getText().toString().trim();
-                        onOk.run(sectionName);
-                    }
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    final String sectionName = editText.getText().toString().trim();
+                    onOk.run(sectionName);
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Nothing.
-                    }
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                    // Nothing.
                 });
 
         final AlertDialog alertDialog = alertDialogBuilder.create();
@@ -92,50 +86,25 @@ public class ApplistDialogs {
                 .setTitle(title)
                 .setMessage(message)
                 .setCancelable(true)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        onOk.run();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        onCancel.run();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        onCancel.run();
-                    }
-                });
+                .setPositiveButton(R.string.ok, (dialog, which) -> onOk.run())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> onCancel.run())
+                .setOnCancelListener(dialog -> onCancel.run());
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
 
     public static void messageDialog(Activity activity,
-                                      String title,
-                                      String message,
-                                      final Runnable onOk,
-                                      final Runnable onCancel) {
+                                     String title,
+                                     String message,
+                                     final Runnable onOk,
+                                     final Runnable onCancel) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder
                 .setTitle(title)
                 .setMessage(message)
                 .setCancelable(true)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        onOk.run();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        onCancel.run();
-                    }
-                });
+                .setPositiveButton(R.string.ok, (dialog, which) -> onOk.run())
+                .setOnCancelListener(dialog -> onCancel.run());
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
