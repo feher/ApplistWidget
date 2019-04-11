@@ -57,3 +57,6 @@
   **[] $VALUES;
   public *;
 }
+
+###### Kotlin
+-dontwarn kotlinx.atomicfu.**
