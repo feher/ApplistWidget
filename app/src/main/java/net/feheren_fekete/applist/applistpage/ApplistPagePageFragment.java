@@ -907,7 +907,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
-        if (getActivity() == null) {
+        if (!isAttached()) {
             return;
         }
         try {
@@ -929,7 +929,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
-        if (getActivity() == null) {
+        if (!isAttached()) {
             return;
         }
         final boolean isOngoing = (statusBarNotification.getNotification().flags & Notification.FLAG_ONGOING_EVENT) != 0;
@@ -1033,7 +1033,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     }
 
     private void renameSection(SectionItem sectionItem) {
-        if (getActivity() == null) {
+        if (!isAttached()) {
             return;
         }
         final String pageName = getPageName();
@@ -1041,31 +1041,20 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
         final List<String> sectionNames = mAdapter.getSectionNames();
         ApplistDialogs.textInputDialog(
                 getActivity(), R.string.section_name, oldSectionName,
-                new RunnableWithRetArg<String, String>() {
-                     @Override
-                    public String run(String sectionName) {
-                        if (sectionNames.contains(sectionName)) {
-                            return getResources().getString(R.string.dialog_error_section_exists);
-                        }
-                        return null;
+                sectionName -> {
+                    if (isAttached() && sectionNames.contains(sectionName)) {
+                        return getResources().getString(R.string.dialog_error_section_exists);
                     }
+                    return null;
                 },
-                new RunnableWithArg<String>() {
-                    @Override
-                    public void run(final String newSectionName) {
-                        Task.callInBackground(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                mApplistModel.setSectionName(pageName, oldSectionName, newSectionName);
-                                return null;
-                            }
-                        });
-                    }
-                });
+                newSectionName -> Task.callInBackground((Callable<Void>) () -> {
+                    mApplistModel.setSectionName(pageName, oldSectionName, newSectionName);
+                    return null;
+                }));
     }
 
     private void deleteSection(SectionItem sectionItem) {
-        if (getActivity() == null) {
+        if (!isAttached()) {
             return;
         }
         final String sectionName = sectionItem.getName();
@@ -1075,73 +1064,54 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
                 getActivity(),
                 getResources().getString(R.string.remove_section_title),
                 getResources().getString(R.string.remove_section_message, sectionName, uncategorizedSectionName),
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        Task.callInBackground(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                mApplistModel.removeSection(pageName, sectionName);
-                                return null;
-                            }
-                        });
-                    }
-                },
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        // Nothing.
-                    }
+                () -> Task.callInBackground((Callable<Void>) () -> {
+                    mApplistModel.removeSection(pageName, sectionName);
+                    return null;
+                }),
+                () -> {
+                    // Nothing.
                 });
     }
 
     private void sortSection(SectionItem sectionItem) {
         final String sectionName = sectionItem.getName();
         final String pageName = getPageName();
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mApplistModel.sortStartablesInSection(pageName, sectionName);
-                return null;
-            }
+        Task.callInBackground((Callable<Void>) () -> {
+            mApplistModel.sortStartablesInSection(pageName, sectionName);
+            return null;
         });
     }
 
     private void createSection(@Nullable final AppItem appToMove) {
-        if (getActivity() == null) {
+        if (!isAttached()) {
             return;
         }
         final String pageName = getPageName();
         final List<String> sectionNames = mAdapter.getSectionNames();
         ApplistDialogs.textInputDialog(
                 getActivity(), R.string.section_name, "",
-                new RunnableWithRetArg<String, String>() {
-                    @Override
-                    public String run(String sectionName) {
-                        if (sectionNames.contains(sectionName)) {
-                            return getResources().getString(R.string.dialog_error_section_exists);
-                        }
-                        return null;
+                sectionName -> {
+                    if (isAttached() && sectionNames.contains(sectionName)) {
+                        return getResources().getString(R.string.dialog_error_section_exists);
                     }
+                    return null;
                 },
-                new RunnableWithArg<String>() {
-                    @Override
-                    public void run(final String sectionName) {
-                        if (!sectionName.isEmpty()) {
-                            Task.callInBackground(new Callable<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    mApplistModel.addNewSection(pageName, sectionName, true);
-                                    if (appToMove != null) {
-                                        AppData appData = new AppData(appToMove);
-                                        mApplistModel.moveStartableToSection(pageName, sectionName, appData);
-                                    }
-                                    return null;
-                                }
-                            });
-                        }
+                sectionName -> {
+                    if (!sectionName.isEmpty()) {
+                        Task.callInBackground((Callable<Void>) () -> {
+                            mApplistModel.addNewSection(pageName, sectionName, true);
+                            if (appToMove != null) {
+                                AppData appData = new AppData(appToMove);
+                                mApplistModel.moveStartableToSection(pageName, sectionName, appData);
+                            }
+                            return null;
+                        });
                     }
                 });
+    }
+
+    private boolean isAttached() {
+        return (getContext() != null) && (getActivity() != null);
     }
 
 }
