@@ -23,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class PagePickerFragment extends Fragment {
 
     private static final String FRAGMENT_ARG_REQUEST_DATA = PagePickerFragment.class.getSimpleName() + ".FRAGMENT_ARG_REQUEST_DATA";
@@ -32,7 +34,7 @@ public class PagePickerFragment extends Fragment {
     // TODO: Inject
     private final ScreenUtils mScreenUtils = ScreenUtils.getInstance();
     private final ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
-    private final WidgetUtils mWidgetUtils = WidgetUtils.getInstance();
+    private final WidgetUtils mWidgetUtils = get(WidgetUtils.class);
 
     private Bundle mRequestData;
 

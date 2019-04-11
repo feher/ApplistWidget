@@ -12,10 +12,11 @@ import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class WidgetPickerAdapter extends RecyclerView.Adapter<WidgetPickerViewHolder> {
 
-    // TODO: Inject
-    private final WidgetUtils mWidgetUtils = WidgetUtils.getInstance();
+    private final WidgetUtils mWidgetUtils = get(WidgetUtils.class);
 
     private WidgetPickerViewHolder.Listener mListener;
     private List<WidgetPickerItem> mItems = new ArrayList<>();

@@ -42,7 +42,6 @@ class ApplistApp : MultiDexApplication() {
         LauncherStateManager.initInstance()
         ScreenUtils.initInstance()
         ScreenshotUtils.initInstance()
-        WidgetUtils.initInstance()
         LauncherUtils.initInstance()
         LauncherModel.initInstance(this)
         WidgetModel.initInstance(this)

@@ -27,6 +27,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class WidgetPickerActivity extends AppCompatActivity implements WidgetPickerViewHolder.Listener {
 
     public static final String ACTION_PICK_AND_BIND_WIDGET = WidgetPickerActivity.class.getCanonicalName() + ".ACTION_PICK_AND_BIND_WIDGET";
@@ -41,8 +43,7 @@ public class WidgetPickerActivity extends AppCompatActivity implements WidgetPic
 
     private static final int REQUEST_BIND_APPWIDGET = 1;
 
-    // TODO: Inject
-    private final WidgetUtils mWidgetUtils = WidgetUtils.getInstance();
+    private final WidgetUtils mWidgetUtils = get(WidgetUtils.class);
 
     private WidgetPickerModel mWidgetPickerModel;
     private WidgetPickerAdapter mWidgetPickerAdapter;

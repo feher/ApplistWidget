@@ -13,23 +13,6 @@ import androidx.annotation.Nullable;
 
 public class WidgetUtils {
 
-    private static WidgetUtils sInstance;
-
-    public static void initInstance() {
-        if (sInstance == null) {
-            sInstance = new WidgetUtils();
-        }
-    }
-
-    public static WidgetUtils getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(WidgetUtils.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-
     @Nullable
     public Drawable getIcon(Context context, AppWidgetProviderInfo appWidgetProviderInfo) {
         Drawable result = null;
