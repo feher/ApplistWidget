@@ -162,4 +162,7 @@
         <item>86</item>
     </string-array>
 
+    <string name="write_settings_permission_dialog_title">Permission needed</string>
+    <string name="write_settings_permission_dialog_message">On some phones, this app requires permission to access the system settings to function properly.\n\nPlease, grant this permission in the next screen.</string>
+
 </resources>

@@ -85,4 +85,6 @@
     <string name="launcher_page_editor_permission_title">Jogosultság szükséges</string>
     <string name="launcher_page_editor_permission_message">Szükség van jogosultságra a háttérkép megjelenítéséhez</string>
     <string name="cannot_show_app_info">Alkalmazás információ nem elérhetö</string>
+    <string name="write_settings_permission_dialog_title">Engedély szükséges</string>
+    <string name="write_settings_permission_dialog_message">Bizonyos készülékeken szükség van hozzáférésre a rendszerbeállitásokhoz. Kérlek, engedélyezd a hozzáférést a következő képernyőn.</string>
 </resources>

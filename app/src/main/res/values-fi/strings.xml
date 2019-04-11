@@ -85,4 +85,6 @@
     <string name="launcher_page_editor_permission_title">Käyttöoikeus tarvitaan</string>
     <string name="launcher_page_editor_permission_message">Tarvitaan käyttöoikeus taustakuvan näyttemiseen</string>
     <string name="cannot_show_app_info">Appin tietoja ei voi näyttää</string>
+    <string name="write_settings_permission_dialog_title">Oikeus tarvitaan</string>
+    <string name="write_settings_permission_dialog_message">Jossain laitteissa tarvitaan oikeus järjestelmäasetuksiin. Ole hyvä ja anna oikeus seuraavalla näytöllä.</string>
 </resources>

@@ -75,6 +75,9 @@ class MainActivity : AppCompatActivity() {
             shouldHandleIntent = false
             handleIntent(intent)
         }
+        if (!writeSettingsPermissionHelper.hasWriteSettingsPermission()) {
+            writeSettingsPermissionHelper.requestWriteSettingsPermission(this)
+        }
     }
 
     override fun onPause() {
