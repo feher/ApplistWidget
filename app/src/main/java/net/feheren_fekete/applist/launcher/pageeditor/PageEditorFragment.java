@@ -41,6 +41,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class PageEditorFragment extends Fragment {
 
     private static final String TAG = PageEditorFragment.class.getSimpleName();
@@ -66,7 +68,7 @@ public class PageEditorFragment extends Fragment {
     private LauncherModel mLauncherModel = LauncherModel.getInstance();
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
-    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private ScreenUtils mScreenUtils = get(ScreenUtils.class);
 
     private RecyclerView mRecyclerView;
     private PageEditorAdapter mAdapter;

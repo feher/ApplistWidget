@@ -32,7 +32,7 @@ public class PagePickerFragment extends Fragment {
     private static final String FRAGMENT_ARG_MESSAGE = PagePickerFragment.class.getCanonicalName() + ".FRAGMENT_ARG_MESSAGE";
 
     // TODO: Inject
-    private final ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private final ScreenUtils mScreenUtils = get(ScreenUtils.class);
     private final ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private final WidgetUtils mWidgetUtils = get(WidgetUtils.class);
 

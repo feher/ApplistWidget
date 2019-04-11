@@ -27,25 +27,6 @@ import androidx.appcompat.app.AlertDialog;
 
 public class LauncherUtils {
 
-    private static LauncherUtils sInstance;
-
-    public static void initInstance() {
-        if (sInstance == null) {
-            sInstance = new LauncherUtils();
-        }
-    }
-
-    public static LauncherUtils getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(LauncherUtils.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-    private LauncherUtils() {
-    }
-
     public void changeWallpaper(Activity activity) {
         Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
         chooseAndLaunchApp(activity, intent);

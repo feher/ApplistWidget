@@ -34,10 +34,11 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.PageViewHolder> {
 
-    // TODO: Inject these
-    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private ScreenUtils mScreenUtils = get(ScreenUtils.class);
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
 
     private Listener mListener;

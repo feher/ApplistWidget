@@ -54,11 +54,10 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     public static final class ShowPageEditorEvent {}
 
-    // TODO: Inject these singletons.
     private ApplistModel mApplistModel = get(ApplistModel.class);
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
-    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
-    private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
+    private ScreenUtils mScreenUtils = get(ScreenUtils.class);
+    private LauncherUtils mLauncherUtils = get(LauncherUtils.class);
     private BadgeStore mBadgeStore = get(BadgeStore.class);
 
     private Handler mHandler = new Handler();

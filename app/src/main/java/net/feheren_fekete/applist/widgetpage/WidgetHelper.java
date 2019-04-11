@@ -34,6 +34,8 @@ import java.util.concurrent.Callable;
 
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class WidgetHelper {
 
     private static final String TAG = WidgetHelper.class.getSimpleName();
@@ -60,7 +62,7 @@ public class WidgetHelper {
 
     // TODO: Inject
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
-    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private ScreenUtils mScreenUtils = get(ScreenUtils.class);
 
     private WeakReference<Activity> mActivityRef;
     private WeakReference<AppWidgetManager> mAppWidgetManagerRef;

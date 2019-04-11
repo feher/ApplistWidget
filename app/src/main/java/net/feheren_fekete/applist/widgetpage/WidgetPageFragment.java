@@ -39,6 +39,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class WidgetPageFragment extends Fragment {
 
     private static final int NO_BORDER = 0;
@@ -65,8 +67,8 @@ public class WidgetPageFragment extends Fragment {
     // TODO: Inject these singletons.
     private WidgetModel mWidgetModel = WidgetModel.getInstance();
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
-    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
-    private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
+    private ScreenUtils mScreenUtils = get(ScreenUtils.class);
+    private LauncherUtils mLauncherUtils = get(LauncherUtils.class);
     private WidgetHelper mWidgetHelper = WidgetHelper.getInstance();
 
     private AppWidgetManager mAppWidgetManager;

@@ -19,13 +19,15 @@ import java.util.concurrent.Callable;
 
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class ScreenshotUtils {
 
     public static final int DELAY_SHORT = 200;
     public static final int DELAY_LONG = 1000;
 
     private LauncherStateManager mLauncherStateManager = LauncherStateManager.getInstance();
-    private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
+    private ScreenUtils mScreenUtils = get(ScreenUtils.class);
 
     private Handler mHandler = new Handler();
     private WeakReference<Activity> mActivityRef = new WeakReference<>(null);

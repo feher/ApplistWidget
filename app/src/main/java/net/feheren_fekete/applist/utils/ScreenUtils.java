@@ -15,8 +15,6 @@ import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 
 public class ScreenUtils {
 
-    private static ScreenUtils sInstance;
-
     private DisplayMetrics mDisplayMetrics;
     private Point mScreenSize;
     private Point mScreenSizeDp;
@@ -24,20 +22,6 @@ public class ScreenUtils {
     private int mNavigationBarHeight = -1;
     private int mHasNavigationBar = -1;
     private TypedValue mTypedValue;
-
-    public static void initInstance() {
-        if (sInstance == null) {
-            sInstance = new ScreenUtils();
-        }
-    }
-
-    public static ScreenUtils getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(ScreenshotUtils.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
 
     public int getScreenWidth(Context context) {
         if (mScreenSize == null) {

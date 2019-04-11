@@ -96,9 +96,8 @@ public class SettingsActivity extends PreferenceActivity {
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-        // TODO: Inject these singletons.
-        private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
-        private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
+        private ScreenUtils mScreenUtils = get(ScreenUtils.class);
+        private LauncherUtils mLauncherUtils = get(LauncherUtils.class);
         private ApplistModel mApplistModel = get(ApplistModel.class);
 
         private static final int SMS_PERMISSION_REQUEST_CODE = 1;
