@@ -10,12 +10,13 @@ import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.utils.AppUtils;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class SmsReceiver extends BroadcastReceiver {
 
     private static final String TAG = SmsReceiver.class.getSimpleName();
 
-    // TODO: Inject
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
 
     @Override
     public void onReceive(Context context, Intent intent) {

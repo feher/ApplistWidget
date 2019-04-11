@@ -1,13 +1,10 @@
 package net.feheren_fekete.applist
 
 import android.content.Context
-
-import com.crashlytics.android.Crashlytics
-
 import androidx.multidex.MultiDex
 import androidx.multidex.MultiDexApplication
+import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
-
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.model.ApplistModel
 import net.feheren_fekete.applist.applistpage.model.BadgeStore
@@ -17,7 +14,6 @@ import net.feheren_fekete.applist.launcher.LauncherStateManager
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
 import net.feheren_fekete.applist.launcher.model.LauncherModel
-import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
 import net.feheren_fekete.applist.widgetpage.WidgetUtils
@@ -48,7 +44,6 @@ class ApplistApp : MultiDexApplication() {
         ScreenshotUtils.initInstance()
         WidgetUtils.initInstance()
         LauncherUtils.initInstance()
-        SettingsUtils.initInstance(this);
         BadgeUtils.initInstance(applicationContext)
         BadgeStore.initInstance(applicationContext, applicationContext.packageManager)
         LauncherModel.initInstance(this)

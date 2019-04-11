@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.koin.java.KoinJavaComponent.get;
 
 public class ApplistAdapter
         extends RecyclerView.Adapter<ApplistAdapter.ViewHolderBase> {
@@ -52,7 +53,7 @@ public class ApplistAdapter
 
     // TODO: Inject
     private BadgeStore mBadgeStore = BadgeStore.getInstance();
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
 
     private Context mContext;
     private Fragment mFragment;

@@ -17,6 +17,8 @@ import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.utils.AppUtils;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class CallStateReceiver extends BroadcastReceiver {
 
     private static final String TAG = CallStateReceiver.class.getSimpleName();
@@ -24,8 +26,7 @@ public class CallStateReceiver extends BroadcastReceiver {
     private static final String SHARED_PREFERENCES_NAME = "CallState";
     private static final String PREFERENCE_KEY_PREVIOUS_STATE = "PreviousState";
 
-    // TODO: Inject
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
 
     private SharedPreferences mSharedPreferences;
 

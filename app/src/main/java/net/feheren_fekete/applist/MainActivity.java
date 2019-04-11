@@ -22,6 +22,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     // TODO: Inject these singletons.
     private ShortcutHelper mShortcutHelper = ShortcutHelper.getInstance();
     private WidgetHelper mWidgetHelper = WidgetHelper.getInstance();
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
 
     private MyAppWidgetHost mAppWidgetHost;
     private AppWidgetManager mAppWidgetManager;

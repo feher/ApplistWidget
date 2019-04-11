@@ -26,6 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
     public interface Listener {
@@ -34,7 +36,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     }
 
     // TODO: Inject these
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
     private ApplistModel mApplistModel = ApplistModel.getInstance();
 
     private Context mContext;

@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class NotificationListener extends NotificationListenerService {
 
     public static final String ACTION_CANCEL_NOTIFICATION = NotificationListener.class.getSimpleName() + ".ACTION_CANCEL_NOTIFICATION";
@@ -23,7 +25,7 @@ public class NotificationListener extends NotificationListenerService {
     private static final String TAG = NotificationListener.class.getSimpleName();
 
     // TODO: Inject
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
     private BadgeStore mBadgeStore = BadgeStore.getInstance();
 
     private boolean mIsConnected;

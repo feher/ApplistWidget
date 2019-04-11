@@ -22,23 +22,7 @@ public class SettingsUtils {
     private List<String> mTransparentColorThemes;
     private String mDefaultColorTheme;
 
-    private static SettingsUtils sInstance;
-
-    public static void initInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new SettingsUtils(context);
-        }
-    }
-
-    public static SettingsUtils getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(SettingsUtils.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-    private SettingsUtils(Context context) {
+    public SettingsUtils(Context context) {
         mContext = context;
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         mDefaultColorTheme = context.getString(R.string.color_theme_value_default);

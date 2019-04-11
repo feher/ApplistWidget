@@ -39,6 +39,8 @@ import java.util.concurrent.Callable;
 
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -52,8 +54,7 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String PREF_KEY_SHOW_PHONE_BADGE = "pref_key_show_phone_badge";
     public static final String PREF_KEY_SHOW_NOTIFICATION_BADGE = "pref_key_show_notification_badge";
 
-    // TODO: Inject these singletons.
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

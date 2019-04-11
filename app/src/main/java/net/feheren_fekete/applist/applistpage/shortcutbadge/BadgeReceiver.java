@@ -10,6 +10,8 @@ import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class BadgeReceiver extends BroadcastReceiver {
 
     private static final String TAG = BadgeReceiver.class.getSimpleName();
@@ -43,8 +45,7 @@ public class BadgeReceiver extends BroadcastReceiver {
     private static final String APEX_EXTRA_CLASS_NAME = "class";
     private static final String APEX_EXTRA_BADGE_COUNT = "count";
 
-    // TODO: Inject
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
 
     @Override
     public void onReceive(Context context, Intent intent) {

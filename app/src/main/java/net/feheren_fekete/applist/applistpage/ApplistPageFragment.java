@@ -46,6 +46,8 @@ import androidx.fragment.app.Fragment;
 import bolts.Continuation;
 import bolts.Task;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 public class ApplistPageFragment extends Fragment implements ApplistItemDragHandler.Listener {
 
     private static final String TAG = ApplistPageFragment.class.getSimpleName();
@@ -54,7 +56,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     // TODO: Inject these singletons.
     private ApplistModel mApplistModel = ApplistModel.getInstance();
-    private SettingsUtils mSettingsUtils = SettingsUtils.getInstance();
+    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
     private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
     private BadgeStore mBadgeStore = BadgeStore.getInstance();
