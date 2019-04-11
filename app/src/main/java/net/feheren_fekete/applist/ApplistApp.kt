@@ -7,8 +7,6 @@ import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.di.applistModule
-import net.feheren_fekete.applist.widgetpage.WidgetHelper
-import net.feheren_fekete.applist.widgetpage.model.WidgetModel
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -33,7 +31,6 @@ class ApplistApp : MultiDexApplication() {
         }
 
         ApplistLog.initInstance()
-        WidgetHelper.initInstance()
         shortcutHelper.registerInstallShortcutReceiver(this)
     }
 

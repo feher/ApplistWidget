@@ -70,25 +70,6 @@ public class WidgetHelper {
     private long mPageId;
     private int mAllocatedAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
-    private static WidgetHelper sInstance;
-
-    public static void initInstance() {
-        if (sInstance == null) {
-            sInstance = new WidgetHelper();
-        }
-    }
-
-    public static WidgetHelper getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(ShortcutHelper.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-    private WidgetHelper() {
-    }
-
     public boolean handleIntent(Activity activity,
                                 Intent intent,
                                 AppWidgetManager appWidgetManager,

@@ -64,12 +64,11 @@ public class WidgetPageFragment extends Fragment {
         public MyAppWidgetHostView appWidgetHostView;
     }
 
-    // TODO: Inject these singletons.
     private WidgetModel mWidgetModel = get(WidgetModel.class);
     private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
     private LauncherUtils mLauncherUtils = get(LauncherUtils.class);
-    private WidgetHelper mWidgetHelper = WidgetHelper.getInstance();
+    private WidgetHelper mWidgetHelper = get(WidgetHelper.class);
 
     private AppWidgetManager mAppWidgetManager;
     private MyAppWidgetHost mAppWidgetHost;

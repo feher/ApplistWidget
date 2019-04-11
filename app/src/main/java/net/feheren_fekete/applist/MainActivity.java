@@ -31,9 +31,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String ACTION_RESTART =
             MainActivity.class.getCanonicalName()+ "ACTION_RESTART";
 
-    // TODO: Inject these singletons.
     private ShortcutHelper mShortcutHelper = get(ShortcutHelper.class);
-    private WidgetHelper mWidgetHelper = WidgetHelper.getInstance();
+    private WidgetHelper mWidgetHelper = get(WidgetHelper.class);
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
 
     private MyAppWidgetHost mAppWidgetHost;
