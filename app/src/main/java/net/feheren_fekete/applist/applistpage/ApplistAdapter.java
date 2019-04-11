@@ -23,7 +23,6 @@ import android.widget.TextView;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
 import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
@@ -64,7 +63,6 @@ public class ApplistAdapter
     private @Nullable String mFilterName;
     private @Nullable List<BaseItem> mFilteredItems;
     private ItemListener mItemListener;
-    private IconPackHelper mIconPackHelper;
     private IconCache mIconCache;
     private int[] mIconPlaceholderColors;
     private int mNextPlaceholderColor;
@@ -194,7 +192,6 @@ public class ApplistAdapter
                           PackageManager packageManager,
                           FileUtils fileUtils,
                           ItemListener itemListener,
-                          IconPackHelper iconPackHelper,
                           IconCache iconCache) {
         mContext = context;
         mFragment = fragment;
@@ -203,7 +200,6 @@ public class ApplistAdapter
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();
         mItemListener = itemListener;
-        mIconPackHelper = iconPackHelper;
         mIconCache = iconCache;
         mIconPlaceholderColors = mSettingsUtils.isThemeTransparent()
                 ? mContext.getResources().getIntArray(R.array.icon_placeholder_colors_dark)
@@ -573,7 +569,6 @@ public class ApplistAdapter
             if (holder.iconLoader == null) {
                 holder.iconLoader = new IconLoaderTask(
                         item, holder, mPackageManager,
-                        mIconPackHelper,
                         mIconCache, mFileUtils.getIconCacheDirPath(mContext));
                 holder.iconLoader.execute();
                 holder.appIcon.setImageBitmap(null);

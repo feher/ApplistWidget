@@ -14,14 +14,17 @@ import java.lang.ref.WeakReference
 
 import bolts.Task
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.lang.Exception
 
 class IconLoaderTask(private val appItem: AppItem,
                      startableItemHolder: ApplistAdapter.StartableItemHolder,
                      private val packageManager: PackageManager,
-                     private val iconPackHelper: IconPackHelper,
                      iconCache: IconCache,
-                     iconCacheDirPath: String) : AsyncTask<Void, Void, Bitmap>() {
+                     iconCacheDirPath: String) : AsyncTask<Void, Void, Bitmap>(), KoinComponent {
+
+    private val iconPackHelper: IconPackHelper by inject()
 
     private val appItemHolderRef = WeakReference(startableItemHolder)
     private val iconCacheRef = WeakReference(iconCache)

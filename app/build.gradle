@@ -75,6 +75,12 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.0-alpha-2'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.0-alpha-2'
 
+    // Koin (dependency injection)
+    implementation "org.koin:koin-core:$koin_version"
+    implementation "org.koin:koin-java:$koin_version" // For using Koin from Java code
+    implementation "org.koin:koin-android:$koin_version"
+    implementation "org.koin:koin-androidx-scope:$koin_version"
+
     // Android
     kapt 'androidx.annotation:annotation:1.0.2'
     implementation 'androidx.multidex:multidex:2.0.1'
