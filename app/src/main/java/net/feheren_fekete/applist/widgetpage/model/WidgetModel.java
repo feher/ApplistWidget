@@ -1,6 +1,5 @@
 package net.feheren_fekete.applist.widgetpage.model;
 
-import android.appwidget.AppWidgetHost;
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -183,18 +182,20 @@ public class WidgetModel {
         }
     }
 
-    public void deleteWidgetsOfPage(long pageId, AppWidgetHost appWidgetHost) {
+    public List<Integer> deleteWidgetsOfPage(long pageId) {
         synchronized (this) {
             List<WidgetData> widgetsOfPage = new ArrayList<>();
+            List<Integer> deletedWidgetIds = new ArrayList<>();
             for (WidgetData widget : mWidgets) {
                 if (widget.getPageId() == pageId) {
                     widgetsOfPage.add(widget);
-                    appWidgetHost.deleteAppWidgetId(widget.getAppWidgetId());
+                    deletedWidgetIds.add(widget.getAppWidgetId());
                 }
             }
             mWidgets.removeAll(widgetsOfPage);
             scheduleStoreData();
             EventBus.getDefault().post(new WidgetsChangedEvent());
+            return deletedWidgetIds;
         }
     }
 

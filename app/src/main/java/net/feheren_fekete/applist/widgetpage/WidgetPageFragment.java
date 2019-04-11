@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist.widgetpage;
 
+import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
@@ -69,9 +70,9 @@ public class WidgetPageFragment extends Fragment {
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
     private LauncherUtils mLauncherUtils = get(LauncherUtils.class);
     private WidgetHelper mWidgetHelper = get(WidgetHelper.class);
+    private AppWidgetManager mAppWidgetManager = get(AppWidgetManager.class);
+    private AppWidgetHost mAppWidgetHost = get(AppWidgetHost.class);
 
-    private AppWidgetManager mAppWidgetManager;
-    private MyAppWidgetHost mAppWidgetHost;
     private ViewGroup mWidgetContainer;
     private List<WidgetItem> mWidgets = new ArrayList<>();
     private @Nullable AlertDialog mPageMenu;
@@ -105,9 +106,6 @@ public class WidgetPageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_page_fragment, container, false);
 
-        mAppWidgetManager = ((MainActivity) getActivity()).getAppWidgetManager();
-        mAppWidgetHost = ((MainActivity) getActivity()).getAppWidgetHost();
-
         mWidgetContainer = (ViewGroup) view.findViewById(R.id.launcher_page_fragment_widget_container);
         mWidgetContainer.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -123,7 +121,7 @@ public class WidgetPageFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mWidgetHelper.handleActivityResult(requestCode, resultCode, data, mAppWidgetHost);
+        mWidgetHelper.handleActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -356,22 +354,16 @@ public class WidgetPageFragment extends Fragment {
     }
 
     private void bringWidgetToTop(final WidgetItem widgetItem) {
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mWidgetModel.bringWidgetToTop(widgetItem.widgetData);
-                return null;
-            }
+        Task.callInBackground((Callable<Void>) () -> {
+            mWidgetModel.bringWidgetToTop(widgetItem.widgetData);
+            return null;
         });
     }
 
     private void removeWidgetFromModel(final WidgetItem widgetItem) {
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mWidgetModel.deleteWidget(widgetItem.widgetData);
-                return null;
-            }
+        Task.callInBackground((Callable<Void>) () -> {
+            mWidgetModel.deleteWidget(widgetItem.widgetData);
+            return null;
         });
     }
 
@@ -400,8 +392,7 @@ public class WidgetPageFragment extends Fragment {
                         switch (which) {
                             case 0:
                                 // Add widget
-                                mWidgetHelper.pickWidget(
-                                        getActivity(), mAppWidgetManager, mAppWidgetHost, getPageId());
+                                mWidgetHelper.pickWidget(getActivity(), getPageId());
                                 break;
                             case 1:
                                 // Edit pages

@@ -1,5 +1,7 @@
 package net.feheren_fekete.applist.di
 
+import android.appwidget.AppWidgetHost
+import android.appwidget.AppWidgetManager
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
@@ -13,6 +15,7 @@ import net.feheren_fekete.applist.launcher.model.LauncherModel
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.utils.WriteSettingsPermissionHelper
+import net.feheren_fekete.applist.widgetpage.MyAppWidgetHost
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
 import net.feheren_fekete.applist.widgetpage.WidgetUtils
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel
@@ -22,6 +25,8 @@ import org.koin.dsl.module
 
 val applistModule = module {
     single { androidContext().packageManager }
+    single { AppWidgetManager.getInstance(androidContext()) }
+    single { MyAppWidgetHost(androidContext(), 1234567) as AppWidgetHost }
     single { ApplistLog() }
     single { ScreenUtils() }
     single { WidgetUtils() }

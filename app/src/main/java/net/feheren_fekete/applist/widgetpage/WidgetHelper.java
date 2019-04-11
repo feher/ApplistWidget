@@ -62,21 +62,19 @@ public class WidgetHelper {
 
     private WidgetModel mWidgetModel = get(WidgetModel.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
+    private AppWidgetManager mAppWidgetManager = get(AppWidgetManager.class);
+    private AppWidgetHost mAppWidgetHost = get(AppWidgetHost.class);
 
     private WeakReference<Activity> mActivityRef;
-    private WeakReference<AppWidgetManager> mAppWidgetManagerRef;
-    private WeakReference<AppWidgetHost> mAppWidgetHostRef;
     private AppWidgetProviderInfo mPinnedAppWidgetProviderInfo;
     private long mPageId;
     private int mAllocatedAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
     public boolean handleIntent(Activity activity,
-                                Intent intent,
-                                AppWidgetManager appWidgetManager,
-                                MyAppWidgetHost appWidgetHost) {
+                                Intent intent) {
         final String action = intent.getAction();
         if (LauncherApps.ACTION_CONFIRM_PIN_APPWIDGET.equals(action)) {
-            handlePinWidgetRequest(activity, intent, appWidgetManager, appWidgetHost);
+            handlePinWidgetRequest(activity, intent);
             return true;
         }
         return false;
@@ -84,16 +82,12 @@ public class WidgetHelper {
 
     @TargetApi(Build.VERSION_CODES.O)
     private void handlePinWidgetRequest(final Activity activity,
-                                        Intent intent,
-                                        final AppWidgetManager appWidgetManager,
-                                        final AppWidgetHost appWidgetHost) {
+                                        Intent intent) {
         final LauncherApps.PinItemRequest pinItemRequest = intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST);
         final AppWidgetProviderInfo appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(activity);
         Log.d(TAG, "PINNING WIDGET " + appWidgetProviderInfo.provider);
 
         mActivityRef = new WeakReference<>(activity);
-        mAppWidgetManagerRef = new WeakReference<>(appWidgetManager);
-        mAppWidgetHostRef = new WeakReference<>(appWidgetHost);
         mPinnedAppWidgetProviderInfo = appWidgetProviderInfo;
 
         Bundle data = new Bundle();
@@ -117,10 +111,9 @@ public class WidgetHelper {
     private boolean pinWidgetToPage(PageData pageData) {
         boolean handled = false;
         Activity activity = mActivityRef.get();
-        AppWidgetHost appWidgetHost = mAppWidgetHostRef.get();
-        if (activity != null && appWidgetHost != null) {
+        if (activity != null) {
             if (pageData.getType() == PageData.TYPE_WIDGET_PAGE) {
-                bindWidget(activity, appWidgetHost, pageData.getId(), mPinnedAppWidgetProviderInfo.provider);
+                bindWidget(activity, mAppWidgetHost, pageData.getId(), mPinnedAppWidgetProviderInfo.provider);
                 handled = true;
             } else {
                 Toast.makeText(activity, R.string.page_picker_cannot_add_to_page, Toast.LENGTH_SHORT).show();
@@ -172,12 +165,11 @@ public class WidgetHelper {
         activity.startActivityForResult(bindIntent, REQUEST_BIND_APPWIDGET);
     }
 
-    public void pickWidget(Activity activity, AppWidgetManager appWidgetManager, AppWidgetHost appWidgetHost, long pageId) {
+    public void pickWidget(Activity activity, long pageId) {
         mActivityRef = new WeakReference<>(activity);
-        mAppWidgetManagerRef = new WeakReference<>(appWidgetManager);
         mPageId = pageId;
 
-        mAllocatedAppWidgetId = appWidgetHost.allocateAppWidgetId();
+        mAllocatedAppWidgetId = mAppWidgetHost.allocateAppWidgetId();
 
 //        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
 //        addEmptyData(pickIntent);
@@ -209,8 +201,7 @@ public class WidgetHelper {
                 AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras);
     }
 
-    public boolean handleActivityResult(int requestCode, int resultCode, Intent data,
-                                        AppWidgetHost appWidgetHost) {
+    public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode != REQUEST_PICK_AND_BIND_APPWIDGET
                 && requestCode != REQUEST_BIND_APPWIDGET
                 && requestCode != REQUEST_CONFIGURE_APPWIDGET) {
@@ -218,29 +209,28 @@ public class WidgetHelper {
         }
 
         if (data == null) {
-            cancelPendingWidget(appWidgetHost);
+            cancelPendingWidget();
             return true;
         }
 
         Bundle extras = data.getExtras();
         final int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
-            cancelPendingWidget(appWidgetHost);
+            cancelPendingWidget();
             return true;
         }
 
         Context context = getContext();
-        AppWidgetManager appWidgetManager = mAppWidgetManagerRef.get();
-        if (context == null || appWidgetManager == null || resultCode == Activity.RESULT_CANCELED) {
-            cancelPendingWidget(appWidgetId, appWidgetHost);
+        if (context == null || resultCode == Activity.RESULT_CANCELED) {
+            cancelPendingWidget(appWidgetId);
         } else {
             if (resultCode == Activity.RESULT_OK) {
                 if (requestCode == REQUEST_PICK_AND_BIND_APPWIDGET
                         || requestCode == REQUEST_BIND_APPWIDGET) {
-                    addWidgetToModel(appWidgetId, appWidgetManager);
-                    final boolean isConfigurationOk = configureWidget(appWidgetId, appWidgetManager);
+                    addWidgetToModel(appWidgetId);
+                    final boolean isConfigurationOk = configureWidget(appWidgetId);
                     if (!isConfigurationOk) {
-                        cancelPendingWidget(appWidgetId, appWidgetHost);
+                        cancelPendingWidget(appWidgetId);
                     }
                 }
             }
@@ -248,8 +238,8 @@ public class WidgetHelper {
         return true;
     }
 
-    private boolean configureWidget(int appWidgetId, AppWidgetManager appWidgetManager) {
-        AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId);
+    private boolean configureWidget(int appWidgetId) {
+        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         if (appWidgetInfo.configure != null) {
             Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
             intent.setComponent(appWidgetInfo.configure);
@@ -259,8 +249,8 @@ public class WidgetHelper {
         return true;
     }
 
-    private void addWidgetToModel(int appWidgetId, AppWidgetManager appWidgetManager) {
-        final AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId);
+    private void addWidgetToModel(int appWidgetId) {
+        final AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         final Point screenSize = mScreenUtils.getScreenSizeDp(getContext());
         final WidgetData widgetData = new WidgetData(
                 System.currentTimeMillis(),
@@ -282,20 +272,17 @@ public class WidgetHelper {
         });
     }
 
-    private void cancelPendingWidget(AppWidgetHost appWidgetHost) {
+    private void cancelPendingWidget() {
         if (mAllocatedAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-            cancelPendingWidget(mAllocatedAppWidgetId, appWidgetHost);
+            cancelPendingWidget(mAllocatedAppWidgetId);
         }
     }
 
-    private void cancelPendingWidget(final int appWidgetId, AppWidgetHost appWidgetHost) {
-        appWidgetHost.deleteAppWidgetId(appWidgetId);
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mWidgetModel.deleteWidget(appWidgetId);
-                return null;
-            }
+    private void cancelPendingWidget(final int appWidgetId) {
+        mAppWidgetHost.deleteAppWidgetId(appWidgetId);
+        Task.callInBackground((Callable<Void>) () -> {
+            mWidgetModel.deleteWidget(appWidgetId);
+            return null;
         });
         if (mAllocatedAppWidgetId == appWidgetId) {
             mAllocatedAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;

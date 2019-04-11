@@ -31,8 +31,11 @@ class IconPackHelper {
                         && componentString.indexOf('/') != -1) {
                     componentString = componentString.drop("ComponentInfo{".length)
                     componentString = componentString.dropLast(1)
-                    result.add(ComponentName.unflattenFromString(componentString))
-                    return@findInAppfilterXml true
+                    val componentName = ComponentName.unflattenFromString(componentString)
+                    if (componentName != null) {
+                        result.add(componentName)
+                        return@findInAppfilterXml true
+                    }
                 }
             }
             return@findInAppfilterXml false

@@ -2,6 +2,7 @@ package net.feheren_fekete.applist.launcher.pageeditor;
 
 import android.Manifest;
 import android.appwidget.AppWidgetHost;
+import android.appwidget.AppWidgetManager;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
@@ -31,6 +32,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import androidx.fragment.app.Fragment;
@@ -66,6 +68,7 @@ public class PageEditorFragment extends Fragment {
     private LauncherStateManager mLauncherStateManager = get(LauncherStateManager.class);
     private LauncherModel mLauncherModel = get(LauncherModel.class);
     private WidgetModel mWidgetModel = get(WidgetModel.class);
+    private AppWidgetHost mAppWidgetHost = get(AppWidgetHost.class);
     private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
 
@@ -367,27 +370,18 @@ public class PageEditorFragment extends Fragment {
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(R.string.launcher_page_editor_remove_dialog_title)
                 .setMessage(R.string.launcher_page_editor_remove_dialog_message)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final AppWidgetHost appWidgetHost = ((MainActivity)getActivity()).getAppWidgetHost();
-                        Task.callInBackground(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                mScreenshotUtils.deleteScreenshot(screenshotPath);
-                                mWidgetModel.deleteWidgetsOfPage(pageId, appWidgetHost);
-                                mLauncherModel.removePage(position);
-                                mLauncherStateManager.clearPageVisible(pageId);
-                                return null;
-                            }
-                        });
+                .setPositiveButton(R.string.yes, (dialog, which) -> Task.callInBackground((Callable<Void>) () -> {
+                    mScreenshotUtils.deleteScreenshot(screenshotPath);
+                    List<Integer> deletedWidgetIds = mWidgetModel.deleteWidgetsOfPage(pageId);
+                    for (Integer widgetId : deletedWidgetIds) {
+                        mAppWidgetHost.deleteAppWidgetId(widgetId);
                     }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Nothing.
-                    }
+                    mLauncherModel.removePage(position);
+                    mLauncherStateManager.clearPageVisible(pageId);
+                    return null;
+                }))
+                .setNegativeButton(R.string.no, (dialog, which) -> {
+                    // Nothing.
                 })
                 .setCancelable(true)
                 .create();
