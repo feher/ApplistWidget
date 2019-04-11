@@ -9,11 +9,14 @@ import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.di.applistModule
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 
 class ApplistApp : MultiDexApplication() {
+
+    private val shortcutHelper: ShortcutHelper by inject()
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
@@ -31,8 +34,7 @@ class ApplistApp : MultiDexApplication() {
 
         ApplistLog.initInstance()
         WidgetHelper.initInstance()
-        ShortcutHelper.initInstance()
-        ShortcutHelper.getInstance().registerInstallShortcutReceiver(this)
+        shortcutHelper.registerInstallShortcutReceiver(this)
     }
 
     companion object {

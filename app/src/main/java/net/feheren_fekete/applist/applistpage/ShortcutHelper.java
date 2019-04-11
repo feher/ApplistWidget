@@ -36,25 +36,6 @@ public class ShortcutHelper {
 
     private ApplistModel mApplistModel = get(ApplistModel.class);
 
-    private static ShortcutHelper sInstance;
-
-    public static void initInstance() {
-        if (sInstance == null) {
-            sInstance = new ShortcutHelper();
-        }
-    }
-
-    public static ShortcutHelper getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(ShortcutHelper.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-    private ShortcutHelper() {
-    }
-
     public void registerInstallShortcutReceiver(Context context) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_INSTALL_SHORTCUT);
