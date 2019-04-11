@@ -8,12 +8,16 @@ import android.os.Build
 import android.provider.Settings
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
+import java.util.*
 
 class WriteSettingsPermissionHelper(private val context: Context) {
 
+    private val affectedModels = arrayOf("mate 20 pro")
+
     fun hasWriteSettingsPermission(): Boolean {
-        return (Build.VERSION.SDK_INT < Build.VERSION_CODES.M
-                || Settings.System.canWrite(context))
+        return (!isModelAffected()
+                || (Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+                    || Settings.System.canWrite(context)))
     }
 
     fun requestWriteSettingsPermission(activity: Activity) {
@@ -32,5 +36,8 @@ class WriteSettingsPermissionHelper(private val context: Context) {
                     activity.finish()
                 })
     }
+
+    private fun isModelAffected() =
+        affectedModels.contains(Build.MODEL.toLowerCase(Locale.US))
 
 }
