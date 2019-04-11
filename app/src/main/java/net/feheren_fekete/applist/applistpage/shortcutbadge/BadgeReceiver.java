@@ -46,6 +46,7 @@ public class BadgeReceiver extends BroadcastReceiver {
     private static final String APEX_EXTRA_BADGE_COUNT = "count";
 
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
+    private BadgeStore mBadgeStore = get(BadgeStore.class);
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -163,7 +164,7 @@ public class BadgeReceiver extends BroadcastReceiver {
     private void setBadgeCount(String packageName,
                                String className,
                                int badgeCount) {
-        BadgeStore.getInstance().setBadgeCount(packageName, className, badgeCount);
+        mBadgeStore.setBadgeCount(packageName, className, badgeCount);
     }
 
 }

@@ -39,23 +39,7 @@ public class BadgeStore {
     private SharedPreferences mSharedPreferences;
     private PackageManager mPackageManager;
 
-    private static BadgeStore sInstance;
-
-    public static void initInstance(Context context, PackageManager packageManager) {
-        if (sInstance == null) {
-            sInstance = new BadgeStore(context, packageManager);
-        }
-    }
-
-    public static BadgeStore getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException(BadgeStore.class.getSimpleName() + " singleton is not initialized");
-        }
-    }
-
-    private BadgeStore(Context context, PackageManager packageManager) {
+    public BadgeStore(Context context, PackageManager packageManager) {
         mSharedPreferences = context.getApplicationContext().getSharedPreferences(
                 SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         mPackageManager = packageManager;

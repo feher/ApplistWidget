@@ -24,9 +24,8 @@ public class NotificationListener extends NotificationListenerService {
 
     private static final String TAG = NotificationListener.class.getSimpleName();
 
-    // TODO: Inject
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
-    private BadgeStore mBadgeStore = BadgeStore.getInstance();
+    private BadgeStore mBadgeStore = get(BadgeStore.class);
 
     private boolean mIsConnected;
     private static List<StatusBarNotification> sStatusBarNotifications;

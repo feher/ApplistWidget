@@ -27,6 +27,7 @@ public class CallStateReceiver extends BroadcastReceiver {
     private static final String PREFERENCE_KEY_PREVIOUS_STATE = "PreviousState";
 
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
+    private BadgeStore mBadgeStore = get(BadgeStore.class);
 
     private SharedPreferences mSharedPreferences;
 
@@ -73,7 +74,7 @@ public class CallStateReceiver extends BroadcastReceiver {
     private void setBadgeCount(String packageName,
                                String className,
                                int badgeCount) {
-        BadgeStore.getInstance().setBadgeCount(packageName, className, badgeCount);
+        mBadgeStore.setBadgeCount(packageName, className, badgeCount);
     }
 
 }

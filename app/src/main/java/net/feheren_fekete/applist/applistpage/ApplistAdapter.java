@@ -51,8 +51,7 @@ public class ApplistAdapter
     public static final int STARTABLE_ITEM_VIEW = 1;
     public static final int SECTION_ITEM_VIEW = 2;
 
-    // TODO: Inject
-    private BadgeStore mBadgeStore = BadgeStore.getInstance();
+    private BadgeStore mBadgeStore = get(BadgeStore.class);
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
 
     private Context mContext;

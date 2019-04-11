@@ -90,7 +90,7 @@ public class ApplistPagePageFragment extends Fragment implements ApplistAdapter.
     private ScreenshotUtils mScreenshotUtils = ScreenshotUtils.getInstance();
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
-    private BadgeStore mBadgeStore = BadgeStore.getInstance();
+    private BadgeStore mBadgeStore = get(BadgeStore.class);
 
     private Handler mHandler = new Handler();
     private ApplistPreferences mApplistPreferences;

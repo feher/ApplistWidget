@@ -59,7 +59,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
     private ScreenUtils mScreenUtils = ScreenUtils.getInstance();
     private LauncherUtils mLauncherUtils = LauncherUtils.getInstance();
-    private BadgeStore mBadgeStore = BadgeStore.getInstance();
+    private BadgeStore mBadgeStore = get(BadgeStore.class);
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
