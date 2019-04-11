@@ -47,9 +47,10 @@ class IconLoaderTask(private val appItem: AppItem,
 
             val componentName = ComponentName(appItem.packageName, appItem.className)
             val originalIcon = loadIconFromApp(componentName)
-            val iconPackPackageName = "com.natewren.radpackfree"
+            return originalIcon
+            //val iconPackPackageName = "com.natewren.radpackfree"
             //val iconPackPackageName = "com.natewren.linesfree"
-            return loadIconFromIconPack(componentName, iconPackPackageName, originalIcon)
+            //return loadIconFromIconPack(componentName, iconPackPackageName, originalIcon)
 
         } catch (e: PackageManager.NameNotFoundException) {
             return null
