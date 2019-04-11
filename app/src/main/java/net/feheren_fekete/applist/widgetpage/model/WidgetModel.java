@@ -54,39 +54,21 @@ public class WidgetModel {
         }
     }
 
-    private static WidgetModel sInstance;
-
     private String mWidgetsFilePath;
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
     private List<WidgetData> mWidgets = new ArrayList<>();
 
-    public static void initInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new WidgetModel(context);
-            Task.callInBackground(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    sInstance.loadData();
-                    return null;
-                }
-            });
-        }
-    }
-
-    public static WidgetModel getInstance() {
-        if (sInstance != null) {
-            return sInstance;
-        } else {
-            throw new RuntimeException("WidgetModel singleton is not initialized");
-        }
-    }
-
     private WidgetModel(Context context) {
         mWidgetsFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-widgets.json";
+
+        Task.callInBackground((Callable<Void>) () -> {
+            loadData();
+            return null;
+        });
     }
 
-    public void loadData() {
+    private void loadData() {
         synchronized (this) {
             mWidgets.clear();
             String fileContent = mFileUtils.readFile(mWidgetsFilePath);

@@ -30,7 +30,6 @@ class ApplistApp : MultiDexApplication() {
         }
 
         ApplistLog.initInstance()
-        WidgetModel.initInstance(this)
         WidgetHelper.initInstance()
         ShortcutHelper.initInstance()
         ShortcutHelper.getInstance().registerInstallShortcutReceiver(this)

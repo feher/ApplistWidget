@@ -60,8 +60,7 @@ public class WidgetHelper {
         }
     }
 
-    // TODO: Inject
-    private WidgetModel mWidgetModel = WidgetModel.getInstance();
+    private WidgetModel mWidgetModel = get(WidgetModel.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
 
     private WeakReference<Activity> mActivityRef;
