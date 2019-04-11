@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist.di
 
+import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
 import net.feheren_fekete.applist.applistpage.model.ApplistModel
@@ -21,6 +22,7 @@ import org.koin.dsl.module
 
 val applistModule = module {
     single { androidContext().packageManager }
+    single { ApplistLog() }
     single { ScreenUtils() }
     single { WidgetUtils() }
     single { LauncherUtils() }

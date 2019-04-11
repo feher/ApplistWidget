@@ -30,7 +30,6 @@ class ApplistApp : MultiDexApplication() {
             modules(applistModule)
         }
 
-        ApplistLog.initInstance()
         shortcutHelper.registerInstallShortcutReceiver(this)
     }
 
