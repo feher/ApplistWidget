@@ -48,18 +48,12 @@ public class ApplistModel {
         mInstalledStartables = new ArrayList<>();
         mPages = new ArrayList<>();
 
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                loadData();
-                return null;
-            }
-        }).continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                updateInstalledApps();
-                return null;
-            }
+        Task.callInBackground((Callable<Void>) () -> {
+            loadData();
+            return null;
+        }).continueWith((Continuation<Void, Void>) task -> {
+            updateInstalledApps();
+            return null;
         });
     }
 
