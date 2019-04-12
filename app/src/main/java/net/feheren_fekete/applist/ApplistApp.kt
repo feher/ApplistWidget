@@ -10,6 +10,9 @@ import net.feheren_fekete.applist.di.applistModule
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import org.greenrobot.eventbus.EventBus
+
+
 
 
 class ApplistApp : MultiDexApplication() {
@@ -24,6 +27,11 @@ class ApplistApp : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         Fabric.with(this, Crashlytics())
+
+        // Use EventBus index to avoid crashes
+        // https://github.com/greenrobot/EventBus/issues/514
+        // http://greenrobot.org/eventbus/documentation/subscriber-index/
+        EventBus.builder().addIndex(ApplistEventBusIndex()).installDefaultEventBus()
 
         startKoin {
             androidContext(this@ApplistApp)
