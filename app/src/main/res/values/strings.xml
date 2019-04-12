@@ -9,6 +9,7 @@
     <string name="section_name">Group name</string>
 
     <string name="dialog_error_section_exists">This group already exists</string>
+    <string name="dialog_error_app_name_exists">This name is already used by another app</string>
 
     <string name="default_page_name">Apps</string>
     <string name="uncategorized_group">Uncategorized</string>

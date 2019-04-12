@@ -3,22 +3,24 @@ package net.feheren_fekete.applist.applistpage.itemmenu;
 import android.graphics.drawable.Drawable;
 import android.widget.RemoteViews;
 
+import androidx.annotation.Nullable;
+
 public class ItemMenuItem {
 
     public final String name;
     public final String text;
-    public final Drawable icon;
+    @Nullable public final Drawable icon;
     public final int backgroundResourceId;
     public final boolean isSwipeable;
-    public final RemoteViews contentRemoteViews;
+    @Nullable public final RemoteViews contentRemoteViews;
     public final Object data;
 
     public ItemMenuItem(String name,
                         String text,
-                        Drawable icon,
+                        @Nullable Drawable icon,
                         int backgroundResourceId,
                         boolean isSwipeable,
-                        RemoteViews contentRemoteViews,
+                        @Nullable RemoteViews contentRemoteViews,
                         Object data) {
         this.name = name;
         this.text = text;

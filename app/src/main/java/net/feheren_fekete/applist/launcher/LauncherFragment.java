@@ -37,9 +37,9 @@ public class LauncherFragment extends Fragment {
     private LauncherModel mLauncherModel = get(LauncherModel.class);
     private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private LauncherStateManager mLauncherStateManager = get(LauncherStateManager.class);
+    private ApplistPreferences mApplistPreferences = get(ApplistPreferences.class);
 
     private Handler mHandler = new Handler();
-    private ApplistPreferences mApplistPreferences;
     private MyViewPager mPager;
     private LauncherPagerAdapter mPagerAdapter;
     private int mActivePagePosition = -1;
@@ -59,8 +59,6 @@ public class LauncherFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_fragment, container, false);
-
-        mApplistPreferences = new ApplistPreferences(getContext().getApplicationContext());
 
         mPager = view.findViewById(R.id.launcher_fragment_view_pager);
         mPagerAdapter = new LauncherPagerAdapter(getChildFragmentManager());
