@@ -50,7 +50,7 @@ import bolts.Task;
 
 import static org.koin.java.KoinJavaComponent.get;
 
-public class ApplistPageFragment extends Fragment implements ApplistItemDragHandler.Listener {
+public class ApplistPageFragment extends Fragment {
 
     private static final String TAG = ApplistPageFragment.class.getSimpleName();
 
@@ -65,7 +65,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     private Handler mHandler = new Handler();
     private FileUtils mFileUtils = new FileUtils();
-    private IconCache mIconCache = new IconCache();
     private Toolbar mToolbar;
     private Drawable mToolbarGradient;
     private Menu mMenu;
@@ -257,14 +256,6 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
             isHandled = super.onOptionsItemSelected(item);
         }
         return isHandled;
-    }
-
-    @Override
-    public void onItemDragStart() {
-    }
-
-    @Override
-    public void onItemDragEnd() {
     }
 
     private Drawable createToolbarGradient() {
@@ -475,7 +466,7 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
 
     private void showApplistFragment(PageItem pageItem) {
         ApplistPagePageFragment fragment = ApplistPagePageFragment.Companion.newInstance(
-                pageItem, getLauncherPageId(), mIconCache, this);
+                pageItem, getLauncherPageId());
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.applist_page_fragment_page_container, fragment, ApplistPagePageFragment.class.getName())

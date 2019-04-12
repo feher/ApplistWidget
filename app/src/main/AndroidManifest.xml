@@ -50,6 +50,7 @@
             android:stateNotNeeded="true"
             android:screenOrientation="portrait"
             android:taskAffinity=""
+            android:windowSoftInputMode="adjustPan"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

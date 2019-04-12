@@ -3,14 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/launcher_page_editor_fragment_layout"
+    android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
     >
 
     <Button
-        android:id="@+id/launcher_page_editor_add_page"
+        android:id="@+id/addPageButton"
         android:layout_margin="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,12 +20,12 @@
         android:text="@string/launcher_page_editor_new_page"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/launcher_page_editor_done"
+        app:layout_constraintRight_toLeftOf="@+id/doneButton"
         tools:text="New Page"
         />
 
     <Button
-        android:id="@+id/launcher_page_editor_done"
+        android:id="@+id/doneButton"
         android:layout_margin="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,12 +35,12 @@
         android:text="@string/launcher_page_editor_done"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/launcher_page_editor_add_page"
+        app:layout_constraintLeft_toRightOf="@+id/addPageButton"
         tools:text="Done"
         />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/launcher_page_editor_page_list"
+        android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
@@ -50,7 +50,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/launcher_page_editor_add_page"
+        app:layout_constraintBottom_toTopOf="@id/addPageButton"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

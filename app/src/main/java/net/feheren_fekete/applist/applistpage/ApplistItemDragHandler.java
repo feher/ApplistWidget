@@ -31,11 +31,6 @@ import static org.koin.java.KoinJavaComponent.get;
 
 public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
-    public interface Listener {
-        void onItemDragStart();
-        void onItemDragEnd();
-    }
-
     private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
     private ApplistModel mApplistModel = get(ApplistModel.class);
 
@@ -45,7 +40,6 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     private RecyclerView mRecyclerView;
     private MyGridLayoutManager mLayoutManager;
     private ApplistAdapter mAdapter;
-    private Listener mListener;
     private View mDraggedView;
     private View mDraggedSectionView;
     private int mDraggedAppViewSize;
@@ -60,15 +54,13 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                                   ViewGroup touchOverlay,
                                   RecyclerView recyclerView,
                                   MyGridLayoutManager layoutManager,
-                                  ApplistAdapter adapter,
-                                  Listener listener) {
+                                  ApplistAdapter adapter) {
         mContext = context;
         mApplistPagePageFragment = applistPagePageFragment;
         mTouchOverlay = touchOverlay;
         mRecyclerView = recyclerView;
         mLayoutManager = layoutManager;
         mAdapter = adapter;
-        mListener = listener;
 
         mItemMoveThreshold = mContext.getResources().getDimension(R.dimen.applist_fragment_item_move_threshold);
         mDraggedAppViewSize = mContext.getResources().getDimensionPixelSize(R.dimen.appitem_icon_size);
@@ -94,8 +86,6 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     @Override
     public void onStartDragging(DragGestureRecognizer gestureRecognizer) {
         mApplistPagePageFragment.closeItemMenu();
-
-        mListener.onItemDragStart();
 
         final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
         if (draggedItem instanceof StartableItem) {
@@ -166,8 +156,6 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         }
 
         removeDraggedView();
-
-        mListener.onItemDragEnd();
     }
 
     private void addDraggedView(DragGestureRecognizer gestureRecognizer, BaseItem draggedItem) {

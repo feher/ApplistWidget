@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
+import net.feheren_fekete.applist.applistpage.IconCache
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
 import net.feheren_fekete.applist.applistpage.model.ApplistModel
@@ -45,4 +46,6 @@ val applistModule = module {
     single { WidgetModel(androidContext()) }
     single { LauncherStateManager() }
     single { ApplistPreferences(androidContext()) }
+
+    factory { IconCache() }
 }

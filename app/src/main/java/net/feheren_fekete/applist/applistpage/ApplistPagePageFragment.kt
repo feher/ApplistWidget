@@ -75,12 +75,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private val screenUtils: ScreenUtils by inject()
     private val badgeStore: BadgeStore by inject()
     private val applistPreferences: ApplistPreferences by inject()
+    private val iconCache: IconCache by inject()
 
     private val handler = Handler()
     private lateinit var pageItem: PageItem
-    private lateinit var iconCache: IconCache
     private lateinit var adapter: ApplistAdapter
-    private lateinit var listener: ApplistItemDragHandler.Listener
     private var itemDragGestureRecognizer: DragGestureRecognizer? = null
     private var itemMenu: ListPopupWindow? = null
     private var itemMenuTarget: BaseItem? = null
@@ -206,7 +205,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
         val itemDragCallback = ApplistItemDragHandler(
                 context, this, view.touchOverlay, view.recyclerView,
-                layoutManager, adapter, listener)
+                layoutManager, adapter)
         itemDragGestureRecognizer = DragGestureRecognizer(
                 itemDragCallback, view.touchOverlay, view.recyclerView)
 
@@ -469,7 +468,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                         pageItem.id,
                         sectionItem.id,
                         !wasSectionCollapsed)
-                Handler().postDelayed(Runnable {
+                handler.postDelayed(Runnable {
                     if (wasSectionCollapsed) {
                         val position = adapter.getItemPosition(sectionItem)
                         if (position != RecyclerView.NO_POSITION) {
@@ -911,7 +910,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         val sectionName = sectionItem.name
         val uncategorizedSectionName = adapter.uncategorizedSectionName
         ApplistDialogs.questionDialog(
-                activity,
+                activity!!,
                 resources.getString(R.string.remove_section_title),
                 resources.getString(R.string.remove_section_message, sectionName, uncategorizedSectionName),
                 {
@@ -966,9 +965,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         private const val ARG_LAUNCHER_PAGE_ID = "launcherPageId"
 
         fun newInstance(pageItem: PageItem,
-                        launcherPageId: Long,
-                        iconCache: IconCache,
-                        listener: ApplistItemDragHandler.Listener): ApplistPagePageFragment {
+                        launcherPageId: Long): ApplistPagePageFragment {
             val fragment = ApplistPagePageFragment()
 
             val args = Bundle()
@@ -976,9 +973,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             args.putString(ARG_APPLIST_PAGE_NAME, pageItem.name)
             args.putLong(ARG_LAUNCHER_PAGE_ID, launcherPageId)
             fragment.arguments = args
-
-            fragment.iconCache = iconCache
-            fragment.listener = listener
 
             return fragment
         }

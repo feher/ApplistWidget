@@ -97,7 +97,7 @@ public class PagePickerFragment extends Fragment {
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.page_picker_fragment_fragment_container,
-                        PageEditorFragment.newInstance(false, true, mRequestData))
+                         PageEditorFragment.Companion.newInstance(false, true, mRequestData))
                 .commit();
     }
 

@@ -94,18 +94,19 @@ class MainActivity : AppCompatActivity() {
         // Don't exit on back-press. We are a launcher.
     }
 
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("UNUSED_PARAMETER", "unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowPageEditorEvent(event: WidgetPageFragment.ShowPageEditorEvent) {
         showPageEditorFragment()
     }
 
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("UNUSED_PARAMETER", "unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowPageEditorEvent(event: ApplistPageFragment.ShowPageEditorEvent) {
         showPageEditorFragment()
     }
 
+    @Suppress("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowPagePickerEvent(event: WidgetHelper.ShowPagePickerEvent) {
         showPagePickerFragment(
@@ -114,6 +115,7 @@ class MainActivity : AppCompatActivity() {
                 event.data)
     }
 
+    @Suppress("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowPagePickerEvent(event: WidgetPageFragment.ShowPagePickerEvent) {
         showPagePickerFragment(
@@ -122,12 +124,13 @@ class MainActivity : AppCompatActivity() {
                 event.data)
     }
 
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("UNUSED_PARAMETER", "unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onPageEditorDoneEvent(event: PageEditorFragment.DoneEvent) {
         showLauncherFragment(-1)
     }
 
+    @Suppress("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onPageEditorPageTappedEvent(event: PageEditorFragment.PageTappedEvent) {
         if (widgetHelper.handlePagePicked(this, event.pageData, event.requestData)) {
