@@ -90,4 +90,5 @@
     <string name="dialog_error_app_name_exists">Ez a név már használt</string>
     <string name="app_item_menu_rename">Átnevezés</string>
     <string name="startable_name">App neve</string>
+    <string name="cannot_pin">Hibás gyorsindító nem létrehozható.</string>
 </resources>

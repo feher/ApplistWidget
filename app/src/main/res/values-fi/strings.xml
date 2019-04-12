@@ -90,4 +90,5 @@
     <string name="dialog_error_app_name_exists">Nimi on jo käytössä</string>
     <string name="app_item_menu_rename">Nimeä uudelleen</string>
     <string name="startable_name">Appin nimi</string>
+    <string name="cannot_pin">Ei voi lisätä pikakuvaketta.</string>
 </resources>
