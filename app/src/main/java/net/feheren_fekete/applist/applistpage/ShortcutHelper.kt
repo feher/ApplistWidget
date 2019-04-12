@@ -23,12 +23,16 @@ import net.feheren_fekete.applist.applistpage.model.AppShortcutData
 import net.feheren_fekete.applist.applistpage.model.ApplistModel
 import net.feheren_fekete.applist.applistpage.model.ShortcutData
 import net.feheren_fekete.applist.utils.ImageUtils
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 
 
 class ShortcutHelper {
 
-    private val applistModel by inject(ApplistModel::class.java)
+    // This must be get() to avoid crash due to lazy-init (inject())
+    // inside coroutine threads.
+    // Crash is caused by creating a Handler in ApplistModel. Inside
+    // threads we cannot create handles by "new Handle()".
+    private val applistModel= get(ApplistModel::class.java)
 
     private val installShortcutReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
