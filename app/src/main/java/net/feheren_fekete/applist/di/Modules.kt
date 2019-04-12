@@ -37,6 +37,7 @@ val applistModule = module {
     single { ShortcutHelper() }
     single { WidgetHelper() }
     single { IconPackHelper() }
+    single { IconCache() }
     single { SettingsUtils(androidContext()) }
     single { WriteSettingsPermissionHelper(androidContext()) }
     single { BadgeUtils(androidContext()) }
@@ -46,6 +47,4 @@ val applistModule = module {
     single { WidgetModel(androidContext()) }
     single { LauncherStateManager() }
     single { ApplistPreferences(androidContext()) }
-
-    factory { IconCache() }
 }
