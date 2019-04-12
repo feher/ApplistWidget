@@ -9,6 +9,7 @@ import net.feheren_fekete.applist.applistpage.model.ShortcutData;
 import net.feheren_fekete.applist.applistpage.model.StartableData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ViewModelUtils {
@@ -57,7 +58,9 @@ public class ViewModelUtils {
         for (BaseItem item : items) {
             if (item instanceof SectionItem) {
                 SectionItem sectionItem = (SectionItem) item;
+                // Finish previous section
                 if (sectionData != null) {
+                    sectionData.setStartables(startableDatas);
                     sectionDatas.add(sectionData);
                 }
                 // Start a new section
@@ -65,7 +68,7 @@ public class ViewModelUtils {
                 sectionData = new SectionData(
                         sectionItem.getId(),
                         sectionItem.getName(),
-                        startableDatas,
+                        Collections.emptyList(),
                         sectionItem.isRemovable(),
                         sectionItem.isCollapsed());
             } else if (item instanceof AppItem) {
@@ -91,6 +94,7 @@ public class ViewModelUtils {
             }
         }
         if (sectionData != null) {
+            sectionData.setStartables(startableDatas);
             sectionDatas.add(sectionData);
         }
         return new PageData(pageId, pageName, sectionDatas);

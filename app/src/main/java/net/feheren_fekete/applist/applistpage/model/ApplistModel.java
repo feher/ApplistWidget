@@ -7,6 +7,7 @@ import android.os.Handler;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.utils.AppUtils;
+import net.feheren_fekete.applist.utils.RunnableWithArg;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -128,21 +129,29 @@ public class ApplistModel {
         }
     }
 
-    public @Nullable PageData getPage(String pageName) {
+    public void withPage(long pageId, RunnableWithArg<PageData> runnable) {
         synchronized (this) {
             for (PageData page : mPages) {
-                if (page.getName().equals(pageName)) {
-                    return page;
+                if (page.getId() == pageId) {
+                    runnable.run(page);
                 }
             }
-            return null;
         }
     }
 
-    public void setPage(String pageName, PageData newPage) {
+    private @Nullable PageData getPage(long pageId) {
+        for (PageData page : mPages) {
+            if (page.getId() == pageId) {
+                return page;
+            }
+        }
+        return null;
+    }
+
+    public void setPage(long pageId, PageData newPage) {
         synchronized (this) {
             for (PageData page : mPages) {
-                if (page.getName().equals(pageName)) {
+                if (page.getId() == pageId) {
                     // We don't change the page ID.
                     page.setName(newPage.getName());
                     page.setSections(newPage.getSections());
@@ -171,9 +180,9 @@ public class ApplistModel {
         }
     }
 
-    public void setPageName(String oldPageName, String newPageName) {
+    public void setPageName(long pageId, String newPageName) {
         synchronized (this) {
-            PageData page = getPage(oldPageName);
+            PageData page = getPage(pageId);
             if (page != null) {
                 page.setName(newPageName);
                 EventBus.getDefault().post(new PagesChangedEvent());
@@ -204,21 +213,21 @@ public class ApplistModel {
         }
     }
 
-    public List<String> getPageNames() {
+    public List<Long> getPageIds() {
         synchronized (this) {
-            List<String> pageNames = new ArrayList<>();
+            List<Long> pageIds = new ArrayList<>();
             for (PageData page : mPages) {
-                pageNames.add(page.getName());
+                pageIds.add(page.getId());
             }
-            return pageNames;
+            return pageIds;
         }
     }
 
-    public void removeSection(String pageName, String sectionName) {
+    public void removeSection(long pageId, long sectionId) {
         synchronized (this) {
             for (PageData p : mPages) {
-                if (p.getName().equals(pageName)) {
-                    p.removeSection(sectionName);
+                if (p.getId() == pageId) {
+                    p.removeSection(sectionId);
                     updateSections(p);
                     EventBus.getDefault().post(new SectionsChangedEvent());
                     scheduleStoreData();
@@ -228,24 +237,28 @@ public class ApplistModel {
         }
     }
 
-    public void addNewSection(String pageName, String sectionName, boolean removable) {
+    @Nullable
+    public SectionData addNewSection(long pageId, String sectionName, boolean removable) {
         synchronized (this) {
             for (PageData page : mPages) {
-                if (page.getName().equals(pageName)) {
-                    page.addSection(new SectionData(
-                            createSectionId(), sectionName, new ArrayList<StartableData>(), removable, false));
+                if (page.getId() == pageId) {
+                    SectionData section = new SectionData(
+                            createSectionId(), sectionName,
+                            new ArrayList<>(), removable, false);
+                    page.addSection(section);
                     EventBus.getDefault().post(new SectionsChangedEvent());
                     scheduleStoreData();
-                    return;
+                    return section;
                 }
             }
+            return null;
         }
     }
 
-    public List<String> getSectionNames(String pageName) {
+    public List<String> getSectionNames(long pageId) {
         synchronized (this) {
             List<String> sectionNames = new ArrayList<>();
-            PageData page = getPage(pageName);
+            PageData page = getPage(pageId);
             if (page != null) {
                 for (SectionData section : page.getSections()) {
                     sectionNames.add(section.getName());
@@ -255,11 +268,11 @@ public class ApplistModel {
         }
     }
 
-    public void setSectionName(String pageName, String oldSectionName, String newSectionName) {
+    public void setSectionName(long pageId, long sectionId, String newSectionName) {
         synchronized (this) {
-            PageData page = getPage(pageName);
+            PageData page = getPage(pageId);
             if (page != null) {
-                if (page.renameSection(oldSectionName, newSectionName)) {
+                if (page.renameSection(sectionId, newSectionName)) {
                     EventBus.getDefault().post(new SectionsChangedEvent());
                     scheduleStoreData();
                 }
@@ -267,11 +280,11 @@ public class ApplistModel {
         }
     }
 
-    public void setSectionCollapsed(String pageName, String sectionName, boolean collapsed) {
+    public void setSectionCollapsed(long pageId, long sectionId, boolean collapsed) {
         synchronized (this) {
-            PageData page = getPage(pageName);
+            PageData page = getPage(pageId);
             if (page != null) {
-                SectionData section = page.getSection(sectionName);
+                SectionData section = page.getSection(sectionId);
                 if (section != null && !section.isEmpty()) {
                     boolean oldState = section.isCollapsed();
                     if (oldState != collapsed) {
@@ -284,10 +297,10 @@ public class ApplistModel {
         }
     }
 
-    public void setAllSectionsCollapsed(String pageName, boolean collapsed, boolean save) {
+    public void setAllSectionsCollapsed(long pageId, boolean collapsed, boolean save) {
         synchronized (this) {
             boolean isSectionChanged = false;
-            PageData page = getPage(pageName);
+            PageData page = getPage(pageId);
             if (page != null) {
                 for (SectionData section : page.getSections()) {
                     if (!section.isEmpty()) {
@@ -308,17 +321,17 @@ public class ApplistModel {
         }
     }
 
-    public void setAllSectionsCollapsed(String pageName,
-                                        Map<String, Boolean> collapsedStates,
+    public void setAllSectionsCollapsed(long pageId,
+                                        Map<Long, Boolean> collapsedStates,
                                         boolean save) {
         synchronized (this) {
             boolean isSectionChanged = false;
-            PageData page = getPage(pageName);
+            PageData page = getPage(pageId);
             if (page != null) {
                 for (SectionData section : page.getSections()) {
                     if (!section.isEmpty()) {
                         boolean oldState = section.isCollapsed();
-                        boolean newState = collapsedStates.get(section.getName());
+                        boolean newState = collapsedStates.get(section.getId());
                         if (oldState != newState) {
                             section.setCollapsed(newState);
                             isSectionChanged = true;
@@ -335,18 +348,31 @@ public class ApplistModel {
         }
     }
 
-    public void setSectionOrder(String pageName, List<String> orderedSectionNames, boolean save) {
+    public void setSectionOrder(long pageId, List<Long> orderedSectionIds, boolean save) {
         synchronized (this) {
-            PageData page = getPage(pageName);
+            PageData page = getPage(pageId);
             if (page != null) {
                 List<SectionData> orderedSections = new ArrayList<>();
-                for (String sectionName : orderedSectionNames) {
-                    orderedSections.add(page.getSection(sectionName));
+                for (Long sectionId : orderedSectionIds) {
+                    orderedSections.add(page.getSection(sectionId));
                 }
                 page.setSections(orderedSections);
                 EventBus.getDefault().post(new SectionsChangedEvent());
                 if (save) {
                     scheduleStoreData();
+                }
+            }
+        }
+    }
+
+    public void setStartableCustomName(long pageId, int startableId, String customName) {
+        synchronized (this) {
+            PageData page = getPage(pageId);
+            if (page != null) {
+                for (SectionData section : page.getSections()) {
+                    if (section.hasStartable(startableId)) {
+
+                    }
                 }
             }
         }
@@ -364,9 +390,9 @@ public class ApplistModel {
         }
     }
 
-    public void sortStartablesInPage(String pageName) {
+    public void sortStartablesInPage(long pageId) {
         synchronized (this) {
-            PageData page = getPage(pageName);
+            PageData page = getPage(pageId);
             if (page != null) {
                 for (SectionData sectionData : page.getSections()) {
                     sectionData.sortStartablesAlphabetically();
@@ -377,11 +403,11 @@ public class ApplistModel {
         }
     }
 
-    public void sortStartablesInSection(String pageName, String sectionName) {
+    public void sortStartablesInSection(long pageId, long sectionId) {
         synchronized (this) {
-            PageData page = getPage(pageName);
+            PageData page = getPage(pageId);
             if (page != null) {
-                SectionData sectionData = page.getSection(sectionName);
+                SectionData sectionData = page.getSection(sectionId);
                 if (sectionData != null) {
                     sectionData.sortStartablesAlphabetically();
                     EventBus.getDefault().post(new SectionsChangedEvent());
@@ -391,18 +417,28 @@ public class ApplistModel {
         }
     }
 
-    public void moveStartableToSection(String pageName, String sectionName, StartableData startableData) {
+    public void moveStartableToSection(long pageId, long sectionId, long startableId) {
         synchronized (this) {
-            PageData page = getPage(pageName);
-            if (page != null) {
-                page.removeStartable(startableData);
-                SectionData section = page.getSection(sectionName);
-                if (section != null) {
-                    section.addStartable(startableData);
-                    EventBus.getDefault().post(new SectionsChangedEvent());
-                    scheduleStoreData();
-                }
+            PageData page = getPage(pageId);
+            if (page == null) {
+                return;
             }
+            SectionData fromSection = page.getSectionOfStartable(startableId);
+            if (fromSection == null) {
+                return;
+            }
+            StartableData startable = fromSection.getStartable(startableId);
+            if (startable == null) {
+                return;
+            }
+            fromSection.removeStartable(startableId);
+            SectionData toSection = page.getSection(sectionId);
+            if (toSection == null) {
+                return;
+            }
+            toSection.addStartable(startable);
+            EventBus.getDefault().post(new SectionsChangedEvent());
+            scheduleStoreData();
         }
     }
 

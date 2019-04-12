@@ -41,10 +41,8 @@ import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuAdapter
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuItem
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuListener
-import net.feheren_fekete.applist.applistpage.model.AppData
 import net.feheren_fekete.applist.applistpage.model.ApplistModel
 import net.feheren_fekete.applist.applistpage.model.BadgeStore
-import net.feheren_fekete.applist.applistpage.model.PageData
 import net.feheren_fekete.applist.applistpage.shortcutbadge.NotificationListener
 import net.feheren_fekete.applist.applistpage.viewmodel.*
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
@@ -79,6 +77,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private val applistPreferences: ApplistPreferences by inject()
 
     private val handler = Handler()
+    private lateinit var pageItem: PageItem
     private lateinit var iconCache: IconCache
     private lateinit var adapter: ApplistAdapter
     private lateinit var listener: ApplistItemDragHandler.Listener
@@ -87,10 +86,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private var itemMenuTarget: BaseItem? = null
 
     private val launcherPageId: Long
-        get() = arguments!!.getLong("launcherPageId")
-
-    val pageName: String
-        get() = arguments!!.getString("pageName")!!
+        get() = arguments!!.getLong(ARG_LAUNCHER_PAGE_ID)
 
     private val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
@@ -161,6 +157,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val c = context ?: return
+        pageItem = PageItem(
+                arguments!!.getLong(ARG_APPLIST_PAGE_ID),
+                arguments!!.getString(ARG_APPLIST_PAGE_NAME)!!)
         adapter = ApplistAdapter(
                 c, this, c.packageManager,
                 FileUtils(), this, iconCache)
@@ -262,6 +261,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     fun onBadgeEvent(event: BadgeStore.BadgeEvent) {
         handler.post { loadAllItems() }
     }
+
+    fun getPageItem() = pageItem
 
     fun isFilteredByName() = adapter.isFilteredByName
 
@@ -459,13 +460,12 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     override fun onSectionTapped(sectionItem: SectionItem) {
-        val pageName = pageName
         val wasSectionCollapsed = sectionItem.isCollapsed
         if (!adapter.isFilteredByName) {
             GlobalScope.launch {
                 applistModel.setSectionCollapsed(
-                        pageName,
-                        sectionItem.name,
+                        pageItem.id,
+                        sectionItem.id,
                         !wasSectionCollapsed)
                 Handler().postDelayed(Runnable {
                     if (wasSectionCollapsed) {
@@ -491,11 +491,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     override fun onSectionTouched(sectionItem: SectionItem) {}
 
     private fun createNotificationMenuItem(text: String, icon: Drawable, remoteViews: RemoteViews?, statusBarNotification: StatusBarNotification): ItemMenuItem {
-        var text = text
-        if (text.isEmpty() && remoteViews == null) {
-            text = context!!.getString(R.string.app_item_menu_notification_without_title)
+        var t = text
+        if (t.isEmpty() && remoteViews == null) {
+            t = context!!.getString(R.string.app_item_menu_notification_without_title)
         }
-        return ItemMenuItem("", text, icon, R.drawable.notification_menu_item_background, true, remoteViews, statusBarNotification)
+        return ItemMenuItem("", t, icon, R.drawable.notification_menu_item_background, true, remoteViews, statusBarNotification)
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1) // ShortcutInfo
@@ -793,11 +793,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun loadAllItems() {
-        var pageData = applistModel.getPage(pageName)
-        if (pageData == null) {
-            pageData = PageData(ApplistModel.INVALID_ID.toLong(), pageName, ArrayList())
+        val items = mutableListOf<BaseItem>()
+        applistModel.withPage(pageItem.id) {
+            items.addAll(ViewModelUtils.modelToView(applistModel, it))
         }
-        adapter.setItems(ViewModelUtils.modelToView(applistModel, pageData))
+        adapter.setItems(items)
     }
 
     private fun clearAppBadge(appItem: AppItem) {
@@ -866,7 +866,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (!isAttached) {
             return
         }
-        val pageName = pageName
         val oldSectionName = sectionItem.name
         val sectionNames = adapter.sectionNames
         ApplistDialogs.textInputDialog(
@@ -879,7 +878,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 },
                 { newSectionName ->
                     GlobalScope.launch {
-                        applistModel.setSectionName(pageName, oldSectionName, newSectionName)
+                        applistModel.setSectionName(
+                                pageItem.id, sectionItem.id, newSectionName)
                     }
                 })
     }
@@ -889,7 +889,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             return
         }
         val sectionName = sectionItem.name
-        val pageName = pageName
         val uncategorizedSectionName = adapter.uncategorizedSectionName
         ApplistDialogs.questionDialog(
                 activity,
@@ -897,7 +896,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 resources.getString(R.string.remove_section_message, sectionName, uncategorizedSectionName),
                 {
                     GlobalScope.launch {
-                        applistModel.removeSection(pageName, sectionName)
+                        applistModel.removeSection(pageItem.id, sectionItem.id)
                     }
                 },
                 {
@@ -906,10 +905,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun sortSection(sectionItem: SectionItem) {
-        val sectionName = sectionItem.name
-        val pageName = pageName
         GlobalScope.launch {
-            applistModel.sortStartablesInSection(pageName, sectionName)
+            applistModel.sortStartablesInSection(pageItem.id, sectionItem.id)
         }
     }
 
@@ -917,7 +914,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (!isAttached) {
             return
         }
-        val pageName = pageName
         val sectionNames = adapter.sectionNames
         ApplistDialogs.textInputDialog(
                 activity!!, R.string.section_name, "",
@@ -930,12 +926,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 { sectionName ->
                     if (!sectionName.isEmpty()) {
                         GlobalScope.launch {
-                            applistModel.addNewSection(pageName, sectionName, true)
-                            if (appToMove != null) {
-                                val appData = AppData(
-                                        appToMove.id, appToMove.packageName,
-                                        appToMove.className, appToMove.name)
-                                applistModel.moveStartableToSection(pageName, sectionName, appData)
+                            val section = applistModel.addNewSection(
+                                    pageItem.id, sectionName, true)
+                            if (section != null && appToMove != null) {
+                                applistModel.moveStartableToSection(
+                                        pageItem.id, section.id, appToMove.id)
                             }
                         }
                     }
@@ -946,15 +941,20 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
         private val TAG = ApplistPagePageFragment::class.java.simpleName
 
-        fun newInstance(pageName: String,
+        private const val ARG_APPLIST_PAGE_ID = "applistPageId"
+        private const val ARG_APPLIST_PAGE_NAME = "applistPageName"
+        private const val ARG_LAUNCHER_PAGE_ID = "launcherPageId"
+
+        fun newInstance(pageItem: PageItem,
                         launcherPageId: Long,
                         iconCache: IconCache,
                         listener: ApplistItemDragHandler.Listener): ApplistPagePageFragment {
             val fragment = ApplistPagePageFragment()
 
             val args = Bundle()
-            args.putString("pageName", pageName)
-            args.putLong("launcherPageId", launcherPageId)
+            args.putLong(ARG_APPLIST_PAGE_ID, pageItem.id)
+            args.putString(ARG_APPLIST_PAGE_NAME, pageItem.name)
+            args.putLong(ARG_LAUNCHER_PAGE_ID, launcherPageId)
             fragment.arguments = args
 
             fragment.iconCache = iconCache

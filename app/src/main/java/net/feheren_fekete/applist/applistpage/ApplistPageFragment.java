@@ -28,6 +28,8 @@ import net.feheren_fekete.applist.ApplistPreferences;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
+import net.feheren_fekete.applist.applistpage.model.PageData;
+import net.feheren_fekete.applist.applistpage.viewmodel.PageItem;
 import net.feheren_fekete.applist.launcher.LauncherUtils;
 import net.feheren_fekete.applist.settings.SettingsActivity;
 import net.feheren_fekete.applist.settings.SettingsUtils;
@@ -70,11 +72,11 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     private SearchView mSearchView;
     private UpdateInstalledAppsRunnable mUpdateInstalledAppsRunnable = null;
 
-    public static ApplistPageFragment newInstance(long pageId) {
+    public static ApplistPageFragment newInstance(long launcherPageId) {
         ApplistPageFragment fragment = new ApplistPageFragment();
 
         Bundle args = new Bundle();
-        args.putLong("pageId", pageId);
+        args.putLong("launcherPageId", launcherPageId);
         fragment.setArguments(args);
 
         return fragment;
@@ -415,8 +417,8 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         updateApplistFragmentDelayed();
     }
 
-    private long getPageId() {
-        return getArguments().getLong("pageId");
+    private long getLauncherPageId() {
+        return getArguments().getLong("launcherPageId");
     }
 
     private void updateData() {
@@ -430,43 +432,41 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     }
 
     private void loadApplistFragment() {
-        Task.callInBackground(new Callable<List<String>>() {
-            @Override
-            public List<String> call() throws Exception {
-                return mApplistModel.getPageNames();
-            }
-        }).continueWith(new Continuation<List<String>, Void>() {
-            @Override
-            public Void then(Task<List<String>> task) throws Exception {
-                List<String> pageNames = task.getResult();
-                if (!pageNames.isEmpty()) {
-                    showApplistFragment(pageNames.get(0));
-                } else {
-                    ApplistLog.getInstance().log(new RuntimeException("No pages found!"));
-                }
+        Task.callInBackground(() -> {
+            List<Long> pageIds = mApplistModel.getPageIds();
+            if (!pageIds.isEmpty()) {
+                PageItem pageItem = new PageItem(ApplistModel.INVALID_ID, "");
+                mApplistModel.withPage(pageIds.get(0), (pageData) -> {
+                    pageItem.setId(pageData.getId());
+                    pageItem.setName(pageData.getName());
+                });
+                return pageItem;
+            } else {
                 return null;
             }
+        }).continueWith((Continuation<PageItem, Void>) task -> {
+            PageItem page = task.getResult();
+            if (page != null) {
+                showApplistFragment(page);
+            } else {
+                ApplistLog.getInstance().log(new RuntimeException("No pages found!"));
+            }
+            return null;
         }, Task.UI_THREAD_EXECUTOR);
     }
 
     private void addDefaultPage() {
         final String defaultPageName = getResources().getString(R.string.default_page_name);
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mApplistModel.addNewPage(defaultPageName);
-                return null;
-            }
+        Task.callInBackground((Callable<Void>) () -> {
+            mApplistModel.addNewPage(defaultPageName);
+            return null;
         });
     }
 
     private void updateApplistFragmentDelayed() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (isAdded()) {
-                    updateApplistFragment();
-                }
+        mHandler.post(() -> {
+            if (isAdded()) {
+                updateApplistFragment();
             }
         });
     }
@@ -479,9 +479,9 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         }
     }
 
-    private void showApplistFragment(String pageName) {
+    private void showApplistFragment(PageItem pageItem) {
         ApplistPagePageFragment fragment = ApplistPagePageFragment.Companion.newInstance(
-                pageName, getPageId(), mIconCache, this);
+                pageItem, getLauncherPageId(), mIconCache, this);
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.applist_page_fragment_page_container, fragment, ApplistPagePageFragment.class.getName())

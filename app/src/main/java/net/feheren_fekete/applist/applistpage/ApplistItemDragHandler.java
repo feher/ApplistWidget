@@ -13,6 +13,7 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.PageData;
+import net.feheren_fekete.applist.applistpage.viewmodel.PageItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
 import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
@@ -376,19 +377,16 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
     }
 
     private void savePageToModel() {
-        final String pageName = mApplistPagePageFragment.getPageName();
+        final PageItem pageItem = mApplistPagePageFragment.getPageItem();
         final List<BaseItem> items = mAdapter.getAllItems();
         final boolean keepAppsSorted = mSettingsUtils.isKeepAppsSortedAlphabetically();
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                PageData pageData = ViewModelUtils.viewToModel(ApplistModel.INVALID_ID, pageName, items);
-                mApplistModel.setPage(pageName, pageData);
-                if (keepAppsSorted) {
-                    mApplistModel.sortStartablesInPage(pageName);
-                }
-                return null;
+        Task.callInBackground((Callable<Void>) () -> {
+            PageData pageData = ViewModelUtils.viewToModel(pageItem.getId(), pageItem.getName(), items);
+            mApplistModel.setPage(pageItem.getId(), pageData);
+            if (keepAppsSorted) {
+                mApplistModel.sortStartablesInPage(pageItem.getId());
             }
+            return null;
         });
     }
 

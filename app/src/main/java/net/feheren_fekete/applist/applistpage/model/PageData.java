@@ -31,13 +31,18 @@ public class PageData extends BaseData {
         mSections = sections;
     }
 
-    public boolean hasSection(String sectionName) {
-        return getSection(sectionName) != null;
-    }
-
-    public @Nullable SectionData getSection(String sectionName) {
+    public boolean hasSectionWithName(String sectionName) {
         for (SectionData section : mSections) {
             if (section.getName().equals(sectionName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public @Nullable SectionData getSection(long sectionId) {
+        for (SectionData section : mSections) {
+            if (section.getId() == sectionId) {
                 return section;
             }
         }
@@ -53,8 +58,8 @@ public class PageData extends BaseData {
         return null;
     }
 
-    public boolean renameSection(String oldSectionName, String newSectionName) {
-        SectionData section = getSection(oldSectionName);
+    public boolean renameSection(long sectionId, String newSectionName) {
+        SectionData section = getSection(sectionId);
         if (section != null) {
             section.setName(newSectionName);
             return true;
@@ -71,9 +76,19 @@ public class PageData extends BaseData {
         return false;
     }
 
-    public boolean removeStartable(StartableData startableData) {
+    @Nullable
+    public SectionData getSectionOfStartable(long startableId) {
         for (SectionData section : mSections) {
-            if (section.removeStartable(startableData)) {
+            if (section.hasStartable(startableId)) {
+                return section;
+            }
+        }
+        return null;
+    }
+
+    public boolean removeStartable(long startableId) {
+        for (SectionData section : mSections) {
+            if (section.removeStartable(startableId)) {
                 return true;
             }
         }
@@ -85,10 +100,10 @@ public class PageData extends BaseData {
         mSections.add(0, section);
     }
 
-    public void removeSection(String sectionName) {
+    public void removeSection(long sectionId) {
         List<SectionData> remainingSections = new ArrayList<>();
         for (SectionData section : mSections) {
-            if (!section.getName().equals(sectionName)) {
+            if (section.getId() != sectionId) {
                 remainingSections.add(section);
             }
         }
