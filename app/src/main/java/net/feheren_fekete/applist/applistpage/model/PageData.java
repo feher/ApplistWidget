@@ -67,6 +67,17 @@ public class PageData extends BaseData {
         return false;
     }
 
+    @Nullable
+    public StartableData getStartable(long startableId) {
+        for (SectionData section : mSections) {
+            StartableData startable = section.getStartable(startableId);
+            if (startable != null) {
+                return startable;
+            }
+        }
+        return null;
+    }
+
     public boolean hasStartable(StartableData startableData) {
         for (SectionData section : mSections) {
             if (section.hasStartable(startableData)) {

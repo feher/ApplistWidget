@@ -2,13 +2,9 @@ package net.feheren_fekete.applist.applistpage.viewmodel
 
 
 class SectionItem(id: Long,
-                  private val name: String,
+                  name: String,
                   val isRemovable: Boolean,
-                  val isCollapsed: Boolean) : BaseItem(id) {
-
-    override fun getName(): String {
-        return name
-    }
+                  val isCollapsed: Boolean) : BaseItem(id, name) {
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is SectionItem) {

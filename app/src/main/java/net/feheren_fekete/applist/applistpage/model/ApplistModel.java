@@ -365,16 +365,19 @@ public class ApplistModel {
         }
     }
 
-    public void setStartableCustomName(long pageId, int startableId, String customName) {
+    public void setStartableCustomName(long pageId, long startableId, String name) {
         synchronized (this) {
             PageData page = getPage(pageId);
-            if (page != null) {
-                for (SectionData section : page.getSections()) {
-                    if (section.hasStartable(startableId)) {
-
-                    }
-                }
+            if (page == null) {
+                return;
             }
+            StartableData startable = page.getStartable(startableId);
+            if (startable == null) {
+                return;
+            }
+            startable.setCustomName(name);
+            EventBus.getDefault().post(new SectionsChangedEvent());
+            scheduleStoreData();
         }
     }
 
@@ -570,12 +573,17 @@ public class ApplistModel {
             final int availableItemPos = availableItems.indexOf(startableData);
             final boolean isAvailable = (availableItemPos != -1);
             if (isAvailable) {
+                StartableData installedStartable = availableItems.get(availableItemPos);
+
                 // The app name may have changed. E.g. The user changed the system
                 // language.
-                StartableData installedStartable = availableItems.get(availableItemPos);
                 if (!startableData.getName().equals(installedStartable.getName())) {
                     isSectionChanged = true;
                 }
+
+                // Keep the custom name.
+                installedStartable.setCustomName(startableData.getCustomName());
+
                 availableItemsInSection.add(installedStartable);
             }
         }

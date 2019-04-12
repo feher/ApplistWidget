@@ -246,6 +246,17 @@ public class ApplistAdapter
         return result;
     }
 
+    public List<String> getStartableDisplayNames() {
+        List<String> result = new ArrayList<>();
+        for (BaseItem item : getItems()) {
+            if (item instanceof StartableItem) {
+                StartableItem startableItem = (StartableItem) item;
+                result.add(startableItem.getDisplayName());
+            }
+        }
+        return result;
+    }
+
     public String getUncategorizedSectionName() {
         String result = "";
         for (BaseItem item : getItems()) {
@@ -500,7 +511,7 @@ public class ApplistAdapter
             String lowercaseFilterText = mFilterName.toLowerCase();
             for (BaseItem item : mAllItems) {
                 if (item instanceof StartableItem) {
-                    String lowercaseItemName = item.getName().toLowerCase();
+                    String lowercaseItemName = ((StartableItem) item).getDisplayName().toLowerCase();
                     if (lowercaseItemName.contains(lowercaseFilterText)) {
                         result.add(item);
                     }
@@ -529,7 +540,7 @@ public class ApplistAdapter
             holder.appName = holder.appNameWithoutShadow;
         }
 
-        holder.appName.setText(item.getName());
+        holder.appName.setText(item.getDisplayName());
 
         final float alpha = item.isEnabled() ? 1.0f : 0.3f;
         holder.appIcon.setAlpha(alpha);

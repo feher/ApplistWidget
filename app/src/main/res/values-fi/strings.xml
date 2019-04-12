@@ -87,4 +87,7 @@
     <string name="cannot_show_app_info">Appin tietoja ei voi näyttää</string>
     <string name="write_settings_permission_dialog_title">Oikeus tarvitaan</string>
     <string name="write_settings_permission_dialog_message">Jossain laitteissa tarvitaan oikeus järjestelmäasetuksiin. Ole hyvä ja anna oikeus seuraavalla näytöllä.</string>
+    <string name="dialog_error_app_name_exists">Nimi on jo käytössä</string>
+    <string name="app_item_menu_rename">Nimeä uudelleen</string>
+    <string name="startable_name">Appin nimi</string>
 </resources>

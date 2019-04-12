@@ -338,6 +338,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.app_item_menu_information), ItemMenuAction.AppInfo))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
         if (isApp) {
             itemMenuItems.add(createActionMenuItem(
                     resources.getString(R.string.app_item_menu_uninstall), ItemMenuAction.Uninstall))
@@ -859,7 +861,25 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun renameApp(startableItem: StartableItem) {
-        // TODO
+        if (!isAttached) {
+            return
+        }
+        val oldAppName = startableItem.getDisplayName()
+        val startableNames = adapter.startableDisplayNames
+        ApplistDialogs.textInputDialog(
+                activity!!, R.string.startable_name, oldAppName,
+                { appName ->
+                    if (isAttached && startableNames.contains(appName)) {
+                        return@textInputDialog resources.getString(R.string.dialog_error_app_name_exists)
+                    }
+                    null
+                },
+                { newAppName ->
+                    GlobalScope.launch {
+                        applistModel.setStartableCustomName(
+                                pageItem.id, startableItem.id, newAppName)
+                    }
+                })
     }
 
     private fun renameSection(sectionItem: SectionItem) {

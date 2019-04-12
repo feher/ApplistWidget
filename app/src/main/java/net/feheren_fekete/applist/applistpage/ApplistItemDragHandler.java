@@ -381,7 +381,7 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
         final List<BaseItem> items = mAdapter.getAllItems();
         final boolean keepAppsSorted = mSettingsUtils.isKeepAppsSortedAlphabetically();
         Task.callInBackground((Callable<Void>) () -> {
-            PageData pageData = ViewModelUtils.viewToModel(pageItem.getId(), pageItem.getName(), items);
+            PageData pageData = ViewModelUtils.INSTANCE.viewToModel(pageItem.getId(), pageItem.getName(), items);
             mApplistModel.setPage(pageItem.getId(), pageData);
             if (keepAppsSorted) {
                 mApplistModel.sortStartablesInPage(pageItem.getId());

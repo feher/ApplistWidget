@@ -38,6 +38,7 @@ public class ApplistModelStorageV2 {
     private static final String JSON_STARTABLE_TYPE_SHORTCUT = "shortcut";
     private static final String JSON_STARTABLE_TYPE_APP_SHORTCUT = "app-shortcut";
     private static final String JSON_STARTABLE_NAME = "name";
+    private static final String JSON_STARTABLE_CUSTOM_NAME = "custom-name";
     private static final String JSON_APP_PACKAGE_NAME = "package-name";
     private static final String JSON_APP_CLASS_NAME = "class-name";
     private static final String JSON_SHORTCUT_INTENT = "intent";
@@ -129,8 +130,8 @@ public class ApplistModelStorageV2 {
                 jsonSection.getLong(JSON_SECTION_ID),
                 jsonSection.getString(JSON_SECTION_NAME),
                 startableDatas,
-                loadJsonBoolean(jsonSection, JSON_SECTION_IS_REMOVABLE, true),
-                loadJsonBoolean(jsonSection, JSON_SECTION_IS_COLLAPSED, false));
+                jsonSection.optBoolean(JSON_SECTION_IS_REMOVABLE, true),
+                jsonSection.optBoolean(JSON_SECTION_IS_COLLAPSED, false));
     }
 
     private StartableData loadStartable(JSONObject jsonStartable) throws JSONException {
@@ -140,13 +141,15 @@ public class ApplistModelStorageV2 {
                     jsonStartable.getLong(JSON_STARTABLE_ID),
                     jsonStartable.getString(JSON_APP_PACKAGE_NAME),
                     jsonStartable.getString(JSON_APP_CLASS_NAME),
-                    jsonStartable.getString(JSON_STARTABLE_NAME));
+                    jsonStartable.getString(JSON_STARTABLE_NAME),
+                    jsonStartable.optString(JSON_STARTABLE_CUSTOM_NAME));
             return appData;
         } else if (type.equals(JSON_STARTABLE_TYPE_SHORTCUT)) {
             try {
                 ShortcutData shortcutData = new ShortcutData(
                         jsonStartable.getLong(JSON_STARTABLE_ID),
                         jsonStartable.getString(JSON_STARTABLE_NAME),
+                        jsonStartable.optString(JSON_STARTABLE_CUSTOM_NAME),
                         Intent.parseUri(jsonStartable.getString(JSON_SHORTCUT_INTENT), 0));
                 return shortcutData;
             } catch (URISyntaxException e) {
@@ -157,27 +160,12 @@ public class ApplistModelStorageV2 {
             AppShortcutData appShortcutData = new AppShortcutData(
                     jsonStartable.getLong(JSON_STARTABLE_ID),
                     jsonStartable.getString(JSON_STARTABLE_NAME),
+                    jsonStartable.optString(JSON_STARTABLE_CUSTOM_NAME),
                     jsonStartable.getString(JSON_APP_PACKAGE_NAME),
                     jsonStartable.getString(JSON_APP_SHORTCUT_ID));
             return appShortcutData;
         } else {
             throw new RuntimeException("Unknown type startable " + type);
-        }
-    }
-
-    private boolean loadJsonBoolean(JSONObject json, String name, boolean defaultValue) {
-        try {
-            return json.getBoolean(name);
-        } catch (JSONException e) {
-            return defaultValue;
-        }
-    }
-
-    private String loadJsonString(JSONObject json, String name, String defaultValue) {
-        try {
-            return json.getString(name);
-        } catch (JSONException e) {
-            return defaultValue;
         }
     }
 
@@ -242,6 +230,7 @@ public class ApplistModelStorageV2 {
                 jsonApp.put(JSON_STARTABLE_ID, app.getId());
                 jsonApp.put(JSON_STARTABLE_TYPE, JSON_STARTABLE_TYPE_APP);
                 jsonApp.put(JSON_STARTABLE_NAME, app.getName());
+                jsonApp.put(JSON_STARTABLE_CUSTOM_NAME, app.getCustomName());
                 jsonApp.put(JSON_APP_PACKAGE_NAME, app.getPackageName());
                 jsonApp.put(JSON_APP_CLASS_NAME, app.getClassName());
                 jsonStartables.put(jsonApp);
@@ -251,6 +240,7 @@ public class ApplistModelStorageV2 {
                 jsonShortcut.put(JSON_STARTABLE_ID, shortcut.getId());
                 jsonShortcut.put(JSON_STARTABLE_TYPE, JSON_STARTABLE_TYPE_SHORTCUT);
                 jsonShortcut.put(JSON_STARTABLE_NAME, shortcut.getName());
+                jsonShortcut.put(JSON_STARTABLE_CUSTOM_NAME, shortcut.getCustomName());
                 jsonShortcut.put(JSON_SHORTCUT_INTENT, shortcut.getIntent().toUri(0));
                 jsonStartables.put(jsonShortcut);
             } else if (startableData instanceof AppShortcutData) {
@@ -259,6 +249,7 @@ public class ApplistModelStorageV2 {
                 jsonAppShortcut.put(JSON_STARTABLE_ID, appShortcut.getId());
                 jsonAppShortcut.put(JSON_STARTABLE_TYPE, JSON_STARTABLE_TYPE_APP_SHORTCUT);
                 jsonAppShortcut.put(JSON_STARTABLE_NAME, appShortcut.getName());
+                jsonAppShortcut.put(JSON_STARTABLE_CUSTOM_NAME, appShortcut.getCustomName());
                 jsonAppShortcut.put(JSON_APP_PACKAGE_NAME, appShortcut.getPackageName());
                 jsonAppShortcut.put(JSON_APP_SHORTCUT_ID, appShortcut.getShortcutId());
                 jsonStartables.put(jsonAppShortcut);

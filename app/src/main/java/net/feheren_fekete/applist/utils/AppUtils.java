@@ -33,7 +33,8 @@ public class AppUtils {
                             resolveInfo.activityInfo.name),
                     resolveInfo.activityInfo.applicationInfo.packageName,
                     resolveInfo.activityInfo.name,
-                    resolveInfo.loadLabel(packageManager).toString()));
+                    resolveInfo.loadLabel(packageManager).toString(),
+                    ""));
         }
         return installedApps;
     }

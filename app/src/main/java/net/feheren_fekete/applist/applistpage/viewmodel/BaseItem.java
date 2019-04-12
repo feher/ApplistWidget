@@ -7,13 +7,15 @@ public abstract class BaseItem {
     public static final int RIGHT = 2;
 
     private long mId;
+    private String mName;
     private boolean mIsEnabled = true;
     private boolean mIsDraggedOverLeft = false;
     private boolean mIsDraggedOverRight = false;
     private boolean mIsHighlighted = false;
 
-    public BaseItem(long id) {
+    public BaseItem(long id, String name) {
         mId = id;
+        mName = name;
     }
 
     public long getId() {
@@ -61,5 +63,7 @@ public abstract class BaseItem {
         mIsHighlighted = highlighted;
     }
 
-    public abstract String getName();
+    public String getName() {
+        return mName;
+    }
 }

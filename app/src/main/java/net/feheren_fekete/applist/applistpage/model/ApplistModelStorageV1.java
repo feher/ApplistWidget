@@ -70,7 +70,8 @@ public class ApplistModelStorageV1 {
                         jsonApp.getLong(JSON_INSTALLED_APP_ID),
                         jsonApp.getString(JSON_INSTALLED_APP_PACKAGE_NAME),
                         jsonApp.getString(JSON_INSTALLED_APP_CLASS_NAME),
-                        jsonApp.getString(JSON_INSATLLED_APP_NAME));
+                        jsonApp.getString(JSON_INSATLLED_APP_NAME),
+                        "");
                 installedApps.add(app);
             }
 
@@ -117,31 +118,16 @@ public class ApplistModelStorageV1 {
                     jsonApp.getLong(JSON_APPS_ID),
                     jsonApp.getString(JSON_APP_PACKAGE_NAME),
                     jsonApp.getString(JSON_APP_CLASS_NAME),
-                    jsonApp.getString(JSON_APP_NAME));
+                    jsonApp.getString(JSON_APP_NAME),
+                    "");
             appDatas.add(app);
         }
         return new SectionData(
                 jsonSection.getLong(JSON_SECTION_ID),
                 jsonSection.getString(JSON_SECTION_NAME),
                 appDatas,
-                loadJsonBoolean(jsonSection, JSON_SECTION_IS_REMOVABLE, true),
-                loadJsonBoolean(jsonSection, JSON_SECTION_IS_COLLAPSED, false));
-    }
-
-    private boolean loadJsonBoolean(JSONObject json, String name, boolean defaultValue) {
-        try {
-            return json.getBoolean(name);
-        } catch (JSONException e) {
-            return defaultValue;
-        }
-    }
-
-    private String loadJsonString(JSONObject json, String name, String defaultValue) {
-        try {
-            return json.getString(name);
-        } catch (JSONException e) {
-            return defaultValue;
-        }
+                jsonSection.optBoolean(JSON_SECTION_IS_REMOVABLE, true),
+                jsonSection.optBoolean(JSON_SECTION_IS_COLLAPSED, false));
     }
 
 }

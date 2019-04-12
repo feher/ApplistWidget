@@ -117,6 +117,7 @@ public class ShortcutHelper {
                 final AppShortcutData shortcutData = new AppShortcutData(
                         System.currentTimeMillis(),
                         shortcutName,
+                        "",
                         packageName,
                         shortcutId);
                 Task.callInBackground(new Callable<Void>() {
@@ -164,6 +165,7 @@ public class ShortcutHelper {
                 final ShortcutData shortcutData = new ShortcutData(
                         System.currentTimeMillis(),
                         shortcutName,
+                        "",
                         shortcutIntent);
                 final Bitmap finalShortcutIconBitmap = shortcutIconBitmap;
                 Task.callInBackground(new Callable<Void>() {

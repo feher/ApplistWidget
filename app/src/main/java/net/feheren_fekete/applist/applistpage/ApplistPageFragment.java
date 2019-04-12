@@ -304,22 +304,19 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
         }
         @Override
         public void run() {
-            Task.callInBackground(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    if (appContext == null) {
-                        return null;
-                    }
-                    if (uri != null) {
-                        mFileUtils.deleteFiles(
-                                mFileUtils.getIconCacheDirPath(appContext),
-                                uri.getSchemeSpecificPart());
-                    }
-                    mApplistModel.updateInstalledApps();
-                    mBadgeStore.cleanup();
-                    appContext = null;
+            Task.callInBackground((Callable<Void>) () -> {
+                if (appContext == null) {
                     return null;
                 }
+                if (uri != null) {
+                    mFileUtils.deleteFiles(
+                            mFileUtils.getIconCacheDirPath(appContext),
+                            uri.getSchemeSpecificPart());
+                }
+                mApplistModel.updateInstalledApps();
+                mBadgeStore.cleanup();
+                appContext = null;
+                return null;
             });
         }
     }
@@ -422,12 +419,9 @@ public class ApplistPageFragment extends Fragment implements ApplistItemDragHand
     }
 
     private void updateData() {
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mApplistModel.updateInstalledApps();
-                return null;
-            }
+        Task.callInBackground((Callable<Void>) () -> {
+            mApplistModel.updateInstalledApps();
+            return null;
         });
     }
 
