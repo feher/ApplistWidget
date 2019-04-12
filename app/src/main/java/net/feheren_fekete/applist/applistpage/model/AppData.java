@@ -1,9 +1,5 @@
 package net.feheren_fekete.applist.applistpage.model;
 
-import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
-
-import java.util.Comparator;
-
 public class AppData extends StartableData {
     private String mPackageName;
     private String mClassName;
@@ -12,12 +8,6 @@ public class AppData extends StartableData {
         super(id, appName);
         mPackageName = packageName;
         mClassName = className;
-    }
-
-    public AppData(AppItem appItem) {
-        super(appItem.getId(), appItem.getName());
-        mPackageName = appItem.getPackageName();
-        mClassName = appItem.getClassName();
     }
 
     @Override

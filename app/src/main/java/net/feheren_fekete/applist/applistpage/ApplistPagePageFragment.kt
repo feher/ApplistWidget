@@ -932,7 +932,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                         GlobalScope.launch {
                             applistModel.addNewSection(pageName, sectionName, true)
                             if (appToMove != null) {
-                                val appData = AppData(appToMove)
+                                val appData = AppData(
+                                        appToMove.id, appToMove.packageName,
+                                        appToMove.className, appToMove.name)
                                 applistModel.moveStartableToSection(pageName, sectionName, appData)
                             }
                         }
