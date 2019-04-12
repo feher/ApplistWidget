@@ -5,7 +5,7 @@ import android.content.Intent
 class ShortcutData(id: Long,
                    name: String,
                    customName: String,
-                   val intent: Intent) : StartableData(id, intent.`package`, name, customName) {
+                   val intent: Intent) : StartableData(id, intent.getPackage(), name, customName) {
 
     private var cachedIntentUri: String? = null
 
