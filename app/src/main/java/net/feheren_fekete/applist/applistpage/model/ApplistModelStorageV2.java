@@ -146,11 +146,20 @@ public class ApplistModelStorageV2 {
             return appData;
         } else if (type.equals(JSON_STARTABLE_TYPE_SHORTCUT)) {
             try {
+                Intent intent = Intent.parseUri(jsonStartable.getString(JSON_SHORTCUT_INTENT), 0);
+                String packageName = intent.getPackage();
+                if (packageName == null && intent.getComponent() != null) {
+                    packageName = intent.getComponent().getPackageName();
+                }
+                if (packageName == null) {
+                    throw new JSONException("Missing package name: " + intent.toUri(0));
+                }
                 ShortcutData shortcutData = new ShortcutData(
                         jsonStartable.getLong(JSON_STARTABLE_ID),
+                        packageName,
                         jsonStartable.getString(JSON_STARTABLE_NAME),
                         jsonStartable.optString(JSON_STARTABLE_CUSTOM_NAME),
-                        Intent.parseUri(jsonStartable.getString(JSON_SHORTCUT_INTENT), 0));
+                        intent);
                 return shortcutData;
             } catch (URISyntaxException e) {
                 ApplistLog.getInstance().log(e);

@@ -3,9 +3,10 @@ package net.feheren_fekete.applist.applistpage.model
 import android.content.Intent
 
 class ShortcutData(id: Long,
+                   packageName: String,
                    name: String,
                    customName: String,
-                   val intent: Intent) : StartableData(id, intent.getPackage(), name, customName) {
+                   val intent: Intent) : StartableData(id, packageName, name, customName) {
 
     private var cachedIntentUri: String? = null
 

@@ -64,12 +64,16 @@ class ShortcutHelper {
                     shortcutIconBitmap = ImageUtils.shortcutPlaceholder()
                 }
 
-                if (shortcutIntent.getPackage() == null) {
+                val packageName = shortcutIntent.getPackage()
+                        ?: shortcutIntent.component?.packageName
+                if (packageName == null) {
                     ApplistLog.getInstance().log(RuntimeException("Missing package for shortcut: " + shortcutIntent.toUri(0)))
+                    return
                 }
 
                 val shortcutData = ShortcutData(
                         System.currentTimeMillis(),
+                        packageName,
                         shortcutName,
                         "",
                         shortcutIntent)

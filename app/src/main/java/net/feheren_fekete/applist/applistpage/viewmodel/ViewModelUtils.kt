@@ -77,11 +77,15 @@ object ViewModelUtils {
                         item.name,
                         item.customName))
             } else if (item is ShortcutItem) {
-                startableDatas.add(ShortcutData(
-                        item.id,
-                        item.name,
-                        item.customName,
-                        item.intent))
+                (item.intent.getPackage()
+                        ?: item.intent.component?.packageName)?.let {
+                    startableDatas.add(ShortcutData(
+                            item.id,
+                            it,
+                            item.name,
+                            item.customName,
+                            item.intent))
+                }
             } else if (item is AppShortcutItem) {
                 startableDatas.add(AppShortcutData(
                         item.id,
