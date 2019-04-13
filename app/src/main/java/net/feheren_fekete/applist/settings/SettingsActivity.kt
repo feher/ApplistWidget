@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.MainActivity
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
@@ -113,6 +114,10 @@ class SettingsActivity : PreferenceActivity() {
             get() = preferenceScreen.sharedPreferences.getBoolean(
                     PREF_KEY_SHOW_NOTIFICATION_BADGE, false)
 
+        private val showNewContentBadge: Boolean
+            get() = preferenceScreen.sharedPreferences.getBoolean(
+                    PREF_KEY_SHOW_NEW_CONTENT_BADGE, false)
+
         private val keepAppsSortedAlphabetically: Boolean
             get() = preferenceScreen.sharedPreferences.getBoolean(
                     PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY, false)
@@ -162,6 +167,7 @@ class SettingsActivity : PreferenceActivity() {
                 PREF_KEY_SHOW_SMS_BADGE -> handleChangeShowSmsBadge()
                 PREF_KEY_SHOW_PHONE_BADGE -> handleChangeShowPhoneBadge()
                 PREF_KEY_SHOW_NOTIFICATION_BADGE -> handleChangeShowNotificationBadge()
+                PREF_KEY_SHOW_NEW_CONTENT_BADGE -> handleChangeShowNewContentBagde()
             }
         }
 
@@ -172,6 +178,7 @@ class SettingsActivity : PreferenceActivity() {
                         resources.getString(R.string.settings_keep_apps_sorted_alphabetically),
                         resources.getString(R.string.settings_keep_apps_sorted_dialog_message),
                         {
+                            ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_KEEP_APPS_SORTED_ON, ApplistLog.SETTINGS)
                             GlobalScope.launch {
                                 applistModel.sortStartables()
                             }
@@ -182,16 +189,26 @@ class SettingsActivity : PreferenceActivity() {
                             keepAppsSorted.isChecked = false
                         }
                 )
+            } else {
+                ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_KEEP_APPS_SORTED_OFF, ApplistLog.SETTINGS)
             }
         }
 
         private fun handleChangeColorTheme() {
+            ApplistLog.getInstance().analytics(
+                    ApplistLog.SETTINGS_COLOR_THEME
+                            + preferenceScreen.sharedPreferences.getString(PREF_KEY_COLOR_THEME, defaultThemeValue),
+                    ApplistLog.SETTINGS)
             val preference = findPreference(PREF_KEY_COLOR_THEME)
             preference.summary = colorTheme
             restartMainActivity()
         }
 
         private fun handleChangeColumnWidth() {
+            ApplistLog.getInstance().analytics(
+                    ApplistLog.SETTINGS_COLUMN_WIDTH
+                            + preferenceScreen.sharedPreferences.getString(PREF_KEY_COLUMN_WIDTH, defaultColumnWidthValue),
+                    ApplistLog.SETTINGS)
             val preference = findPreference(PREF_KEY_COLUMN_WIDTH)
             preference.summary = columnWidth
             restartMainActivity()
@@ -199,16 +216,28 @@ class SettingsActivity : PreferenceActivity() {
 
         private fun handleChangeShowSmsBadge() {}
 
+        private fun handleChangeShowNewContentBagde() {
+            if (showNewContentBadge) {
+                ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_SHOW_NEW_CONTENT_BADGE_ON, ApplistLog.SETTINGS)
+            } else {
+                ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_SHOW_NEW_CONTENT_BADGE_OFF, ApplistLog.SETTINGS)
+            }
+        }
+
         private fun handleChangeShowPhoneBadge() {
             if (showPhoneBadge) {
+                ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_SHOW_PHONE_BADGE_ON, ApplistLog.SETTINGS)
                 if (ensurePermission(Manifest.permission.READ_PHONE_STATE, PHONE_PERMISSION_REQUEST_CODE)) {
                     ensureDefaultPhoneApp()
                 }
+            } else {
+                ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_SHOW_PHONE_BADGE_OFF, ApplistLog.SETTINGS)
             }
         }
 
         private fun handleChangeShowNotificationBadge() {
             if (showNotificationBadge) {
+                ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_SHOW_NOTIFICATION_BADGE_ON, ApplistLog.SETTINGS)
                 val alertDialog = AlertDialog.Builder(activity)
                         .setTitle(R.string.settings_show_notification_badge_dialog_title)
                         .setMessage(R.string.settings_show_notification_badge_dialog_message)
@@ -230,6 +259,8 @@ class SettingsActivity : PreferenceActivity() {
                         .setCancelable(true)
                         .create()
                 alertDialog.show()
+            } else {
+                ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_SHOW_NOTIFICATION_BADGE_OFF, ApplistLog.SETTINGS)
             }
         }
 

@@ -238,16 +238,24 @@ public class ApplistPageFragment extends Fragment {
         if (!isHandled) {
             switch (id) {
                 case R.id.action_settings:
+                    ApplistLog.getInstance().analytics(ApplistLog.SHOW_SETTINGS, ApplistLog.OPTIONS_MENU);
                     showSettings();
                     isHandled = true;
                     break;
                 case R.id.action_edit_pages:
+                    ApplistLog.getInstance().analytics(ApplistLog.SHOW_PAGE_EDITOR, ApplistLog.OPTIONS_MENU);
                     showPageEditor();
                     isHandled = true;
                     break;
                 case R.id.action_change_wallpaper:
+                    ApplistLog.getInstance().analytics(ApplistLog.CHANGE_WALLPAPER, ApplistLog.OPTIONS_MENU);
                     mLauncherUtils.changeWallpaper(getActivity());
                     isHandled = true;
+                    break;
+                case R.id.action_search_app:
+                    ApplistLog.getInstance().analytics(ApplistLog.START_APP_SEARCH, ApplistLog.OPTIONS_MENU);
+                    // Let the system handle it. It will open the SearchView.
+                    isHandled = false;
                     break;
             }
         }
@@ -368,6 +376,7 @@ public class ApplistPageFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if (mSearchView != null) {
+                ApplistLog.getInstance().analytics(ApplistLog.START_APP_SEARCH, ApplistLog.TOOLBAR);
                 mSearchView.setIconified(false);
             }
         }

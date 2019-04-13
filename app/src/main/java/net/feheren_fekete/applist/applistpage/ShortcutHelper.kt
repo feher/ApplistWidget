@@ -38,6 +38,7 @@ class ShortcutHelper {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
             if (ACTION_INSTALL_SHORTCUT == action) {
+                ApplistLog.getInstance().analytics(ApplistLog.CREATE_LEGACY_SHORTCUT, ApplistLog.OTHER_APP)
                 val shortcutName = intent.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
                 val shortcutIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_SHORTCUT_INTENT)
                 var shortcutIconBitmap: Bitmap? = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
@@ -97,6 +98,7 @@ class ShortcutHelper {
     fun handleIntent(context: Context, intent: Intent): Boolean {
         val action = intent.action
         if (LauncherApps.ACTION_CONFIRM_PIN_SHORTCUT == action) {
+            ApplistLog.getInstance().analytics(ApplistLog.CREATE_PINNED_APP_SHORTCUT, ApplistLog.OTHER_APP)
             handleShortcutRequest(context, intent)
             return true
         }

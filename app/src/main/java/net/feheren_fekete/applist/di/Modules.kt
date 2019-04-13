@@ -2,6 +2,7 @@ package net.feheren_fekete.applist.di
 
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
+import com.google.firebase.analytics.FirebaseAnalytics
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.applistpage.IconCache
@@ -27,6 +28,7 @@ import org.koin.dsl.module
 
 val applistModule = module {
     single { androidContext().packageManager }
+    single { FirebaseAnalytics.getInstance(androidContext()) }
     single { AppWidgetManager.getInstance(androidContext()) }
     single { MyAppWidgetHost(androidContext(), 1234567) as AppWidgetHost }
     single { ApplistLog() }

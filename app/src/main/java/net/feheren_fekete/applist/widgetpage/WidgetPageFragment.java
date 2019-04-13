@@ -19,7 +19,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import net.feheren_fekete.applist.ApplistLog;
-import net.feheren_fekete.applist.MainActivity;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.LauncherUtils;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
@@ -106,13 +105,10 @@ public class WidgetPageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.launcher_page_fragment, container, false);
 
-        mWidgetContainer = (ViewGroup) view.findViewById(R.id.launcher_page_fragment_widget_container);
-        mWidgetContainer.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                openPageMenu();
-                return true;
-            }
+        mWidgetContainer = view.findViewById(R.id.launcher_page_fragment_widget_container);
+        mWidgetContainer.setOnLongClickListener(v -> {
+            openPageMenu();
+            return true;
         });
 
         return view;
@@ -386,33 +382,28 @@ public class WidgetPageFragment extends Fragment {
 
     private void openPageMenu() {
         mPageMenu = new AlertDialog.Builder(getContext())
-                .setItems(R.array.widget_page_menu, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                // Add widget
-                                mWidgetHelper.pickWidget(getActivity(), getPageId());
-                                break;
-                            case 1:
-                                // Edit pages
-                                showPageEditor();
-                                break;
-                            case 2:
-                                // Change wallpaper
-                                mLauncherUtils.changeWallpaper(getActivity());
-                                break;
-                        }
-                        mPageMenu = null;
+                .setItems(R.array.widget_page_menu, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            // Add widget
+                            ApplistLog.getInstance().analytics(ApplistLog.SHOW_WIDGET_PICKER, ApplistLog.WIDGET_PAGE_MENU);
+                            mWidgetHelper.pickWidget(getActivity(), getPageId());
+                            break;
+                        case 1:
+                            // Edit pages
+                            ApplistLog.getInstance().analytics(ApplistLog.SHOW_PAGE_EDITOR, ApplistLog.WIDGET_PAGE_MENU);
+                            showPageEditor();
+                            break;
+                        case 2:
+                            // Change wallpaper
+                            ApplistLog.getInstance().analytics(ApplistLog.CHANGE_WALLPAPER, ApplistLog.WIDGET_PAGE_MENU);
+                            mLauncherUtils.changeWallpaper(getActivity());
+                            break;
                     }
+                    mPageMenu = null;
                 })
                 .setCancelable(true)
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        mPageMenu = null;
-                    }
-                })
+                .setOnDismissListener(dialog -> mPageMenu = null)
                 .create();
         mPageMenu.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         mPageMenu.show();
@@ -420,43 +411,34 @@ public class WidgetPageFragment extends Fragment {
 
     private void openWidgetMenu(WidgetItem widgetItem) {
         mWidgetMenu = new AlertDialog.Builder(getContext())
-                .setItems(R.array.widget_menu, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_RESIZING);
-                                EventBus.getDefault().post(new WidgetMoveStartedEvent());
-                                break;
-                            case 1:
-                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
-                                moveWidgetToOtherPage(mWidgetMenuTarget);
-                                break;
-                            case 2:
-                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
-                                bringWidgetToTop(mWidgetMenuTarget);
-                                break;
-                            case 3:
-                                mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
-                                removeWidgetFromModel(mWidgetMenuTarget);
-                                break;
-                        }
-                        mWidgetMenu = null;
+                .setItems(R.array.widget_menu, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            ApplistLog.getInstance().analytics(ApplistLog.ADJUST_WIDGET, ApplistLog.WIDGET_MENU);
+                            mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_RESIZING);
+                            EventBus.getDefault().post(new WidgetMoveStartedEvent());
+                            break;
+                        case 1:
+                            ApplistLog.getInstance().analytics(ApplistLog.MOVE_WIDGET_TO_PAGE, ApplistLog.WIDGET_MENU);
+                            mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
+                            moveWidgetToOtherPage(mWidgetMenuTarget);
+                            break;
+                        case 2:
+                            ApplistLog.getInstance().analytics(ApplistLog.RAISE_WIDGET, ApplistLog.WIDGET_MENU);
+                            mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
+                            bringWidgetToTop(mWidgetMenuTarget);
+                            break;
+                        case 3:
+                            ApplistLog.getInstance().analytics(ApplistLog.DELETE_WIDGET, ApplistLog.WIDGET_MENU);
+                            mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
+                            removeWidgetFromModel(mWidgetMenuTarget);
+                            break;
                     }
+                    mWidgetMenu = null;
                 })
                 .setCancelable(true)
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
-                    }
-                })
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        mWidgetMenu = null;
-                    }
-                })
+                .setOnCancelListener(dialog -> mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL))
+                .setOnDismissListener(dialog -> mWidgetMenu = null)
                 .create();
         mWidgetMenu.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         mWidgetMenu.show();
@@ -529,12 +511,9 @@ public class WidgetPageFragment extends Fragment {
 
         mWidgetContainer.invalidate();
 
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                mWidgetModel.updateWidget(widgetItem.widgetData, false);
-                return null;
-            }
+        Task.callInBackground((Callable<Void>) () -> {
+            mWidgetModel.updateWidget(widgetItem.widgetData, false);
+            return null;
         });
     }
 

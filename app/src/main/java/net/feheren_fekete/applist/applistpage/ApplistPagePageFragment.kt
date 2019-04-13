@@ -127,24 +127,51 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         override fun onItemSelected(item: ItemMenuItem) {
             if (item.data is ItemMenuAction) {
                 when (item.data) {
-                    ItemMenuAction.ClearBadge -> clearAppBadge(itemMenuTarget as AppItem)
-                    ItemMenuAction.AppInfo -> showAppInfo(itemMenuTarget as StartableItem)
-                    ItemMenuAction.RenameApp -> renameApp(itemMenuTarget as StartableItem)
-                    ItemMenuAction.Uninstall -> uninstallApp(itemMenuTarget as AppItem)
-                    ItemMenuAction.RemoveShortcut -> removeShortcut(itemMenuTarget as StartableItem)
-                    ItemMenuAction.RenameSection -> renameSection(itemMenuTarget as SectionItem)
-                    ItemMenuAction.DeleteSection -> deleteSection(itemMenuTarget as SectionItem)
-                    ItemMenuAction.SortSection -> sortSection(itemMenuTarget as SectionItem)
+                    ItemMenuAction.ClearBadge -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.CLEAR_APP_BADGE, ApplistLog.ITEM_MENU)
+                        clearAppBadge(itemMenuTarget as AppItem)
+                    }
+                    ItemMenuAction.AppInfo -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.SHOW_APP_INFO, ApplistLog.ITEM_MENU)
+                        showAppInfo(itemMenuTarget as StartableItem)
+                    }
+                    ItemMenuAction.RenameApp -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.RENAME_APP, ApplistLog.ITEM_MENU)
+                        renameApp(itemMenuTarget as StartableItem)
+                    }
+                    ItemMenuAction.Uninstall -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.UNINSTALL_APP, ApplistLog.ITEM_MENU)
+                        uninstallApp(itemMenuTarget as AppItem)
+                    }
+                    ItemMenuAction.RemoveShortcut -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.REMOVE_SHORTCUT, ApplistLog.ITEM_MENU)
+                        removeShortcut(itemMenuTarget as StartableItem)
+                    }
+                    ItemMenuAction.RenameSection -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.RENAME_SECTION, ApplistLog.ITEM_MENU)
+                        renameSection(itemMenuTarget as SectionItem)
+                    }
+                    ItemMenuAction.DeleteSection -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.DELETE_SECTION, ApplistLog.ITEM_MENU)
+                        deleteSection(itemMenuTarget as SectionItem)
+                    }
+                    ItemMenuAction.SortSection -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.SORT_SECTION, ApplistLog.ITEM_MENU)
+                        sortSection(itemMenuTarget as SectionItem)
+                    }
                 }
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && item.data is ShortcutInfo) {
+                ApplistLog.getInstance().analytics(ApplistLog.START_APP_SHORTCUT, ApplistLog.ITEM_MENU)
                 startAppShortcut(item.data)
             } else if (item.data is StatusBarNotification) {
+                ApplistLog.getInstance().analytics(ApplistLog.START_NOTIFICATION, ApplistLog.ITEM_MENU)
                 startNotification(item.data)
             }
             itemMenu?.dismiss()
         }
 
         override fun onItemSwiped(item: ItemMenuItem) {
+            ApplistLog.getInstance().analytics(ApplistLog.CANCEL_NOTIFICATION, ApplistLog.ITEM_MENU)
             cancelNotification(item.data as StatusBarNotification)
             itemMenu?.dismiss()
         }
@@ -296,6 +323,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         var isHandled = false
         when (itemId) {
             R.id.action_create_section -> {
+                ApplistLog.getInstance().analytics(ApplistLog.CREATE_SECTION, ApplistLog.OPTIONS_MENU)
                 createSection(null)
                 isHandled = true
             }
@@ -461,31 +489,37 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     override fun onSectionTapped(sectionItem: SectionItem) {
+        if (adapter.isFilteredByName) {
+            return
+        }
         val wasSectionCollapsed = sectionItem.isCollapsed
-        if (!adapter.isFilteredByName) {
-            GlobalScope.launch {
-                applistModel.setSectionCollapsed(
-                        pageItem.id,
-                        sectionItem.id,
-                        !wasSectionCollapsed)
-                handler.postDelayed(Runnable {
-                    if (wasSectionCollapsed) {
-                        val position = adapter.getItemPosition(sectionItem)
-                        if (position != RecyclerView.NO_POSITION) {
-                            val layoutManager = recyclerView.layoutManager as GridLayoutManager
-                            val firstPosition = layoutManager.findFirstVisibleItemPosition()
-                            val firstVisiblePosition = layoutManager.findFirstCompletelyVisibleItemPosition()
-                            val firstVisibleView = recyclerView.getChildAt(firstVisiblePosition - firstPosition)
-                                    ?: return@Runnable
-                            val toY = firstVisibleView.top
-                            val thisView = recyclerView.getChildAt(position - firstPosition)
-                                    ?: return@Runnable
-                            val fromY = thisView.top
-                            recyclerView.smoothScrollBy(0, fromY - toY)
-                        }
+        if (!wasSectionCollapsed) {
+            ApplistLog.getInstance().analytics(ApplistLog.COLLAPSE_SECTION, ApplistLog.ITEM_MENU)
+        } else {
+            ApplistLog.getInstance().analytics(ApplistLog.UNCOLLAPSE_SECTION, ApplistLog.ITEM_MENU)
+        }
+        GlobalScope.launch {
+            applistModel.setSectionCollapsed(
+                    pageItem.id,
+                    sectionItem.id,
+                    !wasSectionCollapsed)
+            handler.postDelayed(Runnable {
+                if (wasSectionCollapsed) {
+                    val position = adapter.getItemPosition(sectionItem)
+                    if (position != RecyclerView.NO_POSITION) {
+                        val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                        val firstPosition = layoutManager.findFirstVisibleItemPosition()
+                        val firstVisiblePosition = layoutManager.findFirstCompletelyVisibleItemPosition()
+                        val firstVisibleView = recyclerView.getChildAt(firstVisiblePosition - firstPosition)
+                                ?: return@Runnable
+                        val toY = firstVisibleView.top
+                        val thisView = recyclerView.getChildAt(position - firstPosition)
+                                ?: return@Runnable
+                        val fromY = thisView.top
+                        recyclerView.smoothScrollBy(0, fromY - toY)
                     }
-                }, 200)
-            }
+                }
+            }, 200)
         }
     }
 
@@ -742,9 +776,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun startNotification(statusBarNotification: StatusBarNotification) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return
-        }
         if (!isAttached) {
             return
         }
@@ -765,9 +796,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun cancelNotification(statusBarNotification: StatusBarNotification) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return
-        }
         if (!isAttached) {
             return
         }

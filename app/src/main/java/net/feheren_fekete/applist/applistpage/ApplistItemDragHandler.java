@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.ApplistModel;
 import net.feheren_fekete.applist.applistpage.model.PageData;
@@ -89,8 +90,10 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
         final BaseItem draggedItem = mApplistPagePageFragment.getItemMenuTarget();
         if (draggedItem instanceof StartableItem) {
+            ApplistLog.getInstance().analytics(ApplistLog.START_DRAG_APP, ApplistLog.APPLIST);
             mAdapter.setEnabled(draggedItem, false);
         } else if (draggedItem instanceof SectionItem) {
+            ApplistLog.getInstance().analytics(ApplistLog.START_DRAG_SECTION, ApplistLog.APPLIST);
             mAdapter.setAllStartablesEnabled(false);
             mAdapter.setSectionsHighlighted(true);
         }

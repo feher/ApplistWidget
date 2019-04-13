@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.launcher_page_editor_fragment.*
 import kotlinx.android.synthetic.main.launcher_page_editor_fragment.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
 import net.feheren_fekete.applist.launcher.LauncherStateManager
@@ -53,10 +54,12 @@ class PageEditorFragment : Fragment() {
 
     private val pageEditorAdapterListener = object : PageEditorAdapter.Listener {
         override fun onHomeTapped(position: Int) {
+            ApplistLog.getInstance().analytics(ApplistLog.SET_HOME_PAGE, ApplistLog.PAGE_EDITOR)
             setMainPage(position)
         }
 
         override fun onRemoveTapped(position: Int) {
+            ApplistLog.getInstance().analytics(ApplistLog.DELETE_PAGE, ApplistLog.PAGE_EDITOR)
             removePage(position)
         }
 
@@ -94,6 +97,7 @@ class PageEditorFragment : Fragment() {
         override fun onMove(recyclerView: RecyclerView,
                             viewHolder: RecyclerView.ViewHolder,
                             target: RecyclerView.ViewHolder): Boolean {
+            ApplistLog.getInstance().analytics(ApplistLog.MOVE_PAGE, ApplistLog.PAGE_EDITOR)
             val result = adapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
             GlobalScope.launch {
                 launcherModel.pages = adapter.items
@@ -177,7 +181,10 @@ class PageEditorFragment : Fragment() {
             view.recyclerView.setPadding(padding, 0, padding, 0)
         }
 
-        view.addPageButton.setOnClickListener { addNewPage() }
+        view.addPageButton.setOnClickListener {
+            ApplistLog.getInstance().analytics(ApplistLog.ADD_PAGE, ApplistLog.PAGE_EDITOR)
+            addNewPage()
+        }
 
         view.doneButton.setOnClickListener { doneWithEditing() }
         if (useAsPagePicker) {
