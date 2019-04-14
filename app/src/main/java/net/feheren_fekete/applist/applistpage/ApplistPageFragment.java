@@ -117,12 +117,9 @@ public class ApplistPageFragment extends Fragment {
         }
         mToolbar.setBackground(mToolbarGradient);
         if (mSettingsUtils.getShowNewContentBadge()) {
-            Task.callInBackground(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    mBadgeStore.updateBadgesFromLauncher();
-                    return null;
-                }
+            Task.callInBackground((Callable<Void>) () -> {
+                mBadgeStore.updateBadgesFromLauncher();
+                return null;
             });
         }
     }
@@ -340,16 +337,13 @@ public class ApplistPageFragment extends Fragment {
         }
     };
 
-    private SearchView.OnFocusChangeListener mSearchFocusListener = new View.OnFocusChangeListener() {
-        @Override
-        public void onFocusChange(View v, boolean hasFocus) {
-            ApplistPagePageFragment fragment = getApplistPagePageFragment();
-            if (fragment != null) {
-                if (!hasFocus) {
-                    stopFilteringByName(fragment);
-                } else {
-                    startFilteringByName(fragment);
-                }
+    private SearchView.OnFocusChangeListener mSearchFocusListener = (v, hasFocus) -> {
+        ApplistPagePageFragment fragment = getApplistPagePageFragment();
+        if (fragment != null) {
+            if (!hasFocus) {
+                stopFilteringByName(fragment);
+            } else {
+                startFilteringByName(fragment);
             }
         }
     };

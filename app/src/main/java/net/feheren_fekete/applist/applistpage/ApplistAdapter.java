@@ -146,36 +146,27 @@ public class ApplistAdapter
             this.draggedOverIndicatorRight = view.findViewById(R.id.applist_section_item_dragged_over_indicator_right);
             this.sectionName = (TextView) view.findViewById(R.id.applist_section_item_section_name);
             this.itemListenerRef = new WeakReference<>(itemListener);
-            this.layout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    ItemListener itemListener = itemListenerRef.get();
-                    if (itemListener != null) {
-                        itemListener.onSectionLongTapped(item);
-                    }
-                    return true;
+            this.layout.setOnLongClickListener(v -> {
+                ItemListener itemListener1 = itemListenerRef.get();
+                if (itemListener1 != null) {
+                    itemListener1.onSectionLongTapped(item);
+                }
+                return true;
+            });
+            this.layout.setOnClickListener(v -> {
+                ItemListener itemListener12 = itemListenerRef.get();
+                if (itemListener12 != null) {
+                    itemListener12.onSectionTapped(item);
                 }
             });
-            this.layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ItemListener itemListener = itemListenerRef.get();
-                    if (itemListener != null) {
-                        itemListener.onSectionTapped(item);
+            this.layout.setOnTouchListener((v, event) -> {
+                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                    ItemListener itemListener13 = itemListenerRef.get();
+                    if (itemListener13 != null) {
+                        itemListener13.onSectionTouched(item);
                     }
                 }
-            });
-            this.layout.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                        ItemListener itemListener = itemListenerRef.get();
-                        if (itemListener != null) {
-                            itemListener.onSectionTouched(item);
-                        }
-                    }
-                    return false;
-                }
+                return false;
             });
         }
     }
