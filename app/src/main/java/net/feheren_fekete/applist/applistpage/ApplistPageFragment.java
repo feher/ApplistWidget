@@ -307,11 +307,13 @@ public class ApplistPageFragment extends Fragment {
                 if (appContext == null) {
                     return null;
                 }
-                if (uri != null) {
-                    mFileUtils.deleteFiles(
-                            mFileUtils.getIconCacheDirPath(appContext),
-                            uri.getSchemeSpecificPart());
-                }
+
+                // TODO: Remove this after all users updated to 5.1
+                // Remove unused iconCache
+                mFileUtils.deleteFiles(
+                        mFileUtils.getIconCacheDirPath(appContext),
+                        "");
+
                 mApplistModel.updateInstalledApps();
                 mBadgeStore.cleanup();
                 appContext = null;

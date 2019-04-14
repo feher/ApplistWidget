@@ -1,18 +1,9 @@
 package net.feheren_fekete.applist.applistpage;
 
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.MotionEventCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.graphics.drawable.ColorDrawable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,22 +15,28 @@ import android.widget.TextView;
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.model.BadgeStore;
-import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem;
-import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
-import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
-import net.feheren_fekete.applist.launcher.GlideApp;
-import net.feheren_fekete.applist.settings.SettingsUtils;
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
-import net.feheren_fekete.applist.utils.FileUtils;
 import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
+import net.feheren_fekete.applist.settings.SettingsUtils;
+import net.feheren_fekete.applist.utils.glide.GlideApp;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.MotionEventCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import static org.koin.java.KoinJavaComponent.get;
 
@@ -56,14 +53,11 @@ public class ApplistAdapter
 
     private Context mContext;
     private Fragment mFragment;
-    private PackageManager mPackageManager;
-    private FileUtils mFileUtils;
     private List<BaseItem> mCollapsedItems;
     private List<BaseItem> mAllItems;
     private @Nullable String mFilterName;
     private @Nullable List<BaseItem> mFilteredItems;
     private ItemListener mItemListener;
-    private IconCache mIconCache;
     private int[] mIconPlaceholderColors;
     private int mNextPlaceholderColor;
     private TypedValue mTypedValue = new TypedValue();
@@ -94,7 +88,6 @@ public class ApplistAdapter
         public TextView appName;
         public final TextView badgeCount;
         public final ImageView shortcutIndicator;
-        public IconLoaderTask iconLoader;
         public StartableItem item;
         private WeakReference<ItemListener> itemListenerRef;
         public StartableItemHolder(View view, ItemListener itemListener) {
@@ -189,18 +182,12 @@ public class ApplistAdapter
 
     public ApplistAdapter(Context context,
                           Fragment fragment,
-                          PackageManager packageManager,
-                          FileUtils fileUtils,
-                          ItemListener itemListener,
-                          IconCache iconCache) {
+                          ItemListener itemListener) {
         mContext = context;
         mFragment = fragment;
-        mPackageManager = packageManager;
-        mFileUtils = fileUtils;
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();
         mItemListener = itemListener;
-        mIconCache = iconCache;
         mIconPlaceholderColors = mSettingsUtils.isThemeTransparent()
                 ? mContext.getResources().getIntArray(R.array.icon_placeholder_colors_dark)
                 : mContext.getResources().getIntArray(R.array.icon_placeholder_colors_light);
@@ -566,34 +553,12 @@ public class ApplistAdapter
     }
 
     private void bindAppItemHolder(StartableItemHolder holder, AppItem item) {
-        // Cancel loading of ShortcutItem icons into this holder.
-        GlideApp.with(mContext).clear(holder.appIcon);
-
-        Bitmap icon = mIconCache.getIcon(mIconCache.createKey(item));
-        if (icon == null) {
-            if (holder.iconLoader != null) {
-                if (!holder.iconLoader.isLoadingFor(item)) {
-                    holder.iconLoader.cancel(true);
-                    holder.iconLoader = null;
-                }
-            }
-            if (holder.iconLoader == null) {
-                holder.iconLoader = new IconLoaderTask(
-                        item, holder, mPackageManager,
-                        mIconCache, mFileUtils.getIconCacheDirPath(mContext));
-                holder.iconLoader.execute();
-                holder.appIcon.setImageBitmap(null);
-                holder.appIcon.setBackgroundColor(mIconPlaceholderColors[mNextPlaceholderColor]);
-                mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
-            }
-        } else {
-            if (holder.iconLoader != null) {
-                holder.iconLoader.cancel(true);
-                holder.iconLoader = null;
-            }
-            holder.appIcon.setBackgroundColor(Color.TRANSPARENT);
-            holder.appIcon.setImageBitmap(icon);
-        }
+        GlideApp.with(mContext)
+                .load(new ComponentName(item.getPackageName(), item.getClassName()))
+                .placeholder(new ColorDrawable(mIconPlaceholderColors[mNextPlaceholderColor]))
+                .error(new ColorDrawable(mIconPlaceholderColors[mNextPlaceholderColor]))
+                .into(holder.appIcon);
+        mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
 
         if (mSettingsUtils.getShowBadge()) {
             int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getClassName());
@@ -615,12 +580,6 @@ public class ApplistAdapter
     }
 
     private void bindShortcutItemHolder(StartableItemHolder holder, StartableItem item) {
-        // Cancel loading of AppItem icons into this holder.
-        if (holder.iconLoader != null) {
-            holder.iconLoader.cancel(true);
-            holder.iconLoader = null;
-        }
-
         File iconFile;
         if (item instanceof ShortcutItem) {
             ShortcutItem shortcutItem = (ShortcutItem) item;
@@ -629,14 +588,13 @@ public class ApplistAdapter
             AppShortcutItem appShortcutItem = (AppShortcutItem) item;
             iconFile = new File(appShortcutItem.getIconPath());
         }
-        if (iconFile.exists()) {
-            holder.appIcon.setBackgroundColor(Color.TRANSPARENT);
-            GlideApp.with(mContext).load(iconFile).into(holder.appIcon);
-        } else {
-            holder.appIcon.setImageBitmap(null);
-            holder.appIcon.setBackgroundColor(mIconPlaceholderColors[mNextPlaceholderColor]);
-            mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
-        }
+        GlideApp.with(mContext)
+                .load(iconFile)
+                .placeholder(new ColorDrawable(mIconPlaceholderColors[mNextPlaceholderColor]))
+                .error(new ColorDrawable(mIconPlaceholderColors[mNextPlaceholderColor]))
+                .into(holder.appIcon);
+        mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
+
         holder.badgeCount.setVisibility(View.GONE);
         holder.shortcutIndicator.setVisibility(View.VISIBLE);
     }

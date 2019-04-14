@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
-import net.feheren_fekete.applist.applistpage.IconCache
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
 import net.feheren_fekete.applist.applistpage.model.ApplistModel
@@ -22,7 +21,6 @@ import net.feheren_fekete.applist.widgetpage.MyAppWidgetHost
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
 import net.feheren_fekete.applist.widgetpage.WidgetUtils
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel
-import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -39,7 +37,6 @@ val applistModule = module {
     single { ShortcutHelper() }
     single { WidgetHelper() }
     single { IconPackHelper() }
-    single { IconCache() }
     single { SettingsUtils(androidContext()) }
     single { WriteSettingsPermissionHelper(androidContext()) }
     single { BadgeUtils(androidContext()) }

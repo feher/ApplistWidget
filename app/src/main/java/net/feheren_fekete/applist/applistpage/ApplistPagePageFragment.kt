@@ -48,7 +48,6 @@ import net.feheren_fekete.applist.applistpage.viewmodel.*
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.AppUtils
-import net.feheren_fekete.applist.utils.FileUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -75,7 +74,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private val screenUtils: ScreenUtils by inject()
     private val badgeStore: BadgeStore by inject()
     private val applistPreferences: ApplistPreferences by inject()
-    private val iconCache: IconCache by inject()
 
     private val handler = Handler()
     private lateinit var pageItem: PageItem
@@ -186,9 +184,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         pageItem = PageItem(
                 arguments!!.getLong(ARG_APPLIST_PAGE_ID),
                 arguments!!.getString(ARG_APPLIST_PAGE_NAME)!!)
-        adapter = ApplistAdapter(
-                c, this, c.packageManager,
-                FileUtils(), this, iconCache)
+        adapter = ApplistAdapter(c, this, this)
     }
 
     override fun onCreateView(inflater: LayoutInflater,

@@ -9,11 +9,6 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,14 +20,18 @@ import android.widget.TextView;
 import com.bumptech.glide.signature.ObjectKey;
 
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.launcher.GlideApp;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.model.PageData;
 import net.feheren_fekete.applist.utils.ScreenUtils;
+import net.feheren_fekete.applist.utils.glide.GlideApp;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import static org.koin.java.KoinJavaComponent.get;
 
