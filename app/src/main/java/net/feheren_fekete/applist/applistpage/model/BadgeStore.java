@@ -125,7 +125,7 @@ public class BadgeStore {
     }
 
     private String[] splitFullKey(String fullKey) {
-        String[] result = fullKey.split("::");
+        String[] result = fullKey.split("::", -1);
         return result;
     }
 
