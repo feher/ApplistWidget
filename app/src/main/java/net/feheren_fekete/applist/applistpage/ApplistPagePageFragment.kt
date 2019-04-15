@@ -527,7 +527,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     override fun onSectionTouched(sectionItem: SectionItem) {}
 
-    private fun createNotificationMenuItem(text: String, icon: Drawable, remoteViews: RemoteViews?, statusBarNotification: StatusBarNotification): ItemMenuItem {
+    private fun createNotificationMenuItem(text: String, icon: Drawable?, remoteViews: RemoteViews?, statusBarNotification: StatusBarNotification): ItemMenuItem {
         var t = text
         if (t.isEmpty() && remoteViews == null) {
             t = context!!.getString(R.string.app_item_menu_notification_without_title)
@@ -609,12 +609,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             if (icon == null) {
                 icon = notification.getLargeIcon()
             }
-            val iconDrawable: Drawable
-            if (icon != null) {
+            val iconDrawable: Drawable? = if (icon != null) {
                 icon.setTint(if (notification.color != 0) notification.color else Color.GRAY)
-                iconDrawable = icon.loadDrawable(c)
+                icon.loadDrawable(c)
             } else {
-                iconDrawable = c.resources.getDrawable(R.drawable.ic_notification, null)
+                c.resources.getDrawable(R.drawable.ic_notification, null)
             }
 
             itemMenuItems.add(createNotificationMenuItem(text, iconDrawable, sbn.notification.contentView, sbn))
