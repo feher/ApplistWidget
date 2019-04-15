@@ -103,6 +103,10 @@ dependencies {
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
+    compile ("com.github.bumptech.glide:recyclerview-integration:4.9.0") {
+        // Excludes the support library because it's already included by Glide.
+        transitive = false
+    }
 
     // EventBus
     implementation 'org.greenrobot:eventbus:3.1.1'

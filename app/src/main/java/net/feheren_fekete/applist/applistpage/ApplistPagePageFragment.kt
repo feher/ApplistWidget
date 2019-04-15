@@ -74,6 +74,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private val screenUtils: ScreenUtils by inject()
     private val badgeStore: BadgeStore by inject()
     private val applistPreferences: ApplistPreferences by inject()
+    private val iconPreloadHelper: IconPreloadHelper by inject()
 
     private val handler = Handler()
     private lateinit var pageItem: PageItem
@@ -220,8 +221,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             }
         }
         view.recyclerView.layoutManager = layoutManager
-
         view.recyclerView.adapter = adapter
+
+        iconPreloadHelper.setupPreloader(
+                context!!, view.recyclerView,
+                adapter, columnCount * 2)
 
         loadAllItems()
 

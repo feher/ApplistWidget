@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
+import net.feheren_fekete.applist.applistpage.IconPreloadHelper
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
 import net.feheren_fekete.applist.applistpage.model.ApplistModel
@@ -37,6 +38,7 @@ val applistModule = module {
     single { ShortcutHelper() }
     single { WidgetHelper() }
     single { IconPackHelper() }
+    single { IconPreloadHelper() }
     single { SettingsUtils(androidContext()) }
     single { WriteSettingsPermissionHelper(androidContext()) }
     single { BadgeUtils(androidContext()) }
