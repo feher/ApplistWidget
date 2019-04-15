@@ -209,7 +209,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             tempColumnCount = 4
         }
         val columnCount = tempColumnCount
-        val layoutManager = MyGridLayoutManager(context, columnCount)
+        val layoutManager = MyGridLayoutManager(context!!, columnCount)
         layoutManager.isSmoothScrollbarEnabled = true
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
