@@ -503,6 +503,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     sectionItem.id,
                     !wasSectionCollapsed)
             handler.postDelayed(Runnable {
+                if (!isAdded) {
+                    return@Runnable
+                }
                 if (wasSectionCollapsed) {
                     val position = adapter.getItemPosition(sectionItem)
                     if (position != RecyclerView.NO_POSITION) {
