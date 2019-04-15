@@ -163,13 +163,13 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
 
     private void addDraggedView(DragGestureRecognizer gestureRecognizer, BaseItem draggedItem) {
         if (draggedItem instanceof StartableItem) {
-            ApplistAdapter.StartableItemHolder startableItemHolder =
-                    (ApplistAdapter.StartableItemHolder) mRecyclerView.findViewHolderForItemId(draggedItem.getId());
+            StartableItemHolder startableItemHolder =
+                    (StartableItemHolder) mRecyclerView.findViewHolderForItemId(draggedItem.getId());
             if (startableItemHolder == null) {
                 return;
             }
             ImageView imageView = new ImageView(mContext);
-            imageView.setImageDrawable(startableItemHolder.appIcon.getDrawable());
+            imageView.setImageDrawable(startableItemHolder.getAppIcon().getDrawable());
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(mDraggedAppViewSize, mDraggedAppViewSize);
             imageView.setLayoutParams(layoutParams);
             mDraggedView = imageView;
@@ -254,16 +254,16 @@ public class ApplistItemDragHandler implements DragGestureRecognizer.Callback {
                     considerItem = (i == mAdapter.getItemCount() - 1);
                 }
                 if (considerItem) {
-                    ApplistAdapter.ViewHolderBase viewHolder =
-                            (ApplistAdapter.ViewHolderBase) mRecyclerView.findViewHolderForAdapterPosition(i);
+                    ViewHolderBase viewHolder =
+                            (ViewHolderBase) mRecyclerView.findViewHolderForAdapterPosition(i);
                     if (viewHolder != null) {
-                        viewHolder.layout.getLocationOnScreen(mDraggedOverViewLocation);
+                        viewHolder.getLayout().getLocationOnScreen(mDraggedOverViewLocation);
                         final int viewLeft = mDraggedOverViewLocation[0];
                         final int viewTop = mDraggedOverViewLocation[1];
-                        final int viewRight = mDraggedOverViewLocation[0] + viewHolder.layout.getWidth();
-                        final int viewBottom = mDraggedOverViewLocation[1] + viewHolder.layout.getHeight();
-                        final float viewCenterX = viewLeft + (viewHolder.layout.getWidth() / 2.0f);
-                        final float viewCenterY = viewTop + (viewHolder.layout.getHeight() / 2.0f);
+                        final int viewRight = mDraggedOverViewLocation[0] + viewHolder.getLayout().getWidth();
+                        final int viewBottom = mDraggedOverViewLocation[1] + viewHolder.getLayout().getHeight();
+                        final float viewCenterX = viewLeft + (viewHolder.getLayout().getWidth() / 2.0f);
+                        final float viewCenterY = viewTop + (viewHolder.getLayout().getHeight() / 2.0f);
                         final double distanceToView = distanceOfPoints(
                                 viewCenterX, viewCenterY, draggedViewPosX, draggedViewPosY);
                         if (distanceToView < distanceToCandidateItem) {

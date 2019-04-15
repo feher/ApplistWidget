@@ -180,11 +180,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val c = context ?: return
         pageItem = PageItem(
                 arguments!!.getLong(ARG_APPLIST_PAGE_ID),
                 arguments!!.getString(ARG_APPLIST_PAGE_NAME)!!)
-        adapter = ApplistAdapter(c, this, this)
+        adapter = ApplistAdapter(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -376,7 +375,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         itemMenuAdapter.setItems(itemMenuItems)
 
         val startableItemHolder = recyclerView.findViewHolderForItemId(
-                startableItem.id) as ApplistAdapter.StartableItemHolder
+                startableItem.id) as StartableItemHolder
 
         val menu = ListPopupWindow(c)
         val hasNotificationWithRemoteViews = hasNotificationWithRemoteViews(itemMenuItems)
@@ -466,7 +465,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         itemMenuAdapter.setItems(itemMenuItems)
 
         val sectionItemHolder = recyclerView.findViewHolderForItemId(
-                sectionItem.id) as ApplistAdapter.SectionItemHolder
+                sectionItem.id) as SectionItemHolder
 
         itemMenuTarget = sectionItem
 
@@ -704,7 +703,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                                         queryFlags: Int): MutableList<ShortcutInfo> {
         val c = context ?: return mutableListOf()
         val result = ArrayList<ShortcutInfo>()
-        val launcherApps = c.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        val launcherApps = c.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps?
         if (launcherApps != null && launcherApps.hasShortcutHostPermission()) {
             val profiles = ArrayList<UserHandle>()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

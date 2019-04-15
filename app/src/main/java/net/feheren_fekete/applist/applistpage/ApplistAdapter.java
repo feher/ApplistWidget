@@ -1,66 +1,36 @@
 package net.feheren_fekete.applist.applistpage;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.applistpage.model.BadgeStore;
-import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils;
-import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
-import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
-import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
-import net.feheren_fekete.applist.settings.SettingsUtils;
-import net.feheren_fekete.applist.utils.glide.GlideApp;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.MotionEventCompat;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static org.koin.java.KoinJavaComponent.get;
-
 public class ApplistAdapter
-        extends RecyclerView.Adapter<ApplistAdapter.ViewHolderBase> {
+        extends RecyclerView.Adapter<ViewHolderBase> {
 
     private static final String TAG = ApplistAdapter.class.getSimpleName();
 
     public static final int STARTABLE_ITEM_VIEW = 1;
     public static final int SECTION_ITEM_VIEW = 2;
 
-    private BadgeStore mBadgeStore = get(BadgeStore.class);
-    private SettingsUtils mSettingsUtils = get(SettingsUtils.class);
-
-    private Context mContext;
-    private Fragment mFragment;
     private List<BaseItem> mCollapsedItems;
     private List<BaseItem> mAllItems;
     private @Nullable String mFilterName;
     private @Nullable List<BaseItem> mFilteredItems;
     private ItemListener mItemListener;
-    private int[] mIconPlaceholderColors;
-    private int mNextPlaceholderColor;
-    private TypedValue mTypedValue = new TypedValue();
 
     public interface ItemListener {
         void onStartableTapped(StartableItem startableItem);
@@ -71,118 +41,10 @@ public class ApplistAdapter
         void onSectionTouched(SectionItem sectionItem);
     }
 
-    public static class ViewHolderBase extends RecyclerView.ViewHolder {
-        public final ViewGroup layout;
-        public ViewHolderBase(View view, @IdRes int layoutId) {
-            super(view);
-            this.layout = (ViewGroup) view.findViewById(layoutId);
-        }
-    }
-
-    public static class StartableItemHolder extends ViewHolderBase {
-        public final View draggedOverIndicatorLeft;
-        public final View draggedOverIndicatorRight;
-        public final ImageView appIcon;
-        public final TextView appNameWithoutShadow;
-        public final TextView appNameWithShadow;
-        public TextView appName;
-        public final TextView badgeCount;
-        public final ImageView shortcutIndicator;
-        public StartableItem item;
-        private WeakReference<ItemListener> itemListenerRef;
-        public StartableItemHolder(View view, ItemListener itemListener) {
-            super(view, R.id.applist_app_item_layout);
-            this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_app_item_dragged_over_indicator_left);
-            this.draggedOverIndicatorRight = view.findViewById(R.id.applist_app_item_dragged_over_indicator_right);
-            this.appIcon = view.findViewById(R.id.applist_app_item_icon);
-            this.appNameWithoutShadow = view.findViewById(R.id.applist_app_item_app_name);
-            this.appNameWithShadow = view.findViewById(R.id.applist_app_item_app_name_with_shadow);
-            this.badgeCount = view.findViewById(R.id.applist_app_item_badge_count);
-            this.shortcutIndicator = view.findViewById(R.id.applist_app_item_shortcut_indicator);
-            this.itemListenerRef = new WeakReference<>(itemListener);
-            this.layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ItemListener itemListener = itemListenerRef.get();
-                    if (itemListener != null) {
-                        itemListener.onStartableTapped(item);
-                    }
-                }
-            });
-            this.layout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    ItemListener itemListener = itemListenerRef.get();
-                    if (itemListener != null) {
-                        itemListener.onStartableLongTapped(item);
-                    }
-                    return true;
-                }
-            });
-            this.layout.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                        ItemListener itemListener = itemListenerRef.get();
-                        if (itemListener != null) {
-                            itemListener.onStartableTouched(item);
-                        }
-                    }
-                    return false;
-                }
-            });
-        }
-    }
-
-    public static class SectionItemHolder extends ViewHolderBase {
-        public final View draggedOverIndicatorLeft;
-        public final View draggedOverIndicatorRight;
-        public final TextView sectionName;
-        public SectionItem item;
-        private WeakReference<ItemListener> itemListenerRef;
-        public SectionItemHolder(View view, ItemListener itemListener) {
-            super(view, R.id.applist_section_item_layout);
-            this.draggedOverIndicatorLeft = view.findViewById(R.id.applist_section_item_dragged_over_indicator_left);
-            this.draggedOverIndicatorRight = view.findViewById(R.id.applist_section_item_dragged_over_indicator_right);
-            this.sectionName = (TextView) view.findViewById(R.id.applist_section_item_section_name);
-            this.itemListenerRef = new WeakReference<>(itemListener);
-            this.layout.setOnLongClickListener(v -> {
-                ItemListener itemListener1 = itemListenerRef.get();
-                if (itemListener1 != null) {
-                    itemListener1.onSectionLongTapped(item);
-                }
-                return true;
-            });
-            this.layout.setOnClickListener(v -> {
-                ItemListener itemListener12 = itemListenerRef.get();
-                if (itemListener12 != null) {
-                    itemListener12.onSectionTapped(item);
-                }
-            });
-            this.layout.setOnTouchListener((v, event) -> {
-                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                    ItemListener itemListener13 = itemListenerRef.get();
-                    if (itemListener13 != null) {
-                        itemListener13.onSectionTouched(item);
-                    }
-                }
-                return false;
-            });
-        }
-    }
-
-    public ApplistAdapter(Context context,
-                          Fragment fragment,
-                          ItemListener itemListener) {
-        mContext = context;
-        mFragment = fragment;
+    public ApplistAdapter(ItemListener itemListener) {
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();
         mItemListener = itemListener;
-        mIconPlaceholderColors = mSettingsUtils.isThemeTransparent()
-                ? mContext.getResources().getIntArray(R.array.icon_placeholder_colors_dark)
-                : mContext.getResources().getIntArray(R.array.icon_placeholder_colors_light);
-        mNextPlaceholderColor = 0;
 
         setHasStableIds(true);
     }
@@ -207,9 +69,11 @@ public class ApplistAdapter
     @Override
     public void onBindViewHolder(@NonNull ViewHolderBase holder, int position) {
         if (holder instanceof StartableItemHolder) {
-            bindStartableItemHolder((StartableItemHolder) holder, position);
+            StartableItem startableItem = (StartableItem) getItems().get(position);
+            ((StartableItemHolder)holder).bind(startableItem);
         } else if (holder instanceof SectionItemHolder) {
-            bindSectionItemHolder((SectionItemHolder) holder, position);
+            SectionItem item = (SectionItem) getItems().get(position);
+            ((SectionItemHolder)holder).bind(item);
         }
     }
 
@@ -497,123 +361,6 @@ public class ApplistAdapter
             }
             return result;
         }
-    }
-
-    private void bindStartableItemHolder(StartableItemHolder holder, int position) {
-        if (mFragment.getActivity() == null) {
-            return;
-        }
-
-        final StartableItem item = (StartableItem) getItems().get(position);
-        holder.item = item;
-
-        // REF: 2017_06_22_22_08_setShadowLayer_not_working
-        if (mSettingsUtils.isThemeTransparent()) {
-            holder.appNameWithShadow.setVisibility(View.VISIBLE);
-            holder.appNameWithoutShadow.setVisibility(View.INVISIBLE);
-            holder.appName = holder.appNameWithShadow;
-        } else {
-            holder.appNameWithoutShadow.setVisibility(View.VISIBLE);
-            holder.appNameWithShadow.setVisibility(View.INVISIBLE);
-            holder.appName = holder.appNameWithoutShadow;
-        }
-
-        holder.appName.setText(item.getDisplayName());
-
-        final float alpha = item.isEnabled() ? 1.0f : 0.3f;
-        holder.appIcon.setAlpha(alpha);
-        holder.appName.setAlpha(alpha);
-        holder.badgeCount.setAlpha(alpha);
-
-        if (item.isHighlighted()) {
-            holder.layout.setBackgroundResource(R.drawable.applist_startable_item_highlighted_background);
-        } else {
-            holder.layout.setBackground(null);
-        }
-
-        holder.draggedOverIndicatorLeft.setVisibility(
-                item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);
-        holder.draggedOverIndicatorRight.setVisibility(
-                item.isDraggedOverRight() ? View.VISIBLE : View.INVISIBLE);
-
-        if (item instanceof AppItem) {
-            bindAppItemHolder(holder, (AppItem) item);
-        } else if ((item instanceof ShortcutItem) || (item instanceof AppShortcutItem)) {
-            bindShortcutItemHolder(holder, item);
-        }
-    }
-
-    private void bindAppItemHolder(StartableItemHolder holder, AppItem item) {
-        GlideApp.with(mContext)
-                .load(new ComponentName(item.getPackageName(), item.getClassName()))
-                .placeholder(new ColorDrawable(mIconPlaceholderColors[mNextPlaceholderColor]))
-                .error(new ColorDrawable(mIconPlaceholderColors[mNextPlaceholderColor]))
-                .into(holder.appIcon);
-        mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
-
-        if (mSettingsUtils.getShowBadge()) {
-            int badgeCount = mBadgeStore.getBadgeCount(item.getPackageName(), item.getClassName());
-            if (badgeCount > 0) {
-                holder.badgeCount.setVisibility(View.VISIBLE);
-                if (badgeCount != BadgeUtils.NOT_NUMBERED_BADGE_COUNT) {
-                    holder.badgeCount.setText(String.valueOf(badgeCount));
-                } else {
-                    holder.badgeCount.setText(null);
-                }
-            } else {
-                holder.badgeCount.setVisibility(View.GONE);
-            }
-        } else {
-            holder.badgeCount.setVisibility(View.GONE);
-        }
-
-        holder.shortcutIndicator.setVisibility(View.GONE);
-    }
-
-    private void bindShortcutItemHolder(StartableItemHolder holder, StartableItem item) {
-        File iconFile;
-        if (item instanceof ShortcutItem) {
-            ShortcutItem shortcutItem = (ShortcutItem) item;
-            iconFile = new File(shortcutItem.getIconPath());
-        } else {
-            AppShortcutItem appShortcutItem = (AppShortcutItem) item;
-            iconFile = new File(appShortcutItem.getIconPath());
-        }
-        GlideApp.with(mContext)
-                .load(iconFile)
-                .placeholder(new ColorDrawable(mIconPlaceholderColors[mNextPlaceholderColor]))
-                .error(new ColorDrawable(mIconPlaceholderColors[mNextPlaceholderColor]))
-                .into(holder.appIcon);
-        mNextPlaceholderColor = (mNextPlaceholderColor + 1) % mIconPlaceholderColors.length;
-
-        holder.badgeCount.setVisibility(View.GONE);
-        holder.shortcutIndicator.setVisibility(View.VISIBLE);
-    }
-
-    private void bindSectionItemHolder(final SectionItemHolder holder, int position) {
-        final SectionItem item = (SectionItem) getItems().get(position);
-        holder.item = item;
-
-        holder.sectionName.setText(
-                item.isCollapsed()
-                        ? item.getName() + " ..."
-                        : item.getName());
-
-        Resources.Theme theme = mContext.getTheme();
-        if (item.isHighlighted()) {
-            theme.resolveAttribute(R.attr.sectionTextHighlightColor, mTypedValue, true);
-        } else {
-            theme.resolveAttribute(R.attr.sectionTextColor, mTypedValue, true);
-        }
-        holder.sectionName.setTextColor(mTypedValue.data);
-
-        final float alpha = item.isEnabled() ? 1.0f : 0.3f;
-        holder.sectionName.setAlpha(alpha);
-
-        holder.draggedOverIndicatorLeft.setVisibility(
-                item.isDraggedOverLeft() ? View.VISIBLE : View.INVISIBLE);
-        holder.draggedOverIndicatorRight.setVisibility(
-                item.isDraggedOverRight() ? View.VISIBLE : View.INVISIBLE);
     }
 
 }
