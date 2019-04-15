@@ -380,6 +380,9 @@ class ApplistPageFragment : Fragment() {
     }
 
     private fun showApplistFragment(pageItem: PageItem) {
+        if (isStateSaved) {
+            return
+        }
         val fragment = ApplistPagePageFragment.newInstance(
                 pageItem, launcherPageId)
         childFragmentManager
