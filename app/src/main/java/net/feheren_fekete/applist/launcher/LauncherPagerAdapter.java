@@ -64,7 +64,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
         Fragment fragment;
         PageData pageData = mPages.get(position);
         if (pageData.getType() == PageData.TYPE_APPLIST_PAGE) {
-            fragment = ApplistPageFragment.newInstance(pageData.getId());
+            fragment = ApplistPageFragment.Companion.newInstance(pageData.getId());
         } else {
             fragment = WidgetPageFragment.newInstance(pageData.getId());
         }

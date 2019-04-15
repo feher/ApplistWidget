@@ -16,6 +16,7 @@ import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
 import net.feheren_fekete.applist.launcher.model.LauncherModel
 import net.feheren_fekete.applist.settings.SettingsUtils
+import net.feheren_fekete.applist.utils.FileUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.utils.WriteSettingsPermissionHelper
 import net.feheren_fekete.applist.widgetpage.MyAppWidgetHost
@@ -31,6 +32,7 @@ val applistModule = module {
     single { AppWidgetManager.getInstance(androidContext()) }
     single { MyAppWidgetHost(androidContext(), 1234567) as AppWidgetHost }
     single { ApplistLog() }
+    single { FileUtils() }
     single { ScreenUtils() }
     single { WidgetUtils() }
     single { LauncherUtils() }
