@@ -6,7 +6,7 @@
     >
 
     <net.feheren_fekete.applist.launcher.MyViewPager
-        android:id="@+id/launcher_fragment_view_pager"
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
