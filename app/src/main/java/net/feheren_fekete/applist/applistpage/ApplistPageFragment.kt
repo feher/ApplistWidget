@@ -380,7 +380,7 @@ class ApplistPageFragment : Fragment() {
     }
 
     private fun showApplistFragment(pageItem: PageItem) {
-        if (isStateSaved) {
+        if (!isAdded || isStateSaved) {
             return
         }
         val fragment = ApplistPagePageFragment.newInstance(
