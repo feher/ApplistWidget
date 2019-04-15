@@ -230,7 +230,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         loadAllItems()
 
         val itemDragCallback = ApplistItemDragHandler(
-                context, this, view.touchOverlay, view.recyclerView,
+                context!!, this, view.touchOverlay, view.recyclerView,
                 layoutManager, adapter)
         itemDragGestureRecognizer = DragGestureRecognizer(
                 itemDragCallback, view.touchOverlay, view.recyclerView)
