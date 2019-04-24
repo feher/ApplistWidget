@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.TypedValue
@@ -17,7 +16,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.applist_page_fragment.view.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
@@ -51,13 +53,29 @@ class ApplistPageFragment : Fragment() {
     private lateinit var toolbarGradient: Drawable
     private var menu: Menu? = null
     private var searchView: SearchView? = null
-    private var updateInstalledAppsRunnable: UpdateInstalledAppsRunnable? = null
 
     private val packageStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            val uri = intent?.data
-            val appContext = context.applicationContext
-            scheduleUpdateInstalledApps(appContext, uri)
+            // When a package is being replaced, the Android system actually
+            // broadcasts three intents (in this order):
+            //
+            // ACTION_PACKAGE_REMOVED
+            // ACTION_PACKAGE_ADDED
+            // ACTION_PACKAGE_REPLACED
+            //
+            // To tell that that an ACTION_PACKAGE_REMOVED or ACTION_PACKAGE_ADDED intent is
+            // received as the result of a package being replaced (instead of plain add
+            // or remove), check the EXTRA_REPLACING flag.
+            //
+            val action = intent?.action ?: ""
+            if (action == Intent.ACTION_PACKAGE_ADDED
+                    || action == Intent.ACTION_PACKAGE_REMOVED) {
+                val isReplacing = intent?.getBooleanExtra(Intent.EXTRA_REPLACING, false) ?: false
+                if (isReplacing) {
+                    return
+                }
+            }
+            updateInstalledApps()
         }
     }
 
@@ -264,34 +282,19 @@ class ApplistPageFragment : Fragment() {
         startActivity(settingsIntent)
     }
 
-    private inner class UpdateInstalledAppsRunnable constructor(private var appContext: Context?,
-                                                                private val uri: Uri?) : Runnable {
-        override fun run() {
-            GlobalScope.launch {
-                if (appContext == null) {
-                    return@launch
-                }
-
+    private fun updateInstalledApps() {
+        GlobalScope.launch {
+            context?.let {
                 // TODO: Remove this after all users updated to 5.1
                 // Remove unused iconCache
                 fileUtils.deleteFiles(
-                        fileUtils.getIconCacheDirPath(appContext!!),
+                        fileUtils.getIconCacheDirPath(it.applicationContext),
                         "")
-
-                applistModel.updateInstalledApps()
-                badgeStore.cleanup()
-                appContext = null
             }
-        }
-    }
 
-    private fun scheduleUpdateInstalledApps(appContext: Context, uri: Uri?) {
-        if (updateInstalledAppsRunnable != null) {
-            handler.removeCallbacks(updateInstalledAppsRunnable)
-            updateInstalledAppsRunnable = null
+            applistModel.updateInstalledApps()
+            badgeStore.cleanup()
         }
-        updateInstalledAppsRunnable = UpdateInstalledAppsRunnable(appContext, uri)
-        handler.postDelayed(updateInstalledAppsRunnable, 2000)
     }
 
     private fun hideKeyboardFrom(context: Context, view: View) {
