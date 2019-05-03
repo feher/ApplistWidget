@@ -117,16 +117,17 @@ class ApplistItemDragHandler(private val context: Context,
         }
 
         if (draggedOverItem != null) {
-            draggedOverItem!!.setDraggedOver(BaseItem.NONE)
-            adapter.notifyItemChanged(adapter.getItemPosition(draggedOverItem))
+            adapter.setDraggedOverState(draggedOverItem, BaseItem.DraggedOverState.None)
         }
 
         removeDraggedView()
+
+        adapter.update()
     }
 
     private fun addDraggedView(gestureRecognizer: DragGestureRecognizer, draggedItem: BaseItem) {
         if (draggedItem is StartableItem) {
-            val startableItemHolder = recyclerView.findViewHolderForItemId(draggedItem.getId()) as StartableItemHolder
+            val startableItemHolder = recyclerView.findViewHolderForItemId(draggedItem.id) as StartableItemHolder
                     ?: return
             val imageView = ImageView(context)
             imageView.setImageDrawable(startableItemHolder.appIcon.drawable)
@@ -184,100 +185,105 @@ class ApplistItemDragHandler(private val context: Context,
         val firstItemPos = layoutManager.findFirstVisibleItemPosition()
         val lastItemPos = layoutManager.findLastVisibleItemPosition()
 
-        if (recyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-
-            var candidateItemPosition = RecyclerView.NO_POSITION
-            var candidateItem: BaseItem? = null
-            var distanceToCandidateItem = java.lang.Double.MAX_VALUE
-            var candidateViewLeft = 0
-            var candidateViewTop = 0
-            var candidateViewRight = 0
-            var candidateViewBottom = 0
-            for (i in firstItemPos..lastItemPos) {
-                var considerItem = true
-                val item = adapter.getItem(i)
-                if (draggedItem is StartableItem && item is SectionItem) {
-                    if (!item.isCollapsed && !adapter.isSectionEmpty(item)) {
-                        // We don't allow dragging over open and not empty (i.e. normal) section
-                        // headers.
-                        considerItem = false
-                    }
-                }
-                if (draggedItem is SectionItem && item is StartableItem) {
-                    // We don't allow dragging sections over app items, unless it's the very last
-                    // app item.
-                    considerItem = i == adapter.itemCount - 1
-                }
-                if (considerItem) {
-                    val viewHolder = recyclerView.findViewHolderForAdapterPosition(i) as ViewHolderBase?
-                    if (viewHolder != null) {
-                        viewHolder.layout.getLocationOnScreen(draggedOverViewLocation)
-                        val viewLeft = draggedOverViewLocation[0]
-                        val viewTop = draggedOverViewLocation[1]
-                        val viewRight = draggedOverViewLocation[0] + viewHolder.layout.width
-                        val viewBottom = draggedOverViewLocation[1] + viewHolder.layout.height
-                        val viewCenterX = viewLeft + viewHolder.layout.width / 2.0f
-                        val viewCenterY = viewTop + viewHolder.layout.height / 2.0f
-                        val distanceToView = distanceOfPoints(
-                                viewCenterX, viewCenterY, fingerCurrentPosX, fingerCurrentPosY)
-                        if (distanceToView < distanceToCandidateItem) {
-                            candidateItemPosition = i
-                            candidateItem = adapter.getItem(i)
-                            distanceToCandidateItem = distanceToView
-                            candidateViewLeft = viewLeft
-                            candidateViewRight = viewRight
-                            candidateViewTop = viewTop
-                            candidateViewBottom = viewBottom
-                        }
-                    }
-                }
-            }
-
-            if (candidateItem == null) {
-                cleanDraggedOverItem()
-            } else {
-                cleanDraggedOverItem()
-                draggedOverItem = candidateItem
-                if (draggedItem is StartableItem) {
-                    if (draggedOverItem is StartableItem) {
-                        if (adapter.isStartableLastInSection(draggedOverItem as StartableItem?)) {
-                            val viewLeftSideCenterX = candidateViewLeft
-                            val viewLeftSideCenterY = candidateViewTop + (candidateViewBottom - candidateViewTop) / 2
-                            val distanceToLeftSideCenter = distanceOfPoints(
-                                    viewLeftSideCenterX.toFloat(), viewLeftSideCenterY.toFloat(), fingerCurrentPosX, fingerCurrentPosY)
-                            val viewRightSideCenterX = candidateViewRight
-                            val viewRightSideCenterY = candidateViewTop + (candidateViewBottom - candidateViewTop) / 2
-                            val distanceToRightSideCenter = distanceOfPoints(
-                                    viewRightSideCenterX.toFloat(), viewRightSideCenterY.toFloat(), fingerCurrentPosX, fingerCurrentPosY)
-                            draggedOverItem!!.setDraggedOver(
-                                    if (distanceToLeftSideCenter < distanceToRightSideCenter) BaseItem.LEFT else BaseItem.RIGHT)
-                        } else {
-                            draggedOverItem!!.setDraggedOver(BaseItem.LEFT)
-                        }
-                        adapter.notifyItemChanged(candidateItemPosition)
-                    } else if (draggedOverItem is SectionItem) {
-                        draggedOverItem!!.setDraggedOver(BaseItem.RIGHT)
-                        adapter.notifyItemChanged(candidateItemPosition)
-                    }
-                } else if (draggedItem is SectionItem) {
-                    if (draggedOverItem is StartableItem) {
-                        draggedOverItem!!.setDraggedOver(BaseItem.RIGHT)
-                        adapter.notifyItemChanged(candidateItemPosition)
-                    } else if (draggedOverItem is SectionItem) {
-                        draggedOverItem!!.setDraggedOver(BaseItem.LEFT)
-                        adapter.notifyItemChanged(candidateItemPosition)
-                    }
-                }
-            }
-        } else {
+        if (recyclerView.scrollState != RecyclerView.SCROLL_STATE_IDLE) {
             cleanDraggedOverItem()
+            adapter.update()
+            return
         }
+
+        var candidateItemPosition = RecyclerView.NO_POSITION
+        var candidateItem: BaseItem? = null
+        var distanceToCandidateItem = java.lang.Double.MAX_VALUE
+        var candidateViewLeft = 0
+        var candidateViewTop = 0
+        var candidateViewRight = 0
+        var candidateViewBottom = 0
+        for (i in firstItemPos..lastItemPos) {
+            var considerItem = true
+            val item = adapter.getItemAt(i)
+            if (draggedItem is StartableItem && item is SectionItem) {
+                if (!item.isCollapsed && !adapter.isSectionEmpty(item)) {
+                    // We don't allow dragging over open and not empty (i.e. normal) section
+                    // headers.
+                    considerItem = false
+                }
+            }
+            if (draggedItem is SectionItem && item is StartableItem) {
+                // We don't allow dragging sections over app items, unless it's the very last
+                // app item.
+                considerItem = i == adapter.itemCount - 1
+            }
+            if (considerItem) {
+                val viewHolder = recyclerView.findViewHolderForAdapterPosition(i) as ViewHolderBase?
+                if (viewHolder != null) {
+                    viewHolder.layout.getLocationOnScreen(draggedOverViewLocation)
+                    val viewLeft = draggedOverViewLocation[0]
+                    val viewTop = draggedOverViewLocation[1]
+                    val viewRight = draggedOverViewLocation[0] + viewHolder.layout.width
+                    val viewBottom = draggedOverViewLocation[1] + viewHolder.layout.height
+                    val viewCenterX = viewLeft + viewHolder.layout.width / 2.0f
+                    val viewCenterY = viewTop + viewHolder.layout.height / 2.0f
+                    val distanceToView = distanceOfPoints(
+                            viewCenterX, viewCenterY, fingerCurrentPosX, fingerCurrentPosY)
+                    if (distanceToView < distanceToCandidateItem) {
+                        candidateItemPosition = i
+                        candidateItem = adapter.getItemAt(i)
+                        distanceToCandidateItem = distanceToView
+                        candidateViewLeft = viewLeft
+                        candidateViewRight = viewRight
+                        candidateViewTop = viewTop
+                        candidateViewBottom = viewBottom
+                    }
+                }
+            }
+        }
+
+        if (candidateItem == null) {
+            cleanDraggedOverItem()
+            adapter.update()
+            return
+        }
+
+        cleanDraggedOverItem()
+        draggedOverItem = candidateItem
+        if (draggedItem is StartableItem) {
+            if (draggedOverItem is StartableItem) {
+                if (adapter.isStartableLastInSection(draggedOverItem as StartableItem?)) {
+                    val viewLeftSideCenterX = candidateViewLeft
+                    val viewLeftSideCenterY = candidateViewTop + (candidateViewBottom - candidateViewTop) / 2
+                    val distanceToLeftSideCenter = distanceOfPoints(
+                            viewLeftSideCenterX.toFloat(), viewLeftSideCenterY.toFloat(), fingerCurrentPosX, fingerCurrentPosY)
+                    val viewRightSideCenterX = candidateViewRight
+                    val viewRightSideCenterY = candidateViewTop + (candidateViewBottom - candidateViewTop) / 2
+                    val distanceToRightSideCenter = distanceOfPoints(
+                            viewRightSideCenterX.toFloat(), viewRightSideCenterY.toFloat(), fingerCurrentPosX, fingerCurrentPosY)
+                    adapter.setDraggedOverState(
+                            draggedOverItem,
+                            if (distanceToLeftSideCenter < distanceToRightSideCenter) {
+                                BaseItem.DraggedOverState.Left
+                            } else {
+                                BaseItem.DraggedOverState.Right
+                            })
+                } else {
+                    adapter.setDraggedOverState(draggedOverItem, BaseItem.DraggedOverState.Left)
+                }
+            } else if (draggedOverItem is SectionItem) {
+                adapter.setDraggedOverState(draggedOverItem, BaseItem.DraggedOverState.Right)
+            }
+        } else if (draggedItem is SectionItem) {
+            if (draggedOverItem is StartableItem) {
+                adapter.setDraggedOverState(draggedOverItem, BaseItem.DraggedOverState.Right)
+            } else if (draggedOverItem is SectionItem) {
+                adapter.setDraggedOverState(draggedOverItem, BaseItem.DraggedOverState.Left)
+            }
+        }
+
+        adapter.update()
     }
 
     private fun cleanDraggedOverItem() {
         if (draggedOverItem != null) {
-            draggedOverItem!!.setDraggedOver(BaseItem.NONE)
-            adapter.notifyItemChanged(adapter.getItemPosition(draggedOverItem))
+            adapter.setDraggedOverState(draggedOverItem, BaseItem.DraggedOverState.None)
             draggedOverItem = null
         }
     }

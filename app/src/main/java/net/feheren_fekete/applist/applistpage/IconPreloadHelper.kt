@@ -35,7 +35,7 @@ class IconPreloadHelper {
     inner class ApplistPreloadModelProvider(private val context: Context,
                                             private val adapter: ApplistAdapter): ListPreloader.PreloadModelProvider<BaseItem> {
         override fun getPreloadItems(position: Int): MutableList<BaseItem> {
-            val item = adapter.getItem(position)
+            val item = adapter.getItemAt(position)
             return if (item is AppItem
                     || item is ShortcutItem
                     || item is AppShortcutItem) {

@@ -1,13 +1,18 @@
 package net.feheren_fekete.applist.applistpage;
 
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
+import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
 
 import java.util.ArrayList;
@@ -16,10 +21,11 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ApplistAdapter
-        extends RecyclerView.Adapter<ViewHolderBase> {
+        extends ListAdapter<BaseItem, ViewHolderBase> {
 
     private static final String TAG = ApplistAdapter.class.getSimpleName();
 
@@ -31,17 +37,20 @@ public class ApplistAdapter
     private @Nullable String mFilterName;
     private @Nullable List<BaseItem> mFilteredItems;
     private ItemListener mItemListener;
+    private boolean isDirty = false;
 
     public interface ItemListener {
-        void onStartableTapped(StartableItem startableItem);
-        void onStartableLongTapped(StartableItem startableItem);
-        void onStartableTouched(StartableItem startableItem);
-        void onSectionTapped(SectionItem sectionItem);
-        void onSectionLongTapped(SectionItem sectionItem);
-        void onSectionTouched(SectionItem sectionItem);
+        void onStartableTapped(int position);
+        void onStartableLongTapped(int position);
+        void onStartableTouched(int position);
+        void onSectionTapped(int position);
+        void onSectionLongTapped(int position);
+        void onSectionTouched(int position);
     }
 
     public ApplistAdapter(ItemListener itemListener) {
+        super(new ApplistItemDiffer());
+
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();
         mItemListener = itemListener;
@@ -115,7 +124,8 @@ public class ApplistAdapter
     public void setNameFilter(@Nullable String filterText) {
         mFilterName = filterText;
         mFilteredItems = filterItemsByName();
-        notifyDataSetChanged();
+        isDirty = true;
+        update();
     }
 
     public boolean isFilteredByName() {
@@ -149,13 +159,13 @@ public class ApplistAdapter
 
     @Override
     public long getItemId(int position) {
-        return getItems().get(position).getId();
+        return getItemAt(position).getId();
     }
 
-    @Override
-    public int getItemCount() {
-        return getItems().size();
-    }
+//    @Override
+//    public int getItemCount() {
+//        return getItems().size();
+//    }
 
     @Override
     public int getItemViewType(int position) {
@@ -172,10 +182,50 @@ public class ApplistAdapter
         return super.getItemViewType(position);
     }
 
+    public void update() {
+        if (!isDirty) {
+            return;
+        }
+        List<BaseItem> items = getItems();
+        List<BaseItem> newItems = new ArrayList<>();
+        for (BaseItem i : items) {
+            newItems.add(deepCopy(i));
+        }
+        submitList(newItems);
+    }
+
+    private BaseItem deepCopy(BaseItem item) {
+        BaseItem b = null;
+        if (item instanceof AppItem) {
+            AppItem appItem = (AppItem) item;
+            b = new AppItem(appItem.getId(),
+                            appItem.getPackageName(),
+                            appItem.getClassName(),
+                            appItem.getVersionCode(),
+                            appItem.getName(),
+                            appItem.getCustomName(),
+                            appItem.getBadgeCount());
+        } else if (item instanceof AppShortcutItem) {
+            AppShortcutItem i = (AppShortcutItem) item;
+            b = new AppShortcutItem(i.getId(), i.getName(), i.getCustomName(), i.getPackageName(), i.getShortcutId(), i.getIconPath());
+        } else if (item instanceof ShortcutItem) {
+            ShortcutItem i = (ShortcutItem) item;
+            b = new ShortcutItem(i.getId(), i.getName(), i.getCustomName(), (Intent) i.getIntent().clone(), i.getIconPath());
+        } else if (item instanceof SectionItem) {
+            SectionItem i = (SectionItem) item;
+            b = new SectionItem(i.getId(), i.getName(), i.isRemovable(), i.isCollapsed());
+        }
+        b.setEnabled(item.isEnabled());
+        b.setHighlighted(item.isHighlighted());
+        b.setDraggedOverState(item.getDraggedOverState());
+        return b;
+    }
+
     public void setItems(List<BaseItem> items) {
         mAllItems = items;
         updateCollapsedAndFilteredItems();
-        notifyDataSetChanged();
+        isDirty = true;
+        update();
     }
 
     public boolean moveItem(int fromPosition, int toPosition) {
@@ -236,12 +286,14 @@ public class ApplistAdapter
         }
 
         updateCollapsedAndFilteredItems();
-        notifyItemMoved(fromPosition, toPosition);
+
+        isDirty = true;
+        update();
 
         return true;
     }
 
-    public BaseItem getItem(int position) {
+    public BaseItem getItemAt(int position) {
         return getItems().get(position);
     }
 
@@ -273,30 +325,36 @@ public class ApplistAdapter
 
     public void setEnabled(BaseItem item, boolean enabled) {
         item.setEnabled(enabled);
-        notifyItemChanged(getRealItemPosition(item));
+        isDirty = true;
     }
 
     public void setHighlighted(BaseItem item, boolean highlighted) {
+        Log.d("ZIZI", "HIGH " + item.getId());
         item.setHighlighted(highlighted);
-        notifyItemChanged(getRealItemPosition(item));
+        isDirty = true;
+    }
+
+    public void setDraggedOverState(BaseItem item, BaseItem.DraggedOverState state) {
+        item.setDraggedOverState(state);
+        isDirty = true;
     }
 
     public void setAllStartablesEnabled(boolean enabled) {
         for (BaseItem baseItem : mAllItems) {
             if (baseItem instanceof StartableItem) {
                 baseItem.setEnabled(enabled);
+                isDirty = true;
             }
         }
-        notifyDataSetChanged();
     }
 
     public void setSectionsHighlighted(boolean highlighted) {
         for (BaseItem baseItem : mAllItems) {
             if (baseItem instanceof SectionItem) {
                 baseItem.setHighlighted(highlighted);
+                isDirty = true;
             }
         }
-        notifyDataSetChanged();
     }
 
     private List<BaseItem> getItems() {

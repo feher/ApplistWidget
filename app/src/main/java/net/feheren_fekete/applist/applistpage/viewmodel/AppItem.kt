@@ -4,8 +4,10 @@ package net.feheren_fekete.applist.applistpage.viewmodel
 class AppItem(id: Long,
               val packageName: String,
               val className: String,
+              val versionCode: Long,
               name: String,
-              customName: String) : StartableItem(id, name, customName) {
+              customName: String,
+              val badgeCount: Int) : StartableItem(id, name, customName) {
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is AppItem) {

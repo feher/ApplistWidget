@@ -581,6 +581,15 @@ public class ApplistModel {
                     isSectionChanged = true;
                 }
 
+                // The app was updated (version code has changed).
+                if (startableData instanceof AppData) {
+                    long versionA = ((AppData) startableData).getVersionCode();
+                    long versionB = ((AppData) installedStartable).getVersionCode();
+                    if (versionA != versionB) {
+                        isSectionChanged = true;
+                    }
+                }
+
                 // Keep the custom name.
                 installedStartable.setCustomName(startableData.getCustomName());
 

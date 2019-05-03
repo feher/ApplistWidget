@@ -4,11 +4,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Telephony;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.applistpage.model.AppData;
 
 import java.util.ArrayList;
@@ -27,12 +30,27 @@ public class AppUtils {
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> installedAppInfos = packageManager.queryIntentActivities(intent, 0);
         for (ResolveInfo resolveInfo : installedAppInfos) {
+
+            long versionCode = 0L;
+            try {
+                PackageInfo packageInfo = packageManager.getPackageInfo(resolveInfo.activityInfo.applicationInfo.packageName, 0);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    versionCode = packageInfo.getLongVersionCode();
+                } else {
+                    versionCode = packageInfo.versionCode;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                ApplistLog.getInstance().log(e);
+                continue;
+            }
+
             installedApps.add(new AppData(
                     createAppId(
                             resolveInfo.activityInfo.applicationInfo.packageName,
                             resolveInfo.activityInfo.name),
                     resolveInfo.activityInfo.applicationInfo.packageName,
                     resolveInfo.activityInfo.name,
+                    versionCode,
                     resolveInfo.loadLabel(packageManager).toString(),
                     ""));
         }

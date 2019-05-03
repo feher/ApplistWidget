@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.core.view.MotionEventCompat
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.IconPreloadHelper.Companion.PRELOAD_ICON_SIZE
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
 import net.feheren_fekete.applist.applistpage.viewmodel.AppItem
 import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem
@@ -24,7 +23,6 @@ import java.lang.ref.WeakReference
 class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) : ViewHolderBase(view, R.id.applist_app_item_layout) {
 
     private val settingsUtils: SettingsUtils by inject(SettingsUtils::class.java)
-    private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
 
     private val draggedOverIndicatorLeft: View = view.findViewById(R.id.applist_app_item_dragged_over_indicator_left)
     private val draggedOverIndicatorRight: View = view.findViewById(R.id.applist_app_item_dragged_over_indicator_right)
@@ -40,28 +38,25 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         view.context.resources.getIntArray(R.array.icon_placeholder_colors_light);
     private var nextPlaceholderColor: Int = 0
 
-    private var item: StartableItem? = null
     private val itemListenerRef: WeakReference<ApplistAdapter.ItemListener> = WeakReference(itemListener)
 
     init {
         layout.setOnClickListener {
-            itemListenerRef.get()?.onStartableTapped(item)
+            itemListenerRef.get()?.onStartableTapped(adapterPosition)
         }
         layout.setOnLongClickListener {
-            itemListenerRef.get()?.onStartableLongTapped(item)
+            itemListenerRef.get()?.onStartableLongTapped(adapterPosition)
             true
         }
         layout.setOnTouchListener { v, event ->
             if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                itemListenerRef.get()?.onStartableTouched(item)
+                itemListenerRef.get()?.onStartableTouched(adapterPosition)
             }
             false
         }
     }
 
     fun bind(startableItem: StartableItem) {
-        item = startableItem
-
         // REF: 2017_06_22_22_08_setShadowLayer_not_working
         val appName = if (settingsUtils.isThemeTransparent) {
             appNameWithShadow.visibility = View.VISIBLE
@@ -106,7 +101,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         nextPlaceholderColor = (nextPlaceholderColor + 1) % iconPlaceholderColors.size
 
         if (settingsUtils.showBadge) {
-            val badgeCountValue = badgeStore.getBadgeCount(item.packageName, item.className)
+            val badgeCountValue = item.badgeCount
             if (badgeCountValue > 0) {
                 badgeCount.visibility = View.VISIBLE
                 if (badgeCountValue != BadgeUtils.NOT_NUMBERED_BADGE_COUNT) {

@@ -144,7 +144,7 @@ class LauncherFragment : Fragment() {
 
         EventBus.getDefault().register(this)
         pagerAdapter.registerDataSetObserver(adapterDataObserver)
-        screenshotUtils.scheduleScreenshot(activity, pagerAdapter.getPageData(activePagePosition).id, ScreenshotUtils.DELAY_SHORT)
+        //screenshotUtils.scheduleScreenshot(activity, pagerAdapter.getPageData(activePagePosition).id, ScreenshotUtils.DELAY_SHORT)
     }
 
     override fun onPause() {
