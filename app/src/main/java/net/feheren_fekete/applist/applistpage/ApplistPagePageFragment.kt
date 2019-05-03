@@ -309,7 +309,12 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     fun setNameFilter(filterText: String?) {
         adapter.setNameFilter(filterText)
-        recyclerView.scrollToPosition(0)
+
+        // Delay this. The adapter change can confuse and crash the RecyclerView.
+        // It may be caused by DiffUtil (ApplistItemDiffer) doing work on a background thread.
+        handler.postDelayed({
+            recyclerView.scrollToPosition(0)
+        }, 1000)
     }
 
     fun isItemMenuOpen() = itemMenu != null
