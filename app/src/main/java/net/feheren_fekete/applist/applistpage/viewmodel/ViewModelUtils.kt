@@ -1,15 +1,19 @@
 package net.feheren_fekete.applist.applistpage.viewmodel
 
-import net.feheren_fekete.applist.applistpage.model.*
+import net.feheren_fekete.applist.applistpage.model.AppData
+import net.feheren_fekete.applist.applistpage.model.AppShortcutData
+import net.feheren_fekete.applist.applistpage.model.ApplistModel
+import net.feheren_fekete.applist.applistpage.model.PageData
+import net.feheren_fekete.applist.applistpage.model.SectionData
+import net.feheren_fekete.applist.applistpage.model.ShortcutData
+import net.feheren_fekete.applist.applistpage.model.StartableData
 
 import java.util.ArrayList
 import java.util.Collections
 
 object ViewModelUtils {
 
-    fun modelToView(applistModel: ApplistModel,
-                    badgeStore: BadgeStore,
-                    pageData: PageData): List<BaseItem> {
+    fun modelToView(applistModel: ApplistModel, pageData: PageData): List<BaseItem> {
         val result = ArrayList<BaseItem>()
         for (sectionData in pageData.sections) {
             result.add(SectionItem(
@@ -23,10 +27,8 @@ object ViewModelUtils {
                             startableData.id,
                             startableData.packageName,
                             startableData.className,
-                            startableData.versionCode,
                             startableData.name,
-                            startableData.customName,
-                            badgeStore.getBadgeCount(startableData.packageName, startableData.className)))
+                            startableData.customName))
                 } else if (startableData is ShortcutData) {
                     result.add(ShortcutItem(
                             startableData.id,
@@ -72,7 +74,6 @@ object ViewModelUtils {
                         item.id,
                         item.packageName,
                         item.className,
-                        item.versionCode,
                         item.name,
                         item.customName))
             } else if (item is ShortcutItem) {

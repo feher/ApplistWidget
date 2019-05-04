@@ -1,0 +1,69 @@
+package net.feheren_fekete.applist.applistpage.viewmodel;
+
+public abstract class BaseItem {
+
+    public static final int NONE = 0;
+    public static final int LEFT = 1;
+    public static final int RIGHT = 2;
+
+    private long mId;
+    private String mName;
+    private boolean mIsEnabled = true;
+    private boolean mIsDraggedOverLeft = false;
+    private boolean mIsDraggedOverRight = false;
+    private boolean mIsHighlighted = false;
+
+    public BaseItem(long id, String name) {
+        mId = id;
+        mName = name;
+    }
+
+    public long getId() {
+        return mId;
+    }
+
+    public boolean isEnabled() {
+        return mIsEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        mIsEnabled = enabled;
+    }
+
+    public boolean isDraggedOverLeft() {
+        return mIsDraggedOverLeft;
+    }
+
+    public boolean isDraggedOverRight() {
+        return mIsDraggedOverRight;
+    }
+
+    public void setDraggedOver(int side) {
+        switch (side) {
+            case LEFT:
+                mIsDraggedOverLeft = true;
+                mIsDraggedOverRight = false;
+                break;
+            case RIGHT:
+                mIsDraggedOverLeft = false;
+                mIsDraggedOverRight = true;
+                break;
+            case NONE:
+                mIsDraggedOverLeft = false;
+                mIsDraggedOverRight = false;
+                break;
+        }
+    }
+
+    public boolean isHighlighted() {
+        return mIsHighlighted;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        mIsHighlighted = highlighted;
+    }
+
+    public String getName() {
+        return mName;
+    }
+}

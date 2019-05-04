@@ -332,18 +332,14 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     fun getItemMenuTarget() = itemMenuTarget!!
 
-    override fun onStartableLongTapped(position: Int) {
+    override fun onStartableLongTapped(startableItem: StartableItem) {
         val c = context ?: return
 
-        val startableItem = adapter.getItemAt(position) as StartableItem
         itemMenuTarget = startableItem
 
         // Change the adapter only after the popup window has been displayed.
         // Otherwise the popup window appears in a jittery way due to simultaneous change in the adapter.
-        handler.postDelayed({
-            adapter.setHighlighted(itemMenuTarget, true)
-            adapter.update()
-        }, 300)
+        handler.postDelayed({ adapter.setHighlighted(itemMenuTarget, true) }, 300)
 
         itemDragGestureRecognizer!!.setDelegateEnabled(false)
 
@@ -393,7 +389,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         menu.setOnDismissListener {
             itemDragGestureRecognizer!!.setDelegateEnabled(true)
             adapter.setHighlighted(itemMenuTarget, false)
-            adapter.update()
             itemMenu = null
         }
         menu.anchorView = startableItemHolder.layout
@@ -403,9 +398,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         itemMenu = menu
     }
 
-    override fun onStartableTapped(position: Int) {
+    override fun onStartableTapped(startableItem: StartableItem) {
         val c = context ?: return
-        val startableItem = adapter.getItemAt(position) as StartableItem
         if (startableItem is AppItem) {
             val launchIntent = Intent(Intent.ACTION_MAIN)
             launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -452,12 +446,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    override fun onStartableTouched(position: Int) {}
+    override fun onStartableTouched(startableItem: StartableItem) {}
 
-    override fun onSectionLongTapped(position: Int) {
+    override fun onSectionLongTapped(sectionItem: SectionItem) {
         val c = context ?: return
-
-        val sectionItem = adapter.getItemAt(position) as SectionItem
 
         itemDragGestureRecognizer!!.setDelegateEnabled(false)
 
@@ -495,11 +487,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         itemMenu = menu
     }
 
-    override fun onSectionTapped(position: Int) {
+    override fun onSectionTapped(sectionItem: SectionItem) {
         if (adapter.isFilteredByName) {
             return
         }
-        val sectionItem = adapter.getItemAt(position) as SectionItem
         val wasSectionCollapsed = sectionItem.isCollapsed
         if (!wasSectionCollapsed) {
             ApplistLog.getInstance().analytics(ApplistLog.COLLAPSE_SECTION, ApplistLog.ITEM_MENU)
@@ -534,7 +525,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    override fun onSectionTouched(position: Int) {}
+    override fun onSectionTouched(sectionItem: SectionItem) {}
 
     private fun createNotificationMenuItem(text: String, icon: Drawable?, remoteViews: RemoteViews?, statusBarNotification: StatusBarNotification): ItemMenuItem {
         var t = text
@@ -834,7 +825,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private fun loadAllItems() {
         val items = mutableListOf<BaseItem>()
         applistModel.withPage(pageItem.id) {
-            items.addAll(ViewModelUtils.modelToView(applistModel, badgeStore, it))
+            items.addAll(ViewModelUtils.modelToView(applistModel, it))
         }
         adapter.setItems(items)
     }

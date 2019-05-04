@@ -70,7 +70,6 @@ public class ApplistModelStorageV1 {
                         jsonApp.getLong(JSON_INSTALLED_APP_ID),
                         jsonApp.getString(JSON_INSTALLED_APP_PACKAGE_NAME),
                         jsonApp.getString(JSON_INSTALLED_APP_CLASS_NAME),
-                        0L,
                         jsonApp.getString(JSON_INSATLLED_APP_NAME),
                         "");
                 installedApps.add(app);
@@ -119,7 +118,6 @@ public class ApplistModelStorageV1 {
                     jsonApp.getLong(JSON_APPS_ID),
                     jsonApp.getString(JSON_APP_PACKAGE_NAME),
                     jsonApp.getString(JSON_APP_CLASS_NAME),
-                    0L,
                     jsonApp.getString(JSON_APP_NAME),
                     "");
             appDatas.add(app);

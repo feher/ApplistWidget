@@ -14,26 +14,28 @@ class SectionItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) :
     private val draggedOverIndicatorRight: View = view.findViewById(R.id.applist_section_item_dragged_over_indicator_right)
     private val sectionName: TextView = view.findViewById<View>(R.id.applist_section_item_section_name) as TextView
 
+    private var item: SectionItem? = null
     private val itemListenerRef: WeakReference<ApplistAdapter.ItemListener> = WeakReference(itemListener)
     private val typedValue = TypedValue()
 
     init {
         layout.setOnLongClickListener {
-            itemListenerRef.get()?.onSectionLongTapped(adapterPosition)
+            itemListenerRef.get()?.onSectionLongTapped(item)
             true
         }
         layout.setOnClickListener {
-            itemListenerRef.get()?.onSectionTapped(adapterPosition)
+            itemListenerRef.get()?.onSectionTapped(item)
         }
         layout.setOnTouchListener { v, event ->
             if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                itemListenerRef.get()?.onSectionTouched(adapterPosition)
+                itemListenerRef.get()?.onSectionTouched(item)
             }
             false
         }
     }
 
     fun bind(sectionItem: SectionItem) {
+        item = sectionItem
 
         sectionName.text = if (sectionItem.isCollapsed)
             sectionItem.name + " ..."

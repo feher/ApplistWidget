@@ -3,7 +3,6 @@ package net.feheren_fekete.applist.applistpage.model
 class AppData(id: Long,
               packageName: String,
               val className: String,
-              val versionCode: Long,
               appName: String,
               customName: String) : StartableData(id, packageName, appName, customName) {
 
