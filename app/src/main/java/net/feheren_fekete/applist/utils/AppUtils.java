@@ -4,10 +4,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.UserHandle;
 import android.provider.Telephony;
+import android.util.Log;
 
 import net.feheren_fekete.applist.applistpage.model.AppData;
 
@@ -21,21 +26,23 @@ public class AppUtils {
     private static final String APPLIST_PREFERENCES = "ApplistPreferences";
     private static final String PREFERENCE_PHONE_APP = "phoneApp";
 
-    public static List<AppData> getInstalledApps(PackageManager packageManager) {
+    public static List<AppData> getInstalledApps(Context context) {
         List<AppData> installedApps = new ArrayList<>();
-        Intent intent = new Intent(Intent.ACTION_MAIN, null);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> installedAppInfos = packageManager.queryIntentActivities(intent, 0);
-        for (ResolveInfo resolveInfo : installedAppInfos) {
+
+        UserHandle userHandle = android.os.Process.myUserHandle();
+        LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        List<LauncherActivityInfo> launcherActivityInfos = launcherApps.getActivityList(null, userHandle);
+        for (LauncherActivityInfo launcherActivityInfo : launcherActivityInfos) {
             installedApps.add(new AppData(
                     createAppId(
-                            resolveInfo.activityInfo.applicationInfo.packageName,
-                            resolveInfo.activityInfo.name),
-                    resolveInfo.activityInfo.applicationInfo.packageName,
-                    resolveInfo.activityInfo.name,
-                    resolveInfo.loadLabel(packageManager).toString(),
+                            launcherActivityInfo.getComponentName().getPackageName(),
+                            launcherActivityInfo.getComponentName().getClassName()),
+                    launcherActivityInfo.getComponentName().getPackageName(),
+                    launcherActivityInfo.getComponentName().getClassName(),
+                    launcherActivityInfo.getLabel().toString(),
                     ""));
         }
+
         return installedApps;
     }
 

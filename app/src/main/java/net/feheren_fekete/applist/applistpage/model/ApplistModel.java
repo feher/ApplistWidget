@@ -29,7 +29,7 @@ public class ApplistModel {
     public static final int INVALID_ID = 0;
 
     private Handler mHandler;
-    private PackageManager mPackageManager;
+    private Context mContext;
     private ApplistModelStorageV1 mApplistModelStorageV1;
     private ApplistModelStorageV2 mApplistModelStorageV2;
     private String mUncategorizedSectionName;
@@ -40,9 +40,9 @@ public class ApplistModel {
     public static final class SectionsChangedEvent {}
     public static final class DataLoadedEvent {}
 
-    public ApplistModel(Context context, PackageManager packageManager) {
+    public ApplistModel(Context context) {
         mHandler = new Handler();
-        mPackageManager = packageManager;
+        mContext = context;
         mApplistModelStorageV1 = new ApplistModelStorageV1(context);
         mApplistModelStorageV2 = new ApplistModelStorageV2(context);
         mUncategorizedSectionName = context.getResources().getString(R.string.uncategorized_group);
@@ -78,7 +78,7 @@ public class ApplistModel {
     }
 
     public void updateInstalledApps() {
-        List<AppData> newInstalledApps = AppUtils.getInstalledApps(mPackageManager);
+        List<AppData> newInstalledApps = AppUtils.getInstalledApps(mContext);
         synchronized (this) {
             List<StartableData> oldInstalledApps = new ArrayList<>();
             List<StartableData> oldInstalledShortcuts = new ArrayList<>();

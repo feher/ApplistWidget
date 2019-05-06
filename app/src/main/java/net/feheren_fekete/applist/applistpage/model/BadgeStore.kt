@@ -1,8 +1,6 @@
 package net.feheren_fekete.applist.applistpage.model
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.util.Log
 
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
@@ -10,11 +8,8 @@ import net.feheren_fekete.applist.utils.AppUtils
 
 import org.greenrobot.eventbus.EventBus
 
-import org.koin.java.KoinJavaComponent.inject
-
-class BadgeStore(context: Context, private val mPackageManager: PackageManager) {
-
-    private val badgeUtils: BadgeUtils by inject(BadgeUtils::class.java)
+class BadgeStore(private val context: Context,
+                 private val badgeUtils: BadgeUtils) {
 
     private val sharedPreferences =
             context.applicationContext.getSharedPreferences(
@@ -68,7 +63,7 @@ class BadgeStore(context: Context, private val mPackageManager: PackageManager) 
     }
 
     fun cleanup() {
-        val installedApps = AppUtils.getInstalledApps(mPackageManager)
+        val installedApps = AppUtils.getInstalledApps(context)
         val items = sharedPreferences.all
         for (fullKey in items.keys) {
             val keyParts = splitFullKey(fullKey)
