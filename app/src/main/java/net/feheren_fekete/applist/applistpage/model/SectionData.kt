@@ -61,10 +61,4 @@ class SectionData(id: Long,
         return name == other.name
     }
 
-    class NameComparator : Comparator<SectionData> {
-        override fun compare(lhs: SectionData, rhs: SectionData): Int {
-            return lhs.name.compareTo(rhs.name)
-        }
-    }
-
 }
