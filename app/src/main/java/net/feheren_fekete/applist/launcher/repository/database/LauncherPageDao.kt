@@ -1,19 +1,19 @@
-package net.feheren_fekete.applist.launcher.model
+package net.feheren_fekete.applist.launcher.repository.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 
 @Dao
-interface PageDao {
+interface LauncherPageDao {
 
-    @Query("SELECT * FROM pagedata ORDER BY position")
-    fun pages() : LiveData<List<PageData>>
+    @Query("SELECT * FROM launcherpagedata ORDER BY position")
+    fun pages() : LiveData<List<LauncherPageData>>
 
-    @Query("SELECT * FROM pagedata ORDER BY position")
-    fun getPages() : List<PageData>
+    @Query("SELECT * FROM launcherpagedata ORDER BY position")
+    fun getPages() : List<LauncherPageData>
 
-    @Query("DELETE FROM pagedata")
+    @Query("DELETE FROM launcherpagedata")
     suspend fun deleteAllPages()
 
     @Transaction
@@ -21,7 +21,7 @@ interface PageDao {
         // Always have one applist page.
         val applistPage = getApplistPageInternal()
         if (applistPage == null) {
-            addPage(PageData.TYPE_APPLIST_PAGE)
+            addPage(LauncherPageData.TYPE_APPLIST_PAGE)
         }
 
         // Always have one main page.
@@ -35,7 +35,7 @@ interface PageDao {
     @Transaction
     suspend fun addPage(type: Int) {
         val position = (getLastPagePositionInternal() ?: 1) + 1
-        addPageInternal(PageData(0, type, false, position))
+        addPageInternal(LauncherPageData(0, type, false, position))
     }
 
     @Transaction
@@ -77,39 +77,39 @@ interface PageDao {
     }
 
     @Transaction
-    suspend fun replacePages(pages: List<PageData>) {
+    suspend fun replacePages(pages: List<LauncherPageData>) {
         deleteAllPages()
         addPagesInternal(pages)
     }
 
     @Insert(onConflict = REPLACE)
-    suspend fun addPageInternal(page: PageData)
+    suspend fun addPageInternal(page: LauncherPageData)
 
     @Insert(onConflict = REPLACE)
-    suspend fun addPagesInternal(pages: List<PageData>)
+    suspend fun addPagesInternal(pages: List<LauncherPageData>)
 
     @Delete
-    suspend fun delPageInternal(page: PageData)
+    suspend fun delPageInternal(page: LauncherPageData)
 
-    @Query("UPDATE pagedata SET position = :position WHERE id = :id")
+    @Query("UPDATE launcherpagedata SET position = :position WHERE id = :id")
     suspend fun setPositionInternal(id: Long, position: Int)
 
-    @Query("UPDATE pagedata SET isMainPage = :isMainPage WHERE id = :id")
+    @Query("UPDATE launcherpagedata SET isMainPage = :isMainPage WHERE id = :id")
     suspend fun setMainPageInternal(id: Long, isMainPage: Boolean)
 
-    @Query("SELECT * from pagedata WHERE isMainPage = 1 ORDER BY position LIMIT 1")
-    suspend fun getMainPageInternal(): PageData?
+    @Query("SELECT * from launcherpagedata WHERE isMainPage = 1 ORDER BY position LIMIT 1")
+    suspend fun getMainPageInternal(): LauncherPageData?
 
-    @Query("SELECT * from pagedata WHERE type = ${PageData.TYPE_APPLIST_PAGE} ORDER BY position LIMIT 1")
-    suspend fun getApplistPageInternal(): PageData?
+    @Query("SELECT * from launcherpagedata WHERE type = ${LauncherPageData.TYPE_APPLIST_PAGE} ORDER BY position LIMIT 1")
+    suspend fun getApplistPageInternal(): LauncherPageData?
 
-    @Query("SELECT * from pagedata WHERE isMainPage = 0 ORDER BY position LIMIT 1")
-    suspend fun getNotMainPageInternal(): PageData?
+    @Query("SELECT * from launcherpagedata WHERE isMainPage = 0 ORDER BY position LIMIT 1")
+    suspend fun getNotMainPageInternal(): LauncherPageData?
 
-    @Query("SELECT * FROM pagedata WHERE id = :id")
-    suspend fun getPage(id: Long): PageData?
+    @Query("SELECT * FROM launcherpagedata WHERE id = :id")
+    suspend fun getPage(id: Long): LauncherPageData?
 
-    @Query("SELECT position FROM pagedata ORDER BY position DESC LIMIT 1")
+    @Query("SELECT position FROM launcherpagedata ORDER BY position DESC LIMIT 1")
     suspend fun getLastPagePositionInternal(): Int?
 
 }

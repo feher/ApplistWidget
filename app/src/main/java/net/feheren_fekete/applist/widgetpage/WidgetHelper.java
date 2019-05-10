@@ -18,13 +18,11 @@ import android.widget.Toast;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
-import net.feheren_fekete.applist.applistpage.ShortcutHelper;
-import net.feheren_fekete.applist.launcher.model.PageData;
+import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerActivity;
-import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerData;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -97,7 +95,7 @@ public class WidgetHelper {
     }
 
     public boolean handlePagePicked(Context context,
-                                    PageData pageData,
+                                    LauncherPageData pageData,
                                     Bundle pickRequestData) {
         final int requestCode = pickRequestData.getInt(PAGE_PICK_REQUEST_KEY);
         if (requestCode == PICK_PAGE_FOR_PINNING_WIDGET_REQUEST) {
@@ -108,11 +106,11 @@ public class WidgetHelper {
         return false;
     }
 
-    private boolean pinWidgetToPage(PageData pageData) {
+    private boolean pinWidgetToPage(LauncherPageData pageData) {
         boolean handled = false;
         Activity activity = mActivityRef.get();
         if (activity != null) {
-            if (pageData.getType() == PageData.TYPE_WIDGET_PAGE) {
+            if (pageData.getType() == LauncherPageData.TYPE_WIDGET_PAGE) {
                 bindWidget(activity, mAppWidgetHost, pageData.getId(), mPinnedAppWidgetProviderInfo.provider);
                 handled = true;
             } else {
@@ -123,10 +121,10 @@ public class WidgetHelper {
     }
 
     private boolean moveWidgetToPage(Context context,
-                                    final PageData pageData,
+                                    final LauncherPageData pageData,
                                     Bundle pagePickRequestData) {
         boolean handled = false;
-        if (pageData.getType() == PageData.TYPE_WIDGET_PAGE) {
+        if (pageData.getType() == LauncherPageData.TYPE_WIDGET_PAGE) {
             final WidgetData widgetData = pagePickRequestData.getParcelable(WIDGET_DATA_KEY);
             if (widgetData.getPageId() != pageData.getId()) {
                 widgetData.setPageId(pageData.getId());

@@ -3,7 +3,7 @@ package net.feheren_fekete.applist.launcher;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment;
-import net.feheren_fekete.applist.launcher.model.PageData;
+import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData;
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment;
 
 import java.lang.ref.WeakReference;
@@ -20,29 +20,29 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 
-    private List<PageData> mPages = Collections.emptyList();
+    private List<LauncherPageData> mPages = Collections.emptyList();
     private Map<Integer, WeakReference<Fragment>> mPageFragments = new ArrayMap<>();
 
     public LauncherPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
-    public void setPages(List<PageData> pages) {
+    public void setPages(List<LauncherPageData> pages) {
         mPages = pages;
         notifyDataSetChanged();
     }
 
-    public List<PageData> getPages() {
+    public List<LauncherPageData> getPages() {
         return mPages;
     }
 
-    public PageData getPageData(int position) {
+    public LauncherPageData getPageData(int position) {
         return mPages.get(position);
     }
 
     public int getMainPagePosition() {
         for (int i = 0; i < mPages.size(); ++i) {
-            PageData pageData = mPages.get(i);
+            LauncherPageData pageData = mPages.get(i);
             if (pageData.isMainPage()) {
                 return i;
             }
@@ -52,7 +52,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
 
     public int getPagePosition(long pageId) {
         for (int i = 0; i < mPages.size(); ++i) {
-            PageData pageData = mPages.get(i);
+            LauncherPageData pageData = mPages.get(i);
             if (pageData.getId() == pageId) {
                 return i;
             }
@@ -68,8 +68,8 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Fragment fragment;
-        PageData pageData = mPages.get(position);
-        if (pageData.getType() == PageData.TYPE_APPLIST_PAGE) {
+        LauncherPageData pageData = mPages.get(position);
+        if (pageData.getType() == LauncherPageData.TYPE_APPLIST_PAGE) {
             fragment = ApplistPageFragment.Companion.newInstance(pageData.getId());
         } else {
             fragment = WidgetPageFragment.newInstance(pageData.getId());

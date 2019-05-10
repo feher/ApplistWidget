@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.view.View;
 
 import net.feheren_fekete.applist.ApplistLog;
-import net.feheren_fekete.applist.launcher.model.PageData;
+import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import java.io.File;
@@ -51,7 +51,7 @@ public class ScreenshotUtils {
 
     public void cancelScheduledScreenshot() {
         mActivityRef.clear();
-        mPageId = PageData.INVALID_PAGE_ID;
+        mPageId = LauncherPageData.INVALID_PAGE_ID;
         mHandler.removeCallbacks(mScreenshotRunnable);
     }
 
@@ -61,7 +61,7 @@ public class ScreenshotUtils {
 
     private void takeScreenshot(WeakReference<Activity> activityRef, long pageId) {
         Activity activity = activityRef.get();
-        if (activity == null || pageId == PageData.INVALID_PAGE_ID || !mLauncherStateManager.isPageVisible(pageId)) {
+        if (activity == null || pageId == LauncherPageData.INVALID_PAGE_ID || !mLauncherStateManager.isPageVisible(pageId)) {
             return;
         }
 

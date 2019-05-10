@@ -13,7 +13,7 @@ import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.MainActivity
 import net.feheren_fekete.applist.R
-import net.feheren_fekete.applist.launcher.model.PageData
+import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -145,7 +145,7 @@ class LauncherFragment : Fragment() {
         viewPager.setInterceptingTouchEvents(false, null, null)
     }
 
-    private fun initPages(pages: List<PageData>) {
+    private fun initPages(pages: List<LauncherPageData>) {
         pagerAdapter.pages = pages
         viewPager.offscreenPageLimit = pagerAdapter.count - 1
         if (activePagePosition == -1) {

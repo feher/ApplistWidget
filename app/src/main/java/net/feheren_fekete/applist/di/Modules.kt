@@ -15,8 +15,9 @@ import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
 import net.feheren_fekete.applist.launcher.LauncherStateManager
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
-import net.feheren_fekete.applist.launcher.model.ApplistDatabase
-import net.feheren_fekete.applist.launcher.model.LauncherModel
+import net.feheren_fekete.applist.database.ApplistDatabase
+import net.feheren_fekete.applist.database.Migration1to2
+import net.feheren_fekete.applist.launcher.repository.LauncherRepository
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.FileUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
@@ -37,7 +38,9 @@ val applistModule = module {
         Room.databaseBuilder(
                 androidContext(),
                 ApplistDatabase::class.java,
-                "applist-db").build()
+                "applist-db")
+                .addMigrations(Migration1to2())
+                .build()
     }
     single { get<ApplistDatabase>().pageDao() }
     single { ApplistLog() }
@@ -55,7 +58,7 @@ val applistModule = module {
     single { BadgeUtils(androidContext()) }
     single { BadgeStore(androidContext(), get()) }
     single { ApplistModel(androidContext()) }
-    single { LauncherModel(androidContext(), get(), get()) }
+    single { LauncherRepository(androidContext(), get(), get()) }
     single { WidgetModel(androidContext()) }
     single { LauncherStateManager() }
     single { ApplistPreferences(androidContext()) }

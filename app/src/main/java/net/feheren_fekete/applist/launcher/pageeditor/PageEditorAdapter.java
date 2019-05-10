@@ -21,7 +21,7 @@ import com.bumptech.glide.signature.ObjectKey;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
-import net.feheren_fekete.applist.launcher.model.PageData;
+import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.utils.glide.GlideApp;
 
@@ -41,7 +41,7 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
     private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
 
     private Listener mListener;
-    private List<PageData> mPages = Collections.emptyList();
+    private List<LauncherPageData> mPages = Collections.emptyList();
     private @Nullable Drawable mWallpaper;
     private float mPagePreviewSizeMultiplier;
 
@@ -131,12 +131,12 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         notifyDataSetChanged();
     }
 
-    public void setPages(List<PageData> pages) {
+    public void setPages(List<LauncherPageData> pages) {
         mPages = pages;
         notifyDataSetChanged();
     }
 
-    public PageData getItem(int position) {
+    public LauncherPageData getItem(int position) {
         return mPages.get(position);
     }
 
@@ -167,7 +167,7 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
 
     @Override
     public void onBindViewHolder(PageViewHolder holder, int position) {
-        PageData pageData = mPages.get(position);
+        LauncherPageData pageData = mPages.get(position);
 
         if (mShowMainPageIndicator) {
             holder.homeIcon.setVisibility(View.VISIBLE);
@@ -181,7 +181,7 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         }
 
         holder.removeIcon.setVisibility(
-                (pageData.getType() != PageData.TYPE_APPLIST_PAGE) ? View.VISIBLE : View.GONE);
+                (pageData.getType() != LauncherPageData.TYPE_APPLIST_PAGE) ? View.VISIBLE : View.GONE);
 
         String screenshotPath = mScreenshotUtils.createScreenshotPath(holder.screenshot.getContext(), pageData.getId());
         File file = new File(screenshotPath);

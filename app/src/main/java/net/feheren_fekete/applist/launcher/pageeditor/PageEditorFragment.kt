@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.launcher_page_editor_fragment.*
 import kotlinx.android.synthetic.main.launcher_page_editor_fragment.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -26,19 +25,16 @@ import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
 import net.feheren_fekete.applist.launcher.LauncherStateManager
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
-import net.feheren_fekete.applist.launcher.model.LauncherModel
-import net.feheren_fekete.applist.launcher.model.PageData
+import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData
 import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
 
 class PageEditorFragment : Fragment() {
 
     class DoneEvent
-    class PageTappedEvent(val requestData: Bundle, val pageData: PageData)
+    class PageTappedEvent(val requestData: Bundle, val pageData: LauncherPageData)
 
     private val launcherStateManager: LauncherStateManager by inject()
     private val widgetModel: WidgetModel by inject()
@@ -77,8 +73,8 @@ class PageEditorFragment : Fragment() {
     private inner class SimpleItemTouchHelperCallback : ItemTouchHelper.Callback() {
 
         private var itemAction = 0
-        private var draggedPageId = PageData.INVALID_PAGE_ID
-        private var draggedOverPageId = PageData.INVALID_PAGE_ID
+        private var draggedPageId = LauncherPageData.INVALID_PAGE_ID
+        private var draggedOverPageId = LauncherPageData.INVALID_PAGE_ID
 
         override fun isLongPressDragEnabled(): Boolean {
             return false
@@ -127,9 +123,9 @@ class PageEditorFragment : Fragment() {
                 (viewHolder as PageEditorAdapter.PageViewHolder).layout.animate()
                         .scaleX(1.0f).scaleY(1.0f).setDuration(150).start()
 
-                if (draggedPageId != PageData.INVALID_PAGE_ID
-                        && draggedOverPageId != PageData.INVALID_PAGE_ID) {
-                    viewModel.launcherModel.swapPagePositions(draggedPageId, draggedOverPageId)
+                if (draggedPageId != LauncherPageData.INVALID_PAGE_ID
+                        && draggedOverPageId != LauncherPageData.INVALID_PAGE_ID) {
+                    viewModel.launcherRepository.swapPagePositions(draggedPageId, draggedOverPageId)
                 }
             }
         }
@@ -262,11 +258,11 @@ class PageEditorFragment : Fragment() {
     }
 
     private fun addNewPage() {
-        viewModel.launcherModel.addPage(PageData.TYPE_WIDGET_PAGE)
+        viewModel.launcherRepository.addPage(LauncherPageData.TYPE_WIDGET_PAGE)
     }
 
     private fun setMainPage(position: Int) {
-        viewModel.launcherModel.setMainPage(adapter.getItem(position))
+        viewModel.launcherRepository.setMainPage(adapter.getItem(position))
     }
 
     private fun removePage(position: Int) {
@@ -283,7 +279,7 @@ class PageEditorFragment : Fragment() {
                         for (widgetId in deletedWidgetIds) {
                             appWidgetHost.deleteAppWidgetId(widgetId!!)
                         }
-                        viewModel.launcherModel.removePage(pageData)
+                        viewModel.launcherRepository.removePage(pageData)
                         launcherStateManager.clearPageVisible(pageId)
                     }
                 }
