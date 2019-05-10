@@ -101,29 +101,18 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
                     }
                 }
             });
-            removeIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.onRemoveTapped(getAdapterPosition());
-                }
-            });
-            pageNumber.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (mShowMovePageIndicator) {
-                        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                            mListener.onPageMoverTouched(getAdapterPosition(), PageViewHolder.this);
-                        }
+            removeIcon.setOnClickListener(v -> mListener.onRemoveTapped(getAdapterPosition()));
+            pageNumber.setOnTouchListener((v, event) -> {
+                if (mShowMovePageIndicator) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        mListener.onPageMoverTouched(
+                                getAdapterPosition(), PageViewHolder.this);
                     }
-                    return false;
                 }
+                return false;
             });
-            screenshot.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mListener.onPageTapped(getAdapterPosition(), PageViewHolder.this);
-                }
-            });
+            screenshot.setOnClickListener(view -> mListener.onPageTapped(
+                    getAdapterPosition(), PageViewHolder.this));
         }
     }
 
@@ -147,27 +136,8 @@ public class PageEditorAdapter extends RecyclerView.Adapter<PageEditorAdapter.Pa
         notifyDataSetChanged();
     }
 
-    public void addPage(PageData page) {
-        mPages.add(page);
-        notifyItemInserted(mPages.size() - 1);
-    }
-
     public PageData getItem(int position) {
         return mPages.get(position);
-    }
-
-    public int getItemPosition(PageData pageData) {
-        for (int i = 0; i < mPages.size(); ++i) {
-            PageData page = mPages.get(i);
-            if (page.getId() == pageData.getId()) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public List<PageData> getItems() {
-        return mPages;
     }
 
     public boolean moveItem(int fromPosition, int toPosition) {

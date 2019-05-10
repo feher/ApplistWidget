@@ -11,6 +11,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -39,12 +41,12 @@ class PageEditorFragment : Fragment() {
     class PageTappedEvent(val requestData: Bundle, val pageData: PageData)
 
     private val launcherStateManager: LauncherStateManager by inject()
-    private val launcherModel: LauncherModel by inject()
     private val widgetModel: WidgetModel by inject()
     private val appWidgetHost: AppWidgetHost by inject()
     private val screenshotUtils: ScreenshotUtils by inject()
     private val screenUtils: ScreenUtils by inject()
 
+    private lateinit var viewModel: PageEditorViewModel
     private lateinit var adapter: PageEditorAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private var dragScrollThreshold: Int = 0
@@ -74,7 +76,9 @@ class PageEditorFragment : Fragment() {
 
     private inner class SimpleItemTouchHelperCallback : ItemTouchHelper.Callback() {
 
-        private var itemAction: Int = 0
+        private var itemAction = 0
+        private var draggedPageId = PageData.INVALID_PAGE_ID
+        private var draggedOverPageId = PageData.INVALID_PAGE_ID
 
         override fun isLongPressDragEnabled(): Boolean {
             return false
@@ -91,7 +95,7 @@ class PageEditorFragment : Fragment() {
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
             val dragFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT or ItemTouchHelper.UP or ItemTouchHelper.DOWN
             val swipeFlags = 0
-            return ItemTouchHelper.Callback.makeMovementFlags(dragFlags, swipeFlags)
+            return makeMovementFlags(dragFlags, swipeFlags)
         }
 
         override fun onMove(recyclerView: RecyclerView,
@@ -99,8 +103,8 @@ class PageEditorFragment : Fragment() {
                             target: RecyclerView.ViewHolder): Boolean {
             ApplistLog.getInstance().analytics(ApplistLog.MOVE_PAGE, ApplistLog.PAGE_EDITOR)
             val result = adapter.moveItem(viewHolder.adapterPosition, target.adapterPosition)
-            GlobalScope.launch {
-                launcherModel.pages = adapter.items
+            if (result) {
+                draggedOverPageId = adapter.getItem(target.adapterPosition).id
             }
             return result
         }
@@ -112,6 +116,7 @@ class PageEditorFragment : Fragment() {
                     (viewHolder as PageEditorAdapter.PageViewHolder).layout.animate()
                             .scaleX(0.9f).scaleY(0.9f).setDuration(150).start()
                     itemAction = actionState
+                    draggedPageId = adapter.getItem(viewHolder.adapterPosition).id
                 }
             }
         }
@@ -122,9 +127,10 @@ class PageEditorFragment : Fragment() {
                 (viewHolder as PageEditorAdapter.PageViewHolder).layout.animate()
                         .scaleX(1.0f).scaleY(1.0f).setDuration(150).start()
 
-                // This is needed to re-draw (re-bind) all the items in the RecyclerView.
-                // We want to update the page numbers of every item.
-                adapter.notifyDataSetChanged()
+                if (draggedPageId != PageData.INVALID_PAGE_ID
+                        && draggedOverPageId != PageData.INVALID_PAGE_ID) {
+                    viewModel.launcherModel.swapPagePositions(draggedPageId, draggedOverPageId)
+                }
             }
         }
 
@@ -149,6 +155,11 @@ class PageEditorFragment : Fragment() {
         adapter = PageEditorAdapter(pagePreviewSizeMultiplier, pageEditorAdapterListener)
         adapter.showMainPageIndicator(!useAsPagePicker)
         adapter.showMovePageIndicator(!useAsPagePicker)
+
+        viewModel = ViewModelProviders.of(this).get(PageEditorViewModel::class.java)
+        viewModel.launcherPages.observe(this, Observer {
+            adapter.setPages(it)
+        })
 
         requestData = arguments!!.getBundle(FRAGMENT_ARG_REQUEST_DATA)!!
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback())
@@ -212,8 +223,6 @@ class PageEditorFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         screenshotUtils.cancelScheduledScreenshot()
-        EventBus.getDefault().register(this)
-        adapter.setPages(launcherModel.pages)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -224,30 +233,6 @@ class PageEditorFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        EventBus.getDefault().unregister(this)
-    }
-
-    @Suppress("unused", "UNUSED_PARAMETER")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onDataLoadedEvent(event: LauncherModel.DataLoadedEvent) {
-        adapter.setPages(launcherModel.pages)
-    }
-
-    @Suppress("unused", "UNUSED_PARAMETER")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onPagesChangedEvent(event: LauncherModel.PagesChangedEvent) {
-        adapter.setPages(launcherModel.pages)
-    }
-
-    @Suppress("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onPageAddedEvent(event: LauncherModel.PageAddedEvent) {
-        adapter.addPage(event.pageData)
-        recyclerView.smoothScrollToPosition(adapter.getItemPosition(event.pageData))
     }
 
     private fun ensureReadWallpaperPermission() {
@@ -277,15 +262,11 @@ class PageEditorFragment : Fragment() {
     }
 
     private fun addNewPage() {
-        GlobalScope.launch {
-            launcherModel.addPage(PageData(System.currentTimeMillis(), PageData.TYPE_WIDGET_PAGE, false))
-        }
+        viewModel.launcherModel.addPage(PageData.TYPE_WIDGET_PAGE)
     }
 
     private fun setMainPage(position: Int) {
-        GlobalScope.launch {
-            launcherModel.setMainPage(position)
-        }
+        viewModel.launcherModel.setMainPage(adapter.getItem(position))
     }
 
     private fun removePage(position: Int) {
@@ -302,7 +283,7 @@ class PageEditorFragment : Fragment() {
                         for (widgetId in deletedWidgetIds) {
                             appWidgetHost.deleteAppWidgetId(widgetId!!)
                         }
-                        launcherModel.removePage(position)
+                        viewModel.launcherModel.removePage(pageData)
                         launcherStateManager.clearPageVisible(pageId)
                     }
                 }

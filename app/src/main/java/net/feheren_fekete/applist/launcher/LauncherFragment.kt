@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.launcher_fragment.*
 import kotlinx.android.synthetic.main.launcher_fragment.view.*
@@ -12,7 +14,7 @@ import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.MainActivity
 import net.feheren_fekete.applist.R
-import net.feheren_fekete.applist.launcher.model.LauncherModel
+import net.feheren_fekete.applist.launcher.model.PageData
 import net.feheren_fekete.applist.widgetpage.WidgetPageFragment
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -21,12 +23,12 @@ import org.koin.android.ext.android.inject
 
 class LauncherFragment : Fragment() {
 
-    private val launcherModel: LauncherModel by inject()
     private val screenshotUtils: ScreenshotUtils by inject()
     private val launcherStateManager: LauncherStateManager by inject()
     private val applistPreferences: ApplistPreferences by inject()
 
     private val handler = Handler()
+    private lateinit var viewModel: LauncherViewModel
     private lateinit var pagerAdapter: LauncherPagerAdapter
     private var activePagePosition = -1
 
@@ -91,6 +93,10 @@ class LauncherFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pagerAdapter = LauncherPagerAdapter(childFragmentManager)
+        viewModel = ViewModelProviders.of(this).get(LauncherViewModel::class.java)
+        viewModel.launcherPages.observe(this, Observer {
+            initPages(it)
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -118,19 +124,8 @@ class LauncherFragment : Fragment() {
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initPages()
-    }
-
     override fun onResume() {
         super.onResume()
-
-        // We do this check in case we missed some eventbus events while we were NOT in resumed
-        // state.
-        if (havePagesChangedInModel()) {
-            initPages()
-        }
 
         if ((activity as MainActivity).isHomePressed()) {
             handleHomeButtonPress()
@@ -144,7 +139,6 @@ class LauncherFragment : Fragment() {
 
         EventBus.getDefault().register(this)
         pagerAdapter.registerDataSetObserver(adapterDataObserver)
-        screenshotUtils.scheduleScreenshot(activity, pagerAdapter.getPageData(activePagePosition).id, ScreenshotUtils.DELAY_SHORT)
     }
 
     override fun onPause() {
@@ -152,12 +146,6 @@ class LauncherFragment : Fragment() {
         EventBus.getDefault().unregister(this)
         pagerAdapter.unregisterDataSetObserver(adapterDataObserver)
         applistPreferences.lastActiveLauncherPagePosition = activePagePosition
-    }
-
-    @Suppress("unused", "UNUSED_PARAMETER")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onDataLoadedEvent(event: LauncherModel.DataLoadedEvent) {
-        initPages()
     }
 
     @Suppress("unused", "UNUSED_PARAMETER")
@@ -172,29 +160,8 @@ class LauncherFragment : Fragment() {
         viewPager.setInterceptingTouchEvents(false, null, null)
     }
 
-    private fun havePagesChangedInModel(): Boolean {
-        val modelPages = launcherModel.pages
-        val adapterPages = pagerAdapter.pages
-        if (adapterPages.size != modelPages.size) {
-            return true
-        }
-        for (modelPage in modelPages) {
-            var adapterHasPage = false
-            for (adapterPage in adapterPages) {
-                if (adapterPage.id == modelPage.id) {
-                    adapterHasPage = true
-                    break
-                }
-            }
-            if (!adapterHasPage) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun initPages() {
-        pagerAdapter.pages = launcherModel.pages
+    private fun initPages(pages: List<PageData>) {
+        pagerAdapter.pages = pages
         viewPager.offscreenPageLimit = pagerAdapter.count - 1
         if (activePagePosition == -1) {
             activePagePosition = pagerAdapter.mainPagePosition
@@ -204,6 +171,7 @@ class LauncherFragment : Fragment() {
             activePagePosition = 0
         }
         scrollToActivePage(false)
+        screenshotUtils.scheduleScreenshot(activity, pagerAdapter.getPageData(activePagePosition).id, ScreenshotUtils.DELAY_SHORT)
     }
 
     private fun handleHomeButtonPress() {
