@@ -1,6 +1,5 @@
 package net.feheren_fekete.applist.launcher
 
-import android.database.DataSetObserver
 import android.os.Bundle
 import android.os.Handler
 import android.view.*
@@ -31,18 +30,6 @@ class LauncherFragment : Fragment() {
     private lateinit var viewModel: LauncherViewModel
     private lateinit var pagerAdapter: LauncherPagerAdapter
     private var activePagePosition = -1
-
-    private val adapterDataObserver = object : DataSetObserver() {
-        override fun onChanged() {
-            super.onChanged()
-            screenshotUtils.scheduleScreenshot(activity, pagerAdapter.getPageData(activePagePosition).id, ScreenshotUtils.DELAY_SHORT)
-        }
-
-        override fun onInvalidated() {
-            super.onInvalidated()
-            screenshotUtils.scheduleScreenshot(activity, pagerAdapter.getPageData(activePagePosition).id, ScreenshotUtils.DELAY_SHORT)
-        }
-    }
 
     private val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent): Boolean {
@@ -138,13 +125,11 @@ class LauncherFragment : Fragment() {
         }
 
         EventBus.getDefault().register(this)
-        pagerAdapter.registerDataSetObserver(adapterDataObserver)
     }
 
     override fun onPause() {
         super.onPause()
         EventBus.getDefault().unregister(this)
-        pagerAdapter.unregisterDataSetObserver(adapterDataObserver)
         applistPreferences.lastActiveLauncherPagePosition = activePagePosition
     }
 
