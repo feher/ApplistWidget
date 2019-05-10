@@ -146,6 +146,9 @@ class LauncherFragment : Fragment() {
     }
 
     private fun initPages(pages: List<LauncherPageData>) {
+        if (pages.isEmpty()) {
+            return
+        }
         pagerAdapter.pages = pages
         viewPager.offscreenPageLimit = pagerAdapter.count - 1
         if (activePagePosition == -1) {
