@@ -1,7 +1,6 @@
 package net.feheren_fekete.applist.applistpage.model;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Handler;
 
@@ -462,9 +461,9 @@ public class ApplistModel {
         }
     }
 
-    public void updateStartableIcon(String iconPath, Bitmap icon) {
+    public void setCustomStartableIcon(String iconPath, @Nullable Bitmap icon) {
         synchronized (this) {
-            mApplistModelStorageV2.storeStartableIcon(iconPath, icon);
+            mApplistModelStorageV2.setCustomStartableIcon(iconPath, icon);
             EventBus.getDefault().post(new SectionsChangedEvent());
         }
     }
@@ -502,9 +501,17 @@ public class ApplistModel {
         }
     }
 
-    public String getAppIconPath(AppData appData) {
-        return mApplistModelStorageV2.getAppIconFilePath(
+    public String getCustomAppIconPath(AppData appData) {
+        return mApplistModelStorageV2.getCustomAppIconFilePath(
                 appData.getPackageName(), appData.getClassName());
+    }
+
+    public String getCustomShortcutIconPath(ShortcutData shortcutData) {
+        return mApplistModelStorageV2.getCustomShortcutIconFilePath(shortcutData.getId());
+    }
+
+    public String getCustomShortcutIconPath(AppShortcutData appShortcutData) {
+        return mApplistModelStorageV2.getCustomShortcutIconFilePath(appShortcutData.getId());
     }
 
     public String getShortcutIconPath(ShortcutData shortcutData) {

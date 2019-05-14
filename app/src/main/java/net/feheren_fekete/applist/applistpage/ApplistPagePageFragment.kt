@@ -59,7 +59,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     data class ShowIconPickerEvent(
             val appName: String,
-            val iconPath: String)
+            val customIconPath: String)
 
     enum class ItemMenuAction {
         AppInfo,
@@ -927,7 +927,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
         EventBus.getDefault().post(ShowIconPickerEvent(
                 startableItem.getDisplayName(),
-                startableItem.iconPath))
+                startableItem.customIconPath))
     }
 
     private fun renameSection(sectionItem: SectionItem) {

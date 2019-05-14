@@ -3,7 +3,8 @@ package net.feheren_fekete.applist.applistpage.viewmodel
 class AppShortcutItem(id: Long,
                       name: String,
                       customName: String,
+                      customIconPath: String,
                       val packageName: String,
                       val shortcutId: String,
-                      iconPath: String) : StartableItem(id, name, customName, iconPath)
+                      val iconPath: String) : StartableItem(id, name, customName, customIconPath)
 

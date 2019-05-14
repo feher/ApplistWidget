@@ -5,5 +5,6 @@ import android.content.Intent
 class ShortcutItem(id: Long,
                    name: String,
                    customName: String,
+                   customIconPath: String,
                    val intent: Intent,
-                   iconPath: String) : StartableItem(id, name, customName, iconPath)
+                   val iconPath: String) : StartableItem(id, name, customName, customIconPath)

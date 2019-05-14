@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
     @Suppress("UNUSED_PARAMETER", "unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowIconPickerEvent(event: ApplistPagePageFragment.ShowIconPickerEvent) {
-        showIconPackPickerFragment(event.appName, event.iconPath)
+        showIconPackPickerFragment(event.appName, event.customIconPath)
     }
 
     @Suppress("UNUSED_PARAMETER", "unused")
@@ -203,14 +203,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showIconPackPickerFragment(appName: String,
-                                           iconPath: String) {
+                                           customIconPath: String) {
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.main_activity_fragment_container,
                         IconPickerFragment.newInstance(
                                 getString(R.string.iconpack_picker_change_icon),
                                 appName,
-                                iconPath))
+                                customIconPath))
                 .commit()
     }
 

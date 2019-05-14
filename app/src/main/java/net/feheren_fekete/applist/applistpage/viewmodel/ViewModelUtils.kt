@@ -29,12 +29,13 @@ object ViewModelUtils {
                             startableData.className,
                             startableData.name,
                             startableData.customName,
-                            applistModel.getAppIconPath(startableData)))
+                            applistModel.getCustomAppIconPath(startableData)))
                 } else if (startableData is ShortcutData) {
                     result.add(ShortcutItem(
                             startableData.id,
                             startableData.name,
                             startableData.customName,
+                            applistModel.getCustomShortcutIconPath(startableData),
                             startableData.intent,
                             applistModel.getShortcutIconPath(startableData)))
                 } else if (startableData is AppShortcutData) {
@@ -42,6 +43,7 @@ object ViewModelUtils {
                             startableData.id,
                             startableData.name,
                             startableData.customName,
+                            applistModel.getCustomShortcutIconPath(startableData),
                             startableData.packageName,
                             startableData.shortcutId,
                             applistModel.getShortcutIconPath(startableData)))

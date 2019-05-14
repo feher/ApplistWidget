@@ -40,15 +40,15 @@ class IconPickerFragment: Fragment() {
     companion object {
         private const val FRAGMENT_ARG_TITLE = "title"
         private const val FRAGMENT_ARG_APP_NAME = "appName"
-        private const val FRAGMENT_ARG_ICON_PATH = "iconPath"
+        private const val FRAGMENT_ARG_CUSTOM_ICON_PATH = "customIconPath"
 
         fun newInstance(title: String,
                         appName: String,
-                        iconPath: String): IconPickerFragment {
+                        customIconPath: String): IconPickerFragment {
             val args = Bundle()
             args.putString(FRAGMENT_ARG_TITLE, title)
             args.putString(FRAGMENT_ARG_APP_NAME, appName)
-            args.putString(FRAGMENT_ARG_ICON_PATH, iconPath)
+            args.putString(FRAGMENT_ARG_CUSTOM_ICON_PATH, customIconPath)
             val fragment = IconPickerFragment()
             fragment.arguments = args
             return fragment
@@ -108,6 +108,14 @@ class IconPickerFragment: Fragment() {
                 EventBus.getDefault().post(CancelEvent())
                 return true
             }
+            R.id.action_reset_icon -> {
+                resetOriginalIcon()
+                EventBus.getDefault().post(DoneEvent())
+                return true
+            }
+            R.id.action_apply_iconpack -> {
+                TODO()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -148,8 +156,8 @@ class IconPickerFragment: Fragment() {
                 iconsAdapter.iconPackPackageName,
                 iconsAdapter.getItem(position))
 
-        applistModel.updateStartableIcon(
-                arguments!!.getString(FRAGMENT_ARG_ICON_PATH), iconBitmap)
+        applistModel.setCustomStartableIcon(
+                arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH), iconBitmap)
 
         EventBus.getDefault().post(DoneEvent())
     }
@@ -196,7 +204,7 @@ class IconPickerFragment: Fragment() {
     }
 
     private fun clearAppIconPreview(view: View) {
-        val iconFile = File(arguments!!.getString(FRAGMENT_ARG_ICON_PATH))
+        val iconFile = File(arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
         GlideApp.with(this)
                 .load(iconFile)
                 .signature(FileSignature(iconFile))
@@ -204,8 +212,8 @@ class IconPickerFragment: Fragment() {
     }
 
     private fun resetOriginalIcon() {
-//        applistModel.removeCustomStartableIcon(
-//                arguments!!.getString(FRAGMENT_ARG_ICON_PATH), iconBitmap)
+        applistModel.setCustomStartableIcon(
+                arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH), null)
     }
 
 }

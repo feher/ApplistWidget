@@ -6,7 +6,7 @@ class AppItem(id: Long,
               val className: String,
               name: String,
               customName: String,
-              iconPath: String) : StartableItem(id, name, customName, iconPath) {
+              customIconPath: String) : StartableItem(id, name, customName, customIconPath) {
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is AppItem) {

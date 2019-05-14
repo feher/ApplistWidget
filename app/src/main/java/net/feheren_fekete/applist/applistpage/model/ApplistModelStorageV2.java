@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+
 public class ApplistModelStorageV2 {
 
     private static final String JSON_PAGES = "pages";
@@ -50,7 +52,8 @@ public class ApplistModelStorageV2 {
 
     private String mPagesFilePath;
     private String mInstalledStartablesFilePath;
-    private String mAppIconsDirPath;
+    private String mCustomAppIconsDirPath;
+    private String mCustomShortcutIconsDirPath;
     private String mShortcutIconsDirPath;
 
     public ApplistModelStorageV2(Context context, FileUtils fileUtils, ImageUtils imageUtils) {
@@ -58,7 +61,8 @@ public class ApplistModelStorageV2 {
         mImageUtils = imageUtils;
         mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-pages-v2.json";
         mInstalledStartablesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-installed-startables-v2.json";
-        mAppIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "app-icons-v2";
+        mCustomAppIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "custom-app-icons-v2";
+        mCustomShortcutIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "custom-shortcut-icons-v2";
         mShortcutIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "shortcut-icons-v2";
     }
 
@@ -67,16 +71,24 @@ public class ApplistModelStorageV2 {
         return file.exists();
     }
 
-    public String getAppIconFilePath(String packageName, String className) {
-        return mAppIconsDirPath + File.separator + packageName + "::" + className;
+    public String getCustomAppIconFilePath(String packageName, String className) {
+        return mCustomAppIconsDirPath + File.separator + packageName + "::" + className;
+    }
+
+    public String getCustomShortcutIconFilePath(long shortcutId) {
+        return mCustomShortcutIconsDirPath + File.separator + "shortcut-icon-" + shortcutId + ".png";
     }
 
     public String getShortcutIconFilePath(long shortcutId) {
         return mShortcutIconsDirPath + File.separator + "shortcut-icon-" + shortcutId + ".png";
     }
 
-    public void storeStartableIcon(String iconPath, Bitmap shortcutIcon) {
-        mImageUtils.saveBitmap(shortcutIcon, iconPath);
+    public void setCustomStartableIcon(String iconPath, @Nullable Bitmap shortcutIcon) {
+        if (shortcutIcon != null) {
+            mImageUtils.saveBitmap(shortcutIcon, iconPath);
+        } else {
+            (new File(iconPath)).delete();
+        }
     }
 
     public void storeShortcutIcon(long shortcutId, Bitmap shortcutIcon) {

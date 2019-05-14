@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.MotionEventCompat
+import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.IconPreloadHelper.Companion.PRELOAD_ICON_SIZE
 import net.feheren_fekete.applist.applistpage.model.BadgeStore
@@ -20,10 +21,12 @@ import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.koin.java.KoinJavaComponent.inject
 import java.io.File
+import java.lang.IllegalStateException
 import java.lang.ref.WeakReference
 
 class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) : ViewHolderBase(view, R.id.applist_app_item_layout) {
 
+    private val applistLog: ApplistLog by inject(ApplistLog::class.java)
     private val settingsUtils: SettingsUtils by inject(SettingsUtils::class.java)
     private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
 
@@ -98,26 +101,12 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
     }
 
     private fun bindAppItemHolder(item: AppItem) {
-        val iconFile = File(item.iconPath)
+        val iconFile = File(item.customIconPath)
         if (iconFile.exists()) {
-            GlideApp.with(appIcon.context)
-                    .load(iconFile)
-                    .signature(FileSignature(iconFile))
-                    .placeholder(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
-                    .error(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
-                    .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)
-                    .into(appIcon)
-
+            loadAppIcon(iconFile)
         } else {
-            GlideApp.with(appIcon.context)
-                    .load(ComponentName(item.packageName, item.className))
-                    .placeholder(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
-                    .error(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
-                    .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)
-                    .into(appIcon)
-
+            loadAppIcon(ComponentName(item.packageName, item.className))
         }
-        nextPlaceholderColor = (nextPlaceholderColor + 1) % iconPlaceholderColors.size
 
         if (settingsUtils.showBadge) {
             val badgeCountValue = badgeStore.getBadgeCount(item.packageName, item.className)
@@ -139,7 +128,23 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
     }
 
     private fun bindShortcutItemHolder(item: StartableItem) {
-        val iconFile = File(item.iconPath)
+        val iconFile = File(item.customIconPath)
+        if (iconFile.exists()) {
+            loadAppIcon(iconFile)
+        } else if (item is AppShortcutItem) {
+            loadAppIcon(File(item.iconPath))
+        } else if (item is ShortcutItem) {
+            loadAppIcon(File(item.iconPath))
+        } else {
+            appIcon.setImageBitmap(null)
+            applistLog.log(IllegalStateException())
+        }
+
+        badgeCount.visibility = View.GONE
+        shortcutIndicator.visibility = View.VISIBLE
+    }
+
+    private fun loadAppIcon(iconFile: File) {
         GlideApp.with(appIcon.context)
                 .load(iconFile)
                 .signature(FileSignature(iconFile))
@@ -148,9 +153,16 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
                 .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)
                 .into(appIcon)
         nextPlaceholderColor = (nextPlaceholderColor + 1) % iconPlaceholderColors.size
+    }
 
-        badgeCount.visibility = View.GONE
-        shortcutIndicator.visibility = View.VISIBLE
+    private fun loadAppIcon(componentName: ComponentName) {
+        GlideApp.with(appIcon.context)
+                .load(componentName)
+                .placeholder(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
+                .error(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
+                .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)
+                .into(appIcon)
+        nextPlaceholderColor = (nextPlaceholderColor + 1) % iconPlaceholderColors.size
     }
 
 }
