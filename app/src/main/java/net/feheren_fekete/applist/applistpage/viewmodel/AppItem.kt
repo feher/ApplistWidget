@@ -5,12 +5,18 @@ class AppItem(id: Long,
               val packageName: String,
               val className: String,
               name: String,
-              customName: String) : StartableItem(id, name, customName) {
+              customName: String,
+              iconPath: String) : StartableItem(id, name, customName, iconPath) {
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is AppItem) {
             return false
         }
-        return packageName == other.packageName && className == other.className
+        return id == other.id
     }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
 }

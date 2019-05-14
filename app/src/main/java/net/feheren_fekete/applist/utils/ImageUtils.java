@@ -20,11 +20,11 @@ public class ImageUtils {
 
     private static final String TAG = ImageUtils.class.getSimpleName();
 
-    public static Bitmap shortcutPlaceholder() {
+    public Bitmap shortcutPlaceholder() {
         return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
     }
 
-    public static Bitmap drawableToBitmap(Drawable drawable) {
+    public Bitmap drawableToBitmap(Drawable drawable) {
         Bitmap bitmap = null;
 
         if (drawable instanceof BitmapDrawable) {
@@ -50,7 +50,7 @@ public class ImageUtils {
         return bitmap;
     }
 
-    public static void saveBitmap(Bitmap bitmap, String filePath) {
+    public void saveBitmap(Bitmap bitmap, String filePath) {
         OutputStream outStream = null;
 
         File file = new File(filePath);
@@ -86,7 +86,7 @@ public class ImageUtils {
     }
 
     @Nullable
-    public static Bitmap loadBitmap(String filePath) {
+    public Bitmap loadBitmap(String filePath) {
         return BitmapFactory.decodeFile(filePath);
     }
 

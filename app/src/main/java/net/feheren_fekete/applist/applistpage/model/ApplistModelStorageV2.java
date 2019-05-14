@@ -3,6 +3,7 @@ package net.feheren_fekete.applist.applistpage.model;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.Image;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.utils.FileUtils;
@@ -44,15 +45,20 @@ public class ApplistModelStorageV2 {
     private static final String JSON_SHORTCUT_INTENT = "intent";
     private static final String JSON_APP_SHORTCUT_ID = "shortcut-id";
 
-    private FileUtils mFileUtils = new FileUtils();
+    private FileUtils mFileUtils;
+    private ImageUtils mImageUtils;
 
     private String mPagesFilePath;
     private String mInstalledStartablesFilePath;
+    private String mAppIconsDirPath;
     private String mShortcutIconsDirPath;
 
-    public ApplistModelStorageV2(Context context) {
+    public ApplistModelStorageV2(Context context, FileUtils fileUtils, ImageUtils imageUtils) {
+        mFileUtils = fileUtils;
+        mImageUtils = imageUtils;
         mPagesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-pages-v2.json";
         mInstalledStartablesFilePath = context.getFilesDir().getAbsolutePath() + File.separator + "applist-installed-startables-v2.json";
+        mAppIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "app-icons-v2";
         mShortcutIconsDirPath = context.getFilesDir().getAbsolutePath() + File.separator + "shortcut-icons-v2";
     }
 
@@ -61,14 +67,22 @@ public class ApplistModelStorageV2 {
         return file.exists();
     }
 
+    public String getAppIconFilePath(String packageName, String className) {
+        return mAppIconsDirPath + File.separator + packageName + "::" + className;
+    }
+
     public String getShortcutIconFilePath(long shortcutId) {
         return mShortcutIconsDirPath + File.separator + "shortcut-icon-" + shortcutId + ".png";
     }
 
-    public void storeShortcutIcon(StartableData startableData, Bitmap shortcutIcon) {
-        ImageUtils.saveBitmap(
+    public void storeStartableIcon(String iconPath, Bitmap shortcutIcon) {
+        mImageUtils.saveBitmap(shortcutIcon, iconPath);
+    }
+
+    public void storeShortcutIcon(long shortcutId, Bitmap shortcutIcon) {
+        mImageUtils.saveBitmap(
                 shortcutIcon,
-                getShortcutIconFilePath(startableData.getId()));
+                getShortcutIconFilePath(shortcutId));
     }
 
     public void deleteShortcutIcon(long shortcutId) {

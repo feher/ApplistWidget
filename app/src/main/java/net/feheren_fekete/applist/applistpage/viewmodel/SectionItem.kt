@@ -10,6 +10,11 @@ class SectionItem(id: Long,
         if (other == null || other !is SectionItem) {
             return false
         }
-        return name == other.name
+        return id == other.id
     }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
 }

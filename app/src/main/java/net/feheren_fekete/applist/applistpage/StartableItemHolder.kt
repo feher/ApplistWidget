@@ -16,6 +16,7 @@ import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem
 import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem
 import net.feheren_fekete.applist.settings.SettingsUtils
+import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.koin.java.KoinJavaComponent.inject
 import java.io.File
@@ -97,12 +98,25 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
     }
 
     private fun bindAppItemHolder(item: AppItem) {
-        GlideApp.with(appIcon.context)
-                .load(ComponentName(item.packageName, item.className))
-                .placeholder(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
-                .error(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
-                .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)
-                .into(appIcon)
+        val iconFile = File(item.iconPath)
+        if (iconFile.exists()) {
+            GlideApp.with(appIcon.context)
+                    .load(iconFile)
+                    .signature(FileSignature(iconFile))
+                    .placeholder(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
+                    .error(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
+                    .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)
+                    .into(appIcon)
+
+        } else {
+            GlideApp.with(appIcon.context)
+                    .load(ComponentName(item.packageName, item.className))
+                    .placeholder(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
+                    .error(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
+                    .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)
+                    .into(appIcon)
+
+        }
         nextPlaceholderColor = (nextPlaceholderColor + 1) % iconPlaceholderColors.size
 
         if (settingsUtils.showBadge) {
@@ -125,14 +139,10 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
     }
 
     private fun bindShortcutItemHolder(item: StartableItem) {
-        val iconFile = if (item is ShortcutItem) {
-            File(item.iconPath)
-        } else {
-            val appShortcutItem = item as AppShortcutItem
-            File(appShortcutItem.iconPath)
-        }
+        val iconFile = File(item.iconPath)
         GlideApp.with(appIcon.context)
                 .load(iconFile)
+                .signature(FileSignature(iconFile))
                 .placeholder(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
                 .error(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
                 .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)

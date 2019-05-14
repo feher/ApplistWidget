@@ -7,6 +7,8 @@ import android.os.Handler;
 
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.utils.AppUtils;
+import net.feheren_fekete.applist.utils.FileUtils;
+import net.feheren_fekete.applist.utils.ImageUtils;
 import net.feheren_fekete.applist.utils.RunnableWithArg;
 
 import org.greenrobot.eventbus.EventBus;
@@ -40,11 +42,11 @@ public class ApplistModel {
     public static final class SectionsChangedEvent {}
     public static final class DataLoadedEvent {}
 
-    public ApplistModel(Context context) {
+    public ApplistModel(Context context, FileUtils fileUtils, ImageUtils imageUtils) {
         mHandler = new Handler();
         mContext = context;
         mApplistModelStorageV1 = new ApplistModelStorageV1(context);
-        mApplistModelStorageV2 = new ApplistModelStorageV2(context);
+        mApplistModelStorageV2 = new ApplistModelStorageV2(context, fileUtils, imageUtils);
         mUncategorizedSectionName = context.getResources().getString(R.string.uncategorized_group);
         mInstalledStartables = new ArrayList<>();
         mPages = new ArrayList<>();
@@ -460,9 +462,16 @@ public class ApplistModel {
         }
     }
 
+    public void updateStartableIcon(String iconPath, Bitmap icon) {
+        synchronized (this) {
+            mApplistModelStorageV2.storeStartableIcon(iconPath, icon);
+            EventBus.getDefault().post(new SectionsChangedEvent());
+        }
+    }
+
     public void addInstalledShortcut(StartableData startableData, Bitmap shortcutIcon) {
         synchronized (this) {
-            mApplistModelStorageV2.storeShortcutIcon(startableData, shortcutIcon);
+            mApplistModelStorageV2.storeShortcutIcon(startableData.getId(), shortcutIcon);
             mInstalledStartables.add(startableData);
 
             boolean isSectionChanged = updatePages(mPages);
@@ -491,6 +500,11 @@ public class ApplistModel {
 
             scheduleStoreData();
         }
+    }
+
+    public String getAppIconPath(AppData appData) {
+        return mApplistModelStorageV2.getAppIconFilePath(
+                appData.getPackageName(), appData.getClassName());
     }
 
     public String getShortcutIconPath(ShortcutData shortcutData) {

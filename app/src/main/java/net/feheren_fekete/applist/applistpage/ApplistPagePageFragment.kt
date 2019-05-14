@@ -57,9 +57,14 @@ import java.util.*
 
 class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
+    data class ShowIconPickerEvent(
+            val appName: String,
+            val iconPath: String)
+
     enum class ItemMenuAction {
         AppInfo,
         RenameApp,
+        ChangeIcon,
         ClearBadge,
         RemoveShortcut,
         Uninstall,
@@ -137,6 +142,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     ItemMenuAction.RenameApp -> {
                         ApplistLog.getInstance().analytics(ApplistLog.RENAME_APP, ApplistLog.ITEM_MENU)
                         renameApp(itemMenuTarget as StartableItem)
+                    }
+                    ItemMenuAction.ChangeIcon -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.CHANGE_APP_ICON, ApplistLog.ITEM_MENU)
+                        changeAppIcon(itemMenuTarget as StartableItem)
                     }
                     ItemMenuAction.Uninstall -> {
                         ApplistLog.getInstance().analytics(ApplistLog.UNINSTALL_APP, ApplistLog.ITEM_MENU)
@@ -366,6 +375,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 resources.getString(R.string.app_item_menu_information), ItemMenuAction.AppInfo))
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_change_icon), ItemMenuAction.ChangeIcon))
         if (isApp) {
             itemMenuItems.add(createActionMenuItem(
                     resources.getString(R.string.app_item_menu_uninstall), ItemMenuAction.Uninstall))
@@ -908,6 +919,15 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                                 pageItem.id, startableItem.id, newAppName)
                     }
                 })
+    }
+
+    private fun changeAppIcon(startableItem: StartableItem) {
+        if (!isAttached) {
+            return
+        }
+        EventBus.getDefault().post(ShowIconPickerEvent(
+                startableItem.getDisplayName(),
+                startableItem.iconPath))
     }
 
     private fun renameSection(sectionItem: SectionItem) {

@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import net.feheren_fekete.applist.applistpage.ApplistPageFragment
+import net.feheren_fekete.applist.applistpage.ApplistPagePageFragment
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
+import net.feheren_fekete.applist.applistpage.iconpack.IconPickerFragment
 import net.feheren_fekete.applist.launcher.LauncherFragment
 import net.feheren_fekete.applist.launcher.pageeditor.PageEditorFragment
 import net.feheren_fekete.applist.launcher.pagepicker.PagePickerFragment
@@ -96,6 +98,24 @@ class MainActivity : AppCompatActivity() {
 
     @Suppress("UNUSED_PARAMETER", "unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onShowIconPickerEvent(event: ApplistPagePageFragment.ShowIconPickerEvent) {
+        showIconPackPickerFragment(event.appName, event.iconPath)
+    }
+
+    @Suppress("UNUSED_PARAMETER", "unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onIconPickerDoneEvent(event: IconPickerFragment.DoneEvent) {
+        showLauncherFragment(-1)
+    }
+
+    @Suppress("UNUSED_PARAMETER", "unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onIconPickerCancelEvent(event: IconPickerFragment.CancelEvent) {
+        showLauncherFragment(-1)
+    }
+
+    @Suppress("UNUSED_PARAMETER", "unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowPageEditorEvent(event: WidgetPageFragment.ShowPageEditorEvent) {
         showPageEditorFragment()
     }
@@ -179,6 +199,18 @@ class MainActivity : AppCompatActivity() {
                 .beginTransaction()
                 .replace(R.id.main_activity_fragment_container,
                         PagePickerFragment.newInstance(title, message, data))
+                .commit()
+    }
+
+    private fun showIconPackPickerFragment(appName: String,
+                                           iconPath: String) {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_activity_fragment_container,
+                        IconPickerFragment.newInstance(
+                                getString(R.string.iconpack_picker_change_icon),
+                                appName,
+                                iconPath))
                 .commit()
     }
 

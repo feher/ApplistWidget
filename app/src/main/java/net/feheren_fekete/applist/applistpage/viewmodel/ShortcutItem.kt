@@ -6,4 +6,4 @@ class ShortcutItem(id: Long,
                    name: String,
                    customName: String,
                    val intent: Intent,
-                   val iconPath: String) : StartableItem(id, name, customName)
+                   iconPath: String) : StartableItem(id, name, customName, iconPath)

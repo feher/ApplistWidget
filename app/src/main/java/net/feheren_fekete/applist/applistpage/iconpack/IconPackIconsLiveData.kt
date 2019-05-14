@@ -1,23 +1,31 @@
 package net.feheren_fekete.applist.applistpage.iconpack
 
-import android.content.ComponentName
 import android.content.pm.PackageManager
-import androidx.lifecycle.LiveData
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.*
 
-class IconPackIconsLiveData(private val packageManager: PackageManager,
-                            private val iconPackPackageName: String): LiveData<List<ComponentName>>(), KoinComponent {
+class IconPackIconsLiveData(private val iconPackHelper: IconPackHelper,
+                            private val packageManager: PackageManager,
+                            private val iconPackPackageName: String): MutableLiveData<List<String>>() {
 
-    private val iconPackHelper: IconPackHelper by inject()
+    private var job: Job? = null
 
     override fun onActive() {
         super.onActive()
-        value = queryIconPackIcons()
+        queryIconPackIcons(iconPackPackageName)
     }
 
-    private fun queryIconPackIcons(): List<ComponentName> {
-        return iconPackHelper.getSupportedApps(packageManager, iconPackPackageName)
+    override fun onInactive() {
+        super.onInactive()
+        runBlocking {
+            job?.cancelAndJoin()
+        }
+    }
+
+    private fun queryIconPackIcons(iconPackPackageName: String) {
+        job = GlobalScope.launch {
+            iconPackHelper.getIconDrawableNames(packageManager, iconPackPackageName, this@IconPackIconsLiveData, this)
+        }
     }
 
 }

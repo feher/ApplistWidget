@@ -5,5 +5,5 @@ class AppShortcutItem(id: Long,
                       customName: String,
                       val packageName: String,
                       val shortcutId: String,
-                      val iconPath: String) : StartableItem(id, name, customName)
+                      iconPath: String) : StartableItem(id, name, customName, iconPath)
 

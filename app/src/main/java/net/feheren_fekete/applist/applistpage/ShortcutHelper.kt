@@ -24,6 +24,7 @@ import net.feheren_fekete.applist.applistpage.model.ApplistModel
 import net.feheren_fekete.applist.applistpage.model.ShortcutData
 import net.feheren_fekete.applist.utils.ImageUtils
 import org.koin.java.KoinJavaComponent.get
+import org.koin.java.KoinJavaComponent.inject
 
 
 class ShortcutHelper {
@@ -33,6 +34,8 @@ class ShortcutHelper {
     // Crash is caused by creating a Handler in ApplistModel. Inside
     // threads we cannot create handles by "new Handle()".
     private val applistModel= get(ApplistModel::class.java)
+
+    private val imageUtils: ImageUtils by inject(ImageUtils::class.java)
 
     private val installShortcutReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -51,7 +54,7 @@ class ShortcutHelper {
                             resources = packageManager.getResourcesForApplication(shortcutIconResource.packageName)
                             val drawableId = resources!!.getIdentifier(shortcutIconResource.resourceName, null, null)
                             val drawable = resources.getDrawable(drawableId)
-                            shortcutIconBitmap = ImageUtils.drawableToBitmap(drawable)
+                            shortcutIconBitmap = imageUtils.drawableToBitmap(drawable)
                         } catch (e: PackageManager.NameNotFoundException) {
                             ApplistLog.getInstance().log(e)
                         } catch (e: NullPointerException) {
@@ -62,7 +65,7 @@ class ShortcutHelper {
                 }
                 if (shortcutIconBitmap == null) {
                     ApplistLog.getInstance().log(RuntimeException("Missing icon for shortcut: " + shortcutIntent.toUri(0)))
-                    shortcutIconBitmap = ImageUtils.shortcutPlaceholder()
+                    shortcutIconBitmap = imageUtils.shortcutPlaceholder()
                 }
 
                 val packageName = shortcutIntent.getPackage()
@@ -164,9 +167,9 @@ class ShortcutHelper {
 
             val iconDrawable: Drawable? = launcherApps.getShortcutBadgedIconDrawable(shortcutInfo, 0)
             val shortcutIconBitmap = if (iconDrawable != null) {
-                ImageUtils.drawableToBitmap(iconDrawable)
+                imageUtils.drawableToBitmap(iconDrawable)
             } else {
-                ImageUtils.shortcutPlaceholder()
+                imageUtils.shortcutPlaceholder()
             }
 
             val shortcutData = AppShortcutData(

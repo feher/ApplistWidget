@@ -29,4 +29,7 @@
         <item>@color/icon_placeholder_color_dark_5</item>
         <item>@color/icon_placeholder_color_dark_6</item>
     </integer-array>
+
+    <color name="iconpack_picker_selected_item_bg">#ff777777</color>
+    <color name="iconpack_picker_iconpacks_bg">#cc000000</color>
 </resources>

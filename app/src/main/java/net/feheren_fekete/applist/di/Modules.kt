@@ -20,6 +20,7 @@ import net.feheren_fekete.applist.database.Migration1to2
 import net.feheren_fekete.applist.launcher.repository.LauncherRepository
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.FileUtils
+import net.feheren_fekete.applist.utils.ImageUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.utils.WriteSettingsPermissionHelper
 import net.feheren_fekete.applist.widgetpage.MyAppWidgetHost
@@ -44,6 +45,7 @@ val applistModule = module {
     }
     single { get<ApplistDatabase>().pageDao() }
     single { ApplistLog() }
+    single { ImageUtils() }
     single { FileUtils() }
     single { ScreenUtils() }
     single { WidgetUtils() }
@@ -57,7 +59,7 @@ val applistModule = module {
     single { WriteSettingsPermissionHelper(androidContext()) }
     single { BadgeUtils(androidContext()) }
     single { BadgeStore(androidContext(), get()) }
-    single { ApplistModel(androidContext()) }
+    single { ApplistModel(androidContext(), get(), get()) }
     single { LauncherRepository(androidContext(), get(), get()) }
     single { WidgetModel(androidContext()) }
     single { LauncherStateManager() }

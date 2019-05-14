@@ -42,6 +42,7 @@ public class ApplistLog {
     public static String UNINSTALL_APP = "UninstallApp";
     public static String REMOVE_SHORTCUT = "RemoveShortcut";
     public static String RENAME_APP = "RenameApp";
+    public static String CHANGE_APP_ICON = "ChangeAppIcon";
     public static String RENAME_SECTION = "RenameSection";
     public static String DELETE_SECTION = "DeleteSection";
     public static String SORT_SECTION = "SortSection";

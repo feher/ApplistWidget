@@ -25,6 +25,7 @@
     <string name="got_it">GOT IT</string>
 
     <string name="app_item_menu_clear_badge">Clear message indicator</string>
+    <string name="app_item_menu_change_icon">Change icon</string>
     <string name="app_item_menu_rename">Rename</string>
     <string name="app_item_menu_information">Information</string>
     <string name="app_item_menu_uninstall">Uninstall</string>
@@ -83,6 +84,12 @@
     <string name="page_picker_message">Choose a page</string>
     <string name="page_picker_cannot_add_to_page">Cannot add Widgets to this page</string>
     <string name="page_picker_already_on_page">Widget is already on this page</string>
+
+    <string name="iconpack_picker_icon_packs">Icon packs</string>
+    <string name="iconpack_picker_change_icon">Change app icon</string>
+    <string name="iconpack_picker_apply_iconpack">Apply icon pack</string>
+    <string name="iconpack_picker_apply_icon">Use selected</string>
+    <string name="iconpack_picker_search_icon">Search app</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>

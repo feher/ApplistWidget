@@ -28,7 +28,8 @@ object ViewModelUtils {
                             startableData.packageName,
                             startableData.className,
                             startableData.name,
-                            startableData.customName))
+                            startableData.customName,
+                            applistModel.getAppIconPath(startableData)))
                 } else if (startableData is ShortcutData) {
                     result.add(ShortcutItem(
                             startableData.id,

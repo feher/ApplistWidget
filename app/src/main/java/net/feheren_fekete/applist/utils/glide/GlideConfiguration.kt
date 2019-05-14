@@ -34,5 +34,8 @@ class GlideConfiguration : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         registry.append(ComponentName::class.java, ComponentName::class.java, GlideAppIconFactory())
         registry.append(ComponentName::class.java, Drawable::class.java, GlideAppIconDecoder(context))
+
+        registry.append(GlideIconPackIcon::class.java, GlideIconPackIcon::class.java, GlideIconPackIconFactory())
+        registry.append(GlideIconPackIcon::class.java, Drawable::class.java, GlideIconPackIconDecoder(context))
     }
 }
