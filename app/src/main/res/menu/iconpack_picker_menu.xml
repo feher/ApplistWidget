@@ -16,6 +16,11 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/action_reset_all_icons"
+        android:title="@string/iconpack_picker_reset_all_icons"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/action_apply_iconpack"
         android:title="@string/iconpack_picker_apply_iconpack"
         app:showAsAction="never"/>

@@ -112,6 +112,11 @@ class IconPickerFragment: Fragment() {
                 EventBus.getDefault().post(DoneEvent())
                 return true
             }
+            R.id.action_reset_all_icons -> {
+                viewModel.resetAllIcons()
+                EventBus.getDefault().post(DoneEvent())
+                return true
+            }
             R.id.action_apply_iconpack -> {
                 viewModel.applyIconPack(iconsAdapter.iconPackPackageName)
                 EventBus.getDefault().post(DoneEvent())
@@ -183,7 +188,6 @@ class IconPickerFragment: Fragment() {
 
     private fun setAppIconPreview(position: Int) {
         val iconBitmap = iconPackHelper.loadIcon(
-                packageManager,
                 iconsAdapter.iconPackPackageName,
                 iconsAdapter.getItem(position))
         appIcon.setImageBitmap(iconBitmap)

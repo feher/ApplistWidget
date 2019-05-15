@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.model.AppData
 import net.feheren_fekete.applist.applistpage.model.ApplistModel
 import org.koin.core.KoinComponent
@@ -13,6 +14,7 @@ import org.koin.core.inject
 
 class IconPickerViewModel: ViewModel(), KoinComponent {
 
+    private val applistLog: ApplistLog by inject()
     private val applistModel: ApplistModel by inject()
     private val iconPackHelper: IconPackHelper by inject()
     private val packageManager: PackageManager by inject()
@@ -30,11 +32,7 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
     fun setAppIcon(iconPackPackageName: String,
                    iconDrawableName: String,
                    customIconPath: String) {
-        val iconBitmap = iconPackHelper.loadIcon(
-                packageManager,
-                iconPackPackageName,
-                iconDrawableName)
-
+        val iconBitmap = iconPackHelper.loadIcon(iconPackPackageName, iconDrawableName)
         GlobalScope.launch(Dispatchers.IO) {
             applistModel.storeCustomStartableIcon(customIconPath, iconBitmap, true)
         }
@@ -46,19 +44,27 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
                 applistModel.removeAllIcons(false)
                 applistModel.forEachInstalledStartable {
                     if (it is AppData) {
-                        val iconBitmap = iconPackHelper.loadIcon(
-                                packageManager,
-                                iconPackPackageName,
-                                ComponentName(it.packageName, it.className))
-                        if (iconBitmap != null) {
+                        try {
+                            val iconBitmap = iconPackHelper.loadIcon(
+                                    iconPackPackageName,
+                                    ComponentName(it.packageName, it.className),
+                                    48, 48)
                             val iconPath = applistModel.getCustomAppIconPath(it)
                             applistModel.storeCustomStartableIcon(iconPath, iconBitmap, false)
+                        } catch (e: Exception) {
+                            ApplistLog.getInstance().log(e)
                         }
                     }
                 }
             }
             // on app install -> create
             // on shortcut pin -> create
+        }
+    }
+
+    fun resetAllIcons() {
+        GlobalScope.launch(Dispatchers.IO) {
+            applistModel.removeAllIcons(true)
         }
     }
 

@@ -22,12 +22,7 @@ internal class GlideAppIconDecoder(private val context: Context)
 
     override fun decode(source: ComponentName, width: Int, height: Int, options: Options): Resource<Drawable>? {
         return try {
-            val customIcon = loadCustomAppIcon(source)
-            if (customIcon != null) {
-                IconResource(customIcon)
-            } else {
-                IconResource(loadDefaultAppIcon(source))
-            }
+            IconResource(loadDefaultAppIcon(source))
         } catch (e: Exception) {
             ApplistLog.getInstance().log(e)
             null
@@ -57,17 +52,5 @@ internal class GlideAppIconDecoder(private val context: Context)
             context.packageManager.getActivityInfo(componentName, 0)
                     .applicationInfo
                     .loadIcon(context.packageManager)
-
-    private fun loadCustomAppIcon(componentName: ComponentName): Drawable? {
-        val customIconFile = getCustomIconFile(componentName)
-        if (!customIconFile.exists()) {
-            return null
-        }
-        return BitmapDrawable(context.resources, imageUtils.loadBitmap(customIconFile.absolutePath))
-    }
-
-    private fun getCustomIconFile(componentName: ComponentName): File {
-        return File(context.getFilesDir(), "icons/${componentName.packageName}::${componentName.className}")
-    }
 
 }

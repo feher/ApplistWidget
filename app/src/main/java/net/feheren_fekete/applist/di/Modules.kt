@@ -53,7 +53,7 @@ val applistModule = module {
     single { ScreenshotUtils() }
     single { ShortcutHelper() }
     single { WidgetHelper() }
-    single { IconPackHelper() }
+    single { IconPackHelper(androidContext(), get(), get(), get()) }
     single { IconPreloadHelper() }
     single { SettingsUtils(androidContext()) }
     single { WriteSettingsPermissionHelper(androidContext()) }

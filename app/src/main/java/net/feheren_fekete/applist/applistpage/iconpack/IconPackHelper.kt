@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.applistpage.iconpack
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
@@ -9,8 +10,13 @@ import android.graphics.Paint.FILTER_BITMAP_FLAG
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
+import net.feheren_fekete.applist.utils.ImageUtils
+import net.feheren_fekete.applist.utils.ScreenUtils
 
-class IconPackHelper {
+class IconPackHelper(private val context: Context,
+                     private val packageManager: PackageManager,
+                     private val imageUtils: ImageUtils,
+                     private val screenUtils: ScreenUtils) {
 
     private val uniformOptions = BitmapFactory.Options().apply {
         inPreferredConfig = Bitmap.Config.ARGB_8888
@@ -18,8 +24,7 @@ class IconPackHelper {
         inDither = false
     }
 
-    fun getSupportedApps(packageManager: PackageManager,
-                         iconPackPackageName: String): List<ComponentName> {
+    fun getSupportedApps(iconPackPackageName: String): List<ComponentName> {
         val result = mutableListOf<ComponentName>()
         val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
         findInXml(iconPackPackageName, iconPackResources, "appfilter") {
@@ -45,10 +50,9 @@ class IconPackHelper {
         return result
     }
 
-    fun getIconDrawableNames(packageManager: PackageManager,
-                                     iconPackPackageName: String,
-                                     livedata: MutableLiveData<List<String>>,
-                                     scope: CoroutineScope) {
+    fun getIconDrawableNames(iconPackPackageName: String,
+                             livedata: MutableLiveData<List<String>>,
+                             scope: CoroutineScope) {
         val batchSize = 20
         val result = arrayListOf<String>()
         val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
@@ -79,8 +83,7 @@ class IconPackHelper {
         }
     }
 
-    fun loadIcon(packageManager: PackageManager,
-                 iconPackPackageName: String,
+    fun loadIcon(iconPackPackageName: String,
                  componentName: ComponentName): Bitmap? {
         val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
         return getIconDrawableName(iconPackResources, iconPackPackageName, componentName)?.let {
@@ -88,11 +91,27 @@ class IconPackHelper {
         }
     }
 
-    fun loadIcon(packageManager: PackageManager,
-                 iconPackPackageName: String,
+    fun loadIcon(iconPackPackageName: String,
                  drawableName: String): Bitmap? {
         val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
         return loadBitmap(iconPackPackageName, iconPackResources, drawableName)
+    }
+
+    fun loadIcon(iconPackPackageName: String,
+                 componentName: ComponentName,
+                 widthDp: Int,
+                 heightDp: Int): Bitmap {
+        val icon = loadIcon(iconPackPackageName, componentName)
+        if (icon != null) {
+            return icon
+        }
+        val originalIcon = imageUtils.drawableToBitmap(
+                loadOriginalAppIcon(componentName))
+        val width = screenUtils.dpToPx(context, widthDp.toFloat()).toInt()
+        val height = screenUtils.dpToPx(context, heightDp.toFloat()).toInt()
+        val fallbackIcon = createFallbackIcon(
+                packageManager, iconPackPackageName, width, height, originalIcon)
+        return fallbackIcon
     }
 
     fun createFallbackIcon(packageManager: PackageManager,
@@ -243,5 +262,10 @@ class IconPackHelper {
         matrix.postScale(scaleWidth, scaleHeight)
         return matrix
     }
+
+    private fun loadOriginalAppIcon(componentName: ComponentName) =
+            packageManager.getActivityInfo(componentName, 0)
+                    .applicationInfo
+                    .loadIcon(packageManager)
 
 }

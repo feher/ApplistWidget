@@ -20,7 +20,6 @@ internal class GlideIconPackIconDecoder(private val context: Context) : Resource
     override fun decode(source: GlideIconPackIcon, width: Int, height: Int, options: Options): Resource<Drawable>? {
         return try {
             val icon = iconPackHelper.loadIcon(
-                    context.packageManager,
                     source.iconPackPackageName,
                     source.drawableName)
             if (icon != null) {

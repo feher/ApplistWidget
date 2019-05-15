@@ -24,7 +24,7 @@ class IconPackIconsLiveData(private val iconPackHelper: IconPackHelper,
 
     private fun queryIconPackIcons(iconPackPackageName: String) {
         job = GlobalScope.launch {
-            iconPackHelper.getIconDrawableNames(packageManager, iconPackPackageName, this@IconPackIconsLiveData, this)
+            iconPackHelper.getIconDrawableNames(iconPackPackageName, this@IconPackIconsLiveData, this)
         }
     }
 
