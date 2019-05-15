@@ -29,7 +29,6 @@ class IconPickerFragment: Fragment() {
 
     private val packageManager: PackageManager by inject()
     private val iconPackHelper: IconPackHelper by inject()
-    private val applistModel: ApplistModel by inject()
 
     private lateinit var viewModel: IconPickerViewModel
     private lateinit var iconPacksAdapter: IconPacksAdapter
@@ -109,12 +108,14 @@ class IconPickerFragment: Fragment() {
                 return true
             }
             R.id.action_reset_icon -> {
-                resetOriginalIcon()
+                viewModel.resetOriginalIcon(arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
                 EventBus.getDefault().post(DoneEvent())
                 return true
             }
             R.id.action_apply_iconpack -> {
-                TODO()
+                viewModel.applyIconPack(iconsAdapter.iconPackPackageName)
+                EventBus.getDefault().post(DoneEvent())
+                return true
             }
         }
         return super.onOptionsItemSelected(item)
@@ -145,21 +146,6 @@ class IconPickerFragment: Fragment() {
             clearAppIconPreview(view!!)
             hideFab()
         }
-    }
-
-    private fun setAppIcon(position: Int) {
-        if (position == RecyclerView.NO_POSITION) {
-            return
-        }
-        val iconBitmap = iconPackHelper.loadIcon(
-                packageManager,
-                iconsAdapter.iconPackPackageName,
-                iconsAdapter.getItem(position))
-
-        applistModel.storeCustomStartableIcon(
-                arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH), iconBitmap)
-
-        EventBus.getDefault().post(DoneEvent())
     }
 
     private fun showFab() {
@@ -211,9 +197,15 @@ class IconPickerFragment: Fragment() {
                 .into(view.appIcon)
     }
 
-    private fun resetOriginalIcon() {
-        applistModel.deleteCustomStartableIcon(
-                arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
+    private fun setAppIcon(position: Int) {
+        if (position == RecyclerView.NO_POSITION) {
+            return
+        }
+        viewModel.setAppIcon(
+                iconsAdapter.iconPackPackageName,
+                iconsAdapter.getItem(position),
+                arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
+        EventBus.getDefault().post(DoneEvent())
     }
 
 }

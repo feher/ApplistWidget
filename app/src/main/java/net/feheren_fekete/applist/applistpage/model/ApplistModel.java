@@ -139,6 +139,17 @@ public class ApplistModel {
         }
     }
 
+    public void removeAllIcons(boolean notify) {
+        synchronized (this) {
+            for (StartableData startableData : mInstalledStartables) {
+                removeIcons(startableData);
+            }
+            if (notify) {
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
+        }
+    }
+
     private void removeIcons(StartableData startableData) {
         if (startableData instanceof AppData) {
             AppData appData = (AppData) startableData;
@@ -169,6 +180,23 @@ public class ApplistModel {
                 if (page.getId() == pageId) {
                     runnable.run(page);
                 }
+            }
+        }
+    }
+
+    public void forEachInstalledStartable(RunnableWithArg<StartableData> callback) {
+        synchronized (this) {
+            for (StartableData startableData : mInstalledStartables) {
+                callback.run(startableData);
+            }
+        }
+    }
+
+    public void transaction(boolean notify, Runnable runnable) {
+        synchronized (this) {
+            runnable.run();
+            if (notify) {
+                EventBus.getDefault().post(new PagesChangedEvent());
             }
         }
     }
@@ -494,10 +522,12 @@ public class ApplistModel {
         }
     }
 
-    public void storeCustomStartableIcon(String iconPath, Bitmap icon) {
+    public void storeCustomStartableIcon(String iconPath, Bitmap icon, boolean notify) {
         synchronized (this) {
             mApplistModelStorageV2.storeCustomStartableIcon(iconPath, icon);
-            EventBus.getDefault().post(new SectionsChangedEvent());
+            if (notify) {
+                EventBus.getDefault().post(new SectionsChangedEvent());
+            }
         }
     }
 
