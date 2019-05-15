@@ -2,7 +2,7 @@ package net.feheren_fekete.applist.applistpage.iconpack
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.pm.PackageManager
+import android.content.ComponentName
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.iconpack_picker_fragment.*
 import kotlinx.android.synthetic.main.iconpack_picker_fragment.view.*
 import net.feheren_fekete.applist.R
-import net.feheren_fekete.applist.applistpage.model.ApplistModel
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
@@ -27,7 +26,6 @@ class IconPickerFragment: Fragment() {
     class CancelEvent
     class DoneEvent
 
-    private val packageManager: PackageManager by inject()
     private val iconPackHelper: IconPackHelper by inject()
 
     private lateinit var viewModel: IconPickerViewModel
@@ -39,15 +37,26 @@ class IconPickerFragment: Fragment() {
     companion object {
         private const val FRAGMENT_ARG_TITLE = "title"
         private const val FRAGMENT_ARG_APP_NAME = "appName"
+        private const val FRAGMENT_ARG_COMPONENT_NAME = "componentName"
+        private const val FRAGMENT_ARG_ICON_PATH = "iconPath"
         private const val FRAGMENT_ARG_CUSTOM_ICON_PATH = "customIconPath"
 
         fun newInstance(title: String,
                         appName: String,
+                        componentName: ComponentName?,
+                        iconPath: String?,
                         customIconPath: String): IconPickerFragment {
             val args = Bundle()
             args.putString(FRAGMENT_ARG_TITLE, title)
             args.putString(FRAGMENT_ARG_APP_NAME, appName)
+            if (componentName != null) {
+                args.putParcelable(FRAGMENT_ARG_COMPONENT_NAME, componentName)
+            }
+            if (iconPath != null) {
+                args.putString(FRAGMENT_ARG_ICON_PATH, iconPath)
+            }
             args.putString(FRAGMENT_ARG_CUSTOM_ICON_PATH, customIconPath)
+
             val fragment = IconPickerFragment()
             fragment.arguments = args
             return fragment
@@ -194,11 +203,33 @@ class IconPickerFragment: Fragment() {
     }
 
     private fun clearAppIconPreview(view: View) {
-        val iconFile = File(arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
-        GlideApp.with(this)
-                .load(iconFile)
-                .signature(FileSignature(iconFile))
-                .into(view.appIcon)
+        val customIconFile = File(arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
+        if (customIconFile.exists()) {
+            GlideApp.with(this)
+                    .load(customIconFile)
+                    .signature(FileSignature(customIconFile))
+                    .into(view.appIcon)
+            return
+        }
+
+        val iconPath = arguments!!.getString(FRAGMENT_ARG_ICON_PATH)
+        if (iconPath != null) {
+            val iconFile = File(iconPath)
+            if (iconFile.exists()) {
+                GlideApp.with(this)
+                        .load(iconFile)
+                        .signature(FileSignature(iconFile))
+                        .into(view.appIcon)
+                return
+            }
+        }
+
+        val componentName = arguments!!.getParcelable<ComponentName>(FRAGMENT_ARG_COMPONENT_NAME)
+        if (componentName != null) {
+            GlideApp.with(this)
+                    .load(componentName)
+                    .into(view.appIcon)
+        }
     }
 
     private fun setAppIcon(position: Int) {

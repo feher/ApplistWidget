@@ -59,6 +59,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     data class ShowIconPickerEvent(
             val appName: String,
+            val componentName: ComponentName?,
+            val iconPath: String?,
             val customIconPath: String)
 
     enum class ItemMenuAction {
@@ -925,9 +927,25 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (!isAttached) {
             return
         }
-        EventBus.getDefault().post(ShowIconPickerEvent(
-                startableItem.getDisplayName(),
-                startableItem.customIconPath))
+        val event = when (startableItem) {
+            is AppItem -> ShowIconPickerEvent(
+                    startableItem.getDisplayName(),
+                    ComponentName(startableItem.packageName, startableItem.className),
+                    null,
+                    startableItem.customIconPath)
+            is AppShortcutItem -> ShowIconPickerEvent(
+                    startableItem.getDisplayName(),
+                    null,
+                    startableItem.iconPath,
+                    startableItem.customIconPath)
+            is ShortcutItem -> ShowIconPickerEvent(
+                    startableItem.getDisplayName(),
+                    null,
+                    startableItem.iconPath,
+                    startableItem.customIconPath)
+            else -> throw java.lang.IllegalStateException()
+        }
+        EventBus.getDefault().post(event)
     }
 
     private fun renameSection(sectionItem: SectionItem) {

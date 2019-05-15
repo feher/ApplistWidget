@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist
 
 import android.appwidget.AppWidgetHost
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -99,7 +100,9 @@ class MainActivity : AppCompatActivity() {
     @Suppress("UNUSED_PARAMETER", "unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowIconPickerEvent(event: ApplistPagePageFragment.ShowIconPickerEvent) {
-        showIconPackPickerFragment(event.appName, event.customIconPath)
+        showIconPackPickerFragment(
+                event.appName, event.componentName,
+                event.iconPath, event.customIconPath)
     }
 
     @Suppress("UNUSED_PARAMETER", "unused")
@@ -203,6 +206,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showIconPackPickerFragment(appName: String,
+                                           componentName: ComponentName?,
+                                           iconPath: String?,
                                            customIconPath: String) {
         supportFragmentManager
                 .beginTransaction()
@@ -210,6 +215,8 @@ class MainActivity : AppCompatActivity() {
                         IconPickerFragment.newInstance(
                                 getString(R.string.iconpack_picker_change_icon),
                                 appName,
+                                componentName,
+                                iconPath,
                                 customIconPath))
                 .commit()
     }
