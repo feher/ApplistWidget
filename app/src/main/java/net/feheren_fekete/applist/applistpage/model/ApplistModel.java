@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.utils.AppUtils;
 import net.feheren_fekete.applist.utils.FileUtils;
@@ -31,6 +32,7 @@ public class ApplistModel {
 
     private Handler mHandler;
     private Context mContext;
+    private ApplistLog mApplistLog;
     private ApplistModelStorageV1 mApplistModelStorageV1;
     private ApplistModelStorageV2 mApplistModelStorageV2;
     private String mUncategorizedSectionName;
@@ -41,9 +43,13 @@ public class ApplistModel {
     public static final class SectionsChangedEvent {}
     public static final class DataLoadedEvent {}
 
-    public ApplistModel(Context context, FileUtils fileUtils, ImageUtils imageUtils) {
+    public ApplistModel(Context context,
+                        ApplistLog applistLog,
+                        FileUtils fileUtils,
+                        ImageUtils imageUtils) {
         mHandler = new Handler();
         mContext = context;
+        mApplistLog = applistLog;
         mApplistModelStorageV1 = new ApplistModelStorageV1(context);
         mApplistModelStorageV2 = new ApplistModelStorageV2(context, fileUtils, imageUtils);
         mUncategorizedSectionName = context.getResources().getString(R.string.uncategorized_group);
@@ -93,6 +99,15 @@ public class ApplistModel {
                 }
             }
 
+            // Cleanup custom app icons
+            for (StartableData startableData : oldInstalledApps) {
+                AppData appData = (AppData) startableData;
+                final boolean isAppRemoved = !newInstalledApps.contains(appData);
+                if (isAppRemoved) {
+                    removeIcons(appData);
+                }
+            }
+
             // Replace old installed apps with new installed apps.
             mInstalledStartables.removeAll(oldInstalledApps);
             mInstalledStartables.addAll(newInstalledApps);
@@ -109,6 +124,7 @@ public class ApplistModel {
                     }
                 }
                 if (!hasApp) {
+                    removeIcons(startableData);
                     uninstalledShortcuts.add(startableData);
                 }
             }
@@ -120,6 +136,23 @@ public class ApplistModel {
             }
 
             scheduleStoreData();
+        }
+    }
+
+    private void removeIcons(StartableData startableData) {
+        if (startableData instanceof AppData) {
+            AppData appData = (AppData) startableData;
+            mApplistModelStorageV2.deleteCustomStartableIcon(getCustomAppIconPath(appData));
+        } else if (startableData instanceof AppShortcutData) {
+            AppShortcutData appShortcutData = (AppShortcutData) startableData;
+            mApplistModelStorageV2.deleteCustomStartableIcon(getCustomShortcutIconPath(appShortcutData));
+            mApplistModelStorageV2.deleteShortcutIcon(appShortcutData.getId());
+        } else if (startableData instanceof ShortcutData) {
+            ShortcutData shortcutData = (ShortcutData) startableData;
+            mApplistModelStorageV2.deleteCustomStartableIcon(getCustomShortcutIconPath(shortcutData));
+            mApplistModelStorageV2.deleteShortcutIcon(shortcutData.getId());
+        } else {
+            mApplistLog.log(new IllegalStateException());
         }
     }
 
@@ -461,9 +494,16 @@ public class ApplistModel {
         }
     }
 
-    public void setCustomStartableIcon(String iconPath, @Nullable Bitmap icon) {
+    public void storeCustomStartableIcon(String iconPath, Bitmap icon) {
         synchronized (this) {
-            mApplistModelStorageV2.setCustomStartableIcon(iconPath, icon);
+            mApplistModelStorageV2.storeCustomStartableIcon(iconPath, icon);
+            EventBus.getDefault().post(new SectionsChangedEvent());
+        }
+    }
+
+    public void deleteCustomStartableIcon(String iconPath) {
+        synchronized (this) {
+            mApplistModelStorageV2.deleteCustomStartableIcon(iconPath);
             EventBus.getDefault().post(new SectionsChangedEvent());
         }
     }
@@ -487,10 +527,10 @@ public class ApplistModel {
             for (StartableData startableData : mInstalledStartables) {
                 if (startableData.getId() == shortcutId) {
                     mInstalledStartables.remove(startableData);
+                    removeIcons(startableData);
                     break;
                 }
             }
-            mApplistModelStorageV2.deleteShortcutIcon(shortcutId);
 
             boolean isSectionChanged = updatePages(mPages);
             if (isSectionChanged) {

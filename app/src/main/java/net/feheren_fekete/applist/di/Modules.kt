@@ -59,7 +59,7 @@ val applistModule = module {
     single { WriteSettingsPermissionHelper(androidContext()) }
     single { BadgeUtils(androidContext()) }
     single { BadgeStore(androidContext(), get()) }
-    single { ApplistModel(androidContext(), get(), get()) }
+    single { ApplistModel(androidContext(), get(), get(), get()) }
     single { LauncherRepository(androidContext(), get(), get()) }
     single { WidgetModel(androidContext()) }
     single { LauncherStateManager() }

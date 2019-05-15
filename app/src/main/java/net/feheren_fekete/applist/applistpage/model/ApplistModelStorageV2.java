@@ -83,12 +83,12 @@ public class ApplistModelStorageV2 {
         return mShortcutIconsDirPath + File.separator + "shortcut-icon-" + shortcutId + ".png";
     }
 
-    public void setCustomStartableIcon(String iconPath, @Nullable Bitmap shortcutIcon) {
-        if (shortcutIcon != null) {
-            mImageUtils.saveBitmap(shortcutIcon, iconPath);
-        } else {
-            (new File(iconPath)).delete();
-        }
+    public void storeCustomStartableIcon(String iconPath, Bitmap shortcutIcon) {
+        mImageUtils.saveBitmap(shortcutIcon, iconPath);
+    }
+
+    public void deleteCustomStartableIcon(String iconPath) {
+        (new File(iconPath)).delete();
     }
 
     public void storeShortcutIcon(long shortcutId, Bitmap shortcutIcon) {

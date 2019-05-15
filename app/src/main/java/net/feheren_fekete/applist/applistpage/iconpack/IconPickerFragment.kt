@@ -156,7 +156,7 @@ class IconPickerFragment: Fragment() {
                 iconsAdapter.iconPackPackageName,
                 iconsAdapter.getItem(position))
 
-        applistModel.setCustomStartableIcon(
+        applistModel.storeCustomStartableIcon(
                 arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH), iconBitmap)
 
         EventBus.getDefault().post(DoneEvent())
@@ -212,8 +212,8 @@ class IconPickerFragment: Fragment() {
     }
 
     private fun resetOriginalIcon() {
-        applistModel.setCustomStartableIcon(
-                arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH), null)
+        applistModel.deleteCustomStartableIcon(
+                arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
     }
 
 }
