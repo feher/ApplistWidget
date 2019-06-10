@@ -25,7 +25,14 @@ class FileUtils {
     }
 
     fun readFile(filePath: String) = try {
-        File(filePath).inputStream().readBytes().toString(Charsets.UTF_8)
+        val file = File(filePath)
+        if (file.exists()) {
+            file.inputStream().use {
+                it.readBytes().toString(Charsets.UTF_8)
+            }
+        } else {
+            ""
+        }
     } catch (e:Exception) {
         ApplistLog.getInstance().log(e)
         ""
