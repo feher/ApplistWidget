@@ -7,6 +7,10 @@ import java.io.File
 
 class FileUtils {
 
+    /**
+     * @deprecated It was used before Glide. Not needed any more sice we use
+     * Glide for icon caching.
+     */
     fun getIconCacheDirPath(context: Context): String {
         return "${context.cacheDir}${File.separator}IconCache"
     }
