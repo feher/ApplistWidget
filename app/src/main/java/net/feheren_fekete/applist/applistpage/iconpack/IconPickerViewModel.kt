@@ -57,8 +57,8 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
                     }
                 }
             }
-            // on app install -> create
-            // on shortcut pin -> create
+            // TODO: on app install -> create
+            // TODO: on shortcut pin -> create
         }
     }
 
