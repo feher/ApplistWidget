@@ -2,7 +2,7 @@
 
 buildscript {
 
-    ext.kotlin_version = '1.3.21'
+    ext.kotlin_version = '1.3.30'
     ext.koin_version = '2.0.0-GA'
 
     repositories {
