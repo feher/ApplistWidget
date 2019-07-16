@@ -1,5 +1,7 @@
 package net.feheren_fekete.applist.applistpage.model
 
+import java.util.Comparator
+
 class SectionData(id: Long,
                   var name: String,
                   startables: List<StartableData>,
@@ -59,6 +61,12 @@ class SectionData(id: Long,
             return false
         }
         return name == other.name
+    }
+
+    class NameComparator : Comparator<SectionData> {
+        override fun compare(lhs: SectionData, rhs: SectionData): Int {
+            return lhs.name.toLowerCase().compareTo(rhs.name.toLowerCase())
+        }
     }
 
 }

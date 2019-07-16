@@ -1,6 +1,9 @@
 package net.feheren_fekete.applist.applistpage.model;
 
+import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.Nullable;
@@ -109,6 +112,10 @@ public class PageData extends BaseData {
     public void addSection(SectionData section) {
         // Always add to the beginning of the list.
         mSections.add(0, section);
+    }
+
+    public void sortSectionsAlphabetically() {
+        Collections.sort(mSections, new SectionData.NameComparator());
     }
 
     public void removeSection(long sectionId) {

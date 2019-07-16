@@ -1005,9 +1005,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     null
                 },
                 { newSectionName ->
+                    val pageId = pageItem.id
+                    val sectionId = sectionItem.id
                     GlobalScope.launch {
-                        applistModel.setSectionName(
-                                pageItem.id, sectionItem.id, newSectionName)
+                        applistModel.setSectionName(pageId, sectionId, newSectionName)
+                        applistModel.sortSectionsInPage(pageId)
                     }
                 })
     }
@@ -1053,13 +1055,15 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 },
                 { sectionName ->
                     if (!sectionName.isEmpty()) {
+                        val pageId = pageItem.id
                         GlobalScope.launch {
                             val section = applistModel.addNewSection(
-                                    pageItem.id, sectionName, true)
+                                    pageId, sectionName, true)
                             if (section != null && appToMove != null) {
                                 applistModel.moveStartableToSection(
-                                        pageItem.id, section.id, appToMove.id)
+                                        pageId, section.id, appToMove.id)
                             }
+                            applistModel.sortSectionsInPage(pageId)
                         }
                     }
                 })

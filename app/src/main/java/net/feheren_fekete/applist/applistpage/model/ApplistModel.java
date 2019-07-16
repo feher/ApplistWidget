@@ -460,6 +460,17 @@ public class ApplistModel {
         }
     }
 
+    public void sortSectionsInPage(long pageId) {
+        synchronized (this) {
+            PageData page = getPage(pageId);
+            if (page != null) {
+                page.sortSectionsAlphabetically();
+                EventBus.getDefault().post(new SectionsChangedEvent());
+                scheduleStoreData();
+            }
+        }
+    }
+
     public void sortStartables() {
         synchronized (this) {
             for (PageData pageData : mPages) {
