@@ -375,8 +375,16 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 resources.getString(R.string.app_item_menu_move_to_section), ItemMenuAction.MoveAppToSection))
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
-        itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.app_item_menu_change_icon), ItemMenuAction.ChangeIcon))
+        //
+        // Icon pack support is experimental.
+        // Enable it only when it's fully implemented.
+        // TODO:
+        // * Find relevant icons for the selected app from the icon pack.
+        //   Currently we just show a list of all the icons in the icon pack without any ordering.
+        //   This way it's very difficult to find e.g. the "Email" related icons.
+        //
+        //itemMenuItems.add(createActionMenuItem(
+        //        resources.getString(R.string.app_item_menu_change_icon), ItemMenuAction.ChangeIcon))
         if (isApp) {
             itemMenuItems.add(createActionMenuItem(
                     resources.getString(R.string.app_item_menu_uninstall), ItemMenuAction.Uninstall))
