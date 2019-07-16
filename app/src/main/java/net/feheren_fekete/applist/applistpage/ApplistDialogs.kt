@@ -5,9 +5,11 @@ import androidx.appcompat.app.AlertDialog
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.list.listItems
 import net.feheren_fekete.applist.R
 
 object ApplistDialogs {
+
     fun textInputDialog(activity: Activity,
                         textId: Int,
                         defaultInputText: String,
@@ -56,6 +58,18 @@ object ApplistDialogs {
                 .setOnCancelListener { dialog -> onCancel() }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
+    }
+
+    fun listDialog(activity: Activity,
+                   title: String,
+                   items: List<String>,
+                   onSelected: (Int) -> Unit) {
+        MaterialDialog(activity).show {
+            title(text = title)
+            listItems(items = items) { dialog, index, text ->
+                onSelected(index)
+            }
+        }
     }
 
 }

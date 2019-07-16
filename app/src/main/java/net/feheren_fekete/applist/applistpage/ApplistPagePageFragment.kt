@@ -65,6 +65,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     enum class ItemMenuAction {
         AppInfo,
+        MoveAppToSection,
         RenameApp,
         ChangeIcon,
         ClearBadge,
@@ -140,6 +141,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     ItemMenuAction.AppInfo -> {
                         ApplistLog.getInstance().analytics(ApplistLog.SHOW_APP_INFO, ApplistLog.ITEM_MENU)
                         showAppInfo(itemMenuTarget as StartableItem)
+                    }
+                    ItemMenuAction.MoveAppToSection -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.MOVE_APP_TO_SECTION, ApplistLog.ITEM_MENU)
+                        moveApp(itemMenuTarget as AppItem)
                     }
                     ItemMenuAction.RenameApp -> {
                         ApplistLog.getInstance().analytics(ApplistLog.RENAME_APP, ApplistLog.ITEM_MENU)
@@ -375,6 +380,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.app_item_menu_information), ItemMenuAction.AppInfo))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_move_to_section), ItemMenuAction.MoveAppToSection))
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
         itemMenuItems.add(createActionMenuItem(
@@ -898,6 +905,40 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private fun removeShortcut(shortcutItem: StartableItem) {
         GlobalScope.launch {
             applistModel.removeInstalledShortcut(shortcutItem.id)
+        }
+    }
+
+    // REF: 2019_07_16_broken_drag_and_drop
+    // The drag-n-drop code is broken. So, we must provide a dailog
+    // based move operation.
+    private fun moveApp(appItem: AppItem) {
+        if (!isAttached) {
+            return
+        }
+
+        val sections = applistModel.getSections(pageItem.id)
+        val sectionNames = arrayListOf<String>().apply {
+            sections.forEach { section -> add(section.second) }
+        }
+        sectionNames.add(getString(R.string.move_app_to_new_section))
+
+        ApplistDialogs.listDialog(
+                activity!!, getString(R.string.move_app_title), sectionNames) { itemIndex ->
+            val moveToNewSection = (itemIndex == sectionNames.size - 1)
+            if (moveToNewSection) {
+                createSection(appItem)
+            } else {
+                val pageId = pageItem.id
+                val sectionId = sections.get(itemIndex).first
+                val startableId = appItem.id
+                val sort = settingsUtils.isKeepAppsSortedAlphabetically
+                GlobalScope.launch {
+                    applistModel.moveStartableToSection(pageId, sectionId, startableId)
+                    if (sort) {
+                        applistModel.sortStartablesInSection(pageId, sectionId)
+                    }
+                }
+            }
         }
     }
 

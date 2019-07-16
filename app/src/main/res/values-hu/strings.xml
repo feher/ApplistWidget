@@ -91,4 +91,15 @@
     <string name="app_item_menu_rename">Átnevezés</string>
     <string name="startable_name">App neve</string>
     <string name="cannot_pin">Hibás gyorsindító nem létrehozható.</string>
+    <string name="app_item_menu_change_icon">Ikon csere</string>
+    <string name="app_item_menu_move_to_section">Áthelyezés másik csoportba</string>
+    <string name="iconpack_picker_apply_icon">Választott ikon használata</string>
+    <string name="iconpack_picker_change_icon">App ikon cserélye</string>
+    <string name="iconpack_picker_icon_packs">Ikon csomagok</string>
+    <string name="iconpack_picker_reset_all_icons">Eredeti ikonok visszaállítása</string>
+    <string name="iconpack_picker_reset_icon">Eredeti ikon visszaállítása</string>
+    <string name="iconpack_picker_search_icon">App keresése</string>
+    <string name="iconpack_picker_apply_iconpack">Összes ikon használata</string>
+    <string name="move_app_to_new_section">Új csoport...</string>
+    <string name="move_app_title">Válassz csoportot</string>
 </resources>

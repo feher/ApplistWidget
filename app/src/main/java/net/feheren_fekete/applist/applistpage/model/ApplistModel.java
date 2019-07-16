@@ -3,6 +3,7 @@ package net.feheren_fekete.applist.applistpage.model;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.util.Pair;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
@@ -317,16 +318,16 @@ public class ApplistModel {
         }
     }
 
-    public List<String> getSectionNames(long pageId) {
+    public List<Pair<Long, String>> getSections(long pageId) {
         synchronized (this) {
-            List<String> sectionNames = new ArrayList<>();
+            List<Pair<Long, String>> sections = new ArrayList<>();
             PageData page = getPage(pageId);
             if (page != null) {
                 for (SectionData section : page.getSections()) {
-                    sectionNames.add(section.getName());
+                    sections.add(new Pair<>(section.getId(), section.getName()));
                 }
             }
-            return sectionNames;
+            return sections;
         }
     }
 
