@@ -661,8 +661,8 @@ public class ApplistModel {
             isSectionChanged |= updateSection(uncategorizedSection, uncategorizedItems);
             uncategorizedItems.removeAll(uncategorizedSection.getStartables());
             if (!uncategorizedItems.isEmpty()) {
-                Collections.sort(uncategorizedItems, new StartableData.NameComparator());
                 uncategorizedSection.addStartables(0, uncategorizedItems);
+                uncategorizedSection.sortStartablesAlphabetically();
                 isSectionChanged = true;
             }
         }
