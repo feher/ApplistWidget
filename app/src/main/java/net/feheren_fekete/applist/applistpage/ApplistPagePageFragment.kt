@@ -952,9 +952,15 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     null
                 },
                 { newAppName ->
+                    val pageId = pageItem.id
+                    val sort = settingsUtils.isKeepAppsSortedAlphabetically
                     GlobalScope.launch {
                         applistModel.setStartableCustomName(
-                                pageItem.id, startableItem.id, newAppName)
+                                pageId, startableItem.id, newAppName)
+                        if (sort) {
+                            val sectionId = applistModel.getSectionOfStartable(pageId, startableItem.id)
+                            applistModel.sortStartablesInSection(pageId, sectionId)
+                        }
                     }
                 })
     }

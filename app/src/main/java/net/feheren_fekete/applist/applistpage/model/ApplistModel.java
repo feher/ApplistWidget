@@ -286,6 +286,22 @@ public class ApplistModel {
         }
     }
 
+    public long getSectionOfStartable(long pageId, long startableId) {
+        synchronized (this) {
+            for (PageData page : mPages) {
+                if (page.getId() == pageId) {
+                    SectionData sectionData = page.getSectionOfStartable(startableId);
+                    if (sectionData != null) {
+                        return sectionData.getId();
+                    } else {
+                        return -1;
+                    }
+                }
+            }
+            return -1;
+        }
+    }
+
     public void removeSection(long pageId, long sectionId) {
         synchronized (this) {
             for (PageData p : mPages) {
