@@ -250,7 +250,15 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     override fun onResume() {
         super.onResume()
         EventBus.getDefault().register(this)
-        if (applistPreferences.showRearrangeItemsHelp) {
+        if (applistPreferences.showWhatsNew) {
+            AlertDialog.Builder(activity!!)
+                    .setMessage(R.string.whats_new)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.got_it) { _, _ ->
+                        applistPreferences.showWhatsNew = false
+                    }
+                    .show()
+        } else if (applistPreferences.showRearrangeItemsHelp) {
             AlertDialog.Builder(activity!!)
                     .setMessage(R.string.rearrange_items_help)
                     .setCancelable(true)
@@ -258,8 +266,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                         applistPreferences.showRearrangeItemsHelp = false
                     }
                     .show()
-        }
-        if (applistPreferences.showUseLauncherTip) {
+        } else if (applistPreferences.showUseLauncherTip) {
             AlertDialog.Builder(activity!!)
                     .setMessage(R.string.use_launcher_tip)
                     .setCancelable(true)

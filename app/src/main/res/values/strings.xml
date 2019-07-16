@@ -59,6 +59,7 @@
         <item>@string/widget_menu_remove</item>
     </string-array>
 
+    <string name="whats_new" translatable="false">Breaking change!\n\nDue to issues with drag-and-drop, groups and apps will be always <b>sorted alphabetically</b> from now on. You can re-order them by <b>renaming</b>.\nSorry!</string>
     <string name="rearrange_items_help">Long press and Drag to rearrange groups and items</string>
     <string name="use_launcher_tip">Did you know that you can use Apper as your <b>launcher</b>?\n\nGo to your phone Settings and set Apper as your <b>Home screen launcher</b>.</string>
 
