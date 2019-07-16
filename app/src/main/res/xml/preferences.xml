@@ -3,11 +3,13 @@
     <PreferenceCategory
         android:title="@string/settings_appearance"
         android:key="pref_key_appearance">
+        <!-- REF: 2019_07_16_broken_drag_and_drop
         <SwitchPreference
             android:key="pref_key_keep_apps_sorted_alphabetically"
             android:title="@string/settings_keep_apps_sorted_alphabetically"
             android:summary="@string/settings_keep_apps_sorted_alphabetically_summary"
             android:defaultValue="false"/>
+        -->
         <ListPreference
             android:key="pref_key_color_theme"
             android:title="@string/settings_color_theme"

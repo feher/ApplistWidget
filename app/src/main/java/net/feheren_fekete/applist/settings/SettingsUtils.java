@@ -62,7 +62,14 @@ public class SettingsUtils {
     }
 
     public boolean isKeepAppsSortedAlphabetically() {
-        return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY, false);
+        // REF: 2019_07_16_broken_drag_and_drop
+        //
+        // Always keep apps sorted for now.
+        // The current drag and drop implementation is buggy (MyGridViewHolder,
+        // ApplistItemDragHandler, etc).
+        // We need a new implementation.
+        return true;
+        //return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY, false);
     }
 
     public boolean getShowBadge() {
