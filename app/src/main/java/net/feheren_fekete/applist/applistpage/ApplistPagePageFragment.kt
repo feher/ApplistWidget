@@ -87,7 +87,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private val handler = Handler()
     private lateinit var pageItem: PageItem
     private lateinit var adapter: ApplistAdapter
-    private var itemDragGestureRecognizer: DragGestureRecognizer? = null
     private var itemMenu: ListPopupWindow? = null
     private var itemMenuTarget: BaseItem? = null
 
@@ -225,7 +224,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             tempColumnCount = 4
         }
         val columnCount = tempColumnCount
-        val layoutManager = MyGridLayoutManager(context!!, columnCount)
+        val layoutManager = GridLayoutManager(context!!, columnCount)
         layoutManager.isSmoothScrollbarEnabled = true
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
@@ -244,12 +243,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 adapter, columnCount * 2)
 
         loadAllItems()
-
-        val itemDragCallback = ApplistItemDragHandler(
-                context!!, this, view.touchOverlay, view.recyclerView,
-                layoutManager, adapter)
-        itemDragGestureRecognizer = DragGestureRecognizer(
-                itemDragCallback, view.touchOverlay, view.recyclerView)
 
         return view
     }
@@ -357,8 +350,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         // Otherwise the popup window appears in a jittery way due to simultaneous change in the adapter.
         handler.postDelayed({ adapter.setHighlighted(itemMenuTarget, true) }, 300)
 
-        itemDragGestureRecognizer!!.setDelegateEnabled(false)
-
         val isApp = startableItem is AppItem
         val isShortcut = startableItem is ShortcutItem || startableItem is AppShortcutItem
         val itemMenuItems = ArrayList<ItemMenuItem>()
@@ -407,7 +398,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 if (hasNotificationWithRemoteViews) R.dimen.item_menu_width_large else R.dimen.item_menu_width))
         menu.height = ListPopupWindow.WRAP_CONTENT
         menu.setOnDismissListener {
-            itemDragGestureRecognizer!!.setDelegateEnabled(true)
             adapter.setHighlighted(itemMenuTarget, false)
             itemMenu = null
         }
@@ -471,8 +461,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     override fun onSectionLongTapped(sectionItem: SectionItem) {
         val c = context ?: return
 
-        itemDragGestureRecognizer!!.setDelegateEnabled(false)
-
         val itemMenuItems = ArrayList<ItemMenuItem>()
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.section_item_menu_rename), ItemMenuAction.RenameSection))
@@ -497,7 +485,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         menu.setContentWidth(resources.getDimensionPixelSize(R.dimen.item_menu_width))
         menu.height = ListPopupWindow.WRAP_CONTENT
         menu.setOnDismissListener {
-            itemDragGestureRecognizer!!.setDelegateEnabled(true)
             itemMenu = null
         }
         menu.anchorView = sectionItemHolder.layout
