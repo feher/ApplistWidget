@@ -143,7 +143,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     }
                     ItemMenuAction.MoveAppToSection -> {
                         ApplistLog.getInstance().analytics(ApplistLog.MOVE_APP_TO_SECTION, ApplistLog.ITEM_MENU)
-                        moveApp(itemMenuTarget as AppItem)
+                        moveApp(itemMenuTarget as StartableItem)
                     }
                     ItemMenuAction.RenameApp -> {
                         ApplistLog.getInstance().analytics(ApplistLog.RENAME_APP, ApplistLog.ITEM_MENU)
@@ -913,7 +913,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     // REF: 2019_07_16_broken_drag_and_drop
     // The drag-n-drop code is broken. So, we must provide a dailog
     // based move operation.
-    private fun moveApp(appItem: AppItem) {
+    private fun moveApp(startableItem: StartableItem) {
         if (!isAttached) {
             return
         }
@@ -928,11 +928,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 activity!!, getString(R.string.move_app_title), sectionNames) { itemIndex ->
             val moveToNewSection = (itemIndex == sectionNames.size - 1)
             if (moveToNewSection) {
-                createSection(appItem)
+                createSection(startableItem)
             } else {
                 val pageId = pageItem.id
                 val sectionId = sections.get(itemIndex).first
-                val startableId = appItem.id
+                val startableId = startableItem.id
                 val sort = settingsUtils.isKeepAppsSortedAlphabetically
                 GlobalScope.launch {
                     applistModel.moveStartableToSection(pageId, sectionId, startableId)
@@ -1047,7 +1047,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    private fun createSection(appToMove: AppItem?) {
+    private fun createSection(appToMove: StartableItem?) {
         if (!isAttached) {
             return
         }
