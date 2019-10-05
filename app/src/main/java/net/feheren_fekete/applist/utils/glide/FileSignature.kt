@@ -5,7 +5,7 @@ import com.bumptech.glide.signature.ObjectKey
 import java.io.File
 import java.security.MessageDigest
 
-class FileSignature(val file: File): Key {
+class FileSignature(file: File): Key {
 
     private val objectKey = ObjectKey(file.absolutePath +
             ", lastModified=" + file.lastModified())
