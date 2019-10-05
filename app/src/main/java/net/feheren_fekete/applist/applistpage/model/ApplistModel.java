@@ -700,6 +700,16 @@ public class ApplistModel {
                     isSectionChanged = true;
                 }
 
+                // A new version of the app was installed. This may mean a change
+                // in e.g. the app icon.
+                if (startableData instanceof AppData) {
+                    AppData appData = (AppData) startableData;
+                    AppData installedAppData = (AppData) installedStartable;
+                    if (appData.getVersionCode() != installedAppData.getVersionCode()) {
+                        isSectionChanged = true;
+                    }
+                }
+
                 // Keep the custom name.
                 installedStartable.setCustomName(startableData.getCustomName());
 
@@ -710,6 +720,9 @@ public class ApplistModel {
             isSectionChanged = true;
         }
         sectionData.setStartables(availableItemsInSection);
+        if (isSectionChanged) {
+            sectionData.sortStartablesAlphabetically();
+        }
         return isSectionChanged;
     }
 

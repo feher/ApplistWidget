@@ -27,6 +27,7 @@ object ViewModelUtils {
                             startableData.id,
                             startableData.packageName,
                             startableData.className,
+                            startableData.versionCode,
                             startableData.name,
                             startableData.customName,
                             applistModel.getCustomAppIconPath(startableData)))
@@ -77,6 +78,7 @@ object ViewModelUtils {
                         item.id,
                         item.packageName,
                         item.className,
+                        item.versionCode,
                         item.name,
                         item.customName))
             } else if (item is ShortcutItem) {

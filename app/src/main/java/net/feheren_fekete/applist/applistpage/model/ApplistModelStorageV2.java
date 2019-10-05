@@ -44,6 +44,7 @@ public class ApplistModelStorageV2 {
     private static final String JSON_STARTABLE_CUSTOM_NAME = "custom-name";
     private static final String JSON_APP_PACKAGE_NAME = "package-name";
     private static final String JSON_APP_CLASS_NAME = "class-name";
+    private static final String JSON_APP_VERSION_CODE = "version-code";
     private static final String JSON_SHORTCUT_INTENT = "intent";
     private static final String JSON_APP_SHORTCUT_ID = "shortcut-id";
 
@@ -167,6 +168,7 @@ public class ApplistModelStorageV2 {
                     jsonStartable.getLong(JSON_STARTABLE_ID),
                     jsonStartable.getString(JSON_APP_PACKAGE_NAME),
                     jsonStartable.getString(JSON_APP_CLASS_NAME),
+                    jsonStartable.optLong(JSON_APP_VERSION_CODE),
                     jsonStartable.getString(JSON_STARTABLE_NAME),
                     jsonStartable.optString(JSON_STARTABLE_CUSTOM_NAME));
             return appData;
@@ -268,6 +270,7 @@ public class ApplistModelStorageV2 {
                 jsonApp.put(JSON_STARTABLE_CUSTOM_NAME, app.getCustomName());
                 jsonApp.put(JSON_APP_PACKAGE_NAME, app.getPackageName());
                 jsonApp.put(JSON_APP_CLASS_NAME, app.getClassName());
+                jsonApp.put(JSON_APP_VERSION_CODE, app.getVersionCode());
                 jsonStartables.put(jsonApp);
             } else if (startableData instanceof ShortcutData) {
                 ShortcutData shortcut = (ShortcutData) startableData;

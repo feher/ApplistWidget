@@ -29,12 +29,14 @@ public class ApplistModelStorageV1 {
     private static final String JSON_APPS_ID = "id";
     private static final String JSON_APP_PACKAGE_NAME = "package-name";
     private static final String JSON_APP_CLASS_NAME = "component-name";
+    private static final String JSON_APP_VERSION_CODE = "version-code";
     private static final String JSON_APP_NAME = "app-name";
 
     private static final String JSON_INSTALLED_APPS = "installed-apps";
     private static final String JSON_INSTALLED_APP_ID = "id";
     private static final String JSON_INSTALLED_APP_PACKAGE_NAME = "package-name";
     private static final String JSON_INSTALLED_APP_CLASS_NAME = "component-name";
+    private static final String JSON_INSTALLED_APP_VERSION_CODE = "version-code";
     private static final String JSON_INSATLLED_APP_NAME = "app-name";
 
     private FileUtils mFileUtils = new FileUtils();
@@ -70,6 +72,7 @@ public class ApplistModelStorageV1 {
                         jsonApp.getLong(JSON_INSTALLED_APP_ID),
                         jsonApp.getString(JSON_INSTALLED_APP_PACKAGE_NAME),
                         jsonApp.getString(JSON_INSTALLED_APP_CLASS_NAME),
+                        jsonApp.optLong(JSON_INSTALLED_APP_VERSION_CODE),
                         jsonApp.getString(JSON_INSATLLED_APP_NAME),
                         "");
                 installedApps.add(app);
@@ -118,6 +121,7 @@ public class ApplistModelStorageV1 {
                     jsonApp.getLong(JSON_APPS_ID),
                     jsonApp.getString(JSON_APP_PACKAGE_NAME),
                     jsonApp.getString(JSON_APP_CLASS_NAME),
+                    jsonApp.optLong(JSON_APP_VERSION_CODE),
                     jsonApp.getString(JSON_APP_NAME),
                     "");
             appDatas.add(app);

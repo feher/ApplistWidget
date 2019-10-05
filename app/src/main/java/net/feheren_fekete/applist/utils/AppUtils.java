@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -31,14 +32,24 @@ public class AppUtils {
 
         UserHandle userHandle = android.os.Process.myUserHandle();
         LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        PackageManager packageManager = context.getPackageManager();
         List<LauncherActivityInfo> launcherActivityInfos = launcherApps.getActivityList(null, userHandle);
         for (LauncherActivityInfo launcherActivityInfo : launcherActivityInfos) {
+            long versionCode = 0;
+            try {
+                PackageInfo packageInfo = packageManager.getPackageInfo(
+                        launcherActivityInfo.getComponentName().getPackageName(), 0);
+                versionCode = packageInfo.versionCode;
+            } catch (PackageManager.NameNotFoundException e) {
+                continue;
+            }
             installedApps.add(new AppData(
                     createAppId(
                             launcherActivityInfo.getComponentName().getPackageName(),
                             launcherActivityInfo.getComponentName().getClassName()),
                     launcherActivityInfo.getComponentName().getPackageName(),
                     launcherActivityInfo.getComponentName().getClassName(),
+                    versionCode,
                     launcherActivityInfo.getLabel().toString(),
                     ""));
         }

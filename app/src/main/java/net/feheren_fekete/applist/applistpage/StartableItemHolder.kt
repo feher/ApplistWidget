@@ -17,6 +17,7 @@ import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem
 import net.feheren_fekete.applist.applistpage.viewmodel.ShortcutItem
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem
 import net.feheren_fekete.applist.settings.SettingsUtils
+import net.feheren_fekete.applist.utils.glide.AppIconSignature
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.koin.java.KoinJavaComponent.inject
@@ -105,7 +106,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         if (iconFile.exists()) {
             loadAppIcon(iconFile)
         } else {
-            loadAppIcon(ComponentName(item.packageName, item.className))
+            loadAppIcon(item.versionCode, ComponentName(item.packageName, item.className))
         }
 
         if (settingsUtils.showBadge) {
@@ -155,9 +156,10 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         nextPlaceholderColor = (nextPlaceholderColor + 1) % iconPlaceholderColors.size
     }
 
-    private fun loadAppIcon(componentName: ComponentName) {
+    private fun loadAppIcon(appVersionCode: Long, componentName: ComponentName) {
         GlideApp.with(appIcon.context)
                 .load(componentName)
+                .signature(AppIconSignature(appVersionCode))
                 .placeholder(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
                 .error(ColorDrawable(iconPlaceholderColors[nextPlaceholderColor]))
                 .override(PRELOAD_ICON_SIZE, PRELOAD_ICON_SIZE)
