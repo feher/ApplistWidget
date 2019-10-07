@@ -19,9 +19,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.R
-import net.feheren_fekete.applist.applistpage.model.AppShortcutData
-import net.feheren_fekete.applist.applistpage.model.ApplistModel
-import net.feheren_fekete.applist.applistpage.model.ShortcutData
+import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
+import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData
 import net.feheren_fekete.applist.utils.ImageUtils
 import org.koin.java.KoinJavaComponent.get
 import org.koin.java.KoinJavaComponent.inject
@@ -33,7 +32,7 @@ class ShortcutHelper {
     // inside coroutine threads.
     // Crash is caused by creating a Handler in ApplistModel. Inside
     // threads we cannot create handles by "new Handle()".
-    private val applistModel= get(ApplistModel::class.java)
+    private val applistRepo= get(ApplistPageRepository::class.java)
 
     private val imageUtils: ImageUtils by inject(ImageUtils::class.java)
 
@@ -75,14 +74,14 @@ class ShortcutHelper {
                     return
                 }
 
-                val shortcutData = ShortcutData(
+                val shortcutData = ApplistItemData.createShortcut(
                         System.currentTimeMillis(),
                         packageName,
                         shortcutName,
                         "",
                         shortcutIntent)
                 GlobalScope.launch {
-                    applistModel.addInstalledShortcut(shortcutData, shortcutIconBitmap)
+                    applistRepo.addShortcut(shortcutData, shortcutIconBitmap!!)
                 }
             }
         }
@@ -134,12 +133,12 @@ class ShortcutHelper {
         // Then we crash on the second call to LauncherApps.PinItemRequest.accept(). We are not allowed
         // to call it twice.
         //
-        // Workaround: Use ApplistModel.hasInstalledAppShortcut() to check if we have already pinned
+        // Workaround: Use ApplistModel.hasAppShortcut() to check if we have already pinned
         // this shortcut (i.e. called accept() on it).
         //
         GlobalScope.launch(Dispatchers.Main) {
             val isShortcutInstalled = async(Dispatchers.IO) {
-                applistModel.hasInstalledAppShortcut(packageName, shortcutId)
+                applistRepo.hasAppShortcut(packageName, shortcutId)
             }.await()
 
             if (isShortcutInstalled) {
@@ -172,14 +171,14 @@ class ShortcutHelper {
                 imageUtils.shortcutPlaceholder()
             }
 
-            val shortcutData = AppShortcutData(
+            val shortcutData = ApplistItemData.createAppShortcut(
                     System.currentTimeMillis(),
                     shortcutName,
                     "",
                     packageName,
                     shortcutId)
             launch(Dispatchers.IO) {
-                applistModel.addInstalledShortcut(shortcutData, shortcutIconBitmap)
+                applistRepo.addShortcut(shortcutData, shortcutIconBitmap)
             }
         }
     }

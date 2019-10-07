@@ -101,6 +101,7 @@ class MainActivity : AppCompatActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowIconPickerEvent(event: ApplistPagePageFragment.ShowIconPickerEvent) {
         showIconPackPickerFragment(
+                event.applistItemId,
                 event.appName, event.componentName,
                 event.iconPath, event.customIconPath)
     }
@@ -205,7 +206,8 @@ class MainActivity : AppCompatActivity() {
                 .commit()
     }
 
-    private fun showIconPackPickerFragment(appName: String,
+    private fun showIconPackPickerFragment(applistItemId: Long,
+                                           appName: String,
                                            componentName: ComponentName?,
                                            iconPath: String?,
                                            customIconPath: String) {
@@ -214,6 +216,7 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.main_activity_fragment_container,
                         IconPickerFragment.newInstance(
                                 getString(R.string.iconpack_picker_change_icon),
+                                applistItemId,
                                 appName,
                                 componentName,
                                 iconPath,

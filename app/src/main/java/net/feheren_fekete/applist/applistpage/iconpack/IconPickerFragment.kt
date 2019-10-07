@@ -36,18 +36,21 @@ class IconPickerFragment: Fragment() {
 
     companion object {
         private const val FRAGMENT_ARG_TITLE = "title"
+        private const val FRAGMENT_ARG_APPLIST_ITEM_ID = "applistItemId"
         private const val FRAGMENT_ARG_APP_NAME = "appName"
         private const val FRAGMENT_ARG_COMPONENT_NAME = "componentName"
         private const val FRAGMENT_ARG_ICON_PATH = "iconPath"
         private const val FRAGMENT_ARG_CUSTOM_ICON_PATH = "customIconPath"
 
         fun newInstance(title: String,
+                        applistItemId: Long,
                         appName: String,
                         componentName: ComponentName?,
                         iconPath: String?,
                         customIconPath: String): IconPickerFragment {
             val args = Bundle()
             args.putString(FRAGMENT_ARG_TITLE, title)
+            args.putLong(FRAGMENT_ARG_APPLIST_ITEM_ID, applistItemId)
             args.putString(FRAGMENT_ARG_APP_NAME, appName)
             if (componentName != null) {
                 args.putParcelable(FRAGMENT_ARG_COMPONENT_NAME, componentName)
@@ -117,7 +120,9 @@ class IconPickerFragment: Fragment() {
                 return true
             }
             R.id.action_reset_icon -> {
-                viewModel.resetOriginalIcon(arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
+                viewModel.resetOriginalIcon(
+                        arguments!!.getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
+                        arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
                 EventBus.getDefault().post(DoneEvent())
                 return true
             }
@@ -237,6 +242,7 @@ class IconPickerFragment: Fragment() {
             return
         }
         viewModel.setAppIcon(
+                arguments!!.getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
                 iconsAdapter.iconPackPackageName,
                 iconsAdapter.getItem(position),
                 arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)

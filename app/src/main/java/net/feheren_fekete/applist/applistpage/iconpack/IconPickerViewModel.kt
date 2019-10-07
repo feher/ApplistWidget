@@ -7,15 +7,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
-import net.feheren_fekete.applist.applistpage.model.AppData
-import net.feheren_fekete.applist.applistpage.model.ApplistModel
+import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
 class IconPickerViewModel: ViewModel(), KoinComponent {
 
     private val applistLog: ApplistLog by inject()
-    private val applistModel: ApplistModel by inject()
+    private val applistRepo: ApplistPageRepository by inject()
     private val iconPackHelper: IconPackHelper by inject()
     private val packageManager: PackageManager by inject()
 
@@ -23,37 +22,36 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
 
     fun icons(iconpackPackageName: String) = IconPackIconsLiveData(iconPackHelper, packageManager, iconpackPackageName)
 
-    fun resetOriginalIcon(customIconPath: String) {
+    fun resetOriginalIcon(applistItemId: Long, customIconPath: String) {
         GlobalScope.launch(Dispatchers.IO) {
-            applistModel.deleteCustomStartableIcon(customIconPath)
+            applistRepo.deleteCustomStartableIcon(applistItemId, customIconPath)
         }
     }
 
-    fun setAppIcon(iconPackPackageName: String,
+    fun setAppIcon(applistItemId: Long,
+                   iconPackPackageName: String,
                    iconDrawableName: String,
                    customIconPath: String) {
         val iconBitmap = iconPackHelper.loadIcon(iconPackPackageName, iconDrawableName)
         GlobalScope.launch(Dispatchers.IO) {
-            applistModel.storeCustomStartableIcon(customIconPath, iconBitmap, true)
+            applistRepo.storeCustomStartableIcon(applistItemId, customIconPath, iconBitmap!!, true)
         }
     }
 
     fun applyIconPack(iconPackPackageName: String) {
         GlobalScope.launch(Dispatchers.IO) {
-            applistModel.transaction(true) {
-                applistModel.removeAllIcons(false)
-                applistModel.forEachInstalledStartable {
-                    if (it is AppData) {
-                        try {
-                            val iconBitmap = iconPackHelper.loadIcon(
-                                    iconPackPackageName,
-                                    ComponentName(it.packageName, it.className),
-                                    48, 48)
-                            val iconPath = applistModel.getCustomAppIconPath(it)
-                            applistModel.storeCustomStartableIcon(iconPath, iconBitmap, false)
-                        } catch (e: Exception) {
-                            ApplistLog.getInstance().log(e)
-                        }
+            applistRepo.transaction {
+                applistRepo.removeAllIcons()
+                applistRepo.forEachAppItem {
+                    try {
+                        val iconBitmap = iconPackHelper.loadIcon(
+                                iconPackPackageName,
+                                ComponentName(it.packageName, it.className),
+                                48, 48)
+                        val iconPath = applistRepo.getCustomAppIconPath(it)
+                        applistRepo.storeCustomStartableIcon(it.id, iconPath, iconBitmap, false)
+                    } catch (e: Exception) {
+                        ApplistLog.getInstance().log(e)
                     }
                 }
             }
@@ -64,7 +62,7 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
 
     fun resetAllIcons() {
         GlobalScope.launch(Dispatchers.IO) {
-            applistModel.removeAllIcons(true)
+            applistRepo.removeAllIcons()
         }
     }
 

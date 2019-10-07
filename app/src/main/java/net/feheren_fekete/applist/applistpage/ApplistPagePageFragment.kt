@@ -29,11 +29,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.applist_page_page_fragment.*
 import kotlinx.android.synthetic.main.applist_page_page_fragment.view.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
@@ -41,8 +45,8 @@ import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuAdapter
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuItem
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuListener
-import net.feheren_fekete.applist.applistpage.model.ApplistModel
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import net.feheren_fekete.applist.applistpage.shortcutbadge.NotificationListener
 import net.feheren_fekete.applist.applistpage.viewmodel.*
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
@@ -50,14 +54,12 @@ import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.AppUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
-import java.util.*
 
 class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     data class ShowIconPickerEvent(
+            val applistItemId: Long,
             val appName: String,
             val componentName: ComponentName?,
             val iconPath: String?,
@@ -76,7 +78,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         SortSection,
     }
 
-    private val applistModel: ApplistModel by inject()
+    private val applistRepo: ApplistPageRepository by inject()
     private val screenshotUtils: ScreenshotUtils by inject()
     private val settingsUtils: SettingsUtils by inject()
     private val screenUtils: ScreenUtils by inject()
@@ -85,7 +87,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private val iconPreloadHelper: IconPreloadHelper by inject()
 
     private val handler = Handler()
-    private lateinit var pageItem: PageItem
     private lateinit var adapter: ApplistAdapter
     private var itemMenu: ListPopupWindow? = null
     private var itemMenuTarget: BaseItem? = null
@@ -196,9 +197,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pageItem = PageItem(
-                arguments!!.getLong(ARG_APPLIST_PAGE_ID),
-                arguments!!.getString(ARG_APPLIST_PAGE_NAME)!!)
         adapter = ApplistAdapter(this)
     }
 
@@ -242,14 +240,19 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 context!!, view.recyclerView,
                 adapter, columnCount * 2)
 
-        loadAllItems()
-
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val viewModel = ViewModelProviders.of(this).get(ApplistViewModel::class.java)
+        viewModel.getItems().observe(this, Observer {
+            adapter.setItems(it)
+        })
     }
 
     override fun onResume() {
         super.onResume()
-        EventBus.getDefault().register(this)
         if (applistPreferences.showWhatsNew) {
             AlertDialog.Builder(activity!!)
                     .setMessage(R.string.whats_new)
@@ -280,7 +283,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     override fun onPause() {
         super.onPause()
-        EventBus.getDefault().unregister(this)
         adapter.unregisterAdapterDataObserver(adapterDataObserver)
     }
 
@@ -290,20 +292,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             deactivateNameFilter()
         }
     }
-
-    @Suppress("unused", "UNUSED_PARAMETER")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onSectionsChangedEvent(event: ApplistModel.SectionsChangedEvent) {
-        handler.post { loadAllItems() }
-    }
-
-    @Suppress("unused", "UNUSED_PARAMETER")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onBadgeEvent(event: BadgeStore.BadgeEvent) {
-        handler.post { loadAllItems() }
-    }
-
-    fun getPageItem() = pageItem
 
     fun isFilteredByName() = adapter.isFilteredByName
 
@@ -520,8 +508,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             ApplistLog.getInstance().analytics(ApplistLog.UNCOLLAPSE_SECTION, ApplistLog.ITEM_MENU)
         }
         GlobalScope.launch {
-            applistModel.setSectionCollapsed(
-                    pageItem.id,
+            applistRepo.setSectionCollapsed(
                     sectionItem.id,
                     !wasSectionCollapsed)
             handler.postDelayed(Runnable {
@@ -844,14 +831,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         return if (!shortcutInfos.isEmpty()) shortcutInfos[0] else null
     }
 
-    private fun loadAllItems() {
-        val items = mutableListOf<BaseItem>()
-        applistModel.withPage(pageItem.id) {
-            items.addAll(ViewModelUtils.modelToView(applistModel, it))
-        }
-        adapter.setItems(items)
-    }
-
     private fun clearAppBadge(appItem: AppItem) {
         badgeStore.setBadgeCount(appItem.packageName, appItem.className, 0)
 
@@ -906,7 +885,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     private fun removeShortcut(shortcutItem: StartableItem) {
         GlobalScope.launch {
-            applistModel.removeInstalledShortcut(shortcutItem.id)
+            applistRepo.removeShortcut(shortcutItem.id)
         }
     }
 
@@ -918,26 +897,26 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             return
         }
 
-        val sections = applistModel.getSections(pageItem.id)
-        val sectionNames = arrayListOf<String>().apply {
-            sections.forEach { section -> add(section.second) }
-        }
-        sectionNames.add(getString(R.string.move_app_to_new_section))
+        GlobalScope.launch(Dispatchers.Main) {
+            val sections = async {
+                applistRepo.getSections()
+            }.await()
 
-        ApplistDialogs.listDialog(
-                activity!!, getString(R.string.move_app_title), sectionNames) { itemIndex ->
-            val moveToNewSection = (itemIndex == sectionNames.size - 1)
-            if (moveToNewSection) {
-                createSection(startableItem)
-            } else {
-                val pageId = pageItem.id
-                val sectionId = sections.get(itemIndex).first
-                val startableId = startableItem.id
-                val sort = settingsUtils.isKeepAppsSortedAlphabetically
-                GlobalScope.launch {
-                    applistModel.moveStartableToSection(pageId, sectionId, startableId)
-                    if (sort) {
-                        applistModel.sortStartablesInSection(pageId, sectionId)
+            val sectionNames = arrayListOf<String>().apply {
+                sections.forEach { section -> add(section.second) }
+            }
+            sectionNames.add(getString(R.string.move_app_to_new_section))
+
+            ApplistDialogs.listDialog(
+                    activity!!, getString(R.string.move_app_title), sectionNames) { itemIndex ->
+                val moveToNewSection = (itemIndex == sectionNames.size - 1)
+                if (moveToNewSection) {
+                    createSection(startableItem)
+                } else {
+                    val sectionId = sections.get(itemIndex).first
+                    val startableId = startableItem.id
+                    GlobalScope.launch {
+                        applistRepo.moveStartableToSection(startableId, sectionId)
                     }
                 }
             }
@@ -959,15 +938,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     null
                 },
                 { newAppName ->
-                    val pageId = pageItem.id
-                    val sort = settingsUtils.isKeepAppsSortedAlphabetically
                     GlobalScope.launch {
-                        applistModel.setStartableCustomName(
-                                pageId, startableItem.id, newAppName)
-                        if (sort) {
-                            val sectionId = applistModel.getSectionOfStartable(pageId, startableItem.id)
-                            applistModel.sortStartablesInSection(pageId, sectionId)
-                        }
+                        applistRepo.setStartableCustomName(startableItem.id, newAppName)
                     }
                 })
     }
@@ -978,16 +950,19 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
         val event = when (startableItem) {
             is AppItem -> ShowIconPickerEvent(
+                    startableItem.id,
                     startableItem.getDisplayName(),
                     ComponentName(startableItem.packageName, startableItem.className),
                     null,
                     startableItem.customIconPath)
             is AppShortcutItem -> ShowIconPickerEvent(
+                    startableItem.id,
                     startableItem.getDisplayName(),
                     null,
                     startableItem.iconPath,
                     startableItem.customIconPath)
             is ShortcutItem -> ShowIconPickerEvent(
+                    startableItem.id,
                     startableItem.getDisplayName(),
                     null,
                     startableItem.iconPath,
@@ -1012,11 +987,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     null
                 },
                 { newSectionName ->
-                    val pageId = pageItem.id
                     val sectionId = sectionItem.id
                     GlobalScope.launch {
-                        applistModel.setSectionName(pageId, sectionId, newSectionName)
-                        applistModel.sortSectionsInPage(pageId)
+                        applistRepo.setSectionName(sectionId, newSectionName)
                     }
                 })
     }
@@ -1033,7 +1006,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 resources.getString(R.string.remove_section_message, sectionName, uncategorizedSectionName),
                 {
                     GlobalScope.launch {
-                        applistModel.removeSection(pageItem.id, sectionItem.id)
+                        applistRepo.removeSection(sectionItem.id)
                     }
                 },
                 {
@@ -1042,9 +1015,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun sortSection(sectionItem: SectionItem) {
-        GlobalScope.launch {
-            applistModel.sortStartablesInSection(pageItem.id, sectionItem.id)
-        }
     }
 
     private fun createSection(appToMove: StartableItem?) {
@@ -1062,15 +1032,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 },
                 { sectionName ->
                     if (!sectionName.isEmpty()) {
-                        val pageId = pageItem.id
                         GlobalScope.launch {
-                            val section = applistModel.addNewSection(
-                                    pageId, sectionName, true)
-                            if (section != null && appToMove != null) {
-                                applistModel.moveStartableToSection(
-                                        pageId, section.id, appToMove.id)
+                            val sectionId = applistRepo.addNewSection(sectionName)
+                            if (sectionId != null && appToMove != null) {
+                                applistRepo.moveStartableToSection(appToMove.id, sectionId)
                             }
-                            applistModel.sortSectionsInPage(pageId)
                         }
                     }
                 })

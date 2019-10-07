@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.PackageInfo;
@@ -13,9 +12,8 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.UserHandle;
 import android.provider.Telephony;
-import android.util.Log;
 
-import net.feheren_fekete.applist.applistpage.model.AppData;
+import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +25,8 @@ public class AppUtils {
     private static final String APPLIST_PREFERENCES = "ApplistPreferences";
     private static final String PREFERENCE_PHONE_APP = "phoneApp";
 
-    public static List<AppData> getInstalledApps(Context context) {
-        List<AppData> installedApps = new ArrayList<>();
+    public static List<ApplistItemData> getInstalledApps(Context context) {
+        List<ApplistItemData> installedApps = new ArrayList<>();
 
         UserHandle userHandle = android.os.Process.myUserHandle();
         LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
@@ -43,7 +41,7 @@ public class AppUtils {
             } catch (PackageManager.NameNotFoundException e) {
                 continue;
             }
-            installedApps.add(new AppData(
+            installedApps.add(ApplistItemData.Companion.createApp(
                     createAppId(
                             launcherActivityInfo.getComponentName().getPackageName(),
                             launcherActivityInfo.getComponentName().getClassName()),

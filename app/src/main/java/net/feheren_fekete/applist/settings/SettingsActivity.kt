@@ -16,13 +16,10 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.MainActivity
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
-import net.feheren_fekete.applist.applistpage.model.ApplistModel
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.utils.AppUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
@@ -72,7 +69,6 @@ class SettingsActivity : PreferenceActivity() {
 
         private val screenUtils = get(ScreenUtils::class.java)
         private val launcherUtils = get(LauncherUtils::class.java)
-        private val applistModel = get(ApplistModel::class.java)
         private var defaultThemeValue: String? = null
         private var defaultColumnWidthValue: String? = null
 
@@ -179,9 +175,6 @@ class SettingsActivity : PreferenceActivity() {
                         resources.getString(R.string.settings_keep_apps_sorted_dialog_message),
                         {
                             ApplistLog.getInstance().analytics(ApplistLog.SETTINGS_KEEP_APPS_SORTED_ON, ApplistLog.SETTINGS)
-                            GlobalScope.launch {
-                                applistModel.sortStartables()
-                            }
                         },
                         {
                             val keepAppsSorted = findPreference(

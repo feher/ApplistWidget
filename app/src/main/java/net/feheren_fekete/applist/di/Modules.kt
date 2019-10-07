@@ -9,14 +9,15 @@ import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.applistpage.IconPreloadHelper
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
-import net.feheren_fekete.applist.applistpage.model.ApplistModel
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
+import net.feheren_fekete.applist.applistpage.repository.database.ApplistIconStorage
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
+import net.feheren_fekete.applist.database.ApplistDatabase
+import net.feheren_fekete.applist.database.Migration1to2
 import net.feheren_fekete.applist.launcher.LauncherStateManager
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
-import net.feheren_fekete.applist.database.ApplistDatabase
-import net.feheren_fekete.applist.database.Migration1to2
 import net.feheren_fekete.applist.launcher.repository.LauncherRepository
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.FileUtils
@@ -43,6 +44,7 @@ val applistModule = module {
                 .addMigrations(Migration1to2())
                 .build()
     }
+    single { get<ApplistDatabase>().applistPageDao() }
     single { get<ApplistDatabase>().pageDao() }
     single { ApplistLog() }
     single { ImageUtils() }
@@ -59,7 +61,8 @@ val applistModule = module {
     single { WriteSettingsPermissionHelper(androidContext()) }
     single { BadgeUtils(androidContext()) }
     single { BadgeStore(androidContext(), get()) }
-    single { ApplistModel(androidContext(), get(), get(), get()) }
+    single { ApplistIconStorage(androidContext(), get()) }
+    single { ApplistPageRepository(androidContext(), get()) }
     single { LauncherRepository(androidContext(), get(), get()) }
     single { WidgetModel(androidContext()) }
     single { LauncherStateManager() }

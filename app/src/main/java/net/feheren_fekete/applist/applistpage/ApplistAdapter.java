@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
@@ -133,20 +132,6 @@ public class ApplistAdapter
         return RecyclerView.NO_POSITION;
     }
 
-    public int getNextSectionPosition(BaseItem item) {
-        final int itemPosition = getItemPosition(item);
-        if (itemPosition != RecyclerView.NO_POSITION) {
-            List<BaseItem> items = getItems();
-            for (int i = itemPosition + 1; i < items.size(); ++i) {
-                BaseItem it = items.get(i);
-                if (it instanceof SectionItem) {
-                    return i;
-                }
-            }
-        }
-        return RecyclerView.NO_POSITION;
-    }
-
     @Override
     public long getItemId(int position) {
         return getItems().get(position).getId();
@@ -178,125 +163,13 @@ public class ApplistAdapter
         notifyDataSetChanged();
     }
 
-    public boolean moveItem(int fromPosition, int toPosition) {
-        if (fromPosition == toPosition) {
-            return false;
-        }
-        List<BaseItem> items = getItems();
-        if (fromPosition < 0 || fromPosition >= items.size()) {
-            ApplistLog.getInstance().log(new RuntimeException("Bad fromPosition " + fromPosition));
-            return false;
-        }
-        if (toPosition < 0 || toPosition >= items.size()) {
-            ApplistLog.getInstance().log(new RuntimeException("Bad toPosition " + toPosition));
-            return false;
-        }
-
-        final int realFromPosition = getRealItemPosition(items.get(fromPosition));
-        final int realToPosition = getRealItemPosition(items.get(toPosition));
-
-        BaseItem movedItem = mAllItems.get(realFromPosition);
-        if (movedItem instanceof StartableItem && realToPosition == 0) {
-            // Cannot move app above the first section header.
-            return false;
-        }
-
-        if (movedItem instanceof StartableItem) {
-            if (realFromPosition < realToPosition) {
-                for (int i = realFromPosition; i < realToPosition; i++) {
-                    Collections.swap(mAllItems, i, i + 1);
-                }
-            } else {
-                for (int i = realFromPosition; i > realToPosition; i--) {
-                    Collections.swap(mAllItems, i, i - 1);
-                }
-            }
-        } else if (movedItem instanceof SectionItem) {
-            List<BaseItem> sectionAndStartables = new ArrayList<>();
-            for (BaseItem item : mAllItems) {
-                if (item instanceof SectionItem
-                        && item.getId() == movedItem.getId()) {
-                    sectionAndStartables.add(item);
-                } else if (item instanceof StartableItem
-                        && !sectionAndStartables.isEmpty()) {
-                    sectionAndStartables.add(item);
-                } else if (item instanceof SectionItem
-                        && !sectionAndStartables.isEmpty()
-                        && item.getId() != movedItem.getId()) {
-                    break;
-                }
-            }
-            mAllItems.removeAll(sectionAndStartables);
-
-            int adjustedToPosition = realToPosition;
-            if (realFromPosition < realToPosition) {
-                adjustedToPosition = realToPosition - sectionAndStartables.size() + 1;
-            }
-            mAllItems.addAll(adjustedToPosition, sectionAndStartables);
-        }
-
-        updateCollapsedAndFilteredItems();
-        notifyItemMoved(fromPosition, toPosition);
-
-        return true;
-    }
-
     public BaseItem getItem(int position) {
         return getItems().get(position);
-    }
-
-    public List<BaseItem> getAllItems() {
-        return new ArrayList<>(mAllItems);
-    }
-
-    public boolean isStartableLastInSection(StartableItem item) {
-        boolean result = false;
-        final int position = getRealItemPosition(item);
-        if (position == mAllItems.size() - 1) {
-            result = true;
-        } else if (mAllItems.get(position + 1) instanceof SectionItem) {
-            result = true;
-        }
-        return result;
-    }
-
-    public boolean isSectionEmpty(SectionItem item) {
-        boolean result = false;
-        final int position = getRealItemPosition(item);
-        if (position == mAllItems.size() - 1) {
-            result = true;
-        } else if (mAllItems.get(position + 1) instanceof SectionItem) {
-            result = true;
-        }
-        return result;
-    }
-
-    public void setEnabled(BaseItem item, boolean enabled) {
-        item.setEnabled(enabled);
-        notifyItemChanged(getRealItemPosition(item));
     }
 
     public void setHighlighted(BaseItem item, boolean highlighted) {
         item.setHighlighted(highlighted);
         notifyItemChanged(getRealItemPosition(item));
-    }
-
-    public void setAllStartablesEnabled(boolean enabled) {
-        for (BaseItem baseItem : mAllItems) {
-            if (baseItem instanceof StartableItem) {
-                baseItem.setEnabled(enabled);
-            }
-        }
-        notifyDataSetChanged();
-    }
-
-    public void setSectionsHighlighted(boolean highlighted) {
-        for (BaseItem baseItem : mAllItems) {
-            if (baseItem instanceof SectionItem) {
-                baseItem.setHighlighted(highlighted);
-            }
-        }
-        notifyDataSetChanged();
     }
 
     private List<BaseItem> getItems() {

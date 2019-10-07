@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 
 import net.feheren_fekete.applist.ApplistLog
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.settings.SettingsUtils
 
 import org.koin.java.KoinJavaComponent.inject

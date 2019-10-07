@@ -10,7 +10,7 @@ import androidx.core.view.MotionEventCompat
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.IconPreloadHelper.Companion.PRELOAD_ICON_SIZE
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
 import net.feheren_fekete.applist.applistpage.viewmodel.AppItem
 import net.feheren_fekete.applist.applistpage.viewmodel.AppShortcutItem

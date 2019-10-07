@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.AppUtils
 import org.koin.java.KoinJavaComponent.inject

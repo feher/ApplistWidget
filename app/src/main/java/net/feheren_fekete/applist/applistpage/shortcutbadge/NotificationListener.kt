@@ -5,7 +5,7 @@ import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import net.feheren_fekete.applist.ApplistLog
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.settings.SettingsUtils
 import org.koin.android.ext.android.inject
 import java.util.ArrayList

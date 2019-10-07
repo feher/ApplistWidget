@@ -16,15 +16,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.applist_page_fragment.view.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
-import net.feheren_fekete.applist.applistpage.model.ApplistModel
-import net.feheren_fekete.applist.applistpage.model.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.BadgeStore
+import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import net.feheren_fekete.applist.applistpage.viewmodel.PageItem
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.settings.SettingsActivity
@@ -32,8 +30,6 @@ import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.FileUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -41,7 +37,7 @@ class ApplistPageFragment : Fragment() {
 
     class ShowPageEditorEvent
 
-    private val applistModel: ApplistModel by inject()
+    private val applistRepo: ApplistPageRepository by inject()
     private val settingsUtils: SettingsUtils by inject()
     private val fileUtils: FileUtils by inject()
     private val screenUtils: ScreenUtils by inject()
@@ -75,7 +71,7 @@ class ApplistPageFragment : Fragment() {
                     return
                 }
             }
-            updateInstalledApps()
+            updateData()
         }
     }
 
@@ -120,6 +116,11 @@ class ApplistPageFragment : Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        showApplistFragment(PageItem(0, "unused"))
+    }
+
     override fun onStart() {
         super.onStart()
         view?.toolbar?.background = toolbarGradient
@@ -134,9 +135,6 @@ class ApplistPageFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        updateApplistFragmentDelayed()
-
-        EventBus.getDefault().register(this)
         context?.let {
             packageStateReceiver.onReceive(it, null)
         }
@@ -155,7 +153,6 @@ class ApplistPageFragment : Fragment() {
             hideKeyboardFrom(context!!, it)
             it.isIconified = true
         }
-        EventBus.getDefault().unregister(this)
     }
 
     override fun onDestroyView() {
@@ -282,7 +279,7 @@ class ApplistPageFragment : Fragment() {
         startActivity(settingsIntent)
     }
 
-    private fun updateInstalledApps() {
+    private fun updateData() {
         GlobalScope.launch {
             context?.let {
                 // TODO: Remove this after all users updated to 5.1
@@ -290,10 +287,10 @@ class ApplistPageFragment : Fragment() {
                 fileUtils.deleteFiles(
                         fileUtils.getIconCacheDirPath(it.applicationContext),
                         "")
-            }
 
-            applistModel.updateInstalledApps()
-            badgeStore.cleanup()
+                applistRepo.updateInstalledApps(it)
+                badgeStore.cleanup()
+            }
         }
     }
 
@@ -315,71 +312,6 @@ class ApplistPageFragment : Fragment() {
         fragment.deactivateNameFilter()
         searchView!!.isIconified = true
         onPrepareOptionsMenu(menu!!)
-    }
-
-    @Suppress("unused", "UNUSED_PARAMETER")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onDataLoadedEvent(event: ApplistModel.DataLoadedEvent) {
-        updateApplistFragmentDelayed()
-    }
-
-    @Suppress("unused", "UNUSED_PARAMETER")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onPagesChangedEvent(event: ApplistModel.PagesChangedEvent) {
-        updateApplistFragmentDelayed()
-    }
-
-    private fun updateData() {
-        GlobalScope.launch {
-            applistModel.updateInstalledApps()
-        }
-    }
-
-    private fun loadApplistFragment() {
-        GlobalScope.launch(Dispatchers.Main) {
-            val page = async(Dispatchers.IO) {
-                val pageIds = applistModel.pageIds
-                if (!pageIds.isEmpty()) {
-                    val pageItem = PageItem(ApplistModel.INVALID_ID.toLong(), "")
-                    applistModel.withPage(pageIds[0]) { pageData ->
-                        pageItem.id = pageData.id
-                        pageItem.name = pageData.name
-                    }
-                    return@async pageItem
-                } else {
-                    return@async null
-                }
-            }.await()
-
-            if (page != null) {
-                showApplistFragment(page)
-            } else {
-                ApplistLog.getInstance().log(RuntimeException("No pages found!"))
-            }
-        }
-    }
-
-    private fun addDefaultPage() {
-        val defaultPageName = resources.getString(R.string.default_page_name)
-        GlobalScope.launch {
-            applistModel.addNewPage(defaultPageName)
-        }
-    }
-
-    private fun updateApplistFragmentDelayed() {
-        handler.post {
-            if (isAdded) {
-                updateApplistFragment()
-            }
-        }
-    }
-
-    private fun updateApplistFragment() {
-        if (applistModel.pageCount == 0) {
-            addDefaultPage()
-        } else {
-            loadApplistFragment()
-        }
     }
 
     private fun showApplistFragment(pageItem: PageItem) {

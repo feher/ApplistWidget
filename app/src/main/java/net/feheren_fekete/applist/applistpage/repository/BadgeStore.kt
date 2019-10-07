@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applistpage.model
+package net.feheren_fekete.applist.applistpage.repository
 
 import android.content.Context
 import android.util.Log
