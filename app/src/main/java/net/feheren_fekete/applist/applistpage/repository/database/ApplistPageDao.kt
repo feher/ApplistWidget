@@ -7,10 +7,6 @@ import androidx.room.*
 interface ApplistPageDao {
 
     @Transaction
-    fun init() {
-    }
-
-    @Transaction
     suspend fun transcation(action: suspend () -> Unit) {
         action()
     }
@@ -45,6 +41,9 @@ interface ApplistPageDao {
     @Query("SELECT * FROM ApplistItemData WHERE parentSectionId = :sectionId ORDER BY customName ASC")
     fun getItemsBySection(sectionId: Long): LiveData<List<ApplistItemData>>
 
+    @Query("SELECT * FROM ApplistItemData WHERE parentSectionId = :sectionId ORDER BY customName ASC")
+    suspend fun getItemsBySectionSync(sectionId: Long): List<ApplistItemData>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addItem(applistItem: ApplistItemData): Long
 
@@ -65,6 +64,9 @@ interface ApplistPageDao {
 
     @Query("UPDATE ApplistItemData SET parentSectionId = :parentSectionId WHERE id = :itemId")
     suspend fun updateParentSectionId(itemId: Long, parentSectionId: Long)
+
+    @Query("UPDATE ApplistItemData SET position = :position WHERE id = :itemId")
+    suspend fun updatePosition(itemId: Long, position: Int)
 
     @Query("UPDATE ApplistItemData SET sectionIsCollapsed = :collapsed WHERE id = :itemId")
     suspend fun updateSectionCollapsed(itemId: Long, collapsed: Boolean)

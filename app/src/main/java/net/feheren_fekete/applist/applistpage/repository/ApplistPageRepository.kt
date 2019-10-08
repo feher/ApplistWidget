@@ -217,8 +217,113 @@ class ApplistPageRepository(val context: Context,
         return result
     }
 
-    suspend fun moveStartableToSection(startableId: Long, sectionId: Long) {
-        applistPageDao.updateParentSectionId(startableId, sectionId)
+    suspend fun moveStartableToSection(startableId: Long, newSectionId: Long) {
+        applistPageDao.transcation {
+            val item = applistPageDao.getItemById(startableId)
+            if (item == null) {
+                return@transcation
+            }
+
+            // In the old section, move items up by one position that come after our item
+            val oldSectionItems = applistPageDao.getItemsBySectionSync(item.parentSectionId)
+            for (oldSectionItem in oldSectionItems) {
+                if (oldSectionItem.position > item.position) {
+                    applistPageDao.updatePosition(oldSectionItem.id, oldSectionItem.position - 1)
+                }
+            }
+
+            // Put our item at the end of the new section
+            val newSectionItems = applistPageDao.getItemsBySectionSync(newSectionId)
+            val newPosition = newSectionItems.size
+            applistPageDao.updateParentSectionId(startableId, newSectionId)
+            applistPageDao.updatePosition(startableId, newPosition)
+        }
+    }
+
+    suspend fun moveStartablesToSection(startableIds: Array<Long>, sectionId: Long) {
+        applistPageDao.transcation {
+            for (itemId in startableIds) {
+                moveStartableToSection(itemId, sectionId)
+            }
+        }
+    }
+
+    suspend fun moveStartableToPosition(startableId: Long, newPosition: Int) {
+        applistPageDao.transcation {
+            val item = applistPageDao.getItemById(startableId)
+            if (item == null) {
+                applistLog.log(RuntimeException("Item not found with ID " + startableId))
+                return@transcation
+            }
+
+            val oldPosition = item.position
+            val sectionItems = applistPageDao.getItemsBySectionSync(item.parentSectionId)
+
+            if (newPosition < 0 || newPosition >= sectionItems.size) {
+                applistLog.log(RuntimeException(
+                        "Bad newPosition: ${newPosition} < 0 || ${newPosition} >= ${sectionItems.size}"))
+                return@transcation
+            }
+
+            if (newPosition < oldPosition) {
+                // In the section, move items down by one position that are in [newPos, oldPos)
+                for (sectionItem in sectionItems) {
+                    if (newPosition <= sectionItem.position
+                            && sectionItem.position < oldPosition) {
+                        applistPageDao.updatePosition(sectionItem.id, sectionItem.position + 1)
+                    }
+                }
+            } else {
+                // In the section, move items up by one position that are in (oldPos, newPos]
+                for (sectionItem in sectionItems) {
+                    if (oldPosition < sectionItem.position
+                            && sectionItem.position <= newPosition) {
+                        applistPageDao.updatePosition(sectionItem.id, sectionItem.position - 1)
+                    }
+                }
+            }
+
+            // Put the item into position
+            applistPageDao.updatePosition(item.id, newPosition)
+        }
+    }
+
+    suspend fun moveSectionToPosition(sectionId: Long, newPosition: Int) {
+        applistPageDao.transcation {
+            val section = applistPageDao.getItemById(sectionId)
+            if (section == null) {
+                applistLog.log(RuntimeException("Section not found with ID " + sectionId))
+                return@transcation
+            }
+
+            val oldPosition = section.position
+            val sections = applistPageDao.getItemsByTypesSync(arrayOf(ApplistItemData.TYPE_SECTION))
+
+            if (newPosition < 0 || newPosition >= sections.size) {
+                applistLog.log(RuntimeException(
+                        "Bad newPosition: ${newPosition} < 0 || ${newPosition} >= ${sections.size}"))
+                return@transcation
+            }
+
+            if (newPosition < oldPosition) {
+                // Move sections down by one position that are in [newPos, oldPos)
+                for (sec in sections) {
+                    if (newPosition <= sec.position && sec.position < oldPosition) {
+                        applistPageDao.updatePosition(sec.id, sec.position + 1)
+                    }
+                }
+            } else {
+                // Move sections up by one position that are in (oldPos, newPos]
+                for (sec in sections) {
+                    if (oldPosition < sec.position && sec.position <= newPosition) {
+                        applistPageDao.updatePosition(sec.id, sec.position - 1)
+                    }
+                }
+            }
+
+            // Put the item into position
+            applistPageDao.updatePosition(section.id, newPosition)
+        }
     }
 
     suspend fun setStartableCustomName(startableId: Long, customName: String) {
