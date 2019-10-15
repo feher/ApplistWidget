@@ -102,4 +102,6 @@
     <string name="iconpack_picker_search_icon">Hae appi</string>
     <string name="move_app_to_new_section">Uusi ryhmä...</string>
     <string name="move_app_title">Valitse ryhmä</string>
+    <string name="action_move_items">Järjestä appit</string>
+    <string name="action_move_sections">Järjestä ryhmät</string>
 </resources>
