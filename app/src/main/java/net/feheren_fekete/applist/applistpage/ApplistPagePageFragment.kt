@@ -60,6 +60,9 @@ import org.koin.android.ext.android.inject
 
 class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
+    class ShowToolbarEvent
+    class HideToolbarEvent
+
     data class ShowIconPickerEvent(
             val applistItemId: Long,
             val appName: String,
@@ -337,12 +340,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     fun setNameFilter(filterText: String?) {
         adapter.setNameFilter(filterText)
         recyclerView.scrollToPosition(0)
-    }
-
-    fun isItemMenuOpen() = itemMenu != null
-
-    fun closeItemMenu() {
-        itemMenu?.dismiss()
     }
 
     fun handleMenuItem(itemId: Int): Boolean {
@@ -1135,8 +1132,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
         if (isMovingStartables) {
             showDoneButton()
+            EventBus.getDefault().post(HideToolbarEvent())
         } else {
             hideDoneButton()
+            EventBus.getDefault().post(ShowToolbarEvent())
             GlobalScope.launch {
                 applistRepo.updateItemPositionsAndParentSectionIds(
                         adapter.getItemIds().toTypedArray(),
@@ -1161,8 +1160,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (isMovingSections) {
             adapter.setAllSectionsCollapsed(true)
             showDoneButton()
+            EventBus.getDefault().post(HideToolbarEvent())
         } else {
             hideDoneButton()
+            EventBus.getDefault().post(ShowToolbarEvent())
             GlobalScope.launch {
                 applistRepo.updateSectionPositions(adapter.getItemIds().toTypedArray())
             }

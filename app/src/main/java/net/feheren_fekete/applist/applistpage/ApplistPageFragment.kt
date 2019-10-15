@@ -8,28 +8,28 @@ import android.content.IntentFilter
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.util.TypedValue
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.applist_page_fragment.view.*
+import kotlinx.android.synthetic.main.applist_page_fragment.view.toolbar
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
-import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
+import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.applistpage.viewmodel.PageItem
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.settings.SettingsActivity
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.FileUtils
-import net.feheren_fekete.applist.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -40,12 +40,10 @@ class ApplistPageFragment : Fragment() {
     private val applistRepo: ApplistPageRepository by inject()
     private val settingsUtils: SettingsUtils by inject()
     private val fileUtils: FileUtils by inject()
-    private val screenUtils: ScreenUtils by inject()
     private val launcherUtils: LauncherUtils by inject()
     private val badgeStore: BadgeStore by inject()
     private val applistPreferences: ApplistPreferences by inject()
 
-    private val handler = Handler()
     private lateinit var toolbarGradient: Drawable
     private var menu: Menu? = null
     private var searchView: SearchView? = null
@@ -135,6 +133,8 @@ class ApplistPageFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+        EventBus.getDefault().register(this)
+
         context?.let {
             packageStateReceiver.onReceive(it, null)
         }
@@ -153,6 +153,7 @@ class ApplistPageFragment : Fragment() {
             hideKeyboardFrom(context!!, it)
             it.isIconified = true
         }
+        EventBus.getDefault().unregister(this)
     }
 
     override fun onDestroyView() {
@@ -210,6 +211,7 @@ class ApplistPageFragment : Fragment() {
             menu.findItem(R.id.action_edit_pages).isVisible = false
             menu.findItem(R.id.action_move_items).isVisible = false
             menu.findItem(R.id.action_move_sections).isVisible = false
+            menu.findItem(R.id.action_change_wallpaper).isVisible = false
         } else {
             menu.findItem(R.id.action_search_app)?.isVisible = true
             menu.findItem(R.id.action_create_section)?.isVisible = true
@@ -217,6 +219,7 @@ class ApplistPageFragment : Fragment() {
             menu.findItem(R.id.action_edit_pages)?.isVisible = true
             menu.findItem(R.id.action_move_items)?.isVisible = true
             menu.findItem(R.id.action_move_sections)?.isVisible = true
+            menu.findItem(R.id.action_change_wallpaper)?.isVisible = true
         }
     }
 
@@ -253,6 +256,18 @@ class ApplistPageFragment : Fragment() {
             isHandled = super.onOptionsItemSelected(item)
         }
         return isHandled
+    }
+
+    @Suppress("UNUSED_PARAMETER", "unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onShowToolbarEvent(event: ApplistPagePageFragment.ShowToolbarEvent) {
+        showToolbar()
+    }
+
+    @Suppress("UNUSED_PARAMETER", "unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onHideToolbarEvent(event: ApplistPagePageFragment.HideToolbarEvent) {
+        hideToolbar()
     }
 
     private fun createToolbarGradient(): Drawable {
@@ -330,6 +345,14 @@ class ApplistPageFragment : Fragment() {
                 .beginTransaction()
                 .replace(R.id.applist_page_fragment_page_container, fragment, ApplistPagePageFragment::class.java.name)
                 .commit()
+    }
+
+    private fun showToolbar() {
+        view?.toolbar?.visibility = View.VISIBLE
+    }
+
+    private fun hideToolbar() {
+        view?.toolbar?.visibility = View.GONE
     }
 
     companion object {
