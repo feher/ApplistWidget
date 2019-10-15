@@ -32,16 +32,16 @@ interface ApplistPageDao {
     @Query("SELECT * FROM ApplistItemData WHERE id = :itemId")
     suspend fun getItemById(itemId: Long): ApplistItemData?
 
-    @Query("SELECT * FROM ApplistItemData WHERE type = :type ORDER BY customName ASC")
+    @Query("SELECT * FROM ApplistItemData WHERE type = :type")
     fun getItemsByType(type: Int): LiveData<List<ApplistItemData>>
 
-    @Query("SELECT * FROM ApplistItemData WHERE type in (:types) ORDER BY customName ASC")
+    @Query("SELECT * FROM ApplistItemData WHERE type in (:types)")
     suspend fun getItemsByTypesSync(types: Array<Int>): List<ApplistItemData>
 
-    @Query("SELECT * FROM ApplistItemData WHERE parentSectionId = :sectionId ORDER BY customName ASC")
+    @Query("SELECT * FROM ApplistItemData WHERE parentSectionId = :sectionId")
     fun getItemsBySection(sectionId: Long): LiveData<List<ApplistItemData>>
 
-    @Query("SELECT * FROM ApplistItemData WHERE parentSectionId = :sectionId ORDER BY customName ASC")
+    @Query("SELECT * FROM ApplistItemData WHERE parentSectionId = :sectionId")
     suspend fun getItemsBySectionSync(sectionId: Long): List<ApplistItemData>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

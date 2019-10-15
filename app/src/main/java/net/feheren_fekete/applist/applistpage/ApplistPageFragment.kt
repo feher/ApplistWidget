@@ -91,7 +91,7 @@ class ApplistPageFragment : Fragment() {
         val view = inflater.inflate(R.layout.applist_page_fragment, container, false)
 
         // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
-        view.toolbar.setPadding(0, screenUtils.getStatusBarHeight(context), 0, 0)
+        //view.toolbar.setPadding(0, screenUtils.getStatusBarHeight(context), 0, 0)
 
         view.toolbar.setOnClickListener {
             ApplistLog.getInstance().analytics(ApplistLog.START_APP_SEARCH, ApplistLog.TOOLBAR)
@@ -100,7 +100,7 @@ class ApplistPageFragment : Fragment() {
 
         val activity = activity as AppCompatActivity?
         activity!!.setSupportActionBar(view.toolbar)
-        activity.supportActionBar!!.setTitle(R.string.toolbar_title)
+        activity.supportActionBar!!.setDisplayShowTitleEnabled(false)
         activity.supportActionBar!!.setDisplayHomeAsUpEnabled(false)
         setHasOptionsMenu(true)
 
@@ -208,11 +208,15 @@ class ApplistPageFragment : Fragment() {
             menu.findItem(R.id.action_create_section)?.isVisible = false
             menu.findItem(R.id.action_settings)?.isVisible = false
             menu.findItem(R.id.action_edit_pages).isVisible = false
+            menu.findItem(R.id.action_move_items).isVisible = false
+            menu.findItem(R.id.action_move_sections).isVisible = false
         } else {
             menu.findItem(R.id.action_search_app)?.isVisible = true
             menu.findItem(R.id.action_create_section)?.isVisible = true
             menu.findItem(R.id.action_settings)?.isVisible = true
             menu.findItem(R.id.action_edit_pages)?.isVisible = true
+            menu.findItem(R.id.action_move_items)?.isVisible = true
+            menu.findItem(R.id.action_move_sections)?.isVisible = true
         }
     }
 
@@ -267,6 +271,12 @@ class ApplistPageFragment : Fragment() {
         drawable.orientation = GradientDrawable.Orientation.TOP_BOTTOM
         drawable.gradientType = GradientDrawable.LINEAR_GRADIENT
         drawable.colors = intArrayOf(startColor, endColor)
+        drawable.setCornerRadii(arrayOf(
+                0.0f, 0.0f, // top-left
+                0.0f, 0.0f, // top-right
+                0.0f, 0.0f, // bottom-right
+                50.0f, 50.0f  // bottom-left
+        ).toFloatArray())
         return drawable
     }
 
@@ -300,15 +310,11 @@ class ApplistPageFragment : Fragment() {
     }
 
     private fun startFilteringByName(fragment: ApplistPagePageFragment) {
-        val activity = activity as AppCompatActivity?
-        activity!!.supportActionBar!!.title = ""
         fragment.activateNameFilter()
         onPrepareOptionsMenu(menu!!)
     }
 
     private fun stopFilteringByName(fragment: ApplistPagePageFragment) {
-        val activity = activity as AppCompatActivity?
-        activity!!.supportActionBar!!.setTitle(R.string.toolbar_title)
         fragment.deactivateNameFilter()
         searchView!!.isIconified = true
         onPrepareOptionsMenu(menu!!)

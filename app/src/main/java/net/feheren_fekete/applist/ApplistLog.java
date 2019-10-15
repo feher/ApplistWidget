@@ -48,6 +48,8 @@ public class ApplistLog {
     public static String DELETE_SECTION = "DeleteSection";
     public static String SORT_SECTION = "SortSection";
     public static String CREATE_SECTION = "CreateSection";
+    public static String MOVE_ITEMS = "MoveItems";
+    public static String MOVE_SECTIONS = "MoveSections";
     public static String START_DRAG_APP = "StartDragApp";
     public static String START_DRAG_SECTION = "StartDragSection";
     public static String ADD_PAGE = "AddPage";

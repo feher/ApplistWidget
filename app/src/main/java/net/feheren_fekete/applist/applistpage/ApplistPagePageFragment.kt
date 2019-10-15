@@ -24,6 +24,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -32,6 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.applist_page_page_fragment.*
 import kotlinx.android.synthetic.main.applist_page_page_fragment.view.*
@@ -90,6 +92,12 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private lateinit var adapter: ApplistAdapter
     private var itemMenu: ListPopupWindow? = null
     private var itemMenuTarget: BaseItem? = null
+
+    private lateinit var itemTouchHelper: ItemTouchHelper
+    private var isMovingStartables = false
+    private var isMovingSections = false
+    private var draggedToPosition = -1
+    private var draggedToTime = 0L
 
     private val launcherPageId: Long
         get() = arguments!!.getLong(ARG_LAUNCHER_PAGE_ID)
@@ -206,11 +214,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         val view = inflater.inflate(R.layout.applist_page_page_fragment, container, false)
 
         // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
-        val topPadding = screenUtils.getStatusBarHeight(context) + screenUtils.getActionBarHeight(context)
+        //val topPadding = screenUtils.getStatusBarHeight(context) + screenUtils.getActionBarHeight(context)
         // We add a bottom padding to the RecyclerView to "push it up" above the navigation bar.
         // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
-        val bottomPadding = if (screenUtils.hasNavigationBar(context)) screenUtils.getNavigationBarHeight(context) else 0
-        view.recyclerView.setPadding(0, topPadding, 0, bottomPadding)
+        //val bottomPadding = if (screenUtils.hasNavigationBar(context)) screenUtils.getNavigationBarHeight(context) else 0
+        //view.recyclerView.setPadding(0, topPadding, 0, bottomPadding)
 
         val columnSize = Math.round(
                 screenUtils.dpToPx(context,
@@ -236,6 +244,20 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         view.recyclerView.layoutManager = layoutManager
         view.recyclerView.adapter = adapter
 
+        itemTouchHelper = ItemTouchHelper(
+                ApplistItemTouchCallback(
+                        canMoveHorizontally = { position ->
+                            adapter.getItem(position) is StartableItem
+                        },
+                        onItemDrag = ::onItemDragged)
+        )
+        itemTouchHelper.attachToRecyclerView(view.recyclerView)
+
+        view.doneButton.setOnClickListener {
+            setMoveStartablesEnabled(false)
+            setMoveSectionsEnabled(false)
+        }
+
         iconPreloadHelper.setupPreloader(
                 context!!, view.recyclerView,
                 adapter, columnCount * 2)
@@ -247,6 +269,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         super.onViewCreated(view, savedInstanceState)
         val viewModel = ViewModelProviders.of(this).get(ApplistViewModel::class.java)
         viewModel.getItems().observe(this, Observer {
+            setMoveStartablesEnabled(false)
             adapter.setItems(it)
         })
     }
@@ -330,6 +353,16 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 createSection(null)
                 isHandled = true
             }
+            R.id.action_move_items -> {
+                ApplistLog.getInstance().analytics(ApplistLog.MOVE_ITEMS, ApplistLog.OPTIONS_MENU)
+                setMoveStartablesEnabled(!isMovingStartables)
+                isHandled = true
+            }
+            R.id.action_move_sections -> {
+                ApplistLog.getInstance().analytics(ApplistLog.MOVE_SECTIONS, ApplistLog.OPTIONS_MENU)
+                setMoveSectionsEnabled(!isMovingStartables)
+                isHandled = true
+            }
         }
         return isHandled
     }
@@ -337,6 +370,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     fun getItemMenuTarget() = itemMenuTarget!!
 
     override fun onStartableLongTapped(startableItem: StartableItem) {
+        if (isMovingStartables || isMovingSections) {
+            return
+        }
+
         val c = context ?: return
 
         itemMenuTarget = startableItem
@@ -412,6 +449,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     override fun onStartableTapped(startableItem: StartableItem) {
+        if (isMovingStartables || isMovingSections) {
+            return
+        }
+
         val c = context ?: return
         if (startableItem is AppItem) {
             val launchIntent = Intent(Intent.ACTION_MAIN)
@@ -459,9 +500,19 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    override fun onStartableTouched(startableItem: StartableItem) {}
+    override fun onStartableTouched(startableItem: StartableItem) {
+        if (!isMovingStartables) {
+            return
+        }
+        val viewHolder = recyclerView.findViewHolderForItemId(startableItem.id)
+        itemTouchHelper.startDrag(viewHolder)
+    }
 
     override fun onSectionLongTapped(sectionItem: SectionItem) {
+        if (isMovingStartables || isMovingSections) {
+            return
+        }
+
         val c = context ?: return
 
         val itemMenuItems = ArrayList<ItemMenuItem>()
@@ -498,6 +549,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     override fun onSectionTapped(sectionItem: SectionItem) {
+        if (isMovingStartables || isMovingSections) {
+            return
+        }
         if (adapter.isFilteredByName) {
             return
         }
@@ -534,7 +588,13 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    override fun onSectionTouched(sectionItem: SectionItem) {}
+    override fun onSectionTouched(sectionItem: SectionItem) {
+        if (!isMovingSections) {
+            return
+        }
+        val viewHolder = recyclerView.findViewHolderForItemId(sectionItem.id)
+        itemTouchHelper.startDrag(viewHolder)
+    }
 
     private fun createNotificationMenuItem(text: String, icon: Drawable?, remoteViews: RemoteViews?, statusBarNotification: StatusBarNotification): ItemMenuItem {
         var t = text
@@ -709,6 +769,21 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     iconDrawable,
                     shortcutInfo))
             ++i
+        }
+    }
+
+    private fun onItemDragged(fromPosition: Int, toPosition: Int): Boolean {
+        if (toPosition == draggedToPosition) {
+            val elapsedTime = System.currentTimeMillis() - draggedToTime
+            if (elapsedTime > 300) {
+                return adapter.moveItem(fromPosition, toPosition)
+            } else {
+                return false
+            }
+        } else {
+            draggedToPosition = toPosition
+            draggedToTime = System.currentTimeMillis()
+            return false
         }
     }
 
@@ -1015,6 +1090,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun sortSection(sectionItem: SectionItem) {
+        GlobalScope.launch {
+            applistRepo.sortSection(sectionItem.id)
+        }
     }
 
     private fun createSection(appToMove: StartableItem?) {
@@ -1040,6 +1118,73 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                         }
                     }
                 })
+    }
+
+    private fun setMoveStartablesEnabled(enable: Boolean) {
+        if (!isAttached) {
+            return
+        }
+        if (isMovingStartables == enable) {
+            return
+        }
+        if (isFilteredByName() && enable) {
+            return
+        }
+
+        isMovingStartables = enable
+
+        if (isMovingStartables) {
+            showDoneButton()
+        } else {
+            hideDoneButton()
+            GlobalScope.launch {
+                applistRepo.updateItemPositionsAndParentSectionIds(
+                        adapter.getItemIds().toTypedArray(),
+                        adapter.parentSectionIds.toTypedArray())
+            }
+        }
+    }
+
+    private fun setMoveSectionsEnabled(enable: Boolean) {
+        if (!isAttached) {
+            return
+        }
+        if (isMovingSections == enable) {
+            return
+        }
+        if (isFilteredByName() && enable) {
+            return
+        }
+
+        isMovingSections = enable
+
+        if (isMovingSections) {
+            adapter.setAllSectionsCollapsed(true)
+            showDoneButton()
+        } else {
+            hideDoneButton()
+            GlobalScope.launch {
+                applistRepo.updateSectionPositions(adapter.getItemIds().toTypedArray())
+            }
+        }
+    }
+
+    private fun showDoneButton() {
+        doneButtonBackground.visibility = View.VISIBLE
+        doneButton.visibility = View.VISIBLE
+        doneButton.scaleX = 0.3f
+        doneButton.scaleY = 0.3f
+        doneButton.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .setInterpolator(OvershootInterpolator())
+                .setDuration(150)
+                .start()
+    }
+
+    private fun hideDoneButton() {
+        doneButtonBackground.visibility = View.GONE
+        doneButton.visibility = View.GONE
     }
 
     companion object {

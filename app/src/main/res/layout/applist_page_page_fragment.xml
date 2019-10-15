@@ -1,26 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/listBackgroundColor"
     android:clipChildren="false"
     >
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/listBackgroundColor"
         android:clipChildren="false"
         android:clipToPadding="false"
+        android:scrollbars="vertical"
+        tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:listitem="@layout/applist_startable_item"
+        tools:spanCount="4"
         />
 
-    <FrameLayout
-        android:id="@+id/touchOverlay"
+    <View
+        android:id="@+id/doneButtonBackground"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
+        android:background="@drawable/fab_background"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/doneButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/ic_done"
+        android:visibility="gone"
+        tools:visibility="visible"
         />
 
 </RelativeLayout>

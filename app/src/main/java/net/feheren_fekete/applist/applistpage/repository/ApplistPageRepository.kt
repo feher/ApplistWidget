@@ -3,6 +3,7 @@ package net.feheren_fekete.applist.applistpage.repository
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +39,7 @@ class ApplistPageRepository(val context: Context,
                 val sections = items.filter {
                     it.type == ApplistItemData.TYPE_SECTION
                 }.sortedBy {
-                    it.getDisplayName().toLowerCase()
+                    it.position
                 }
                 for (section in sections) {
                     allItemsStructured.add(SectionItem(
@@ -49,7 +50,7 @@ class ApplistPageRepository(val context: Context,
                     val sectionItems = items.filter {
                         it.parentSectionId == section.id
                     }.sortedBy {
-                        it.getDisplayName().toLowerCase()
+                        it.position
                     }
                     for (sectionItem in sectionItems) {
                         val baseItem = when (sectionItem.type) {
@@ -60,7 +61,8 @@ class ApplistPageRepository(val context: Context,
                                     sectionItem.appVersionCode,
                                     sectionItem.name,
                                     sectionItem.customName,
-                                    iconStorage.getCustomAppIconFilePath(sectionItem.packageName, sectionItem.className))
+                                    iconStorage.getCustomAppIconFilePath(sectionItem.packageName, sectionItem.className),
+                                    sectionItem.parentSectionId)
                             ApplistItemData.TYPE_SHORTCUT -> {
                                 val intent = Intent.parseUri(sectionItem.shortcutIntent, 0)
                                 var packageName = intent.getPackage()
@@ -77,7 +79,8 @@ class ApplistPageRepository(val context: Context,
                                             sectionItem.customName,
                                             iconStorage.getCustomShortcutIconFilePath(sectionItem.id),
                                             intent,
-                                            iconStorage.getShortcutIconFilePath(sectionItem.id))
+                                            iconStorage.getShortcutIconFilePath(sectionItem.id),
+                                            sectionItem.parentSectionId)
                                 }
                             }
                             ApplistItemData.TYPE_APP_SHORTCUT -> AppShortcutItem(
@@ -87,7 +90,8 @@ class ApplistPageRepository(val context: Context,
                                     iconStorage.getCustomShortcutIconFilePath(sectionItem.id),
                                     sectionItem.packageName,
                                     sectionItem.appShortcutId,
-                                    iconStorage.getShortcutIconFilePath(sectionItem.id))
+                                    iconStorage.getShortcutIconFilePath(sectionItem.id),
+                                    sectionItem.parentSectionId)
                             else -> {
                                 ApplistLog.getInstance().log(RuntimeException(""))
                                 null
@@ -119,7 +123,7 @@ class ApplistPageRepository(val context: Context,
             } else if (item.type == ApplistItemData.TYPE_APP) {
                 val installedApp = installedApps.find {
                     it.packageName == item.packageName
-                            && item.className == item.className
+                            && it.className == item.className
                 }
                 if (installedApp == null) {
                     removeIcons(item)
@@ -215,6 +219,50 @@ class ApplistPageRepository(val context: Context,
             result.add(Pair(section.id, section.name))
         }
         return result
+    }
+
+    suspend fun updateItemPositionsAndParentSectionIds(orderedItemIds: Array<Long>,
+                                                       parentSectionIds: Array<Long>) {
+        applistPageDao.transcation {
+            if (orderedItemIds.size != parentSectionIds.size) {
+                throw RuntimeException("Array sizes don't match")
+            }
+            for (i in 0..orderedItemIds.size - 1) {
+                applistPageDao.updatePosition(orderedItemIds[i], i)
+                applistPageDao.updateParentSectionId(orderedItemIds[i], parentSectionIds[i])
+            }
+        }
+    }
+
+    suspend fun updateSectionPositions(orderedSectionIds: Array<Long>) {
+        applistPageDao.transcation {
+            var position = 0
+            for (sectionId in orderedSectionIds) {
+                applistPageDao.updatePosition(sectionId, position)
+                position += 1
+
+                val sectionItems = applistPageDao
+                        .getItemsBySectionSync(sectionId).sortedBy {
+                    it.position
+                }
+                for (sectionItem in sectionItems) {
+                    applistPageDao.updatePosition(sectionItem.id, position)
+                    position += 1
+                }
+            }
+        }
+    }
+
+    suspend fun sortSection(sectionId: Long) {
+        applistPageDao.transcation {
+            val section = applistPageDao.getItemById(sectionId) ?: return@transcation
+            val items = applistPageDao.getItemsBySectionSync(sectionId).sortedBy {
+                it.getDisplayName().toLowerCase()
+            }
+            items.forEachIndexed { index, item ->
+                applistPageDao.updatePosition(item.id, section.position + index)
+            }
+        }
     }
 
     suspend fun moveStartableToSection(startableId: Long, newSectionId: Long) {

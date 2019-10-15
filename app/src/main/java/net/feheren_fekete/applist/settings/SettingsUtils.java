@@ -68,7 +68,7 @@ public class SettingsUtils {
         // The current drag and drop implementation is buggy (MyGridViewHolder,
         // ApplistItemDragHandler, etc).
         // We need a new implementation.
-        return true;
+        return false;
         //return mSharedPref.getBoolean(SettingsActivity.PREF_KEY_KEEP_APPS_SORTED_ALPHABETICALLY, false);
     }
 

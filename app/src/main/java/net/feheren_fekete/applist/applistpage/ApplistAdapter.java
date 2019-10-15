@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem;
 import net.feheren_fekete.applist.applistpage.viewmodel.StartableItem;
@@ -121,6 +122,16 @@ public class ApplistAdapter
         return mFilterName != null;
     }
 
+    public void setAllSectionsCollapsed(boolean collapsed) {
+        for (BaseItem item : mAllItems) {
+            if (item instanceof SectionItem) {
+                ((SectionItem) item).setCollapsed(collapsed);
+            }
+        }
+        updateCollapsedAndFilteredItems();
+        notifyDataSetChanged();
+    }
+
     public int getItemPosition(BaseItem item) {
         List<BaseItem> items = getItems();
         for (int i = 0; i < items.size(); ++i) {
@@ -167,9 +178,66 @@ public class ApplistAdapter
         return getItems().get(position);
     }
 
+    public List<Long> getItemIds() {
+        List<Long> result = new ArrayList<>();
+        for (BaseItem item : getItems()) {
+            result.add(item.getId());
+        }
+        return result;
+    }
+
+    public List<Long> getParentSectionIds() {
+        List<Long> result = new ArrayList<>();
+        for (BaseItem item : getItems()) {
+            if (item instanceof SectionItem) {
+                result.add(ApplistItemData.INVALID_ID);
+            } else if (item instanceof StartableItem) {
+                result.add(((StartableItem) item).getParentSectionId());
+            }
+        }
+        return result;
+    }
+
     public void setHighlighted(BaseItem item, boolean highlighted) {
         item.setHighlighted(highlighted);
         notifyItemChanged(getRealItemPosition(item));
+    }
+
+    public boolean moveItem(int oldPosition, int newPosition) {
+        if (newPosition == oldPosition) {
+            return false;
+        }
+
+        List<BaseItem> items = getItems();
+        BaseItem item = items.get(oldPosition);
+
+        // Cannot move startable above 1st section
+        if (item instanceof StartableItem) {
+            if (newPosition == 0) {
+                return false;
+            }
+        }
+
+        // Change the item position.
+        items.remove(oldPosition);
+        items.add(newPosition, item);
+
+        // Update the item's parentSectionId.
+        if (item instanceof StartableItem) {
+            StartableItem startableItem = (StartableItem) item;
+            BaseItem previousItem = (newPosition > 0) ? items.get(newPosition - 1) : null;
+            BaseItem nextItem = (newPosition < items.size() - 1) ? items.get(newPosition + 1) : null;
+            if (previousItem instanceof SectionItem) {
+                startableItem.setParentSectionId(previousItem.getId());
+            } else if (previousItem instanceof StartableItem) {
+                startableItem.setParentSectionId(((StartableItem) previousItem).getParentSectionId());
+            } else if (nextItem instanceof StartableItem) {
+                startableItem.setParentSectionId(((StartableItem) nextItem).getParentSectionId());
+            }
+        }
+
+        notifyItemMoved(oldPosition, newPosition);
+        return true;
     }
 
     private List<BaseItem> getItems() {

@@ -51,7 +51,7 @@ data class ApplistItemData(@PrimaryKey(autoGenerate = true) val id: Long,
                     0,
                     "",
                     "",
-                    DEFAULT_SECTION_ID,
+                    INVALID_ID,
                     false
             )
         }

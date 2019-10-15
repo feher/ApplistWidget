@@ -56,7 +56,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
             itemListenerRef.get()?.onStartableLongTapped(item)
             true
         }
-        layout.setOnTouchListener { v, event ->
+        appIcon.setOnTouchListener { v, event ->
             if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
                 itemListenerRef.get()?.onStartableTouched(item)
             }

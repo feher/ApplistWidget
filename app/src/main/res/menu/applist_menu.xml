@@ -16,8 +16,13 @@
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:id="@+id/action_move_items"
+        android:title="@string/action_move_items"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_move_sections"
+        android:title="@string/action_move_sections"
         app:showAsAction="never"/>
 
     <item
@@ -28,6 +33,11 @@
     <item
         android:id="@+id/action_change_wallpaper"
         android:title="@string/widget_page_change_wallpaper"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"
         app:showAsAction="never"/>
 
 </menu>
