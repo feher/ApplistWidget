@@ -49,6 +49,7 @@ import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuItem
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuListener
 import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
+import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData
 import net.feheren_fekete.applist.applistpage.shortcutbadge.NotificationListener
 import net.feheren_fekete.applist.applistpage.viewmodel.*
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
@@ -988,7 +989,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     val sectionId = sections.get(itemIndex).first
                     val startableId = startableItem.id
                     GlobalScope.launch {
-                        applistRepo.moveStartableToSection(startableId, sectionId)
+                        applistRepo.moveStartableToSection(startableId, sectionId, true)
                     }
                 }
             }
@@ -1109,8 +1110,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     if (!sectionName.isEmpty()) {
                         GlobalScope.launch {
                             val sectionId = applistRepo.addNewSection(sectionName)
-                            if (sectionId != null && appToMove != null) {
-                                applistRepo.moveStartableToSection(appToMove.id, sectionId)
+                            if (sectionId != ApplistItemData.INVALID_ID && appToMove != null) {
+                                applistRepo.moveStartableToSection(appToMove.id, sectionId, true)
                             }
                         }
                     }

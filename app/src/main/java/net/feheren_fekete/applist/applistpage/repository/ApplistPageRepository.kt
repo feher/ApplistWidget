@@ -114,7 +114,9 @@ class ApplistPageRepository(val context: Context,
 
     suspend fun updateInstalledApps(context: Context) {
         val installedApps = AppUtils.getInstalledApps(context)
-        val items = applistPageDao.getAllItemsSync()
+        val items = applistPageDao.getAllItemsSync().sortedBy {
+            it.position
+        }
         val updatedItems = ArrayList<ApplistItemData>()
 
         for (item in items) {
@@ -141,6 +143,18 @@ class ApplistPageRepository(val context: Context,
             }
         }
 
+        // Create default section if missing
+        var defaultSectionPos = updatedItems.indexOfFirst {
+            it.id == ApplistItemData.DEFAULT_SECTION_ID
+        }
+        if (defaultSectionPos == -1) {
+            updatedItems.add(ApplistItemData.createSection(
+                    ApplistItemData.DEFAULT_SECTION_ID,
+                    context.getString(R.string.uncategorized_group)))
+            defaultSectionPos = updatedItems.size - 1
+        }
+
+        // Add new apps to the top of the default section
         for (installedApp in installedApps) {
             val item = updatedItems.find {
                 it.type == ApplistItemData.TYPE_APP
@@ -148,17 +162,13 @@ class ApplistPageRepository(val context: Context,
                         && it.className == installedApp.className
             }
             if (item == null) {
-                updatedItems.add(installedApp)
+                updatedItems.add(defaultSectionPos + 1, installedApp)
             }
         }
 
-        val defaultSection = updatedItems.find {
-            it.id == ApplistItemData.DEFAULT_SECTION_ID
-        }
-        if (defaultSection == null) {
-            updatedItems.add(ApplistItemData.createSection(
-                    ApplistItemData.DEFAULT_SECTION_ID,
-                    context.getString(R.string.uncategorized_group)))
+        // Re-number
+        updatedItems.forEachIndexed { index, item ->
+            item.position = index
         }
 
         applistPageDao.replaceItems(updatedItems)
@@ -213,7 +223,7 @@ class ApplistPageRepository(val context: Context,
         val result = ArrayList<Pair<Long, String>>()
         val sections =
                 applistPageDao.getItemsByTypesSync(arrayOf(ApplistItemData.TYPE_SECTION)).sortedBy {
-                    it.name.toLowerCase()
+                    it.position
                 }
         for (section in sections) {
             result.add(Pair(section.id, section.name))
@@ -265,74 +275,115 @@ class ApplistPageRepository(val context: Context,
         }
     }
 
-    suspend fun moveStartableToSection(startableId: Long, newSectionId: Long) {
+    suspend fun moveStartableToSection(startableId: Long, newSectionId: Long, append: Boolean) {
         applistPageDao.transcation {
             val item = applistPageDao.getItemById(startableId)
             if (item == null) {
                 return@transcation
             }
 
-            // In the old section, move items up by one position that come after our item
-            val oldSectionItems = applistPageDao.getItemsBySectionSync(item.parentSectionId)
-            for (oldSectionItem in oldSectionItems) {
-                if (oldSectionItem.position > item.position) {
-                    applistPageDao.updatePosition(oldSectionItem.id, oldSectionItem.position - 1)
-                }
+            if (item.parentSectionId == newSectionId) {
+                return@transcation
             }
 
-            // Put our item at the end of the new section
-            val newSectionItems = applistPageDao.getItemsBySectionSync(newSectionId)
-            val newPosition = newSectionItems.size
-            applistPageDao.updateParentSectionId(startableId, newSectionId)
-            applistPageDao.updatePosition(startableId, newPosition)
+            val newSection = applistPageDao.getItemById(newSectionId)
+            if (newSection == null) {
+                return@transcation
+            }
+
+            if (append) {
+                val newSectionItemCount =
+                        applistPageDao.getItemsBySectionSync(newSectionId).size
+                moveStartableToPosition(startableId, newSection.position + newSectionItemCount + 1)
+            } else {
+                moveStartableToPosition(startableId, newSection.position + 1)
+            }
         }
     }
 
     suspend fun moveStartablesToSection(startableIds: Array<Long>, sectionId: Long) {
         applistPageDao.transcation {
             for (itemId in startableIds) {
-                moveStartableToSection(itemId, sectionId)
+                moveStartableToSection(itemId, sectionId, true)
             }
         }
     }
 
     suspend fun moveStartableToPosition(startableId: Long, newPosition: Int) {
         applistPageDao.transcation {
+            Log.d("ZIZI", "TRANS ${startableId} ${newPosition}")
             val item = applistPageDao.getItemById(startableId)
             if (item == null) {
                 applistLog.log(RuntimeException("Item not found with ID " + startableId))
                 return@transcation
             }
 
-            val oldPosition = item.position
-            val sectionItems = applistPageDao.getItemsBySectionSync(item.parentSectionId)
+            Log.d("ZIZI", "ITEM OK pos = ${item.position}")
 
-            if (newPosition < 0 || newPosition >= sectionItems.size) {
+            val allItems = applistPageDao.getAllItemsSync().sortedBy {
+                it.position
+            }
+
+            if (newPosition < 0 || newPosition > allItems.size) {
                 applistLog.log(RuntimeException(
-                        "Bad newPosition: ${newPosition} < 0 || ${newPosition} >= ${sectionItems.size}"))
+                        "Bad newPosition: ${newPosition} < 0 || ${newPosition} > ${allItems.size}"))
                 return@transcation
             }
 
+            Log.d("ZIZI", "NEW POS OK")
+
+            // Determine the new parent section for the item
+            val leftNeighborPos = newPosition - 1
+            val rightNeighborPos = newPosition
+            val newParentSectionId = if (leftNeighborPos >= 0) {
+                val leftNeighbor = allItems[leftNeighborPos]
+                if (leftNeighbor.type != ApplistItemData.TYPE_SECTION) {
+                    leftNeighbor.parentSectionId
+                } else {
+                    leftNeighbor.id
+                }
+            } else if (rightNeighborPos < allItems.size) {
+                val rightNeighbor = allItems[rightNeighborPos]
+                if (rightNeighbor.type != ApplistItemData.TYPE_SECTION) {
+                    rightNeighbor.parentSectionId
+                } else {
+                    ApplistItemData.INVALID_ID
+                }
+            } else {
+                ApplistItemData.INVALID_ID
+            }
+            Log.d("ZIZI", "NEW PAR ${newParentSectionId}")
+            if (newParentSectionId == ApplistItemData.INVALID_ID) {
+                applistLog.log(RuntimeException("Cannot determine new parent section ID"))
+                return@transcation
+            }
+
+            // Reposition the other items
+            val oldPosition = item.position
+            var updatedNewPosition = 0
             if (newPosition < oldPosition) {
-                // In the section, move items down by one position that are in [newPos, oldPos)
-                for (sectionItem in sectionItems) {
-                    if (newPosition <= sectionItem.position
-                            && sectionItem.position < oldPosition) {
-                        applistPageDao.updatePosition(sectionItem.id, sectionItem.position + 1)
+                updatedNewPosition = newPosition
+                // Move items down by one position that are in [newPos, oldPos)
+                for (otherItem in allItems) {
+                    if (updatedNewPosition <= otherItem.position
+                            && otherItem.position < oldPosition) {
+                        applistPageDao.updatePosition(otherItem.id, otherItem.position + 1)
                     }
                 }
             } else {
-                // In the section, move items up by one position that are in (oldPos, newPos]
-                for (sectionItem in sectionItems) {
-                    if (oldPosition < sectionItem.position
-                            && sectionItem.position <= newPosition) {
-                        applistPageDao.updatePosition(sectionItem.id, sectionItem.position - 1)
+                updatedNewPosition = newPosition - 1
+                // Move items up by one position that are in (oldPos, newPos]
+                for (otherItem in allItems) {
+                    if (oldPosition < otherItem.position
+                            && otherItem.position <= updatedNewPosition) {
+                        applistPageDao.updatePosition(otherItem.id, otherItem.position - 1)
                     }
                 }
             }
 
             // Put the item into position
-            applistPageDao.updatePosition(item.id, newPosition)
+            applistPageDao.updatePosition(item.id, updatedNewPosition)
+            applistPageDao.updateParentSectionId(item.id, newParentSectionId)
         }
     }
 
@@ -384,13 +435,33 @@ class ApplistPageRepository(val context: Context,
 
     suspend fun removeSection(sectionId: Long) {
         applistPageDao.transcation {
-            applistPageDao.resetParentSectionIds(sectionId)
+            val sectionItems = applistPageDao.getItemsBySectionSync(sectionId)
+            for (item in sectionItems) {
+                moveStartableToSection(item.id, ApplistItemData.DEFAULT_SECTION_ID, false)
+            }
             applistPageDao.delItem(sectionId)
         }
     }
 
     suspend fun addNewSection(sectionName: String): Long {
-        return applistPageDao.addItem(ApplistItemData.createSection(0, sectionName))
+        var sectionId: Long = ApplistItemData.INVALID_ID
+        applistPageDao.transcation {
+            // Add the new section above the default section
+            val defaultSection = applistPageDao.getItemById(ApplistItemData.DEFAULT_SECTION_ID)
+            if (defaultSection == null) {
+                return@transcation
+            }
+            val allItems = applistPageDao.getAllItemsSync()
+            for (item in allItems) {
+                if (defaultSection.position <= item.position) {
+                    applistPageDao.updatePosition(item.id, item.position + 1)
+                }
+            }
+            val section = ApplistItemData.createSection(0, sectionName)
+            section.position = defaultSection.position
+            sectionId = applistPageDao.addItem(section)
+        }
+        return sectionId
     }
 
     suspend fun hasAppShortcut(packageName: String, shortcutId: String): Boolean {

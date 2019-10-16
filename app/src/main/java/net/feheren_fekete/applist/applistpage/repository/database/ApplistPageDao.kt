@@ -18,7 +18,7 @@ interface ApplistPageDao {
     }
 
     @Query("SELECT COUNT(*) FROM ApplistItemData")
-    suspend fun getItemCount(): Long
+    suspend fun getItemCount(): Int
 
     @Query("SELECT COUNT(*) FROM ApplistItemData WHERE type = ${ApplistItemData.TYPE_APP_SHORTCUT} AND packageName = :packageName AND appShortcutId = :appShortcutId")
     suspend fun getAppShortcutCount(packageName: String, appShortcutId: String): Long
