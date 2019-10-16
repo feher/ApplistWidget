@@ -76,6 +76,7 @@ public class ApplistLog {
     public static String SETTINGS_SHOW_NEW_CONTENT_BADGE_OFF = "SShowNewContentBadgeOff";
 
     public static String MIGRATE_LAUNCHER_PAGES = "MigrateLauncherPages";
+    public static String MIGRATE_APPLIST = "MigrateApplist";
 
     public static String OTHER_APP = "OtherApp";
     public static String OPTIONS_MENU = "OptionsMenu";
@@ -87,6 +88,7 @@ public class ApplistLog {
     public static String WIDGET_MENU = "WidgetMenu";
     public static String WIDGET_PAGE_MENU = "WidgetPageMenu";
     public static String LAUNCHER_PAGE_REPOSITORY = "LauncherPageRepository";
+    public static String APPLIST_PAGE_REPOSITORY = "ApplistPageRepository";
 
     public void analytics(String event, String origin) {
         Bundle bundle = new Bundle();

@@ -15,6 +15,7 @@ import net.feheren_fekete.applist.applistpage.repository.database.ApplistIconSto
 import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
 import net.feheren_fekete.applist.database.ApplistDatabase
 import net.feheren_fekete.applist.database.Migration1to2
+import net.feheren_fekete.applist.database.Migration2to3
 import net.feheren_fekete.applist.launcher.LauncherStateManager
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
@@ -41,7 +42,9 @@ val applistModule = module {
                 androidContext(),
                 ApplistDatabase::class.java,
                 "applist-db")
-                .addMigrations(Migration1to2())
+                .addMigrations(
+                        Migration1to2(),
+                        Migration2to3())
                 .build()
     }
     single { get<ApplistDatabase>().applistPageDao() }

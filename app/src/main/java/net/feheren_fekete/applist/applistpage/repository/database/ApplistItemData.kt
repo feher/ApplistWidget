@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class ApplistItemData(@PrimaryKey(autoGenerate = true) val id: Long,
                            val lastModifiedTimestamp: Long,
                            val type: Int,
-                           val position: Int,
+                           var position: Int,
                            val packageName: String,
                            val className: String,
                            val name: String,
@@ -30,7 +30,7 @@ data class ApplistItemData(@PrimaryKey(autoGenerate = true) val id: Long,
     companion object {
 
         const val INVALID_ID: Long = -1
-        const val DEFAULT_SECTION_ID: Long = 1
+        const val DEFAULT_SECTION_ID: Long = 1000000
 
         const val TYPE_SECTION = 1
         const val TYPE_APP = 2

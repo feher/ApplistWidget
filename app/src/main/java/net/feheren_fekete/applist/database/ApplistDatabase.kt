@@ -7,7 +7,7 @@ import net.feheren_fekete.applist.applistpage.repository.database.ApplistPageDao
 import net.feheren_fekete.applist.launcher.repository.database.LauncherPageDao
 import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData
 
-@Database(entities = arrayOf(ApplistItemData::class, LauncherPageData::class), exportSchema = false, version = 2)
+@Database(entities = arrayOf(ApplistItemData::class, LauncherPageData::class), exportSchema = false, version = 3)
 abstract class ApplistDatabase: RoomDatabase() {
 
     abstract fun applistPageDao(): ApplistPageDao

@@ -14,6 +14,7 @@ import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistIconStorage
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistPageDao
+import net.feheren_fekete.applist.applistpage.repository.database.MigrateJsonToRoom
 import net.feheren_fekete.applist.applistpage.viewmodel.*
 import net.feheren_fekete.applist.utils.AppUtils
 import org.koin.java.KoinJavaComponent.inject
@@ -26,6 +27,12 @@ class ApplistPageRepository(val context: Context,
 
     init {
         GlobalScope.launch(Dispatchers.IO) {
+            val migrateJsonToRoom = MigrateJsonToRoom(context, applistPageDao)
+            if (migrateJsonToRoom.migratePages()) {
+                applistLog.analytics(
+                        ApplistLog.MIGRATE_APPLIST,
+                        ApplistLog.APPLIST_PAGE_REPOSITORY)
+            }
             updateInstalledApps(context)
         }
     }
