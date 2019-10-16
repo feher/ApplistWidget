@@ -120,7 +120,9 @@ class ApplistPageRepository(val context: Context,
     }
 
     suspend fun updateInstalledApps(context: Context) {
-        val installedApps = AppUtils.getInstalledApps(context)
+        val installedApps = AppUtils.getInstalledApps(context).sortedBy {
+            it.getDisplayName().toLowerCase()
+        }
         val items = applistPageDao.getAllItemsSync().sortedBy {
             it.position
         }
@@ -162,7 +164,7 @@ class ApplistPageRepository(val context: Context,
         }
 
         // Add new apps to the top of the default section
-        for (installedApp in installedApps) {
+        for (installedApp in installedApps.asReversed()) {
             val item = updatedItems.find {
                 it.type == ApplistItemData.TYPE_APP
                         && it.packageName == installedApp.packageName
