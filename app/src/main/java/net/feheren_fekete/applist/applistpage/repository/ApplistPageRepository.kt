@@ -455,19 +455,15 @@ class ApplistPageRepository(val context: Context,
     suspend fun addNewSection(sectionName: String): Long {
         var sectionId: Long = ApplistItemData.INVALID_ID
         applistPageDao.transcation {
-            // Add the new section above the default section
-            val defaultSection = applistPageDao.getItemById(ApplistItemData.DEFAULT_SECTION_ID)
-            if (defaultSection == null) {
-                return@transcation
-            }
+            // We add the new section to the top, so we shift everything
+            // down one position.
             val allItems = applistPageDao.getAllItemsSync()
             for (item in allItems) {
-                if (defaultSection.position <= item.position) {
-                    applistPageDao.updatePosition(item.id, item.position + 1)
-                }
+                applistPageDao.updatePosition(item.id, item.position + 1)
             }
+
             val section = ApplistItemData.createSection(0, sectionName)
-            section.position = defaultSection.position
+            section.position = 0
             sectionId = applistPageDao.addItem(section)
         }
         return sectionId
