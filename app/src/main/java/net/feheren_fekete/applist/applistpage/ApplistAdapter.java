@@ -31,6 +31,7 @@ public class ApplistAdapter
     private @Nullable String mFilterName;
     private @Nullable List<BaseItem> mFilteredItems;
     private ItemListener mItemListener;
+    private boolean mIsSelectionModeEnabled = false;
 
     public interface ItemListener {
         void onStartableTapped(StartableItem startableItem);
@@ -70,11 +71,16 @@ public class ApplistAdapter
     public void onBindViewHolder(@NonNull ViewHolderBase holder, int position) {
         if (holder instanceof StartableItemHolder) {
             StartableItem startableItem = (StartableItem) getItems().get(position);
-            ((StartableItemHolder)holder).bind(startableItem);
+            ((StartableItemHolder)holder).bind(startableItem, mIsSelectionModeEnabled);
         } else if (holder instanceof SectionItemHolder) {
             SectionItem item = (SectionItem) getItems().get(position);
             ((SectionItemHolder)holder).bind(item);
         }
+    }
+
+    public void setSelectionModeEnabled(boolean enabled) {
+        mIsSelectionModeEnabled = enabled;
+        notifyDataSetChanged();
     }
 
     public List<String> getSectionNames() {
@@ -200,7 +206,41 @@ public class ApplistAdapter
 
     public void setHighlighted(BaseItem item, boolean highlighted) {
         item.setHighlighted(highlighted);
-        notifyItemChanged(getRealItemPosition(item));
+        notifyItemChanged(getItemPosition(item));
+    }
+
+    public void setSelected(BaseItem item, boolean selected) {
+        item.setSelected(selected);
+        notifyItemChanged(getItemPosition(item));
+    }
+
+    public void unselectAll() {
+        for (BaseItem item : getItems()) {
+            if (item.isSelected()) {
+                item.setSelected(false);
+                notifyItemChanged(getItemPosition(item));
+            }
+        }
+    }
+
+    public int getSelectedCount() {
+        int count = 0;
+        for (BaseItem item : getItems()) {
+            if (item.isSelected()) {
+                ++count;
+            }
+        }
+        return count;
+    }
+
+    public List<Long> getSelectedIds() {
+        List<Long> ids = new ArrayList<>();
+        for (BaseItem item : getItems()) {
+            if (item.isSelected()) {
+                ids.add(item.getId());
+            }
+        }
+        return ids;
     }
 
     public boolean moveItem(int oldPosition, int newPosition) {

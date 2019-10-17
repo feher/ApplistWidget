@@ -5,7 +5,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 class ApplistItemTouchCallback(
         private val canMoveHorizontally: (position: Int) -> Boolean,
-        private val onItemDrag: (oldPosition: Int, newPosition: Int) -> Boolean): ItemTouchHelper.Callback() {
+        private val onItemDrag: (oldPosition: Int, newPosition: Int) -> Boolean,
+        private val onItemDropped: (position: Int) -> Unit): ItemTouchHelper.Callback() {
 
     override fun getMovementFlags(recyclerView: RecyclerView,
                                   viewHolder: RecyclerView.ViewHolder): Int {
@@ -24,6 +25,11 @@ class ApplistItemTouchCallback(
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         // Nothing.
+    }
+
+    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+        super.clearView(recyclerView, viewHolder)
+        onItemDropped(viewHolder.adapterPosition)
     }
 
     override fun isLongPressDragEnabled() = false

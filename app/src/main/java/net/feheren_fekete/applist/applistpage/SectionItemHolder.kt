@@ -10,8 +10,6 @@ import net.feheren_fekete.applist.applistpage.viewmodel.SectionItem
 import java.lang.ref.WeakReference
 
 class SectionItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) : ViewHolderBase(view, R.id.applist_section_item_layout) {
-    private val draggedOverIndicatorLeft: View = view.findViewById(R.id.applist_section_item_dragged_over_indicator_left)
-    private val draggedOverIndicatorRight: View = view.findViewById(R.id.applist_section_item_dragged_over_indicator_right)
     private val sectionName: TextView = view.findViewById<View>(R.id.applist_section_item_section_name) as TextView
 
     private var item: SectionItem? = null
@@ -52,9 +50,6 @@ class SectionItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) :
 
         val alpha = if (sectionItem.isEnabled) 1.0f else 0.3f
         sectionName.alpha = alpha
-
-        draggedOverIndicatorLeft.visibility = if (sectionItem.isDraggedOverLeft) View.VISIBLE else View.INVISIBLE
-        draggedOverIndicatorRight.visibility = if (sectionItem.isDraggedOverRight) View.VISIBLE else View.INVISIBLE
     }
 
 }

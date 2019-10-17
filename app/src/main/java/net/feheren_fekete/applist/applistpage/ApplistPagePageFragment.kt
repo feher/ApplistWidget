@@ -74,6 +74,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     enum class ItemMenuAction {
         AppInfo,
         MoveAppToSection,
+        MoveAppsToSection,
         RenameApp,
         ChangeIcon,
         ClearBadge,
@@ -82,6 +83,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         RenameSection,
         DeleteSection,
         SortSection,
+        ClearSelection,
+        ReorderApps,
+        ReorderSections
     }
 
     private val applistRepo: ApplistPageRepository by inject()
@@ -156,7 +160,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     }
                     ItemMenuAction.MoveAppToSection -> {
                         ApplistLog.getInstance().analytics(ApplistLog.MOVE_APP_TO_SECTION, ApplistLog.ITEM_MENU)
-                        moveApp(itemMenuTarget as StartableItem)
+                        moveApps(arrayListOf(itemMenuTarget!!.id))
+                    }
+                    ItemMenuAction.MoveAppsToSection -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.MOVE_APPS_TO_SECTION, ApplistLog.ITEM_MENU)
+                        moveApps(adapter.selectedIds)
                     }
                     ItemMenuAction.RenameApp -> {
                         ApplistLog.getInstance().analytics(ApplistLog.RENAME_APP, ApplistLog.ITEM_MENU)
@@ -186,13 +194,25 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                         ApplistLog.getInstance().analytics(ApplistLog.SORT_SECTION, ApplistLog.ITEM_MENU)
                         sortSection(itemMenuTarget as SectionItem)
                     }
+                    ItemMenuAction.ClearSelection -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.CLEAR_SELECTION, ApplistLog.ITEM_MENU)
+                        clearSelection()
+                    }
+                    ItemMenuAction.ReorderApps -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.REORDER_ITEMS, ApplistLog.ITEM_MENU)
+                        setMoveStartablesEnabled(!isMovingStartables)
+                    }
+                    ItemMenuAction.ReorderSections -> {
+                        ApplistLog.getInstance().analytics(ApplistLog.REORDER_SECTIONS, ApplistLog.ITEM_MENU)
+                        setMoveSectionsEnabled(!isMovingSections)
+                    }
                 }
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && item.data is ShortcutInfo) {
                 ApplistLog.getInstance().analytics(ApplistLog.START_APP_SHORTCUT, ApplistLog.ITEM_MENU)
-                startAppShortcut(item.data)
+                launchAppShortcut(item.data)
             } else if (item.data is StatusBarNotification) {
                 ApplistLog.getInstance().analytics(ApplistLog.START_NOTIFICATION, ApplistLog.ITEM_MENU)
-                startNotification(item.data)
+                launchNotification(item.data)
             }
             itemMenu?.dismiss()
         }
@@ -253,7 +273,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                         canMoveHorizontally = { position ->
                             adapter.getItem(position) is StartableItem
                         },
-                        onItemDrag = ::onItemDragged)
+                        onItemDrag = ::onItemDragged,
+                        onItemDropped = ::onItemDropped)
         )
         itemTouchHelper.attachToRecyclerView(view.recyclerView)
 
@@ -348,17 +369,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         when (itemId) {
             R.id.action_create_section -> {
                 ApplistLog.getInstance().analytics(ApplistLog.CREATE_SECTION, ApplistLog.OPTIONS_MENU)
-                createSection(null)
-                isHandled = true
-            }
-            R.id.action_move_items -> {
-                ApplistLog.getInstance().analytics(ApplistLog.MOVE_ITEMS, ApplistLog.OPTIONS_MENU)
-                setMoveStartablesEnabled(!isMovingStartables)
-                isHandled = true
-            }
-            R.id.action_move_sections -> {
-                ApplistLog.getInstance().analytics(ApplistLog.MOVE_SECTIONS, ApplistLog.OPTIONS_MENU)
-                setMoveSectionsEnabled(!isMovingStartables)
+                createSection(emptyList())
                 isHandled = true
             }
         }
@@ -368,142 +379,39 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     fun getItemMenuTarget() = itemMenuTarget!!
 
     override fun onStartableLongTapped(startableItem: StartableItem) {
-        if (isMovingStartables || isMovingSections) {
+        if (isMovingSections) {
             return
         }
 
-        val c = context ?: return
-
-        itemMenuTarget = startableItem
-
-        // Change the adapter only after the popup window has been displayed.
-        // Otherwise the popup window appears in a jittery way due to simultaneous change in the adapter.
-        handler.postDelayed({ adapter.setHighlighted(itemMenuTarget, true) }, 300)
-
-        val isApp = startableItem is AppItem
-        val isShortcut = startableItem is ShortcutItem || startableItem is AppShortcutItem
-        val itemMenuItems = ArrayList<ItemMenuItem>()
-        if (isApp) {
-            addAppNotificationsToItemMenu(startableItem as AppItem, itemMenuItems)
-            addAppShortcutsToItemMenu(startableItem, itemMenuItems)
-        }
-        if (isApp) {
-            val appItem = startableItem as AppItem
-            if (settingsUtils.showBadge) {
-                val badgeCount = badgeStore.getBadgeCount(
-                        appItem.packageName,
-                        appItem.className)
-                if (badgeCount > 0) {
-                    itemMenuItems.add(createActionMenuItem(
-                            resources.getString(R.string.app_item_menu_clear_badge), ItemMenuAction.ClearBadge))
-                }
+        if (isMovingStartables) {
+            if (adapter.selectedCount == 0) {
+                startDraggingStartable(startableItem)
+            } else {
+                showContextMenuForSelectedStartables(startableItem)
             }
+        } else {
+            showContextMenuForStartable(startableItem)
         }
-        itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.app_item_menu_information), ItemMenuAction.AppInfo))
-        itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.app_item_menu_move_to_section), ItemMenuAction.MoveAppToSection))
-        itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
-        //
-        // Icon pack support is experimental.
-        // Enable it only when it's fully implemented.
-        // TODO:
-        // * Find relevant icons for the selected app from the icon pack.
-        //   Currently we just show a list of all the icons in the icon pack without any ordering.
-        //   This way it's very difficult to find e.g. the "Email" related icons.
-        //
-        //itemMenuItems.add(createActionMenuItem(
-        //        resources.getString(R.string.app_item_menu_change_icon), ItemMenuAction.ChangeIcon))
-        if (isApp) {
-            itemMenuItems.add(createActionMenuItem(
-                    resources.getString(R.string.app_item_menu_uninstall), ItemMenuAction.Uninstall))
-        }
-        if (isShortcut) {
-            itemMenuItems.add(createActionMenuItem(
-                    resources.getString(R.string.app_item_menu_remove_shortcut), ItemMenuAction.RemoveShortcut))
-        }
-        val itemMenuAdapter = ItemMenuAdapter(c)
-        itemMenuAdapter.setListener(itemMenuClickListener)
-        itemMenuAdapter.setItems(itemMenuItems)
-
-        val startableItemHolder = recyclerView.findViewHolderForItemId(
-                startableItem.id) as StartableItemHolder
-
-        val menu = ListPopupWindow(c)
-        val hasNotificationWithRemoteViews = hasNotificationWithRemoteViews(itemMenuItems)
-        menu.setContentWidth(resources.getDimensionPixelSize(
-                if (hasNotificationWithRemoteViews) R.dimen.item_menu_width_large else R.dimen.item_menu_width))
-        menu.height = ListPopupWindow.WRAP_CONTENT
-        menu.setOnDismissListener {
-            adapter.setHighlighted(itemMenuTarget, false)
-            itemMenu = null
-        }
-        menu.anchorView = startableItemHolder.layout
-        menu.setAdapter(itemMenuAdapter)
-        menu.isModal = true
-        menu.show()
-        itemMenu = menu
     }
 
     override fun onStartableTapped(startableItem: StartableItem) {
-        if (isMovingStartables || isMovingSections) {
+        if (isMovingSections) {
             return
         }
 
-        val c = context ?: return
-        if (startableItem is AppItem) {
-            val launchIntent = Intent(Intent.ACTION_MAIN)
-            launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            launchIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-            val appComponentName = ComponentName(
-                    startableItem.packageName, startableItem.className)
-            launchIntent.component = appComponentName
-
-            val smsAppComponentName = AppUtils.getSmsApp(c)
-            if (appComponentName == smsAppComponentName) {
-                badgeStore.setBadgeCount(
-                        smsAppComponentName.packageName,
-                        smsAppComponentName.className,
-                        0)
-            }
-            val phoneAppComponentName = AppUtils.getPhoneApp(c.applicationContext)
-            if (appComponentName == phoneAppComponentName) {
-                badgeStore.setBadgeCount(
-                        phoneAppComponentName.packageName,
-                        phoneAppComponentName.className,
-                        0)
-            }
-
-            try {
-                c.startActivity(launchIntent)
-            } catch (e: Exception) {
-                Toast.makeText(c, R.string.cannot_start_app, Toast.LENGTH_SHORT).show()
-                ApplistLog.getInstance().log(e)
-            }
-
-        } else if (startableItem is ShortcutItem) {
-            try {
-                c.startActivity(startableItem.intent)
-            } catch (e: ActivityNotFoundException) {
-                Toast.makeText(c, R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(c, R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show()
-                ApplistLog.getInstance().log(e)
-            }
-
-        } else if (startableItem is AppShortcutItem) {
-            val shortcutInfo = resolveAppShortcutInfo(startableItem)
-            startAppShortcut(shortcutInfo)
+        if (isMovingStartables) {
+            toggleStartableSelected(startableItem)
+        } else {
+            launchStartable(startableItem)
         }
     }
 
     override fun onStartableTouched(startableItem: StartableItem) {
-        if (!isMovingStartables) {
-            return
-        }
-        val viewHolder = recyclerView.findViewHolderForItemId(startableItem.id)
-        itemTouchHelper.startDrag(viewHolder)
+//        if (!isMovingStartables) {
+//            return
+//        }
+//        val viewHolder = recyclerView.findViewHolderForItemId(startableItem.id)
+//        itemTouchHelper.startDrag(viewHolder)
     }
 
     override fun onSectionLongTapped(sectionItem: SectionItem) {
@@ -516,13 +424,15 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         val itemMenuItems = ArrayList<ItemMenuItem>()
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.section_item_menu_rename), ItemMenuAction.RenameSection))
-        if (sectionItem.isRemovable) {
-            itemMenuItems.add(createActionMenuItem(
-                    resources.getString(R.string.section_item_menu_delete), ItemMenuAction.DeleteSection))
-        }
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.action_reorder_sections), ItemMenuAction.ReorderSections))
         if (!settingsUtils.isKeepAppsSortedAlphabetically) {
             itemMenuItems.add(createActionMenuItem(
                     resources.getString(R.string.section_item_menu_sort_apps), ItemMenuAction.SortSection))
+        }
+        if (sectionItem.isRemovable) {
+            itemMenuItems.add(createActionMenuItem(
+                    resources.getString(R.string.section_item_menu_delete), ItemMenuAction.DeleteSection))
         }
         val itemMenuAdapter = ItemMenuAdapter(c)
         itemMenuAdapter.setListener(itemMenuClickListener)
@@ -592,6 +502,176 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
         val viewHolder = recyclerView.findViewHolderForItemId(sectionItem.id)
         itemTouchHelper.startDrag(viewHolder)
+    }
+
+    private fun clearSelection() {
+        adapter.unselectAll()
+    }
+
+    private fun toggleStartableSelected(startableItem: StartableItem) {
+        adapter.setSelected(startableItem, !startableItem.isSelected)
+    }
+
+    private fun launchStartable(startableItem: StartableItem) {
+        val c = context ?: return
+        if (startableItem is AppItem) {
+            val launchIntent = Intent(Intent.ACTION_MAIN)
+            launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            launchIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+            val appComponentName = ComponentName(
+                    startableItem.packageName, startableItem.className)
+            launchIntent.component = appComponentName
+
+            val smsAppComponentName = AppUtils.getSmsApp(c)
+            if (appComponentName == smsAppComponentName) {
+                badgeStore.setBadgeCount(
+                        smsAppComponentName.packageName,
+                        smsAppComponentName.className,
+                        0)
+            }
+            val phoneAppComponentName = AppUtils.getPhoneApp(c.applicationContext)
+            if (appComponentName == phoneAppComponentName) {
+                badgeStore.setBadgeCount(
+                        phoneAppComponentName.packageName,
+                        phoneAppComponentName.className,
+                        0)
+            }
+
+            try {
+                c.startActivity(launchIntent)
+            } catch (e: Exception) {
+                Toast.makeText(c, R.string.cannot_start_app, Toast.LENGTH_SHORT).show()
+                ApplistLog.getInstance().log(e)
+            }
+
+        } else if (startableItem is ShortcutItem) {
+            try {
+                c.startActivity(startableItem.intent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(c, R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(c, R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show()
+                ApplistLog.getInstance().log(e)
+            }
+
+        } else if (startableItem is AppShortcutItem) {
+            val shortcutInfo = resolveAppShortcutInfo(startableItem)
+            launchAppShortcut(shortcutInfo)
+        }
+    }
+
+    private fun startDraggingStartable(startableItem: StartableItem) {
+        adapter.setSelected(startableItem, true)
+        handler.postDelayed({
+            val viewHolder = recyclerView.findViewHolderForItemId(startableItem.id)
+            itemTouchHelper.startDrag(viewHolder)
+        }, 100)
+    }
+
+    private fun showContextMenuForSelectedStartables(startableItem: StartableItem) {
+        val c = context ?: return
+
+        val itemMenuItems = ArrayList<ItemMenuItem>()
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_move_to_section), ItemMenuAction.MoveAppsToSection))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_clear_selection), ItemMenuAction.ClearSelection))
+
+        val itemMenuAdapter = ItemMenuAdapter(c)
+        itemMenuAdapter.setListener(itemMenuClickListener)
+        itemMenuAdapter.setItems(itemMenuItems)
+
+        val startableItemHolder = recyclerView.findViewHolderForItemId(
+                startableItem.id) as StartableItemHolder
+
+        val menu = ListPopupWindow(c)
+        menu.setContentWidth(resources.getDimensionPixelSize(R.dimen.item_menu_width))
+        menu.height = ListPopupWindow.WRAP_CONTENT
+        menu.setOnDismissListener {
+            itemMenu = null
+        }
+        menu.anchorView = startableItemHolder.layout
+        menu.setAdapter(itemMenuAdapter)
+        menu.isModal = true
+        menu.show()
+        itemMenu = menu
+    }
+
+    private fun showContextMenuForStartable(startableItem: StartableItem) {
+        val c = context ?: return
+
+        itemMenuTarget = startableItem
+
+        // Change the adapter only after the popup window has been displayed.
+        // Otherwise the popup window appears in a jittery way due to simultaneous change in the adapter.
+        handler.postDelayed({ adapter.setHighlighted(itemMenuTarget, true) }, 300)
+
+        val isApp = startableItem is AppItem
+        val isShortcut = startableItem is ShortcutItem || startableItem is AppShortcutItem
+        val itemMenuItems = ArrayList<ItemMenuItem>()
+        if (isApp) {
+            addAppNotificationsToItemMenu(startableItem as AppItem, itemMenuItems)
+            addAppShortcutsToItemMenu(startableItem, itemMenuItems)
+        }
+        if (isApp) {
+            val appItem = startableItem as AppItem
+            if (settingsUtils.showBadge) {
+                val badgeCount = badgeStore.getBadgeCount(
+                        appItem.packageName,
+                        appItem.className)
+                if (badgeCount > 0) {
+                    itemMenuItems.add(createActionMenuItem(
+                            resources.getString(R.string.app_item_menu_clear_badge), ItemMenuAction.ClearBadge))
+                }
+            }
+        }
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_information), ItemMenuAction.AppInfo))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_move_to_section), ItemMenuAction.MoveAppToSection))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.action_reorder_items), ItemMenuAction.ReorderApps))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
+        //
+        // Icon pack support is experimental.
+        // Enable it only when it's fully implemented.
+        // TODO:
+        // * Find relevant icons for the selected app from the icon pack.
+        //   Currently we just show a list of all the icons in the icon pack without any ordering.
+        //   This way it's very difficult to find e.g. the "Email" related icons.
+        //
+        //itemMenuItems.add(createActionMenuItem(
+        //        resources.getString(R.string.app_item_menu_change_icon), ItemMenuAction.ChangeIcon))
+        if (isApp) {
+            itemMenuItems.add(createActionMenuItem(
+                    resources.getString(R.string.app_item_menu_uninstall), ItemMenuAction.Uninstall))
+        }
+        if (isShortcut) {
+            itemMenuItems.add(createActionMenuItem(
+                    resources.getString(R.string.app_item_menu_remove_shortcut), ItemMenuAction.RemoveShortcut))
+        }
+        val itemMenuAdapter = ItemMenuAdapter(c)
+        itemMenuAdapter.setListener(itemMenuClickListener)
+        itemMenuAdapter.setItems(itemMenuItems)
+
+        val startableItemHolder = recyclerView.findViewHolderForItemId(
+                startableItem.id) as StartableItemHolder
+
+        val menu = ListPopupWindow(c)
+        val hasNotificationWithRemoteViews = hasNotificationWithRemoteViews(itemMenuItems)
+        menu.setContentWidth(resources.getDimensionPixelSize(
+                if (hasNotificationWithRemoteViews) R.dimen.item_menu_width_large else R.dimen.item_menu_width))
+        menu.height = ListPopupWindow.WRAP_CONTENT
+        menu.setOnDismissListener {
+            adapter.setHighlighted(itemMenuTarget, false)
+            itemMenu = null
+        }
+        menu.anchorView = startableItemHolder.layout
+        menu.setAdapter(itemMenuAdapter)
+        menu.isModal = true
+        menu.show()
+        itemMenu = menu
     }
 
     private fun createNotificationMenuItem(text: String, icon: Drawable?, remoteViews: RemoteViews?, statusBarNotification: StatusBarNotification): ItemMenuItem {
@@ -785,6 +865,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
+    private fun onItemDropped(position: Int) {
+        clearSelection()
+    }
+
     @TargetApi(Build.VERSION_CODES.N_MR1)
     private fun performAppShortcutQuery(packageName: String,
                                         shortcutId: String?,
@@ -832,7 +916,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    private fun startAppShortcut(shortcutInfo: ShortcutInfo?) {
+    private fun launchAppShortcut(shortcutInfo: ShortcutInfo?) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
             return
         }
@@ -858,7 +942,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    private fun startNotification(statusBarNotification: StatusBarNotification) {
+    private fun launchNotification(statusBarNotification: StatusBarNotification) {
         if (!isAttached) {
             return
         }
@@ -962,10 +1046,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    // REF: 2019_07_16_broken_drag_and_drop
-    // The drag-n-drop code is broken. So, we must provide a dailog
-    // based move operation.
-    private fun moveApp(startableItem: StartableItem) {
+    private fun moveApps(startableItemIds: List<Long>) {
         if (!isAttached) {
             return
         }
@@ -984,12 +1065,12 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                     activity!!, getString(R.string.move_app_title), sectionNames) { itemIndex ->
                 val moveToNewSection = (itemIndex == sectionNames.size - 1)
                 if (moveToNewSection) {
-                    createSection(startableItem)
+                    createSection(startableItemIds)
                 } else {
                     val sectionId = sections.get(itemIndex).first
-                    val startableId = startableItem.id
+                    clearSelection()
                     GlobalScope.launch {
-                        applistRepo.moveStartableToSection(startableId, sectionId, true)
+                        applistRepo.moveStartablesToSection(startableItemIds.toTypedArray(), sectionId, true)
                     }
                 }
             }
@@ -1093,7 +1174,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    private fun createSection(appToMove: StartableItem?) {
+    private fun createSection(appsToMove: List<Long>) {
         if (!isAttached) {
             return
         }
@@ -1108,10 +1189,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 },
                 { sectionName ->
                     if (!sectionName.isEmpty()) {
+                        clearSelection()
                         GlobalScope.launch {
                             val sectionId = applistRepo.addNewSection(sectionName)
-                            if (sectionId != ApplistItemData.INVALID_ID && appToMove != null) {
-                                applistRepo.moveStartableToSection(appToMove.id, sectionId, true)
+                            if (sectionId != ApplistItemData.INVALID_ID && appsToMove.isNotEmpty()) {
+                                applistRepo.moveStartablesToSection(appsToMove.toTypedArray(), sectionId, true)
                             }
                         }
                     }
@@ -1130,6 +1212,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
 
         isMovingStartables = enable
+        adapter.setSelectionModeEnabled(isMovingStartables)
 
         if (isMovingStartables) {
             showDoneButton()

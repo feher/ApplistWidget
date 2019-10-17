@@ -102,6 +102,6 @@
     <string name="iconpack_picker_apply_iconpack">Összes ikon használata</string>
     <string name="move_app_to_new_section">Új csoport...</string>
     <string name="move_app_title">Válassz csoportot</string>
-    <string name="action_move_items">Appok átrendezése</string>
-    <string name="action_move_sections">Csoportok átrendezése</string>
+    <string name="action_reorder_items">Appok átrendezése</string>
+    <string name="action_reorder_sections">Csoportok átrendezése</string>
 </resources>

@@ -31,8 +31,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
     private val settingsUtils: SettingsUtils by inject(SettingsUtils::class.java)
     private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
 
-    private val draggedOverIndicatorLeft: View = view.findViewById(R.id.applist_app_item_dragged_over_indicator_left)
-    private val draggedOverIndicatorRight: View = view.findViewById(R.id.applist_app_item_dragged_over_indicator_right)
+    private val border: View = view.findViewById(R.id.applist_app_item_border)
     val appIcon: ImageView = view.findViewById(R.id.applist_app_item_icon)
     private val appNameWithoutShadow: TextView = view.findViewById(R.id.applist_app_item_app_name)
     private val appNameWithShadow: TextView = view.findViewById(R.id.applist_app_item_app_name_with_shadow)
@@ -64,7 +63,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         }
     }
 
-    fun bind(startableItem: StartableItem) {
+    fun bind(startableItem: StartableItem, isSelectionModeEnabled: Boolean) {
         item = startableItem
 
         // REF: 2017_06_22_22_08_setShadowLayer_not_working
@@ -91,8 +90,16 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
             layout.background = null
         }
 
-        draggedOverIndicatorLeft.visibility = if (startableItem.isDraggedOverLeft) View.VISIBLE else View.INVISIBLE
-        draggedOverIndicatorRight.visibility = if (startableItem.isDraggedOverRight) View.VISIBLE else View.INVISIBLE
+        if (isSelectionModeEnabled) {
+            border.visibility = View.VISIBLE
+            if (startableItem.isSelected) {
+                border.setBackgroundResource(R.drawable.applist_startable_item_selected_border_background)
+            } else {
+                border.setBackgroundResource(R.drawable.applist_startable_item_border_background)
+            }
+        } else {
+            border.visibility = View.GONE
+        }
 
         if (startableItem is AppItem) {
             bindAppItemHolder(startableItem)

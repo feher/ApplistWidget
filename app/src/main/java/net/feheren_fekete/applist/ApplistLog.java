@@ -43,13 +43,15 @@ public class ApplistLog {
     public static String REMOVE_SHORTCUT = "RemoveShortcut";
     public static String RENAME_APP = "RenameApp";
     public static String MOVE_APP_TO_SECTION = "MoveAppToSection";
+    public static String MOVE_APPS_TO_SECTION = "MoveAppsToSection";
     public static String CHANGE_APP_ICON = "ChangeAppIcon";
     public static String RENAME_SECTION = "RenameSection";
     public static String DELETE_SECTION = "DeleteSection";
     public static String SORT_SECTION = "SortSection";
+    public static String CLEAR_SELECTION = "ClearSelection";
     public static String CREATE_SECTION = "CreateSection";
-    public static String MOVE_ITEMS = "MoveItems";
-    public static String MOVE_SECTIONS = "MoveSections";
+    public static String REORDER_ITEMS = "ReorderItems";
+    public static String REORDER_SECTIONS = "ReorderSections";
     public static String START_DRAG_APP = "StartDragApp";
     public static String START_DRAG_SECTION = "StartDragSection";
     public static String ADD_PAGE = "AddPage";

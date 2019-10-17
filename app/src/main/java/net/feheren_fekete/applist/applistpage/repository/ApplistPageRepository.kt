@@ -310,10 +310,10 @@ class ApplistPageRepository(val context: Context,
         }
     }
 
-    suspend fun moveStartablesToSection(startableIds: Array<Long>, sectionId: Long) {
+    suspend fun moveStartablesToSection(startableIds: Array<Long>, sectionId: Long, append: Boolean) {
         applistPageDao.transcation {
             for (itemId in startableIds) {
-                moveStartableToSection(itemId, sectionId, true)
+                moveStartableToSection(itemId, sectionId, append)
             }
         }
     }

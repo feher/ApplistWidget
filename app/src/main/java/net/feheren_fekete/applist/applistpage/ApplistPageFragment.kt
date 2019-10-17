@@ -209,16 +209,12 @@ class ApplistPageFragment : Fragment() {
             menu.findItem(R.id.action_create_section)?.isVisible = false
             menu.findItem(R.id.action_settings)?.isVisible = false
             menu.findItem(R.id.action_edit_pages).isVisible = false
-            menu.findItem(R.id.action_move_items).isVisible = false
-            menu.findItem(R.id.action_move_sections).isVisible = false
             menu.findItem(R.id.action_change_wallpaper).isVisible = false
         } else {
             menu.findItem(R.id.action_search_app)?.isVisible = true
             menu.findItem(R.id.action_create_section)?.isVisible = true
             menu.findItem(R.id.action_settings)?.isVisible = true
             menu.findItem(R.id.action_edit_pages)?.isVisible = true
-            menu.findItem(R.id.action_move_items)?.isVisible = true
-            menu.findItem(R.id.action_move_sections)?.isVisible = true
             menu.findItem(R.id.action_change_wallpaper)?.isVisible = true
         }
     }

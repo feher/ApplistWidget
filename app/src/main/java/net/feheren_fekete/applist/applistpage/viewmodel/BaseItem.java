@@ -9,9 +9,8 @@ public abstract class BaseItem {
     private long mId;
     private String mName;
     private boolean mIsEnabled = true;
-    private boolean mIsDraggedOverLeft = false;
-    private boolean mIsDraggedOverRight = false;
     private boolean mIsHighlighted = false;
+    private boolean mIsSelected = false;
 
     public BaseItem(long id, String name) {
         mId = id;
@@ -30,29 +29,12 @@ public abstract class BaseItem {
         mIsEnabled = enabled;
     }
 
-    public boolean isDraggedOverLeft() {
-        return mIsDraggedOverLeft;
+    public boolean isSelected() {
+        return mIsSelected;
     }
 
-    public boolean isDraggedOverRight() {
-        return mIsDraggedOverRight;
-    }
-
-    public void setDraggedOver(int side) {
-        switch (side) {
-            case LEFT:
-                mIsDraggedOverLeft = true;
-                mIsDraggedOverRight = false;
-                break;
-            case RIGHT:
-                mIsDraggedOverLeft = false;
-                mIsDraggedOverRight = true;
-                break;
-            case NONE:
-                mIsDraggedOverLeft = false;
-                mIsDraggedOverRight = false;
-                break;
-        }
+    public void setSelected(boolean selected) {
+        mIsSelected = selected;
     }
 
     public boolean isHighlighted() {
