@@ -71,6 +71,9 @@ interface ApplistPageDao {
     @Query("UPDATE ApplistItemData SET sectionIsCollapsed = :collapsed WHERE id = :itemId")
     suspend fun updateSectionCollapsed(itemId: Long, collapsed: Boolean)
 
+    @Query("UPDATE ApplistItemData SET sectionIsCollapsed = :collapsed WHERE type = ${ApplistItemData.TYPE_SECTION}")
+    suspend fun updateAllSectionsCollapsed(collapsed: Boolean)
+
     @Query("UPDATE ApplistItemData SET customName = :customName WHERE id = :itemId")
     suspend fun updateCustomName(itemId: Long, customName: String)
 
@@ -79,5 +82,6 @@ interface ApplistPageDao {
 
     @Query("UPDATE ApplistItemData SET parentSectionId = ${ApplistItemData.DEFAULT_SECTION_ID} WHERE type != ${ApplistItemData.TYPE_SECTION} AND parentSectionId = :parentSectionId")
     suspend fun resetParentSectionIds(parentSectionId: Long)
+
 
 }

@@ -16,7 +16,7 @@ data class ApplistItemData(@PrimaryKey(autoGenerate = true) val id: Long,
                            val appVersionCode: Long,
                            val shortcutIntent: String,
                            val appShortcutId: String,
-                           val parentSectionId: Long,
+                           var parentSectionId: Long,
                            val sectionIsCollapsed: Boolean) {
 
     fun getDisplayName(): String {

@@ -24,6 +24,10 @@ import org.koin.java.KoinJavaComponent.inject
 import java.io.File
 import java.lang.IllegalStateException
 import java.lang.ref.WeakReference
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.ColorMatrix
+
+
 
 class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) : ViewHolderBase(view, R.id.applist_app_item_layout) {
 
@@ -91,24 +95,27 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         }
 
         if (isSelectionModeEnabled) {
-            border.visibility = View.VISIBLE
+            val colorMatrix = ColorMatrix()
+            colorMatrix.setSaturation(0f)
+            val filter = ColorMatrixColorFilter(colorMatrix)
+            appIcon.colorFilter = filter
             if (startableItem.isSelected) {
-                border.setBackgroundResource(R.drawable.applist_startable_item_selected_border_background)
+                layout.setBackgroundResource(R.drawable.applist_startable_item_selected_border_background)
             } else {
-                border.setBackgroundResource(R.drawable.applist_startable_item_border_background)
+                layout.background = null
             }
         } else {
-            border.visibility = View.GONE
+            appIcon.colorFilter = null
         }
 
         if (startableItem is AppItem) {
-            bindAppItemHolder(startableItem)
+            bindAppItemHolder(startableItem, isSelectionModeEnabled)
         } else if (startableItem is ShortcutItem || startableItem is AppShortcutItem) {
-            bindShortcutItemHolder(startableItem)
+            bindShortcutItemHolder(startableItem, isSelectionModeEnabled)
         }
     }
 
-    private fun bindAppItemHolder(item: AppItem) {
+    private fun bindAppItemHolder(item: AppItem, isSelectionModeEnabled: Boolean) {
         val iconFile = File(item.customIconPath)
         if (iconFile.exists()) {
             loadAppIcon(iconFile)
@@ -135,7 +142,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         shortcutIndicator.visibility = View.GONE
     }
 
-    private fun bindShortcutItemHolder(item: StartableItem) {
+    private fun bindShortcutItemHolder(item: StartableItem, isSelectionModeEnabled: Boolean) {
         val iconFile = File(item.customIconPath)
         if (iconFile.exists()) {
             loadAppIcon(iconFile)

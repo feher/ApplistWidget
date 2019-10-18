@@ -42,74 +42,65 @@ class ApplistPageRepository(val context: Context,
         init {
             allItemsRawLiveData = applistPageDao.getAllItems()
             addSource(allItemsRawLiveData) { items ->
-                val allItemsStructured = ArrayList<BaseItem>()
-                val sections = items.filter {
-                    it.type == ApplistItemData.TYPE_SECTION
-                }.sortedBy {
+                val result = ArrayList<BaseItem>()
+                val sortedItems = items.sortedBy {
                     it.position
                 }
-                for (section in sections) {
-                    allItemsStructured.add(SectionItem(
-                            section.id,
-                            section.name,
-                            section.id != ApplistItemData.DEFAULT_SECTION_ID,
-                            section.sectionIsCollapsed))
-                    val sectionItems = items.filter {
-                        it.parentSectionId == section.id
-                    }.sortedBy {
-                        it.position
-                    }
-                    for (sectionItem in sectionItems) {
-                        val baseItem = when (sectionItem.type) {
-                            ApplistItemData.TYPE_APP -> AppItem(
-                                    sectionItem.id,
-                                    sectionItem.packageName,
-                                    sectionItem.className,
-                                    sectionItem.appVersionCode,
-                                    sectionItem.name,
-                                    sectionItem.customName,
-                                    iconStorage.getCustomAppIconFilePath(sectionItem.packageName, sectionItem.className),
-                                    sectionItem.parentSectionId)
-                            ApplistItemData.TYPE_SHORTCUT -> {
-                                val intent = Intent.parseUri(sectionItem.shortcutIntent, 0)
-                                var packageName = intent.getPackage()
-                                if (packageName == null && intent.component != null) {
-                                    packageName = intent.component!!.packageName
-                                }
-                                if (packageName == null) {
-                                    ApplistLog.getInstance().log(RuntimeException("Missing package name: " + intent.toUri(0)))
-                                    null
-                                } else {
-                                    ShortcutItem(
-                                            sectionItem.id,
-                                            sectionItem.name,
-                                            sectionItem.customName,
-                                            iconStorage.getCustomShortcutIconFilePath(sectionItem.id),
-                                            intent,
-                                            iconStorage.getShortcutIconFilePath(sectionItem.id),
-                                            sectionItem.parentSectionId)
-                                }
+                for (item in sortedItems) {
+                    val baseItem = when (item.type) {
+                        ApplistItemData.TYPE_SECTION -> SectionItem(
+                                item.id,
+                                item.name,
+                                item.id != ApplistItemData.DEFAULT_SECTION_ID,
+                                item.sectionIsCollapsed)
+                        ApplistItemData.TYPE_APP -> AppItem(
+                                item.id,
+                                item.packageName,
+                                item.className,
+                                item.appVersionCode,
+                                item.name,
+                                item.customName,
+                                iconStorage.getCustomAppIconFilePath(item.packageName, item.className),
+                                item.parentSectionId)
+                        ApplistItemData.TYPE_SHORTCUT -> {
+                            val intent = Intent.parseUri(item.shortcutIntent, 0)
+                            var packageName = intent.getPackage()
+                            if (packageName == null && intent.component != null) {
+                                packageName = intent.component!!.packageName
                             }
-                            ApplistItemData.TYPE_APP_SHORTCUT -> AppShortcutItem(
-                                    sectionItem.id,
-                                    sectionItem.name,
-                                    sectionItem.customName,
-                                    iconStorage.getCustomShortcutIconFilePath(sectionItem.id),
-                                    sectionItem.packageName,
-                                    sectionItem.appShortcutId,
-                                    iconStorage.getShortcutIconFilePath(sectionItem.id),
-                                    sectionItem.parentSectionId)
-                            else -> {
-                                ApplistLog.getInstance().log(RuntimeException(""))
+                            if (packageName == null) {
+                                ApplistLog.getInstance().log(RuntimeException("Missing package name: " + intent.toUri(0)))
                                 null
+                            } else {
+                                ShortcutItem(
+                                        item.id,
+                                        item.name,
+                                        item.customName,
+                                        iconStorage.getCustomShortcutIconFilePath(item.id),
+                                        intent,
+                                        iconStorage.getShortcutIconFilePath(item.id),
+                                        item.parentSectionId)
                             }
                         }
-                        if (baseItem != null) {
-                            allItemsStructured.add(baseItem)
+                        ApplistItemData.TYPE_APP_SHORTCUT -> AppShortcutItem(
+                                item.id,
+                                item.name,
+                                item.customName,
+                                iconStorage.getCustomShortcutIconFilePath(item.id),
+                                item.packageName,
+                                item.appShortcutId,
+                                iconStorage.getShortcutIconFilePath(item.id),
+                                item.parentSectionId)
+                        else -> {
+                            ApplistLog.getInstance().log(RuntimeException(""))
+                            null
                         }
+                    }
+                    if (baseItem != null) {
+                        result.add(baseItem)
                     }
                 }
-                postValue(allItemsStructured)
+                postValue(result)
             }
         }
     }
@@ -228,6 +219,10 @@ class ApplistPageRepository(val context: Context,
         applistPageDao.updateSectionCollapsed(sectionId, collapsed)
     }
 
+    suspend fun setAllSectionsCollapsed(collapsed: Boolean) {
+        applistPageDao.updateAllSectionsCollapsed(collapsed)
+    }
+
     suspend fun getSections(): List<Pair<Long, String>> {
         val result = ArrayList<Pair<Long, String>>()
         val sections =
@@ -240,13 +235,13 @@ class ApplistPageRepository(val context: Context,
         return result
     }
 
-    suspend fun updateItemPositionsAndParentSectionIds(orderedItemIds: Array<Long>,
-                                                       parentSectionIds: Array<Long>) {
+    suspend fun updateItemPositionsAndParentSectionIds(orderedItemIds: List<Long>,
+                                                       parentSectionIds: List<Long>) {
         applistPageDao.transcation {
             if (orderedItemIds.size != parentSectionIds.size) {
                 throw RuntimeException("Array sizes don't match")
             }
-            for (i in 0..orderedItemIds.size - 1) {
+            for (i in orderedItemIds.indices) {
                 applistPageDao.updatePosition(orderedItemIds[i], i)
                 applistPageDao.updateParentSectionId(orderedItemIds[i], parentSectionIds[i])
             }
@@ -284,153 +279,69 @@ class ApplistPageRepository(val context: Context,
         }
     }
 
-    suspend fun moveStartableToSection(startableId: Long, newSectionId: Long, append: Boolean) {
+    suspend fun moveStartablesToSection(startableIds: List<Long>, sectionId: Long, append: Boolean) {
         applistPageDao.transcation {
-            val item = applistPageDao.getItemById(startableId)
-            if (item == null) {
+            val items = applistPageDao.getAllItemsSync()
+                    .sortedBy {
+                        it.position
+                    }
+                    .toMutableList()
+            val movedItems = ArrayList<ApplistItemData>()
+            var sectionItem: ApplistItemData? = null
+
+            for (item in items) {
+                if (startableIds.contains(item.id)) {
+                    movedItems.add(item)
+                    item.parentSectionId = sectionId
+                }
+                if (item.id == sectionId) {
+                    sectionItem = item
+                }
+            }
+
+            if (sectionItem == null) {
                 return@transcation
             }
 
-            if (item.parentSectionId == newSectionId) {
-                return@transcation
-            }
+            // Remove the items from their old places
+            items.removeAll(movedItems)
 
-            val newSection = applistPageDao.getItemById(newSectionId)
-            if (newSection == null) {
-                return@transcation
+            // Move the items to their new places
+            var sectionIndex = -1
+            var lastSectionItemIndex = -1
+            for (i in items.indices) {
+                val item = items[i]
+                if (item.type == ApplistItemData.TYPE_SECTION) {
+                    if (sectionIndex == -1) {
+                        if (item.id == sectionId) {
+                            sectionIndex = i
+                        }
+                    } else {
+                        lastSectionItemIndex = i - 1
+                        break
+                    }
+                }
             }
-
+            if (sectionIndex == -1) {
+                throw IllegalStateException()
+            }
+            if (lastSectionItemIndex == -1) {
+                lastSectionItemIndex = items.size - 1
+            }
             if (append) {
-                val newSectionItemCount =
-                        applistPageDao.getItemsBySectionSync(newSectionId).size
-                moveStartableToPosition(startableId, newSection.position + newSectionItemCount + 1)
+                items.addAll(lastSectionItemIndex + 1, movedItems)
             } else {
-                moveStartableToPosition(startableId, newSection.position + 1)
-            }
-        }
-    }
-
-    suspend fun moveStartablesToSection(startableIds: Array<Long>, sectionId: Long, append: Boolean) {
-        applistPageDao.transcation {
-            for (itemId in startableIds) {
-                moveStartableToSection(itemId, sectionId, append)
-            }
-        }
-    }
-
-    suspend fun moveStartableToPosition(startableId: Long, newPosition: Int) {
-        applistPageDao.transcation {
-            Log.d("ZIZI", "TRANS ${startableId} ${newPosition}")
-            val item = applistPageDao.getItemById(startableId)
-            if (item == null) {
-                applistLog.log(RuntimeException("Item not found with ID " + startableId))
-                return@transcation
+                items.addAll(sectionIndex + 1, movedItems)
             }
 
-            Log.d("ZIZI", "ITEM OK pos = ${item.position}")
-
-            val allItems = applistPageDao.getAllItemsSync().sortedBy {
-                it.position
+            // Update item positions and parent section IDs
+            val orderedItemIds = ArrayList<Long>()
+            val parentSectionIds = ArrayList<Long>()
+            for (item in items) {
+                orderedItemIds.add(item.id)
+                parentSectionIds.add(item.parentSectionId)
             }
-
-            if (newPosition < 0 || newPosition > allItems.size) {
-                applistLog.log(RuntimeException(
-                        "Bad newPosition: ${newPosition} < 0 || ${newPosition} > ${allItems.size}"))
-                return@transcation
-            }
-
-            Log.d("ZIZI", "NEW POS OK")
-
-            // Determine the new parent section for the item
-            val leftNeighborPos = newPosition - 1
-            val rightNeighborPos = newPosition
-            val newParentSectionId = if (leftNeighborPos >= 0) {
-                val leftNeighbor = allItems[leftNeighborPos]
-                if (leftNeighbor.type != ApplistItemData.TYPE_SECTION) {
-                    leftNeighbor.parentSectionId
-                } else {
-                    leftNeighbor.id
-                }
-            } else if (rightNeighborPos < allItems.size) {
-                val rightNeighbor = allItems[rightNeighborPos]
-                if (rightNeighbor.type != ApplistItemData.TYPE_SECTION) {
-                    rightNeighbor.parentSectionId
-                } else {
-                    ApplistItemData.INVALID_ID
-                }
-            } else {
-                ApplistItemData.INVALID_ID
-            }
-            Log.d("ZIZI", "NEW PAR ${newParentSectionId}")
-            if (newParentSectionId == ApplistItemData.INVALID_ID) {
-                applistLog.log(RuntimeException("Cannot determine new parent section ID"))
-                return@transcation
-            }
-
-            // Reposition the other items
-            val oldPosition = item.position
-            var updatedNewPosition = 0
-            if (newPosition < oldPosition) {
-                updatedNewPosition = newPosition
-                // Move items down by one position that are in [newPos, oldPos)
-                for (otherItem in allItems) {
-                    if (updatedNewPosition <= otherItem.position
-                            && otherItem.position < oldPosition) {
-                        applistPageDao.updatePosition(otherItem.id, otherItem.position + 1)
-                    }
-                }
-            } else {
-                updatedNewPosition = newPosition - 1
-                // Move items up by one position that are in (oldPos, newPos]
-                for (otherItem in allItems) {
-                    if (oldPosition < otherItem.position
-                            && otherItem.position <= updatedNewPosition) {
-                        applistPageDao.updatePosition(otherItem.id, otherItem.position - 1)
-                    }
-                }
-            }
-
-            // Put the item into position
-            applistPageDao.updatePosition(item.id, updatedNewPosition)
-            applistPageDao.updateParentSectionId(item.id, newParentSectionId)
-        }
-    }
-
-    suspend fun moveSectionToPosition(sectionId: Long, newPosition: Int) {
-        applistPageDao.transcation {
-            val section = applistPageDao.getItemById(sectionId)
-            if (section == null) {
-                applistLog.log(RuntimeException("Section not found with ID " + sectionId))
-                return@transcation
-            }
-
-            val oldPosition = section.position
-            val sections = applistPageDao.getItemsByTypesSync(arrayOf(ApplistItemData.TYPE_SECTION))
-
-            if (newPosition < 0 || newPosition >= sections.size) {
-                applistLog.log(RuntimeException(
-                        "Bad newPosition: ${newPosition} < 0 || ${newPosition} >= ${sections.size}"))
-                return@transcation
-            }
-
-            if (newPosition < oldPosition) {
-                // Move sections down by one position that are in [newPos, oldPos)
-                for (sec in sections) {
-                    if (newPosition <= sec.position && sec.position < oldPosition) {
-                        applistPageDao.updatePosition(sec.id, sec.position + 1)
-                    }
-                }
-            } else {
-                // Move sections up by one position that are in (oldPos, newPos]
-                for (sec in sections) {
-                    if (oldPosition < sec.position && sec.position <= newPosition) {
-                        applistPageDao.updatePosition(sec.id, sec.position - 1)
-                    }
-                }
-            }
-
-            // Put the item into position
-            applistPageDao.updatePosition(section.id, newPosition)
+            updateItemPositionsAndParentSectionIds(orderedItemIds, parentSectionIds)
         }
     }
 
@@ -445,9 +356,11 @@ class ApplistPageRepository(val context: Context,
     suspend fun removeSection(sectionId: Long) {
         applistPageDao.transcation {
             val sectionItems = applistPageDao.getItemsBySectionSync(sectionId)
+            val sectionItemIds = ArrayList<Long>()
             for (item in sectionItems) {
-                moveStartableToSection(item.id, ApplistItemData.DEFAULT_SECTION_ID, false)
+                sectionItemIds.add(item.id)
             }
+            moveStartablesToSection(sectionItemIds, ApplistItemData.DEFAULT_SECTION_ID, false)
             applistPageDao.delItem(sectionId)
         }
     }

@@ -184,17 +184,17 @@ public class ApplistAdapter
         return getItems().get(position);
     }
 
-    public List<Long> getItemIds() {
+    public List<Long> getAllItemIds() {
         List<Long> result = new ArrayList<>();
-        for (BaseItem item : getItems()) {
+        for (BaseItem item : mAllItems) {
             result.add(item.getId());
         }
         return result;
     }
 
-    public List<Long> getParentSectionIds() {
+    public List<Long> getAllParentSectionIds() {
         List<Long> result = new ArrayList<>();
-        for (BaseItem item : getItems()) {
+        for (BaseItem item : mAllItems) {
             if (item instanceof SectionItem) {
                 result.add(ApplistItemData.INVALID_ID);
             } else if (item instanceof StartableItem) {
@@ -243,6 +243,48 @@ public class ApplistAdapter
         return ids;
     }
 
+    public boolean moveItemsToSection(List<Long> itemIds, long sectionId) {
+        List<BaseItem> items = getItems();
+        List<BaseItem> movedItems = new ArrayList<>();
+        BaseItem sectionItem = null;
+
+        for (BaseItem item : items) {
+            if (itemIds.contains(item.getId())) {
+                movedItems.add(item);
+            }
+            if (item.getId() == sectionId) {
+                sectionItem = item;
+            }
+        }
+
+        if (sectionItem == null) {
+            return false;
+        }
+
+        items.removeAll(movedItems);
+
+        int sectionIndex = -1;
+        int lastSectionItemIndex = -1;
+        for (int i = 0; i < items.size(); ++i) {
+            BaseItem item = items.get(i);
+            if (item instanceof SectionItem) {
+                if (sectionIndex == -1) {
+                    if (item.getId() == sectionId) {
+                        sectionIndex = i;
+                        lastSectionItemIndex = sectionIndex + 1;
+                    }
+                } else {
+                    lastSectionItemIndex = i - 1;
+                }
+            }
+        }
+        items.addAll(lastSectionItemIndex + 1, movedItems);
+
+        notifyDataSetChanged();
+
+        return true;
+    }
+
     public boolean moveItem(int oldPosition, int newPosition) {
         if (newPosition == oldPosition) {
             return false;
@@ -255,6 +297,9 @@ public class ApplistAdapter
         if (item instanceof StartableItem) {
             if (newPosition == 0) {
                 return false;
+            }
+            if (hasCollapsedSection()) {
+                throw new IllegalStateException();
             }
         }
 
@@ -274,6 +319,26 @@ public class ApplistAdapter
             } else if (nextItem instanceof StartableItem) {
                 startableItem.setParentSectionId(((StartableItem) nextItem).getParentSectionId());
             }
+            mAllItems = items;
+            updateCollapsedAndFilteredItems();
+        }
+
+        // Reposition the section's items
+        if (item instanceof SectionItem) {
+            List<BaseItem> newAllItems = new ArrayList<>();
+            for (BaseItem section : items) {
+                newAllItems.add(section);
+                for (BaseItem itm : mAllItems) {
+                    if (itm instanceof StartableItem) {
+                        StartableItem startableItem = (StartableItem) itm;
+                        if (startableItem.getParentSectionId() == section.getId()) {
+                            newAllItems.add(startableItem);
+                        }
+                    }
+                }
+            }
+            mAllItems = newAllItems;
+            updateCollapsedAndFilteredItems();
         }
 
         notifyItemMoved(oldPosition, newPosition);
@@ -315,6 +380,18 @@ public class ApplistAdapter
             }
         }
         return result;
+    }
+
+    private boolean hasCollapsedSection() {
+        for (BaseItem item : mAllItems) {
+            if (item instanceof SectionItem) {
+                SectionItem sectionItem = (SectionItem) item;
+                if (sectionItem.isCollapsed()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private List<BaseItem> filterItemsByName() {

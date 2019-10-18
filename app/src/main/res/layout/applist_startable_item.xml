@@ -10,19 +10,6 @@
     android:clickable="true"
     android:focusable="true">
 
-    <View
-        android:id="@+id/applist_app_item_border"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/applist_startable_item_border_background"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/applist_app_item_app_name"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/applist_app_item_icon"
-        tools:visibility="visible"
-        />
-
     <ImageView
         android:id="@+id/applist_app_item_icon"
         android:layout_width="@dimen/appitem_icon_size"
@@ -116,6 +103,19 @@
         app:layout_constraintLeft_toLeftOf="@id/applist_app_item_icon"
         app:layout_constraintTop_toTopOf="@id/applist_app_item_icon"
         app:srcCompat="@drawable/ic_shortcut"
+        />
+
+    <View
+        android:id="@+id/applist_app_item_border"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/applist_startable_item_border_background"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/applist_app_item_app_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
