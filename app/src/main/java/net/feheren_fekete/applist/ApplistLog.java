@@ -43,7 +43,6 @@ public class ApplistLog {
     public static String REMOVE_SHORTCUT = "RemoveShortcut";
     public static String RENAME_APP = "RenameApp";
     public static String MOVE_APP_TO_SECTION = "MoveAppToSection";
-    public static String MOVE_APPS_TO_SECTION = "MoveAppsToSection";
     public static String CHANGE_APP_ICON = "ChangeAppIcon";
     public static String RENAME_SECTION = "RenameSection";
     public static String DELETE_SECTION = "DeleteSection";
@@ -85,6 +84,7 @@ public class ApplistLog {
     public static String APPLIST = "Applist";
     public static String SETTINGS = "Settings";
     public static String ITEM_MENU = "ItemMenu";
+    public static String ACTION_BUTTONS = "ActionButtons";
     public static String TOOLBAR = "Toolbar";
     public static String PAGE_EDITOR = "PageEditor";
     public static String WIDGET_MENU = "WidgetMenu";

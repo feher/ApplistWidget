@@ -24,7 +24,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.OvershootInterpolator
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -73,8 +72,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     enum class ItemMenuAction {
         AppInfo,
-        MoveAppToSection,
-        MoveAppsToSection,
         RenameApp,
         ChangeIcon,
         ClearBadge,
@@ -83,7 +80,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         RenameSection,
         DeleteSection,
         SortSection,
-        ClearSelection,
         ReorderApps,
         ReorderSections
     }
@@ -158,14 +154,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                         ApplistLog.getInstance().analytics(ApplistLog.SHOW_APP_INFO, ApplistLog.ITEM_MENU)
                         showAppInfo(itemMenuTarget as StartableItem)
                     }
-                    ItemMenuAction.MoveAppToSection -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.MOVE_APP_TO_SECTION, ApplistLog.ITEM_MENU)
-                        moveApps(arrayListOf(itemMenuTarget!!.id))
-                    }
-                    ItemMenuAction.MoveAppsToSection -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.MOVE_APPS_TO_SECTION, ApplistLog.ITEM_MENU)
-                        moveApps(adapter.selectedIds)
-                    }
                     ItemMenuAction.RenameApp -> {
                         ApplistLog.getInstance().analytics(ApplistLog.RENAME_APP, ApplistLog.ITEM_MENU)
                         renameApp(itemMenuTarget as StartableItem)
@@ -194,12 +182,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                         ApplistLog.getInstance().analytics(ApplistLog.SORT_SECTION, ApplistLog.ITEM_MENU)
                         sortSection(itemMenuTarget as SectionItem)
                     }
-                    ItemMenuAction.ClearSelection -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.CLEAR_SELECTION, ApplistLog.ITEM_MENU)
-                        clearSelection()
-                    }
                     ItemMenuAction.ReorderApps -> {
                         ApplistLog.getInstance().analytics(ApplistLog.REORDER_ITEMS, ApplistLog.ITEM_MENU)
+                        toggleStartableSelected(itemMenuTarget as StartableItem)
                         setMoveStartablesEnabled(!isMovingStartables)
                     }
                     ItemMenuAction.ReorderSections -> {
@@ -283,6 +268,16 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             setMoveSectionsEnabled(false)
         }
 
+        view.moveToSectionButton.setOnClickListener {
+            ApplistLog.getInstance().analytics(ApplistLog.MOVE_APP_TO_SECTION, ApplistLog.ACTION_BUTTONS)
+            moveApps(adapter.selectedIds)
+        }
+
+        view.clearSelectionButton.setOnClickListener {
+            ApplistLog.getInstance().analytics(ApplistLog.CLEAR_SELECTION, ApplistLog.ACTION_BUTTONS)
+            clearSelection()
+        }
+
         iconPreloadHelper.setupPreloader(
                 context!!, view.recyclerView,
                 adapter, columnCount * 2)
@@ -296,6 +291,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         viewModel.getItems().observe(this, Observer {
             Log.d("ZIZI", "OBSERVER GOT ITEMS!")
             adapter.setItems(it)
+            updateActionButtons()
         })
     }
 
@@ -384,10 +380,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
 
         if (isMovingStartables) {
-            if (adapter.selectedCount == 0) {
+            if (adapter.selectedCount == 1) {
                 startDraggingStartable(startableItem)
-            } else {
-                showContextMenuForSelectedStartables(startableItem)
             }
         } else {
             showContextMenuForStartable(startableItem)
@@ -507,10 +501,12 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     private fun clearSelection() {
         adapter.unselectAll()
+        updateActionButtons()
     }
 
     private fun toggleStartableSelected(startableItem: StartableItem) {
         adapter.setSelected(startableItem, !startableItem.isSelected)
+        updateActionButtons()
     }
 
     private fun launchStartable(startableItem: StartableItem) {
@@ -562,40 +558,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun startDraggingStartable(startableItem: StartableItem) {
-        adapter.setSelected(startableItem, true)
         handler.postDelayed({
             val viewHolder = recyclerView.findViewHolderForItemId(startableItem.id)
             itemTouchHelper.startDrag(viewHolder)
         }, 100)
-    }
-
-    private fun showContextMenuForSelectedStartables(startableItem: StartableItem) {
-        val c = context ?: return
-
-        val itemMenuItems = ArrayList<ItemMenuItem>()
-        itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.app_item_menu_move_to_section), ItemMenuAction.MoveAppsToSection))
-        itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.app_item_menu_clear_selection), ItemMenuAction.ClearSelection))
-
-        val itemMenuAdapter = ItemMenuAdapter(c)
-        itemMenuAdapter.setListener(itemMenuClickListener)
-        itemMenuAdapter.setItems(itemMenuItems)
-
-        val startableItemHolder = recyclerView.findViewHolderForItemId(
-                startableItem.id) as StartableItemHolder
-
-        val menu = ListPopupWindow(c)
-        menu.setContentWidth(resources.getDimensionPixelSize(R.dimen.item_menu_width))
-        menu.height = ListPopupWindow.WRAP_CONTENT
-        menu.setOnDismissListener {
-            itemMenu = null
-        }
-        menu.anchorView = startableItemHolder.layout
-        menu.setAdapter(itemMenuAdapter)
-        menu.isModal = true
-        menu.show()
-        itemMenu = menu
     }
 
     private fun showContextMenuForStartable(startableItem: StartableItem) {
@@ -620,8 +586,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.action_reorder_items), ItemMenuAction.ReorderApps))
-        itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.app_item_menu_move_to_section), ItemMenuAction.MoveAppToSection))
         if (isApp) {
             if (settingsUtils.showBadge) {
                 val appItem = startableItem as AppItem
@@ -855,6 +819,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (toPosition == draggedToPosition) {
             val elapsedTime = System.currentTimeMillis() - draggedToTime
             if (elapsedTime > 300) {
+                draggedToPosition = -1;
                 return adapter.moveItem(fromPosition, toPosition)
             } else {
                 return false
@@ -1220,10 +1185,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         adapter.setSelectionModeEnabled(isMovingStartables)
 
         if (isMovingStartables) {
-            showDoneButton()
+            showActionButtons()
             EventBus.getDefault().post(HideToolbarEvent())
         } else {
-            hideDoneButton()
+            hideActionButtons()
             EventBus.getDefault().post(ShowToolbarEvent())
         }
     }
@@ -1242,13 +1207,13 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         isMovingSections = enable
 
         if (isMovingSections) {
-            showDoneButton()
+            showActionButtons()
             EventBus.getDefault().post(HideToolbarEvent())
             GlobalScope.launch {
                 applistRepo.setAllSectionsCollapsed(true)
             }
         } else {
-            hideDoneButton()
+            hideActionButtons()
             EventBus.getDefault().post(ShowToolbarEvent())
             GlobalScope.launch {
                 applistRepo.setAllSectionsCollapsed(false)
@@ -1256,22 +1221,33 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    private fun showDoneButton() {
-        doneButtonBackground.visibility = View.VISIBLE
-        doneButton.visibility = View.VISIBLE
-        doneButton.scaleX = 0.3f
-        doneButton.scaleY = 0.3f
-        doneButton.animate()
-                .scaleX(1.0f)
-                .scaleY(1.0f)
-                .setInterpolator(OvershootInterpolator())
-                .setDuration(150)
-                .start()
+    private fun showActionButtons() {
+        actionButtonsLayout.visibility = View.VISIBLE
+        recyclerView.setPadding(
+                0, 0, 0,
+                Math.round(
+                        0.7f * resources.getDimensionPixelSize(R.dimen.applist_action_buttons_height))
+        )
     }
 
-    private fun hideDoneButton() {
-        doneButtonBackground.visibility = View.GONE
-        doneButton.visibility = View.GONE
+    private fun hideActionButtons() {
+        actionButtonsLayout.visibility = View.GONE
+        recyclerView.setPadding(0, 0, 0, 0)
+    }
+
+    private fun updateActionButtons() {
+        val hasSelectedItem = (adapter.selectedCount > 0)
+        if (hasSelectedItem) {
+            clearSelectionButton.setBackgroundResource(R.drawable.applist_fab_background)
+            clearSelectionButton.isEnabled = true
+            moveToSectionButton.setBackgroundResource(R.drawable.applist_fab_background)
+            moveToSectionButton.isEnabled = true
+        } else {
+            clearSelectionButton.setBackgroundResource(R.drawable.applist_disabled_fab_background)
+            clearSelectionButton.isEnabled = false
+            moveToSectionButton.setBackgroundResource(R.drawable.applist_disabled_fab_background)
+            moveToSectionButton.isEnabled = false
+        }
     }
 
     companion object {

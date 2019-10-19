@@ -35,7 +35,6 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
     private val settingsUtils: SettingsUtils by inject(SettingsUtils::class.java)
     private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
 
-    private val border: View = view.findViewById(R.id.applist_app_item_border)
     val appIcon: ImageView = view.findViewById(R.id.applist_app_item_icon)
     private val appNameWithoutShadow: TextView = view.findViewById(R.id.applist_app_item_app_name)
     private val appNameWithShadow: TextView = view.findViewById(R.id.applist_app_item_app_name_with_shadow)

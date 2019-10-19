@@ -274,7 +274,7 @@ class ApplistPageRepository(val context: Context,
                 it.getDisplayName().toLowerCase()
             }
             items.forEachIndexed { index, item ->
-                applistPageDao.updatePosition(item.id, section.position + index)
+                applistPageDao.updatePosition(item.id, section.position + index + 1)
             }
         }
     }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -20,26 +21,57 @@
         tools:spanCount="4"
         />
 
-    <View
-        android:id="@+id/doneButtonBackground"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/actionButtonsLayout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="@dimen/applist_action_buttons_height"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/fab_background"
+        android:background="@drawable/applist_action_buttons_background"
         android:visibility="gone"
         tools:visibility="visible"
-        />
+        >
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/doneButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:src="@drawable/ic_done"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
+        <ImageButton
+            android:id="@+id/doneButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/applist_fab_background"
+            android:scaleType="center"
+            android:src="@drawable/ic_done"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+
+        <ImageButton
+            android:id="@+id/moveToSectionButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="40dp"
+            android:background="@drawable/applist_fab_background"
+            android:scaleType="center"
+            android:src="@drawable/ic_folder"
+            android:tint="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/doneButton"
+            app:layout_constraintLeft_toRightOf="@id/doneButton"
+            app:layout_constraintTop_toTopOf="@id/doneButton"
+            />
+
+        <ImageButton
+            android:id="@+id/clearSelectionButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="40dp"
+            android:background="@drawable/applist_fab_background"
+            android:scaleType="center"
+            android:src="@drawable/ic_clear_selection"
+            android:tint="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/doneButton"
+            app:layout_constraintRight_toLeftOf="@id/doneButton"
+            app:layout_constraintTop_toTopOf="@id/doneButton"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </RelativeLayout>
