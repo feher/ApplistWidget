@@ -214,10 +214,24 @@ public class ApplistAdapter
         notifyItemChanged(getItemPosition(item));
     }
 
+    public void setDragged(BaseItem item, boolean dragged) {
+        item.setDragged(dragged);
+        notifyItemChanged(getItemPosition(item));
+    }
+
     public void unselectAll() {
         for (BaseItem item : getItems()) {
             if (item.isSelected()) {
                 item.setSelected(false);
+                notifyItemChanged(getItemPosition(item));
+            }
+        }
+    }
+
+    public void clearDragged() {
+        for (BaseItem item : getItems()) {
+            if (item.isDragged()) {
+                item.setDragged(false);
                 notifyItemChanged(getItemPosition(item));
             }
         }

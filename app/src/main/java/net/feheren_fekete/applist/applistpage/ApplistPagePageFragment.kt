@@ -345,6 +345,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
 
         setNameFilter("")
+        recyclerView.setPadding(
+                0, screenUtils.getActionBarHeight(context), 0, 0)
     }
 
     fun deactivateNameFilter() {
@@ -353,6 +355,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
 
         setNameFilter(null)
+        recyclerView.setPadding(0, 0, 0, 0)
     }
 
     fun setNameFilter(filterText: String?) {
@@ -382,6 +385,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (isMovingStartables) {
             if (adapter.selectedCount == 1) {
                 startDraggingStartable(startableItem)
+            } else {
+                Toast.makeText(
+                        context, "Only single items can be dragged", Toast.LENGTH_SHORT).show()
             }
         } else {
             showContextMenuForStartable(startableItem)
@@ -558,6 +564,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun startDraggingStartable(startableItem: StartableItem) {
+        adapter.setDragged(startableItem, true)
         handler.postDelayed({
             val viewHolder = recyclerView.findViewHolderForItemId(startableItem.id)
             itemTouchHelper.startDrag(viewHolder)
@@ -580,8 +587,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             addAppNotificationsToItemMenu(startableItem as AppItem, itemMenuItems)
             addAppShortcutsToItemMenu(startableItem, itemMenuItems)
         }
-        itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.app_item_menu_information), ItemMenuAction.AppInfo))
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
         itemMenuItems.add(createActionMenuItem(
@@ -608,6 +613,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         //
         //itemMenuItems.add(createActionMenuItem(
         //        resources.getString(R.string.app_item_menu_change_icon), ItemMenuAction.ChangeIcon))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_information), ItemMenuAction.AppInfo))
         if (isApp) {
             itemMenuItems.add(createActionMenuItem(
                     resources.getString(R.string.app_item_menu_uninstall), ItemMenuAction.Uninstall))
@@ -832,6 +839,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun onItemDropped(position: Int) {
+        adapter.clearDragged()
         GlobalScope.launch {
             applistRepo.updateItemPositionsAndParentSectionIds(
                     adapter.getAllItemIds(),
@@ -1185,9 +1193,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         adapter.setSelectionModeEnabled(isMovingStartables)
 
         if (isMovingStartables) {
-            showActionButtons()
+            Toast.makeText(context, "Longtap and drag to reorder", Toast.LENGTH_SHORT).show()
+            showActionButtons(false)
             EventBus.getDefault().post(HideToolbarEvent())
         } else {
+            clearSelection()
             hideActionButtons()
             EventBus.getDefault().post(ShowToolbarEvent())
         }
@@ -1207,7 +1217,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         isMovingSections = enable
 
         if (isMovingSections) {
-            showActionButtons()
+            Toast.makeText(context, "Drag and drop to reorder", Toast.LENGTH_SHORT).show()
+            showActionButtons(true)
             EventBus.getDefault().post(HideToolbarEvent())
             GlobalScope.launch {
                 applistRepo.setAllSectionsCollapsed(true)
@@ -1221,8 +1232,15 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
-    private fun showActionButtons() {
+    private fun showActionButtons(onlyDoneButton: Boolean) {
         actionButtonsLayout.visibility = View.VISIBLE
+        if (onlyDoneButton) {
+            clearSelectionButton.visibility = View.GONE
+            moveToSectionButton.visibility = View.GONE
+        } else {
+            clearSelectionButton.visibility = View.VISIBLE
+            moveToSectionButton.visibility = View.VISIBLE
+        }
         recyclerView.setPadding(
                 0, 0, 0,
                 Math.round(

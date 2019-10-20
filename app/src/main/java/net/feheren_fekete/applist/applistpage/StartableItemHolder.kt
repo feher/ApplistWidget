@@ -98,8 +98,10 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
             colorMatrix.setSaturation(0f)
             val filter = ColorMatrixColorFilter(colorMatrix)
             appIcon.colorFilter = filter
-            if (startableItem.isSelected) {
-                layout.setBackgroundResource(R.drawable.applist_startable_item_selected_border_background)
+            if (startableItem.isDragged) {
+                layout.setBackgroundResource(R.drawable.applist_startable_item_dragged_background)
+            } else if (startableItem.isSelected) {
+                layout.setBackgroundResource(R.drawable.applist_startable_item_selected_background)
             } else {
                 layout.background = null
             }

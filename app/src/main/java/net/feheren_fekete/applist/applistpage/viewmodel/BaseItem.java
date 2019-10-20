@@ -2,15 +2,12 @@ package net.feheren_fekete.applist.applistpage.viewmodel;
 
 public abstract class BaseItem {
 
-    public static final int NONE = 0;
-    public static final int LEFT = 1;
-    public static final int RIGHT = 2;
-
     private long mId;
     private String mName;
     private boolean mIsEnabled = true;
     private boolean mIsHighlighted = false;
     private boolean mIsSelected = false;
+    private boolean mIsDragged = false;
 
     public BaseItem(long id, String name) {
         mId = id;
@@ -27,6 +24,14 @@ public abstract class BaseItem {
 
     public void setEnabled(boolean enabled) {
         mIsEnabled = enabled;
+    }
+
+    public boolean isDragged() {
+        return mIsDragged;
+    }
+
+    public void setDragged(boolean dragged) {
+        mIsDragged = dragged;
     }
 
     public boolean isSelected() {
