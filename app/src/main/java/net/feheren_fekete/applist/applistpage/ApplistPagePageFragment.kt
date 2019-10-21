@@ -42,6 +42,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
+import net.feheren_fekete.applist.BuildConfig
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuAdapter
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuItem
@@ -297,12 +298,14 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     override fun onResume() {
         super.onResume()
-        if (applistPreferences.showWhatsNew) {
+        if (applistPreferences.versionCode < BuildConfig.VERSION_CODE
+                || applistPreferences.showWhatsNew) {
             AlertDialog.Builder(activity!!)
                     .setMessage(R.string.whats_new)
                     .setCancelable(true)
                     .setPositiveButton(R.string.got_it) { _, _ ->
                         applistPreferences.showWhatsNew = false
+                        applistPreferences.versionCode = BuildConfig.VERSION_CODE
                     }
                     .show()
         } else if (applistPreferences.showRearrangeItemsHelp) {
@@ -425,7 +428,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.section_item_menu_rename), ItemMenuAction.RenameSection))
         itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.action_reorder_sections), ItemMenuAction.ReorderSections))
+                resources.getString(R.string.section_item_menu_reorder_sections), ItemMenuAction.ReorderSections))
         if (!settingsUtils.isKeepAppsSortedAlphabetically) {
             itemMenuItems.add(createActionMenuItem(
                     resources.getString(R.string.section_item_menu_sort_apps), ItemMenuAction.SortSection))
@@ -590,7 +593,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.app_item_menu_rename), ItemMenuAction.RenameApp))
         itemMenuItems.add(createActionMenuItem(
-                resources.getString(R.string.action_reorder_items), ItemMenuAction.ReorderApps))
+                resources.getString(R.string.app_item_menu_reorder_items), ItemMenuAction.ReorderApps))
         if (isApp) {
             if (settingsUtils.showBadge) {
                 val appItem = startableItem as AppItem
@@ -1193,9 +1196,17 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         adapter.setSelectionModeEnabled(isMovingStartables)
 
         if (isMovingStartables) {
-            Toast.makeText(context, "Longtap and drag to reorder", Toast.LENGTH_SHORT).show()
             showActionButtons(false)
             EventBus.getDefault().post(HideToolbarEvent())
+            if (applistPreferences.showReorderAppsHelp) {
+                AlertDialog.Builder(activity!!)
+                        .setMessage(R.string.reorder_apps_help)
+                        .setCancelable(true)
+                        .setPositiveButton(R.string.got_it) { _, _ ->
+                            applistPreferences.showReorderAppsHelp = false
+                        }
+                        .show()
+            }
         } else {
             clearSelection()
             hideActionButtons()

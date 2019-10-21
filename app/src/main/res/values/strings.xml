@@ -4,8 +4,6 @@
 
     <string name="action_search_app">Search app</string>
     <string name="action_create_section">New group</string>
-    <string name="action_reorder_items">Reorder items</string>
-    <string name="action_reorder_sections">Reorder groups</string>
     <string name="action_settings">Settings</string>
 
     <string name="section_name">Group name</string>
@@ -37,7 +35,7 @@
     <string name="app_item_menu_uninstall">Uninstall</string>
     <string name="app_item_menu_remove_shortcut">Delete shortcut</string>
     <string name="app_item_menu_notification_without_title">Notification</string>
-    <string name="app_item_menu_clear_selection">Unselect all</string>
+    <string name="app_item_menu_reorder_items">Reorder items</string>
 
     <string name="cannot_start_app">App cannot be started.</string>
     <string name="cannot_show_app_info">Cannot show app info.</string>
@@ -50,6 +48,7 @@
     <string name="section_item_menu_rename">Rename</string>
     <string name="section_item_menu_delete">Delete</string>
     <string name="section_item_menu_sort_apps">Sort apps alphabetically</string>
+    <string name="section_item_menu_reorder_sections">Reorder groups</string>
 
     <string name="widget_menu_move_resize">Move and resize</string>
     <string name="widget_menu_move_to_page">Move to other page</string>
@@ -62,8 +61,9 @@
         <item>@string/widget_menu_remove</item>
     </string-array>
 
-    <string name="whats_new" translatable="false">Breaking change!\n\nDue to issues with drag-and-drop, groups and apps will be always <b>sorted alphabetically</b> from now on. You can re-order them by <b>renaming</b>.\nSorry!</string>
-    <string name="rearrange_items_help">Long press and Drag to rearrange groups and items</string>
+    <string name="whats_new" translatable="false">Updates!\n\nGroups and apps can be <b>reordered</b>.\n\n<b>Multiple</b> apps can be moved to a group at once.</string>
+    <string name="rearrange_items_help">Long press and select <b>\"Reorder\"</b> to rearrange groups and apps.</string>
+    <string name="reorder_apps_help">Long press and Drag <b>individual</b> apps.\n\nSelect and tap the folder icon to move <b>multiple</b> apps to new group.</string>
     <string name="use_launcher_tip">Did you know that you can use Apper as your <b>launcher</b>?\n\nGo to your phone Settings and set Apper as your <b>Home screen launcher</b>.</string>
 
     <string name="change_wallpaper_dialog_title">Select wallpaper source</string>

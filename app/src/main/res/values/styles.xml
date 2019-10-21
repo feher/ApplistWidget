@@ -191,7 +191,7 @@
         <item name="primaryColor">#673AB7</item>
         <item name="primaryDarkColor">#512DA8</item>
         <item name="primaryLightColor">#D1C4E9</item>
-        <item name="accentColor">#536DFE</item>
+        <item name="accentColor">#FF9800</item>
         <item name="primaryTextColor">#212121</item>
         <item name="secondaryTextColor">#727272</item>
         <item name="iconsColor">#FFFFFF</item>
@@ -203,7 +203,7 @@
         <item name="sectionTextHighlightColor">?attr/primaryTextColor</item>
         <item name="appTextColor">?attr/secondaryTextColor</item>
         <item name="appHighlightedBackgroundColor">#55D1C4E9</item>
-        <item name="draggedOverIndicatorColor">#88536DFE</item>
+        <item name="draggedOverIndicatorColor">#88FF9800</item>
 
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>

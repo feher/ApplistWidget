@@ -7,7 +7,7 @@
     <string name="dialog_error_section_exists">Ez a csoport már létezik</string>
     <string name="ok">OK</string>
     <string name="section_name">Csoport név</string>
-    <string name="rearrange_items_help">Tartsd lenyomva és Húzd a csoportokat és az appot a kívánt sorrendbe</string>
+    <string name="rearrange_items_help">Tartsd lenyomva és válaszd az \"Átrendezés\"-t a csoportok és appok átrendezéséhez</string>
     <string name="toolbar_title">Apper</string>
     <string name="action_create_section">Új csoport</string>
     <string name="color_theme_black">Fekete</string>
@@ -102,6 +102,6 @@
     <string name="iconpack_picker_apply_iconpack">Összes ikon használata</string>
     <string name="move_app_to_new_section">Új csoport...</string>
     <string name="move_app_title">Válassz csoportot</string>
-    <string name="action_reorder_items">Appok átrendezése</string>
-    <string name="action_reorder_sections">Csoportok átrendezése</string>
+    <string name="app_item_menu_reorder_items">Appok átrendezése</string>
+    <string name="section_item_menu_reorder_sections">Csoportok átrendezése</string>
 </resources>
