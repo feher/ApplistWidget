@@ -54,12 +54,13 @@ class ShortcutHelper {
                             val drawableId = resources!!.getIdentifier(shortcutIconResource.resourceName, null, null)
                             val drawable = resources.getDrawable(drawableId)
                             shortcutIconBitmap = imageUtils.drawableToBitmap(drawable)
+                        } catch (e: Resources.NotFoundException) {
+                            ApplistLog.getInstance().log(e)
                         } catch (e: PackageManager.NameNotFoundException) {
                             ApplistLog.getInstance().log(e)
                         } catch (e: NullPointerException) {
                             ApplistLog.getInstance().log(e)
                         }
-
                     }
                 }
                 if (shortcutIconBitmap == null) {
