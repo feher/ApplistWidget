@@ -149,63 +149,63 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             if (item.data is ItemMenuAction) {
                 when (item.data) {
                     ItemMenuAction.ClearBadge -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.CLEAR_APP_BADGE, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.CLEAR_APP_BADGE, ApplistLog.ITEM_MENU)
                         clearAppBadge(itemMenuTarget as AppItem)
                     }
                     ItemMenuAction.AppInfo -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.SHOW_APP_INFO, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.SHOW_APP_INFO, ApplistLog.ITEM_MENU)
                         showAppInfo(itemMenuTarget as StartableItem)
                     }
                     ItemMenuAction.RenameApp -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.RENAME_APP, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.RENAME_APP, ApplistLog.ITEM_MENU)
                         renameApp(itemMenuTarget as StartableItem)
                     }
                     ItemMenuAction.ChangeIcon -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.CHANGE_APP_ICON, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.CHANGE_APP_ICON, ApplistLog.ITEM_MENU)
                         changeAppIcon(itemMenuTarget as StartableItem)
                     }
                     ItemMenuAction.Uninstall -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.UNINSTALL_APP, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.UNINSTALL_APP, ApplistLog.ITEM_MENU)
                         uninstallApp(itemMenuTarget as AppItem)
                     }
                     ItemMenuAction.RemoveShortcut -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.REMOVE_SHORTCUT, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.REMOVE_SHORTCUT, ApplistLog.ITEM_MENU)
                         removeShortcut(itemMenuTarget as StartableItem)
                     }
                     ItemMenuAction.RenameSection -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.RENAME_SECTION, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.RENAME_SECTION, ApplistLog.ITEM_MENU)
                         renameSection(itemMenuTarget as SectionItem)
                     }
                     ItemMenuAction.DeleteSection -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.DELETE_SECTION, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.DELETE_SECTION, ApplistLog.ITEM_MENU)
                         deleteSection(itemMenuTarget as SectionItem)
                     }
                     ItemMenuAction.SortSection -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.SORT_SECTION, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.SORT_SECTION, ApplistLog.ITEM_MENU)
                         sortSection(itemMenuTarget as SectionItem)
                     }
                     ItemMenuAction.ReorderApps -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.REORDER_ITEMS, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.REORDER_ITEMS, ApplistLog.ITEM_MENU)
                         toggleStartableSelected(itemMenuTarget as StartableItem)
                         setMoveStartablesEnabled(!isMovingStartables)
                     }
                     ItemMenuAction.ReorderSections -> {
-                        ApplistLog.getInstance().analytics(ApplistLog.REORDER_SECTIONS, ApplistLog.ITEM_MENU)
+                        applistLog.analytics(ApplistLog.REORDER_SECTIONS, ApplistLog.ITEM_MENU)
                         setMoveSectionsEnabled(!isMovingSections)
                     }
                 }
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && item.data is ShortcutInfo) {
-                ApplistLog.getInstance().analytics(ApplistLog.START_APP_SHORTCUT, ApplistLog.ITEM_MENU)
+                applistLog.analytics(ApplistLog.START_APP_SHORTCUT, ApplistLog.ITEM_MENU)
                 launchAppShortcut(item.data)
             } else if (item.data is StatusBarNotification) {
-                ApplistLog.getInstance().analytics(ApplistLog.START_NOTIFICATION, ApplistLog.ITEM_MENU)
+                applistLog.analytics(ApplistLog.START_NOTIFICATION, ApplistLog.ITEM_MENU)
                 launchNotification(item.data)
             }
             itemMenu?.dismiss()
         }
 
         override fun onItemSwiped(item: ItemMenuItem) {
-            ApplistLog.getInstance().analytics(ApplistLog.CANCEL_NOTIFICATION, ApplistLog.ITEM_MENU)
+            applistLog.analytics(ApplistLog.CANCEL_NOTIFICATION, ApplistLog.ITEM_MENU)
             cancelNotification(item.data as StatusBarNotification)
             itemMenu?.dismiss()
         }
@@ -237,7 +237,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         val screenWidth = screenUtils.getScreenWidth(context)
         var tempColumnCount = screenWidth / columnSize
         if (tempColumnCount <= 0) {
-            ApplistLog.getInstance().log(IllegalStateException("Invalid column count: $tempColumnCount"))
+            applistLog.log(IllegalStateException("Invalid column count: $tempColumnCount"))
             tempColumnCount = 4
         }
         val columnCount = tempColumnCount
@@ -271,12 +271,12 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
 
         view.moveToSectionButton.setOnClickListener {
-            ApplistLog.getInstance().analytics(ApplistLog.MOVE_APP_TO_SECTION, ApplistLog.ACTION_BUTTONS)
+            applistLog.analytics(ApplistLog.MOVE_APP_TO_SECTION, ApplistLog.ACTION_BUTTONS)
             moveApps(adapter.selectedIds)
         }
 
         view.clearSelectionButton.setOnClickListener {
-            ApplistLog.getInstance().analytics(ApplistLog.CLEAR_SELECTION, ApplistLog.ACTION_BUTTONS)
+            applistLog.analytics(ApplistLog.CLEAR_SELECTION, ApplistLog.ACTION_BUTTONS)
             clearSelection()
         }
 
@@ -371,7 +371,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         var isHandled = false
         when (itemId) {
             R.id.action_create_section -> {
-                ApplistLog.getInstance().analytics(ApplistLog.CREATE_SECTION, ApplistLog.OPTIONS_MENU)
+                applistLog.analytics(ApplistLog.CREATE_SECTION, ApplistLog.OPTIONS_MENU)
                 createSection(emptyList())
                 isHandled = true
             }
@@ -469,9 +469,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
         val wasSectionCollapsed = sectionItem.isCollapsed
         if (!wasSectionCollapsed) {
-            ApplistLog.getInstance().analytics(ApplistLog.COLLAPSE_SECTION, ApplistLog.ITEM_MENU)
+            applistLog.analytics(ApplistLog.COLLAPSE_SECTION, ApplistLog.ITEM_MENU)
         } else {
-            ApplistLog.getInstance().analytics(ApplistLog.UNCOLLAPSE_SECTION, ApplistLog.ITEM_MENU)
+            applistLog.analytics(ApplistLog.UNCOLLAPSE_SECTION, ApplistLog.ITEM_MENU)
         }
         GlobalScope.launch {
             applistRepo.setSectionCollapsed(
@@ -548,7 +548,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 c.startActivity(launchIntent)
             } catch (e: Exception) {
                 Toast.makeText(c, R.string.cannot_start_app, Toast.LENGTH_SHORT).show()
-                ApplistLog.getInstance().log(e)
+                applistLog.log(e)
             }
 
         } else if (startableItem is ShortcutItem) {
@@ -558,7 +558,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 Toast.makeText(c, R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(c, R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show()
-                ApplistLog.getInstance().log(e)
+                applistLog.log(e)
             }
 
         } else if (startableItem is AppShortcutItem) {
@@ -796,7 +796,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         })
         val maxShortcutCount = 10
         if (shortcutInfos.size > maxShortcutCount) {
-            ApplistLog.getInstance().log(RuntimeException("Max $maxShortcutCount app shortcuts are supported!"))
+            applistLog.log(RuntimeException("Max $maxShortcutCount app shortcuts are supported!"))
         }
         val launcherApps = c.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         var i = 0
@@ -806,13 +806,13 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             try {
                 iconDrawable = launcherApps.getShortcutIconDrawable(shortcutInfo, 0)
             } catch (e: Exception) {
-                ApplistLog.getInstance().log(e)
+                applistLog.log(e)
             }
 
             try {
                 iconDrawable = launcherApps.getShortcutBadgedIconDrawable(shortcutInfo, 0)
             } catch (e: Exception) {
-                ApplistLog.getInstance().log(e)
+                applistLog.log(e)
             }
 
             if (iconDrawable == null) {
@@ -1003,12 +1003,12 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             try {
                 c.startActivity(intent)
             } catch (e: ActivityNotFoundException) {
-                ApplistLog.getInstance().log(e)
+                applistLog.log(e)
                 Toast.makeText(c, R.string.cannot_show_app_info, Toast.LENGTH_SHORT).show()
             }
 
         } else {
-            ApplistLog.getInstance().log(RuntimeException("Package name is not available for shortcut"))
+            applistLog.log(RuntimeException("Package name is not available for shortcut"))
             Toast.makeText(c, R.string.cannot_show_app_info, Toast.LENGTH_SHORT).show()
         }
     }
