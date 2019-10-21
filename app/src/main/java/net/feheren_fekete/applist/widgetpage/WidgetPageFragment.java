@@ -280,7 +280,7 @@ public class WidgetPageFragment extends Fragment {
         MyAppWidgetHostView hostView = (MyAppWidgetHostView) mAppWidgetHost.createView(
                 getContext().getApplicationContext(), appWidgetId, appWidgetInfo);
         if (hostView == null) {
-            ApplistLog.getInstance().log(
+            mApplistLog.log(
                     new RuntimeException(
                             "Cannot create view for widget: "
                                     + "pkg=" + widgetData.getProviderPackage()
@@ -307,7 +307,7 @@ public class WidgetPageFragment extends Fragment {
         try {
             mWidgetContainer.addView(hostView);
         } catch (SecurityException e) {
-            ApplistLog.getInstance().log(e);
+            mApplistLog.log(e);
         }
         mWidgetContainer.invalidate();
     }
@@ -390,17 +390,17 @@ public class WidgetPageFragment extends Fragment {
                     switch (which) {
                         case 0:
                             // Add widget
-                            ApplistLog.getInstance().analytics(ApplistLog.SHOW_WIDGET_PICKER, ApplistLog.WIDGET_PAGE_MENU);
+                            mApplistLog.analytics(ApplistLog.SHOW_WIDGET_PICKER, ApplistLog.WIDGET_PAGE_MENU);
                             mWidgetHelper.pickWidget(getActivity(), getPageId());
                             break;
                         case 1:
                             // Edit pages
-                            ApplistLog.getInstance().analytics(ApplistLog.SHOW_PAGE_EDITOR, ApplistLog.WIDGET_PAGE_MENU);
+                            mApplistLog.analytics(ApplistLog.SHOW_PAGE_EDITOR, ApplistLog.WIDGET_PAGE_MENU);
                             showPageEditor();
                             break;
                         case 2:
                             // Change wallpaper
-                            ApplistLog.getInstance().analytics(ApplistLog.CHANGE_WALLPAPER, ApplistLog.WIDGET_PAGE_MENU);
+                            mApplistLog.analytics(ApplistLog.CHANGE_WALLPAPER, ApplistLog.WIDGET_PAGE_MENU);
                             mLauncherUtils.changeWallpaper(getActivity());
                             break;
                     }
@@ -418,22 +418,22 @@ public class WidgetPageFragment extends Fragment {
                 .setItems(R.array.widget_menu, (dialog, which) -> {
                     switch (which) {
                         case 0:
-                            ApplistLog.getInstance().analytics(ApplistLog.ADJUST_WIDGET, ApplistLog.WIDGET_MENU);
+                            mApplistLog.analytics(ApplistLog.ADJUST_WIDGET, ApplistLog.WIDGET_MENU);
                             mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_RESIZING);
                             EventBus.getDefault().post(new WidgetMoveStartedEvent());
                             break;
                         case 1:
-                            ApplistLog.getInstance().analytics(ApplistLog.MOVE_WIDGET_TO_PAGE, ApplistLog.WIDGET_MENU);
+                            mApplistLog.analytics(ApplistLog.MOVE_WIDGET_TO_PAGE, ApplistLog.WIDGET_MENU);
                             mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
                             moveWidgetToOtherPage(mWidgetMenuTarget);
                             break;
                         case 2:
-                            ApplistLog.getInstance().analytics(ApplistLog.RAISE_WIDGET, ApplistLog.WIDGET_MENU);
+                            mApplistLog.analytics(ApplistLog.RAISE_WIDGET, ApplistLog.WIDGET_MENU);
                             mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
                             bringWidgetToTop(mWidgetMenuTarget);
                             break;
                         case 3:
-                            ApplistLog.getInstance().analytics(ApplistLog.DELETE_WIDGET, ApplistLog.WIDGET_MENU);
+                            mApplistLog.analytics(ApplistLog.DELETE_WIDGET, ApplistLog.WIDGET_MENU);
                             mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
                             removeWidgetFromModel(mWidgetMenuTarget);
                             break;
