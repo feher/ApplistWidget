@@ -1,9 +1,11 @@
 package net.feheren_fekete.applist.applistpage;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData;
 import net.feheren_fekete.applist.applistpage.viewmodel.BaseItem;
@@ -26,12 +28,18 @@ public class ApplistAdapter
     public static final int STARTABLE_ITEM_VIEW = 1;
     public static final int SECTION_ITEM_VIEW = 2;
 
+    private ApplistLog mApplistLog;
     private List<BaseItem> mCollapsedItems;
     private List<BaseItem> mAllItems;
     private @Nullable String mFilterName;
     private @Nullable List<BaseItem> mFilteredItems;
     private ItemListener mItemListener;
     private boolean mIsSelectionModeEnabled = false;
+
+    // HACK: Needed to preserve the selected state of the item that
+    //       triggered the mIsSelectionModeEnabled.
+    //       I.e. when the user long-taps an app and selects "Reorder apps".
+    private long mStickySelectedItemId = -1;
 
     public interface ItemListener {
         void onStartableTapped(StartableItem startableItem);
@@ -42,10 +50,11 @@ public class ApplistAdapter
         void onSectionTouched(SectionItem sectionItem);
     }
 
-    public ApplistAdapter(ItemListener itemListener) {
+    public ApplistAdapter(ApplistLog applistLog, ItemListener itemListener) {
         mCollapsedItems = Collections.emptyList();
         mAllItems = Collections.emptyList();
         mItemListener = itemListener;
+        mApplistLog = applistLog;
 
         setHasStableIds(true);
     }
@@ -176,6 +185,7 @@ public class ApplistAdapter
 
     public void setItems(List<BaseItem> items) {
         mAllItems = items;
+        applyStickySelection();
         updateCollapsedAndFilteredItems();
         notifyDataSetChanged();
     }
@@ -209,29 +219,32 @@ public class ApplistAdapter
         notifyItemChanged(getItemPosition(item));
     }
 
-    public void setSelected(BaseItem item, boolean selected) {
-        item.setSelected(selected);
-        notifyItemChanged(getItemPosition(item));
-    }
-
-    public void setDragged(BaseItem item, boolean dragged) {
-        item.setDragged(dragged);
-        notifyItemChanged(getItemPosition(item));
-    }
-
-    public void unselectAll() {
-        for (BaseItem item : getItems()) {
-            if (item.isSelected()) {
-                item.setSelected(false);
-                notifyItemChanged(getItemPosition(item));
+    private void applyStickySelection() {
+        if (mStickySelectedItemId == -1) {
+            return;
+        }
+        for (BaseItem item : mAllItems) {
+            if (item.getId() == mStickySelectedItemId) {
+                item.setSelected(true);
             }
         }
     }
 
-    public void clearDragged() {
+    public void setSelected(BaseItem item, boolean selected) {
+        item.setSelected(selected);
+        if (selected) {
+            mStickySelectedItemId = item.getId();
+        } else if (!hasSelectedItem()) {
+            mStickySelectedItemId = -1;
+        }
+        notifyItemChanged(getItemPosition(item));
+    }
+
+    public void unselectAll() {
+        mStickySelectedItemId = -1;
         for (BaseItem item : getItems()) {
-            if (item.isDragged()) {
-                item.setDragged(false);
+            if (item.isSelected()) {
+                item.setSelected(false);
                 notifyItemChanged(getItemPosition(item));
             }
         }
@@ -247,6 +260,15 @@ public class ApplistAdapter
         return count;
     }
 
+    public boolean hasSelectedItem() {
+        for (BaseItem item : getItems()) {
+            if (item.isSelected()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List<Long> getSelectedIds() {
         List<Long> ids = new ArrayList<>();
         for (BaseItem item : getItems()) {
@@ -255,6 +277,20 @@ public class ApplistAdapter
             }
         }
         return ids;
+    }
+
+    public void setDragged(BaseItem item, boolean dragged) {
+        item.setDragged(dragged);
+        notifyItemChanged(getItemPosition(item));
+    }
+
+    public void clearDragged() {
+        for (BaseItem item : getItems()) {
+            if (item.isDragged()) {
+                item.setDragged(false);
+                notifyItemChanged(getItemPosition(item));
+            }
+        }
     }
 
     public boolean moveItemsToSection(List<Long> itemIds, long sectionId) {

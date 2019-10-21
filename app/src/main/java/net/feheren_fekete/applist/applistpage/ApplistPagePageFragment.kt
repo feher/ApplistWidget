@@ -85,6 +85,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         ReorderSections
     }
 
+    private val applistLog: ApplistLog by inject()
     private val applistRepo: ApplistPageRepository by inject()
     private val screenshotUtils: ScreenshotUtils by inject()
     private val settingsUtils: SettingsUtils by inject()
@@ -215,7 +216,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = ApplistAdapter(this)
+        adapter = ApplistAdapter(applistLog, this)
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -1198,6 +1199,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (isMovingStartables) {
             showActionButtons(false)
             EventBus.getDefault().post(HideToolbarEvent())
+            GlobalScope.launch(Dispatchers.IO) {
+                applistRepo.setAllSectionsCollapsed(false)
+            }
             if (applistPreferences.showReorderAppsHelp) {
                 AlertDialog.Builder(activity!!)
                         .setMessage(R.string.reorder_apps_help)
