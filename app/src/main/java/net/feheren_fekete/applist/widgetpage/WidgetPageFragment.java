@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -64,6 +63,7 @@ public class WidgetPageFragment extends Fragment {
         public MyAppWidgetHostView appWidgetHostView;
     }
 
+    private ApplistLog mApplistLog = get(ApplistLog.class);
     private WidgetModel mWidgetModel = get(WidgetModel.class);
     private ScreenshotUtils mScreenshotUtils = get(ScreenshotUtils.class);
     private ScreenUtils mScreenUtils = get(ScreenUtils.class);
@@ -218,6 +218,10 @@ public class WidgetPageFragment extends Fragment {
     }
 
     public boolean handleSingleTap(MotionEvent event) {
+        if (mWidgetMenuTarget == null) {
+            mApplistLog.log(new IllegalStateException("mWidgetMenuTarget == null"));
+            return false;
+        }
         mWidgetMenuTarget.appWidgetHostView.setState(MyAppWidgetHostView.STATE_NORMAL);
         EventBus.getDefault().post(new WidgetMoveFinishedEvent());
         return true;
