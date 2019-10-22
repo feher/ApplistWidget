@@ -1,3 +1,6 @@
+Properties localProperties = new Properties()
+localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 buildscript {
     repositories {
         mavenCentral()
@@ -38,6 +41,8 @@ android {
         // Set this to false. Otherwise vector drawables won't work everywhere:
         // https://stackoverflow.com/questions/35761636/is-it-possible-to-use-vectordrawable-in-buttons-and-textviews-using-androiddraw/41855991#41855991
         vectorDrawables.useSupportLibrary = false
+
+        manifestPlaceholders = [fabricApiKey : localProperties.getProperty('fabric.apikey')]
     }
     buildToolsVersion '28.0.3'
     buildTypes {

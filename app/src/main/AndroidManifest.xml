@@ -123,7 +123,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="e03a738384ba7bae3cd843a74fdddef07b259b32" />
+            android:value="${fabricApiKey}" />
 
     </application>
 
