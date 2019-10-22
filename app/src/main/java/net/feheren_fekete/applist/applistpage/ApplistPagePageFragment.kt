@@ -843,12 +843,14 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     }
 
     private fun onItemDropped(position: Int) {
-        adapter.clearDragged()
-        GlobalScope.launch {
-            applistRepo.updateItemPositionsAndParentSectionIds(
-                    adapter.getAllItemIds(),
-                    adapter.allParentSectionIds)
-        }
+        handler.postDelayed({
+            adapter.clearDragged()
+            GlobalScope.launch {
+                applistRepo.updateItemPositionsAndParentSectionIds(
+                        adapter.getAllItemIds(),
+                        adapter.allParentSectionIds)
+            }
+        }, 100)
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1)
