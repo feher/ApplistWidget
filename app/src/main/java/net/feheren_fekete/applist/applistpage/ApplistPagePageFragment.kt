@@ -291,7 +291,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         super.onViewCreated(view, savedInstanceState)
         val viewModel = ViewModelProviders.of(this).get(ApplistViewModel::class.java)
         viewModel.getItems().observe(this, Observer {
-            Log.d("ZIZI", "OBSERVER GOT ITEMS!")
             adapter.setItems(it)
             updateActionButtons()
         })

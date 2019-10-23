@@ -24,7 +24,6 @@ class MigrateJsonToRoom(context: Context,
         if (!file.exists()) {
             return false
         }
-        Log.i("ZIZI", "MIGRATE")
 
         val fileContent = fileUtils.readFile(pagesFilePath)
         try {
@@ -35,9 +34,7 @@ class MigrateJsonToRoom(context: Context,
                 val jsonPage = jsonPages.getJSONObject(i)
                 migratePage(jsonPage)
             }
-            Log.i("ZIZI", "MIGRATE DONE")
         } catch (e: JSONException) {
-            Log.i("ZIZI", "MIGRATE EXCEPT", e)
         }
 
         File(pagesFilePath).delete()
@@ -64,7 +61,6 @@ class MigrateJsonToRoom(context: Context,
                 sectionId, jsonSection.getString(JSON_SECTION_NAME))
         sectionItem.position = itemCount
         val finalSectionId = applistPageDao.addItem(sectionItem)
-        Log.i("ZIZI", "ADDING SECTION ${sectionItem.name} with id ${finalSectionId}")
         itemCount += 1
 
         val jsonStartables = jsonSection.getJSONArray(JSON_STARTABLES)
@@ -139,7 +135,6 @@ class MigrateJsonToRoom(context: Context,
         } else {
             throw RuntimeException("Unknown type startable $type")
         }
-        Log.i("ZIZI", "ADDING ITEM SECTION ${item.name} to ${parentSectionId}")
         applistPageDao.addItem(item)
         itemCount += 1
     }
