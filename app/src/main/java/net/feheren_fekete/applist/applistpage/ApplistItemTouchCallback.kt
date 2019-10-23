@@ -10,8 +10,12 @@ class ApplistItemTouchCallback(
 
     override fun getMovementFlags(recyclerView: RecyclerView,
                                   viewHolder: RecyclerView.ViewHolder): Int {
+        val position = viewHolder.adapterPosition
+        if (position == RecyclerView.NO_POSITION) {
+            return makeMovementFlags(0, 0)
+        }
         var dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        if (canMoveHorizontally(viewHolder.adapterPosition)) {
+        if (canMoveHorizontally(position)) {
             dragFlags = dragFlags or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
         }
         return makeMovementFlags(dragFlags, 0)
