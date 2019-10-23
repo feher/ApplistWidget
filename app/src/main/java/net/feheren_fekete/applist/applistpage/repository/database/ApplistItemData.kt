@@ -109,7 +109,7 @@ data class ApplistItemData(@PrimaryKey(autoGenerate = true) val id: Long,
             return ApplistItemData(
                     id,
                     0,
-                    TYPE_SHORTCUT,
+                    TYPE_APP_SHORTCUT,
                     0,
                     packageName,
                     "",

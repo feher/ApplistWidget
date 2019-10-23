@@ -139,6 +139,8 @@ class ApplistPageRepository(val context: Context,
                 }
                 if (installedApp == null) {
                     removeIcons(item)
+                } else {
+                    updatedItems.add(item)
                 }
             }
         }
@@ -400,8 +402,10 @@ class ApplistPageRepository(val context: Context,
     }
 
     suspend fun addShortcut(item: ApplistItemData, shortcutIcon: Bitmap) {
-        iconStorage.storeShortcutIcon(item.id, shortcutIcon)
-        applistPageDao.addItem(item)
+        applistPageDao.transcation {
+            val id = applistPageDao.addItem(item)
+            iconStorage.storeShortcutIcon(id, shortcutIcon)
+        }
     }
 
     suspend fun removeShortcut(shortcutId: Long) {

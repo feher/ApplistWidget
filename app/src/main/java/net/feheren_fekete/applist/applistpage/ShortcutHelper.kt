@@ -182,7 +182,7 @@ class ShortcutHelper {
             }
 
             val shortcutData = ApplistItemData.createAppShortcut(
-                    System.currentTimeMillis(),
+                    0,
                     shortcutName,
                     "",
                     packageName,

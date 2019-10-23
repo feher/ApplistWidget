@@ -65,6 +65,7 @@ public class ImageUtils {
                 parentDir.mkdirs();
             } catch (SecurityException e) {
                 ApplistLog.getInstance().log("Cannot create dir", e);
+                return;
             }
         }
 
