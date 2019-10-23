@@ -204,6 +204,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             itemMenu?.dismiss()
         }
 
+        override fun onItemPinClicked(item: ItemMenuItem?) {
+            Log.d("ZIZI", "WANT PIN")
+            itemMenu?.dismiss()
+        }
+
         override fun onItemSwiped(item: ItemMenuItem) {
             applistLog.analytics(ApplistLog.CANCEL_NOTIFICATION, ApplistLog.ITEM_MENU)
             cancelNotification(item.data as StatusBarNotification)
