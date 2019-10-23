@@ -33,6 +33,7 @@ class ShortcutHelper {
     // Crash is caused by creating a Handler in ApplistModel. Inside
     // threads we cannot create handles by "new Handle()".
     private val applistRepo= get(ApplistPageRepository::class.java)
+    private val applistLog= get(ApplistLog::class.java)
 
     private val imageUtils: ImageUtils by inject(ImageUtils::class.java)
 
@@ -40,9 +41,17 @@ class ShortcutHelper {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
             if (ACTION_INSTALL_SHORTCUT == action) {
-                ApplistLog.getInstance().analytics(ApplistLog.CREATE_LEGACY_SHORTCUT, ApplistLog.OTHER_APP)
-                val shortcutName = intent.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
-                val shortcutIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_SHORTCUT_INTENT)
+                applistLog.analytics(ApplistLog.CREATE_LEGACY_SHORTCUT, ApplistLog.OTHER_APP)
+                val shortcutName: String? = intent.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
+                if (shortcutName == null) {
+                    applistLog.log(RuntimeException("Missing shortcut name: ${intent.toUri(0)}"))
+                    return
+                }
+                val shortcutIntent: Intent? = intent.getParcelableExtra<Intent>(Intent.EXTRA_SHORTCUT_INTENT)
+                if (shortcutIntent == null) {
+                    applistLog.log(RuntimeException("Missing shortcut intent: ${intent.toUri(0)}"))
+                    return
+                }
                 var shortcutIconBitmap: Bitmap? = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
                 if (shortcutIconBitmap == null) {
                     val shortcutIconResource = intent.getParcelableExtra<Intent.ShortcutIconResource>(Intent.EXTRA_SHORTCUT_ICON_RESOURCE)
@@ -55,23 +64,23 @@ class ShortcutHelper {
                             val drawable = resources.getDrawable(drawableId)
                             shortcutIconBitmap = imageUtils.drawableToBitmap(drawable)
                         } catch (e: Resources.NotFoundException) {
-                            ApplistLog.getInstance().log(e)
+                            applistLog.log(e)
                         } catch (e: PackageManager.NameNotFoundException) {
-                            ApplistLog.getInstance().log(e)
+                            applistLog.log(e)
                         } catch (e: NullPointerException) {
-                            ApplistLog.getInstance().log(e)
+                            applistLog.log(e)
                         }
                     }
                 }
                 if (shortcutIconBitmap == null) {
-                    ApplistLog.getInstance().log(RuntimeException("Missing icon for shortcut: " + shortcutIntent.toUri(0)))
+                    applistLog.log(RuntimeException("Missing icon for shortcut: " + shortcutIntent.toUri(0)))
                     shortcutIconBitmap = imageUtils.shortcutPlaceholder()
                 }
 
                 val packageName = shortcutIntent.getPackage()
                         ?: shortcutIntent.component?.packageName
                 if (packageName == null) {
-                    ApplistLog.getInstance().log(RuntimeException("Missing package for shortcut: " + shortcutIntent.toUri(0)))
+                    applistLog.log(RuntimeException("Missing package for shortcut: " + shortcutIntent.toUri(0)))
                     return
                 }
 
@@ -101,7 +110,7 @@ class ShortcutHelper {
     fun handleIntent(context: Context, intent: Intent): Boolean {
         val action = intent.action
         if (LauncherApps.ACTION_CONFIRM_PIN_SHORTCUT == action) {
-            ApplistLog.getInstance().analytics(ApplistLog.CREATE_PINNED_APP_SHORTCUT, ApplistLog.OTHER_APP)
+            applistLog.analytics(ApplistLog.CREATE_PINNED_APP_SHORTCUT, ApplistLog.OTHER_APP)
             handleShortcutRequest(context, intent)
             return true
         }
@@ -153,7 +162,7 @@ class ShortcutHelper {
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, R.string.cannot_pin, Toast.LENGTH_SHORT).show()
-                ApplistLog.getInstance().log(e)
+                applistLog.log(e)
                 return@launch
             }
 
@@ -161,7 +170,7 @@ class ShortcutHelper {
                     ?: shortcutInfo.longLabel?.toString()
             if (shortcutName == null) {
                 Toast.makeText(context, R.string.cannot_pin, Toast.LENGTH_SHORT).show()
-                ApplistLog.getInstance().log(RuntimeException("Shortcut has no label"))
+                applistLog.log(RuntimeException("Shortcut has no label"))
                 return@launch
             }
 
