@@ -38,26 +38,42 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/item_menu_item_icon"
-        app:layout_constraintRight_toLeftOf="@id/item_menu_item_pin"
+        app:layout_constraintRight_toLeftOf="@id/item_menu_item_pin_layout"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Menu item name"
         />
 
-    <ImageView
-        android:id="@+id/item_menu_item_pin"
-        android:layout_width="@dimen/item_menu_item_icon_size"
-        android:layout_height="@dimen/item_menu_item_icon_size"
-        android:layout_gravity="center_vertical"
-        android:layout_marginRight="12dp"
+    <FrameLayout
+        android:id="@+id/item_menu_item_pin_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
         android:focusable="true"
-        android:padding="3dp"
-        android:tint="#FF888888"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_pin_appshortcut"
-        />
+        >
+
+        <ImageView
+            android:id="@+id/item_menu_item_pin"
+            android:layout_width="@dimen/item_menu_item_pin_size"
+            android:layout_height="@dimen/item_menu_item_pin_size"
+            android:layout_gravity="center_vertical"
+            android:padding="8dp"
+            android:tint="#FF888888"
+            app:srcCompat="@drawable/ic_pin_appshortcut"
+            />
+
+        <View
+            android:id="@+id/item_menu_pin_separator"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#FF888888"
+            />
+    </FrameLayout>
 
     <ImageView
         android:id="@+id/item_menu_item_drag_handle"

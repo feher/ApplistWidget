@@ -34,29 +34,23 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
         public ImageView icon;
         public TextView name;
         public ImageView dragHandle;
-        public ImageView pin;
+        public FrameLayout pin;
         public FrameLayout contentView;
         public ViewHolder(final View itemView) {
             this.layout = itemView.findViewById(R.id.item_menu_item_layout);
             this.icon = itemView.findViewById(R.id.item_menu_item_icon);
             this.name = itemView.findViewById(R.id.item_menu_item_name);
             this.dragHandle = itemView.findViewById(R.id.item_menu_item_drag_handle);
-            this.pin = itemView.findViewById(R.id.item_menu_item_pin);
+            this.pin = itemView.findViewById(R.id.item_menu_item_pin_layout);
             this.contentView = itemView.findViewById(R.id.item_menu_item_content_view);
-            this.layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mListener != null) {
-                        mListener.onItemSelected(item);
-                    }
+            this.layout.setOnClickListener(view -> {
+                if (mListener != null) {
+                    mListener.onItemSelected(item);
                 }
             });
-            this.pin.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mListener != null) {
-                        mListener.onItemPinClicked(item);
-                    }
+            this.pin.setOnClickListener(view -> {
+                if (mListener != null) {
+                    mListener.onItemPinClicked(item);
                 }
             });
             this.layout.setOnTouchListener(new View.OnTouchListener() {
@@ -156,6 +150,8 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
         ItemMenuItem item = getItem(i);
         final boolean isRemoteViews = item.name.isEmpty() && item.text.isEmpty() && item.contentRemoteViews != null;
 
+        viewHolder.pin.setVisibility(item.isPinnable ? View.VISIBLE : View.GONE);
+
         if (!isRemoteViews) {
             viewHolder.dragHandle.setVisibility(View.GONE);
             viewHolder.contentView.setVisibility(View.GONE);
@@ -164,13 +160,11 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
                 viewHolder.icon.setVisibility(View.VISIBLE);
                 viewHolder.icon.setImageDrawable(item.icon);
                 viewHolder.name.setPadding(0, 0, 0, 0);
-                viewHolder.pin.setVisibility(View.VISIBLE);
             } else {
                 viewHolder.icon.setVisibility(View.GONE);
                 viewHolder.icon.setImageDrawable(null);
                 final int paddingLeft = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_menu_item_name_padding);
                 viewHolder.name.setPadding(paddingLeft, 0, 0, 0);
-                viewHolder.pin.setVisibility(View.GONE);
             }
             if (!item.name.isEmpty()) {
                 ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
@@ -190,7 +184,6 @@ public class ItemMenuAdapter extends ArrayAdapter<ItemMenuItem> {
         } else {
             viewHolder.icon.setVisibility(View.GONE);
             viewHolder.name.setVisibility(View.GONE);
-            viewHolder.pin.setVisibility(View.GONE);
             viewHolder.dragHandle.setVisibility(View.VISIBLE);
             viewHolder.contentView.setVisibility(View.VISIBLE);
             ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
+import android.content.pm.ShortcutInfo
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -85,13 +86,15 @@ class ShortcutHelper {
                 }
 
                 val shortcutData = ApplistItemData.createShortcut(
-                        System.currentTimeMillis(),
+                        0,
                         packageName,
                         shortcutName,
                         "",
                         shortcutIntent)
                 GlobalScope.launch {
-                    applistRepo.addShortcut(shortcutData, shortcutIconBitmap!!)
+                    applistRepo.addShortcut(
+                            shortcutData, shortcutIconBitmap!!,
+                            ApplistItemData.DEFAULT_SECTION_ID, false)
                 }
             }
         }
@@ -118,15 +121,13 @@ class ShortcutHelper {
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    private fun handleShortcutRequest(context: Context, intent: Intent) {
+    fun pinAppShortcut(context: Context, shortcutInfo: ShortcutInfo, pinItemRequest: LauncherApps.PinItemRequest?) {
         val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         if (!launcherApps.hasShortcutHostPermission()) {
             return
         }
 
-        val pinItemRequest = intent.getParcelableExtra<LauncherApps.PinItemRequest>(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
-        val shortcutInfo = pinItemRequest.shortcutInfo
-        Log.d(TAG, "PINNING " + shortcutInfo!!.getPackage() + " " + shortcutInfo.id)
+        Log.d(TAG, "PINNING " + shortcutInfo.getPackage() + " " + shortcutInfo.id)
 
         if (!shortcutInfo.isEnabled) {
             Toast.makeText(context, R.string.cannot_pin_disabled_shortcut, Toast.LENGTH_SHORT).show()
@@ -156,14 +157,16 @@ class ShortcutHelper {
                 return@launch
             }
 
-            try {
-                if (!pinItemRequest.accept()) {
+            if (pinItemRequest != null) {
+                try {
+                    if (!pinItemRequest.accept()) {
+                        return@launch
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, R.string.cannot_pin, Toast.LENGTH_SHORT).show()
+                    applistLog.log(e)
                     return@launch
                 }
-            } catch (e: Exception) {
-                Toast.makeText(context, R.string.cannot_pin, Toast.LENGTH_SHORT).show()
-                applistLog.log(e)
-                return@launch
             }
 
             val shortcutName = shortcutInfo.shortLabel?.toString()
@@ -188,9 +191,21 @@ class ShortcutHelper {
                     packageName,
                     shortcutId)
             launch(Dispatchers.IO) {
-                applistRepo.addShortcut(shortcutData, shortcutIconBitmap)
+                applistRepo.addShortcut(
+                        shortcutData, shortcutIconBitmap,
+                        ApplistItemData.DEFAULT_SECTION_ID, false)
             }
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private fun handleShortcutRequest(context: Context, intent: Intent) {
+        val pinItemRequest = intent.getParcelableExtra<LauncherApps.PinItemRequest>(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
+        val shortcutInfo = pinItemRequest.shortcutInfo
+        if (shortcutInfo == null) {
+            return
+        }
+        pinAppShortcut(context, shortcutInfo, pinItemRequest)
     }
 
     companion object {

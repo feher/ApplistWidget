@@ -12,6 +12,7 @@ public class ItemMenuItem {
     @Nullable public final Drawable icon;
     public final int backgroundResourceId;
     public final boolean isSwipeable;
+    public final boolean isPinnable;
     @Nullable public final RemoteViews contentRemoteViews;
     public final Object data;
 
@@ -20,6 +21,7 @@ public class ItemMenuItem {
                         @Nullable Drawable icon,
                         int backgroundResourceId,
                         boolean isSwipeable,
+                        boolean isPinnable,
                         @Nullable RemoteViews contentRemoteViews,
                         Object data) {
         this.name = name;
@@ -27,6 +29,7 @@ public class ItemMenuItem {
         this.icon = icon;
         this.backgroundResourceId = backgroundResourceId;
         this.isSwipeable = isSwipeable;
+        this.isPinnable = isPinnable;
         this.contentRemoteViews = contentRemoteViews;
         this.data = data;
     }

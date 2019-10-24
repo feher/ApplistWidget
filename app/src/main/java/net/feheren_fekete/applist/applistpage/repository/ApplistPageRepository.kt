@@ -3,7 +3,6 @@ package net.feheren_fekete.applist.applistpage.repository
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import kotlinx.coroutines.Dispatchers
@@ -37,8 +36,9 @@ class ApplistPageRepository(val context: Context,
         }
     }
 
-    inner class ApplistItemsLiveData: MediatorLiveData<List<BaseItem>>() {
+    inner class ApplistItemsLiveData : MediatorLiveData<List<BaseItem>>() {
         private val allItemsRawLiveData: LiveData<List<ApplistItemData>>
+
         init {
             allItemsRawLiveData = applistPageDao.getAllItems()
             addSource(allItemsRawLiveData) { items ->
@@ -259,8 +259,8 @@ class ApplistPageRepository(val context: Context,
 
                 val sectionItems = applistPageDao
                         .getItemsBySectionSync(sectionId).sortedBy {
-                    it.position
-                }
+                            it.position
+                        }
                 for (sectionItem in sectionItems) {
                     applistPageDao.updatePosition(sectionItem.id, position)
                     position += 1
@@ -401,10 +401,17 @@ class ApplistPageRepository(val context: Context,
         applistPageDao.updateTimestamp(itemId, System.currentTimeMillis())
     }
 
-    suspend fun addShortcut(item: ApplistItemData, shortcutIcon: Bitmap) {
+    suspend fun addShortcut(item: ApplistItemData, shortcutIcon: Bitmap, sectionId: Long, append: Boolean) {
         applistPageDao.transcation {
+            // Add the item as the very last one.
+            item.parentSectionId = ApplistItemData.DEFAULT_SECTION_ID
+            item.position = applistPageDao.getItemCount()
             val id = applistPageDao.addItem(item)
+
             iconStorage.storeShortcutIcon(id, shortcutIcon)
+
+            // Then move it to the desired section
+            moveStartablesToSection(arrayListOf(id), sectionId, append)
         }
     }
 

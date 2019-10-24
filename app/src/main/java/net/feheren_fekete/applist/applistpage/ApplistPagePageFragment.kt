@@ -93,6 +93,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private val badgeStore: BadgeStore by inject()
     private val applistPreferences: ApplistPreferences by inject()
     private val iconPreloadHelper: IconPreloadHelper by inject()
+    private val shortcutHelper: ShortcutHelper by inject()
 
     private val handler = Handler()
     private lateinit var adapter: ApplistAdapter
@@ -204,8 +205,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             itemMenu?.dismiss()
         }
 
-        override fun onItemPinClicked(item: ItemMenuItem?) {
-            Log.d("ZIZI", "WANT PIN")
+        override fun onItemPinClicked(item: ItemMenuItem) {
+            val c = this@ApplistPagePageFragment.context ?: return
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && item.data is ShortcutInfo) {
+                shortcutHelper.pinAppShortcut(c, item.data, null)
+            }
             itemMenu?.dismiss()
         }
 
@@ -659,16 +663,22 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (t.isEmpty() && remoteViews == null) {
             t = context!!.getString(R.string.app_item_menu_notification_without_title)
         }
-        return ItemMenuItem("", t, icon, R.drawable.notification_menu_item_background, true, remoteViews, statusBarNotification)
+        return ItemMenuItem(
+                "", t, icon, R.drawable.notification_menu_item_background,
+                true, false, remoteViews, statusBarNotification)
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1) // ShortcutInfo
     private fun createAppShortcutMenuItem(name: String, icon: Drawable?, shortcutInfo: ShortcutInfo): ItemMenuItem {
-        return ItemMenuItem(name, "", icon, 0, false, null, shortcutInfo)
+        return ItemMenuItem(
+                name, "", icon, 0,
+                false, true, null, shortcutInfo)
     }
 
     private fun createActionMenuItem(name: String, action: ItemMenuAction): ItemMenuItem {
-        return ItemMenuItem(name, "", null, 0, false, null, action)
+        return ItemMenuItem(
+                name, "", null, 0,
+                false, false, null, action)
     }
 
     @TargetApi(Build.VERSION_CODES.M)
