@@ -3,8 +3,9 @@ package net.feheren_fekete.applist.applistpage.iconpack
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
@@ -18,12 +19,12 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
     private val iconPackHelper: IconPackHelper by inject()
     private val packageManager: PackageManager by inject()
 
-    val iconPacks = IconPacksLiveData(packageManager)
+    val iconPacks = IconPacksLiveData(viewModelScope, packageManager)
 
-    fun icons(iconpackPackageName: String) = IconPackIconsLiveData(iconPackHelper, packageManager, iconpackPackageName)
+    fun icons(iconpackPackageName: String) = IconPackIconsLiveData(viewModelScope, iconPackHelper, packageManager, iconpackPackageName)
 
     fun resetOriginalIcon(applistItemId: Long, customIconPath: String) {
-        GlobalScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.deleteCustomStartableIcon(applistItemId, customIconPath)
         }
     }
@@ -33,13 +34,13 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
                    iconDrawableName: String,
                    customIconPath: String) {
         val iconBitmap = iconPackHelper.loadIcon(iconPackPackageName, iconDrawableName)
-        GlobalScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.storeCustomStartableIcon(applistItemId, customIconPath, iconBitmap!!, true)
         }
     }
 
     fun applyIconPack(iconPackPackageName: String) {
-        GlobalScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.transaction {
                 applistRepo.removeAllIcons()
                 applistRepo.forEachAppItem {
@@ -61,7 +62,7 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
     }
 
     fun resetAllIcons() {
-        GlobalScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.removeAllIcons()
         }
     }

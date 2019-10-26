@@ -14,10 +14,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
@@ -91,7 +88,7 @@ class ShortcutHelper {
                         shortcutName,
                         "",
                         shortcutIntent)
-                GlobalScope.launch {
+                GlobalScope.launch(Dispatchers.IO) {
                     applistRepo.addShortcut(
                             shortcutData, shortcutIconBitmap!!,
                             ApplistItemData.DEFAULT_SECTION_ID, false)
@@ -121,7 +118,10 @@ class ShortcutHelper {
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    fun pinAppShortcut(context: Context, shortcutInfo: ShortcutInfo, pinItemRequest: LauncherApps.PinItemRequest?) {
+    fun pinAppShortcut(coroutineScope: CoroutineScope,
+                       context: Context,
+                       shortcutInfo: ShortcutInfo,
+                       pinItemRequest: LauncherApps.PinItemRequest?) {
         val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         if (!launcherApps.hasShortcutHostPermission()) {
             return
@@ -147,10 +147,10 @@ class ShortcutHelper {
         // Workaround: Use ApplistModel.hasAppShortcut() to check if we have already pinned
         // this shortcut (i.e. called accept() on it).
         //
-        GlobalScope.launch(Dispatchers.Main) {
-            val isShortcutInstalled = async(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.Main) {
+            val isShortcutInstalled = withContext(Dispatchers.IO) {
                 applistRepo.hasAppShortcut(packageName, shortcutId)
-            }.await()
+            }
 
             if (isShortcutInstalled) {
                 Toast.makeText(context, R.string.cannot_pin_pinned_shortcut, Toast.LENGTH_SHORT).show()
@@ -205,7 +205,7 @@ class ShortcutHelper {
         if (shortcutInfo == null) {
             return
         }
-        pinAppShortcut(context, shortcutInfo, pinItemRequest)
+        pinAppShortcut(GlobalScope, context, shortcutInfo, pinItemRequest)
     }
 
     companion object {

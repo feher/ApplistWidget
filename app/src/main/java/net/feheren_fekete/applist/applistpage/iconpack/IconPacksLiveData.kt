@@ -5,15 +5,18 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
-class IconPacksLiveData(private val packageManager: PackageManager): LiveData<List<IconPack>>() {
+class IconPacksLiveData(
+        private val coroutineScope: CoroutineScope,
+        private val packageManager: PackageManager): LiveData<List<IconPack>>() {
 
     override fun onActive() {
         super.onActive()
-        GlobalScope.launch {
+        coroutineScope.launch {
             postValue(queryIconPacks())
         }
     }

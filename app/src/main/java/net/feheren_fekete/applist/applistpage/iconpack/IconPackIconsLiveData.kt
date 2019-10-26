@@ -4,9 +4,11 @@ import android.content.pm.PackageManager
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 
-class IconPackIconsLiveData(private val iconPackHelper: IconPackHelper,
-                            private val packageManager: PackageManager,
-                            private val iconPackPackageName: String): MutableLiveData<List<String>>() {
+class IconPackIconsLiveData(
+        private val coroutineScope: CoroutineScope,
+        private val iconPackHelper: IconPackHelper,
+        private val packageManager: PackageManager,
+        private val iconPackPackageName: String): MutableLiveData<List<String>>() {
 
     private var job: Job? = null
 
@@ -23,7 +25,7 @@ class IconPackIconsLiveData(private val iconPackHelper: IconPackHelper,
     }
 
     private fun queryIconPackIcons(iconPackPackageName: String) {
-        job = GlobalScope.launch {
+        job = coroutineScope.launch {
             iconPackHelper.getIconDrawableNames(iconPackPackageName, this@IconPackIconsLiveData, this)
         }
     }

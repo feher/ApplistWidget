@@ -13,12 +13,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.launcher_page_editor_fragment.view.*
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.R
@@ -273,7 +275,7 @@ class PageEditorFragment : Fragment() {
                 .setTitle(R.string.launcher_page_editor_remove_dialog_title)
                 .setMessage(R.string.launcher_page_editor_remove_dialog_message)
                 .setPositiveButton(R.string.yes) { _, _ ->
-                    GlobalScope.launch {
+                    lifecycleScope.launch(Dispatchers.IO + NonCancellable) {
                         screenshotUtils.deleteScreenshot(screenshotPath)
                         val deletedWidgetIds = widgetModel.deleteWidgetsOfPage(pageId)
                         for (widgetId in deletedWidgetIds) {

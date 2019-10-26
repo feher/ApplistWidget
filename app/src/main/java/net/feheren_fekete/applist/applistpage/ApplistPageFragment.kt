@@ -14,19 +14,16 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.applist_page_fragment.view.toolbar
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModelProviders
+import kotlinx.android.synthetic.main.applist_page_fragment.view.*
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
-import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
-import net.feheren_fekete.applist.applistpage.repository.BadgeStore
+import net.feheren_fekete.applist.applistpage.viewmodel.ApplistViewModel
 import net.feheren_fekete.applist.applistpage.viewmodel.PageItem
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.settings.SettingsActivity
 import net.feheren_fekete.applist.settings.SettingsUtils
-import net.feheren_fekete.applist.utils.FileUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -37,13 +34,11 @@ class ApplistPageFragment : Fragment() {
 
     class ShowPageEditorEvent
 
-    private val applistRepo: ApplistPageRepository by inject()
     private val settingsUtils: SettingsUtils by inject()
-    private val fileUtils: FileUtils by inject()
     private val launcherUtils: LauncherUtils by inject()
-    private val badgeStore: BadgeStore by inject()
     private val applistPreferences: ApplistPreferences by inject()
 
+    private lateinit var viewModel: ApplistViewModel
     private lateinit var toolbarGradient: Drawable
     private var menu: Menu? = null
     private var searchView: SearchView? = null
@@ -69,7 +64,7 @@ class ApplistPageFragment : Fragment() {
                     return
                 }
             }
-            updateData()
+            viewModel.updateData(context)
         }
     }
 
@@ -82,6 +77,7 @@ class ApplistPageFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this).get(ApplistViewModel::class.java)
         toolbarGradient = createToolbarGradient()
     }
 
@@ -124,9 +120,7 @@ class ApplistPageFragment : Fragment() {
         view?.toolbar?.background = toolbarGradient
         if (settingsUtils.showNewContentBadge
                 || settingsUtils.showNotificationBadge) {
-            GlobalScope.launch {
-                badgeStore.updateBadgesFromLauncher()
-            }
+            viewModel.updateBadgesFromLauncher()
         }
     }
 
@@ -139,11 +133,13 @@ class ApplistPageFragment : Fragment() {
             packageStateReceiver.onReceive(it, null)
         }
 
-        val currentDeviceLocale = Locale.getDefault().toString()
-        val savedDeviceLocale = applistPreferences.deviceLocale
-        if (currentDeviceLocale != savedDeviceLocale) {
-            applistPreferences.deviceLocale = currentDeviceLocale
-            updateData()
+        context?.let {
+            val currentDeviceLocale = Locale.getDefault().toString()
+            val savedDeviceLocale = applistPreferences.deviceLocale
+            if (currentDeviceLocale != savedDeviceLocale) {
+                applistPreferences.deviceLocale = currentDeviceLocale
+                viewModel.updateData(it)
+            }
         }
     }
 
@@ -298,21 +294,6 @@ class ApplistPageFragment : Fragment() {
     private fun showSettings() {
         val settingsIntent = Intent(context, SettingsActivity::class.java)
         startActivity(settingsIntent)
-    }
-
-    private fun updateData() {
-        GlobalScope.launch {
-            context?.let {
-                // TODO: Remove this after all users updated to 5.1
-                // Remove unused iconCache
-                fileUtils.deleteFiles(
-                        fileUtils.getIconCacheDirPath(it.applicationContext),
-                        "")
-
-                applistRepo.updateInstalledApps(it)
-                badgeStore.cleanup()
-            }
-        }
     }
 
     private fun hideKeyboardFrom(context: Context, view: View) {
