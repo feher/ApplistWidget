@@ -228,6 +228,7 @@ public class ApplistAdapter
                 item.setSelected(true);
             }
         }
+        mStickySelectedItemId = -1;
     }
 
     public void setSelected(BaseItem item, boolean selected) {
