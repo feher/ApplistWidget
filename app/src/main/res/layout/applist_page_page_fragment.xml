@@ -35,7 +35,7 @@
             android:id="@+id/doneButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="25dp"
             android:background="@drawable/applist_fab_background"
             android:scaleType="center"
             android:src="@drawable/ic_done"
@@ -44,11 +44,24 @@
             app:layout_constraintRight_toRightOf="parent"
             />
 
+        <TextView
+            android:id="@+id/doneButtonText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="@string/action_button_done"
+            android:textColor="@android:color/white"
+            android:textAllCaps="true"
+            app:layout_constraintLeft_toLeftOf="@id/doneButton"
+            app:layout_constraintRight_toRightOf="@id/doneButton"
+            app:layout_constraintTop_toBottomOf="@id/doneButton"
+            />
+
         <ImageButton
             android:id="@+id/moveToSectionButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginLeft="40dp"
+            android:layout_marginLeft="50dp"
             android:background="@drawable/applist_fab_background"
             android:scaleType="center"
             android:src="@drawable/ic_folder"
@@ -58,11 +71,25 @@
             app:layout_constraintTop_toTopOf="@id/doneButton"
             />
 
+        <TextView
+            android:id="@+id/moveToSectionButtonText"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/action_button_move_to_section"
+            android:textColor="@android:color/white"
+            android:textAllCaps="true"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintLeft_toLeftOf="@id/moveToSectionButton"
+            app:layout_constraintRight_toRightOf="@id/moveToSectionButton"
+            app:layout_constraintTop_toTopOf="@id/doneButtonText"
+            />
+
         <ImageButton
             android:id="@+id/clearSelectionButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginRight="40dp"
+            android:layout_marginRight="50dp"
             android:background="@drawable/applist_fab_background"
             android:scaleType="center"
             android:src="@drawable/ic_clear_selection"
@@ -70,6 +97,20 @@
             app:layout_constraintBottom_toBottomOf="@id/doneButton"
             app:layout_constraintRight_toLeftOf="@id/doneButton"
             app:layout_constraintTop_toTopOf="@id/doneButton"
+            />
+
+        <TextView
+            android:id="@+id/clearSelectionButtonText"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/action_button_clear_selection"
+            android:textColor="@android:color/white"
+            android:textAllCaps="true"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintLeft_toLeftOf="@id/clearSelectionButton"
+            app:layout_constraintRight_toRightOf="@id/clearSelectionButton"
+            app:layout_constraintTop_toTopOf="@id/doneButtonText"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

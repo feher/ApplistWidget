@@ -104,4 +104,7 @@
     <string name="move_app_title">Valitse ryhmä</string>
     <string name="app_item_menu_reorder_items">Järjestä appit</string>
     <string name="section_item_menu_reorder_sections">Järjestä ryhmät</string>
+    <string name="action_button_done">Valmis</string>
+    <string name="action_button_move_to_section">Siirrä ryhmään</string>
+    <string name="action_button_clear_selection">Kumoa valinta</string>
 </resources>

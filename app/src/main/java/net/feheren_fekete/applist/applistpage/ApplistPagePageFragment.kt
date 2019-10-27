@@ -1211,10 +1211,14 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         actionButtonsLayout.visibility = View.VISIBLE
         if (onlyDoneButton) {
             clearSelectionButton.visibility = View.GONE
+            clearSelectionButtonText.visibility = View.GONE
             moveToSectionButton.visibility = View.GONE
+            moveToSectionButtonText.visibility = View.GONE
         } else {
             clearSelectionButton.visibility = View.VISIBLE
+            clearSelectionButtonText.visibility = View.VISIBLE
             moveToSectionButton.visibility = View.VISIBLE
+            moveToSectionButtonText.visibility = View.VISIBLE
         }
         recyclerView.setPadding(
                 0, 0, 0,

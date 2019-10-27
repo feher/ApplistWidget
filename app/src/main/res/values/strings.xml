@@ -27,6 +27,10 @@
     <string name="no">No</string>
     <string name="got_it">GOT IT</string>
 
+    <string name="action_button_done">Done</string>
+    <string name="action_button_move_to_section">Move to group</string>
+    <string name="action_button_clear_selection">Clear selection</string>
+
     <string name="app_item_menu_clear_badge">Clear message indicator</string>
     <string name="app_item_menu_change_icon">Change icon</string>
     <string name="app_item_menu_move_to_section">Move to group</string>
