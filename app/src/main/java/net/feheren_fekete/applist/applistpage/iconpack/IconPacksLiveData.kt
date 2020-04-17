@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -16,7 +17,7 @@ class IconPacksLiveData(
 
     override fun onActive() {
         super.onActive()
-        coroutineScope.launch {
+        coroutineScope.launch(Dispatchers.Default) {
             postValue(queryIconPacks())
         }
     }

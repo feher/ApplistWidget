@@ -25,7 +25,7 @@ class IconPackIconsLiveData(
     }
 
     private fun queryIconPackIcons(iconPackPackageName: String) {
-        job = coroutineScope.launch {
+        job = coroutineScope.launch(Dispatchers.Default) {
             iconPackHelper.getIconDrawableNames(iconPackPackageName, this@IconPackIconsLiveData, this)
         }
     }
