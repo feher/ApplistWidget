@@ -37,9 +37,9 @@ object ApplistDialogs {
                 .setTitle(title)
                 .setMessage(message)
                 .setCancelable(true)
-                .setPositiveButton(R.string.ok) { dialog, which -> onOk() }
-            .setNegativeButton(R.string.cancel) { dialog, which -> onCancel() }
-                .setOnCancelListener { dialog -> onCancel() }
+                .setPositiveButton(R.string.ok) { _, _ -> onOk() }
+            .setNegativeButton(R.string.cancel) { _, _ -> onCancel() }
+                .setOnCancelListener { onCancel() }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
     }
@@ -54,8 +54,8 @@ object ApplistDialogs {
                 .setTitle(title)
                 .setMessage(message)
                 .setCancelable(true)
-                .setPositiveButton(R.string.ok) { dialog, which -> onOk() }
-                .setOnCancelListener { dialog -> onCancel() }
+                .setPositiveButton(R.string.ok) { _, _ -> onOk() }
+                .setOnCancelListener { onCancel() }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
     }
@@ -66,7 +66,7 @@ object ApplistDialogs {
                    onSelected: (Int) -> Unit) {
         MaterialDialog(activity).show {
             title(text = title)
-            listItems(items = items) { dialog, index, text ->
+            listItems(items = items) { _, index, _ ->
                 onSelected(index)
             }
         }

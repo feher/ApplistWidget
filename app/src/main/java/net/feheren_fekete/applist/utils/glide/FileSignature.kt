@@ -18,9 +18,8 @@ class FileSignature(file: File): Key {
         return objectKey.toString()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (o is FileSignature) {
-            val other = o as FileSignature
+    override fun equals(other: Any?): Boolean {
+        if (other is FileSignature) {
             return objectKey == other.objectKey
         }
         return false

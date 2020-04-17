@@ -16,9 +16,8 @@ class AppIconSignature(appVersionCode: Long): Key {
         return objectKey.toString()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (o is AppIconSignature) {
-            val other = o as AppIconSignature
+    override fun equals(other: Any?): Boolean {
+        if (other is AppIconSignature) {
             return objectKey == other.objectKey
         }
         return false

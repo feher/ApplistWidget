@@ -829,10 +829,11 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun onItemDropped(position: Int) {
         handler.postDelayed({
             adapter.clearDragged()
-            val itemIds = adapter.getAllItemIds()
+            val itemIds = adapter.allItemIds
             val parentSectionIds = adapter.allParentSectionIds
             viewModel.updateItemPositionsAndParentSectionIds(itemIds, parentSectionIds)
         }, 100)

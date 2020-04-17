@@ -52,7 +52,7 @@ object XmlDumper {
                 }
 
                 for (pair in namespaceStack) {
-                    if (pair.depth === depth) {
+                    if (pair.depth == depth) {
                         sb.append(String.format("\n" + getIndent(depth) + "xmlns:%s=\"%s\"",
                                 getNamespacePrefix(pair.uri),
                                 pair.uri
@@ -63,7 +63,7 @@ object XmlDumper {
 
                 if (p.isEmptyElementTag) {
                     sb.append("/>\n")
-                    nextEvent = p.next()
+                    p.next()
                     popNamespaceStack(depth)
                     depth--
                 } else {
@@ -135,7 +135,7 @@ object XmlDumper {
     }
 
     private fun popNamespaceStack(depth: Int) {
-        while (!namespaceStack.empty() && namespaceStack.peek().depth === depth) {
+        while (!namespaceStack.empty() && namespaceStack.peek().depth == depth) {
             namespaceStack.pop()
         }
     }

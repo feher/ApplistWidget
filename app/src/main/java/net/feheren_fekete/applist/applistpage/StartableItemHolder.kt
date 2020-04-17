@@ -1,12 +1,13 @@
 package net.feheren_fekete.applist.applistpage
 
 import android.content.ComponentName
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.MotionEventCompat
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.IconPreloadHelper.Companion.PRELOAD_ICON_SIZE
@@ -22,11 +23,7 @@ import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.koin.java.KoinJavaComponent.inject
 import java.io.File
-import java.lang.IllegalStateException
 import java.lang.ref.WeakReference
-import android.graphics.ColorMatrixColorFilter
-import android.graphics.ColorMatrix
-
 
 
 class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) : ViewHolderBase(view, R.id.applist_app_item_layout) {
@@ -35,7 +32,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
     private val settingsUtils: SettingsUtils by inject(SettingsUtils::class.java)
     private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
 
-    val appIcon: ImageView = view.findViewById(R.id.applist_app_item_icon)
+    private val appIcon: ImageView = view.findViewById(R.id.applist_app_item_icon)
     private val appNameWithoutShadow: TextView = view.findViewById(R.id.applist_app_item_app_name)
     private val appNameWithShadow: TextView = view.findViewById(R.id.applist_app_item_app_name_with_shadow)
     private val badgeCount: TextView = view.findViewById(R.id.applist_app_item_badge_count)
@@ -58,8 +55,8 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
             itemListenerRef.get()?.onStartableLongTapped(item)
             true
         }
-        appIcon.setOnTouchListener { v, event ->
-            if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+        appIcon.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
                 itemListenerRef.get()?.onStartableTouched(item)
             }
             false
@@ -116,6 +113,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun bindAppItemHolder(item: AppItem, isSelectionModeEnabled: Boolean) {
         val iconFile = File(item.customIconPath)
         if (iconFile.exists()) {
@@ -143,6 +141,7 @@ class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener)
         shortcutIndicator.visibility = View.GONE
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun bindShortcutItemHolder(item: StartableItem, isSelectionModeEnabled: Boolean) {
         val iconFile = File(item.customIconPath)
         if (iconFile.exists()) {

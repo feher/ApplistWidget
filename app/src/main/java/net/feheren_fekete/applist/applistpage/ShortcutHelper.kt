@@ -55,9 +55,8 @@ class ShortcutHelper {
                     val shortcutIconResource = intent.getParcelableExtra<Intent.ShortcutIconResource>(Intent.EXTRA_SHORTCUT_ICON_RESOURCE)
                     if (shortcutIconResource != null) {
                         val packageManager = context.packageManager
-                        var resources: Resources? = null
                         try {
-                            resources = packageManager.getResourcesForApplication(shortcutIconResource.packageName)
+                            val resources = packageManager.getResourcesForApplication(shortcutIconResource.packageName)
                             val drawableId = resources!!.getIdentifier(shortcutIconResource.resourceName, null, null)
                             val drawable = resources.getDrawable(drawableId)
                             shortcutIconBitmap = imageUtils.drawableToBitmap(drawable)
