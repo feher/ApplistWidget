@@ -98,8 +98,13 @@ class IconPickerFragment: Fragment() {
 
         viewModel = ViewModelProvider(this).get(IconPickerViewModel::class.java)
         viewModel.iconPacks.observe(viewLifecycleOwner, Observer {
-            iconPacksAdapter.setItems(it)
-            if (it.isNotEmpty()) {
+            if (it.isEmpty()) {
+                iconpackPickerEmptyLayout.visibility = View.VISIBLE
+                iconpackPickerContentLayout.visibility = View.GONE
+            } else {
+                iconpackPickerEmptyLayout.visibility = View.GONE
+                iconpackPickerContentLayout.visibility = View.VISIBLE
+                iconPacksAdapter.setItems(it)
                 onIconPackSelected(0)
             }
         })

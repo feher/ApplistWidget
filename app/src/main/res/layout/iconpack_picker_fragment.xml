@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    android:id="@+id/iconpack_picker_fragment_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/iconpack_picker_fragment_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    android:fitsSystemWindows="true"
-    >
+    android:fitsSystemWindows="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -24,95 +22,120 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            />
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-        <ImageView
-            android:id="@+id/appIcon"
-            android:layout_width="@dimen/appitem_icon_size"
-            android:layout_height="@dimen/appitem_icon_size"
-            android:layout_marginTop="10dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            android:scaleType="centerInside"
-            tools:src="@tools:sample/avatars"
-            />
-
-        <TextView
-            android:id="@+id/appName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center"
-            android:maxLines="1"
-            android:paddingLeft="50dp"
-            android:paddingRight="50dp"
-            android:textColor="?attr/appTextColor"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appIcon"
-            tools:text="App name"
-            />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/iconsRecyclerView"
+        <FrameLayout
+            android:id="@+id/iconpackPickerEmptyLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="30dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:paddingBottom="150dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appName"
-            tools:itemCount="100"
-            tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            tools:listitem="@layout/iconpack_icon_item"
-            tools:spanCount="6"
-            />
+            app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <View
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="50dp"
+                android:gravity="center"
+                android:text="@string/iconpack_picker_empty"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@android:color/white" />
+        </FrameLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/iconpackPickerContentLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/iconpack_picker_iconpacks_background"
-            app:layout_constraintBottom_toBottomOf="@+id/iconPacksRecyclerView"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/iconPacksTextView"
-            />
-
-        <TextView
-            android:id="@+id/iconPacksTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="@string/iconpack_picker_icon_packs"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toTopOf="@+id/iconPacksRecyclerView"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/iconPacksRecyclerView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/iconpack_item"
-            tools:orientation="horizontal"
-            />
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            tools:visibility="invisible">
+
+            <ImageView
+                android:id="@+id/appIcon"
+                android:layout_width="@dimen/appitem_icon_size"
+                android:layout_height="@dimen/appitem_icon_size"
+                android:layout_marginTop="10dp"
+                android:scaleType="centerInside"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/appName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-condensed"
+                android:gravity="center"
+                android:maxLines="1"
+                android:paddingLeft="50dp"
+                android:paddingRight="50dp"
+                android:textColor="?attr/appTextColor"
+                android:textSize="12sp"
+                android:textStyle="normal"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/appIcon"
+                tools:text="App name" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/iconsRecyclerView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="30dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingBottom="150dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/appName"
+                tools:itemCount="100"
+                tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                tools:listitem="@layout/iconpack_icon_item"
+                tools:spanCount="6" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/iconpack_picker_iconpacks_background"
+                app:layout_constraintBottom_toBottomOf="@+id/iconPacksRecyclerView"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/iconPacksTextView" />
+
+            <TextView
+                android:id="@+id/iconPacksTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/iconpack_picker_icon_packs"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toTopOf="@+id/iconPacksRecyclerView"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/iconPacksRecyclerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:paddingBottom="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/iconpack_item"
+                tools:orientation="horizontal" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -121,9 +144,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="90dp"
         android:layout_marginRight="15dp"
-        android:src="@drawable/ic_done"
-        />
+        android:layout_marginBottom="90dp"
+        android:src="@drawable/ic_done" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
