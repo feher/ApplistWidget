@@ -55,6 +55,7 @@ import net.feheren_fekete.applist.utils.AppUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
+import kotlin.math.roundToInt
 
 class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
@@ -239,9 +240,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         //val bottomPadding = if (screenUtils.hasNavigationBar(context)) screenUtils.getNavigationBarHeight(context) else 0
         //view.recyclerView.setPadding(0, topPadding, 0, bottomPadding)
 
-        val columnSize = Math.round(
-                screenUtils.dpToPx(context,
-                        settingsUtils.columnWidth.toFloat()))
+        val columnSize = screenUtils.dpToPx(context, settingsUtils.columnWidth.toFloat()).roundToInt()
         val screenWidth = screenUtils.getScreenWidth(context)
         var tempColumnCount = screenWidth / columnSize
         if (tempColumnCount <= 0) {
@@ -297,7 +296,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.getItems().observe(this, Observer {
+        viewModel.getItems().observe(viewLifecycleOwner, Observer {
             adapter.setItems(it)
             updateActionButtons()
         })
@@ -596,8 +595,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         //   Currently we just show a list of all the icons in the icon pack without any ordering.
         //   This way it's very difficult to find e.g. the "Email" related icons.
         //
-        //itemMenuItems.add(createActionMenuItem(
-        //        resources.getString(R.string.app_item_menu_change_icon), ItemMenuAction.ChangeIcon))
+        itemMenuItems.add(createActionMenuItem(
+                resources.getString(R.string.app_item_menu_change_icon), ItemMenuAction.ChangeIcon))
         itemMenuItems.add(createActionMenuItem(
                 resources.getString(R.string.app_item_menu_information), ItemMenuAction.AppInfo))
         if (isApp) {
@@ -894,7 +893,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (shortcutInfo == null) {
             Toast.makeText(c, R.string.cannot_start_shortcut, Toast.LENGTH_SHORT).show()
         } else if (shortcutInfo.isEnabled) {
-            val launcherApps = c.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+            val launcherApps = c.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps?
             if (launcherApps != null) {
                 try {
                     launcherApps.startShortcut(shortcutInfo, null, null)
