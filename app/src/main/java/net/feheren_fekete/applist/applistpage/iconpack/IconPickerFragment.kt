@@ -8,7 +8,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -81,7 +81,7 @@ class IconPickerFragment: Fragment() {
 
         (activity as AppCompatActivity?)?.let {
             it.setSupportActionBar(view.toolbar)
-            it.supportActionBar?.setTitle(arguments!!.getString(FRAGMENT_ARG_TITLE))
+            it.supportActionBar?.title = arguments!!.getString(FRAGMENT_ARG_TITLE)
             it.supportActionBar?.setDisplayHomeAsUpEnabled(true)
             it.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_close)
         }
@@ -96,10 +96,12 @@ class IconPickerFragment: Fragment() {
         view.iconsRecyclerView.adapter = iconsAdapter
         view.iconsRecyclerView.layoutManager = GridLayoutManager(context, 6)
 
-        viewModel = ViewModelProviders.of(this).get(IconPickerViewModel::class.java)
-        viewModel.iconPacks.observe(this, Observer {
+        viewModel = ViewModelProvider(this).get(IconPickerViewModel::class.java)
+        viewModel.iconPacks.observe(viewLifecycleOwner, Observer {
             iconPacksAdapter.setItems(it)
-            onIconPackSelected(0)
+            if (it.isNotEmpty()) {
+                onIconPackSelected(0)
+            }
         })
 
         view.setFab.visibility = View.GONE
@@ -150,7 +152,7 @@ class IconPickerFragment: Fragment() {
         iconsAdapter.iconPackPackageName = iconPackPackageName
 
         icons = viewModel.icons(iconPackPackageName)
-        icons?.observe(this, iconsObserver)
+        icons?.observe(viewLifecycleOwner, iconsObserver)
     }
 
     private val iconsObserver = Observer<List<String>> {

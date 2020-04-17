@@ -30,7 +30,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -224,7 +224,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         adapter = ApplistAdapter(applistLog, this)
-        viewModel = ViewModelProviders.of(this).get(ApplistViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(ApplistViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater,
