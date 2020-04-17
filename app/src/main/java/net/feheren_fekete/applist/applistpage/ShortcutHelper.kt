@@ -176,7 +176,17 @@ class ShortcutHelper {
                 return@launch
             }
 
-            val iconDrawable: Drawable? = launcherApps.getShortcutBadgedIconDrawable(shortcutInfo, 0)
+            val iconDrawable: Drawable? = try {
+                launcherApps.getShortcutBadgedIconDrawable(shortcutInfo, 0)
+            } catch (e: Exception) {
+                applistLog.log(RuntimeException("LauncherApps.getShortcutBadgedIconDrawable"))
+                try {
+                    launcherApps.getShortcutIconDrawable(shortcutInfo, 0)
+                } catch (e: Exception) {
+                    applistLog.log(RuntimeException("LauncherApps.getShortcutIconDrawable"))
+                    null
+                }
+            }
             val shortcutIconBitmap = if (iconDrawable != null) {
                 imageUtils.drawableToBitmap(iconDrawable)
             } else {
