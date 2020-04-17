@@ -9,47 +9,35 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.Surface;
 import android.view.WindowManager;
 
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 
 public class ScreenUtils {
 
-    private DisplayMetrics mDisplayMetrics;
-    private Point mScreenSize;
-    private Point mScreenSizeDp;
+    private Point mScreenSize = new Point();
+    private Point mScreenSizeDp = new Point();
     private int mStatusBarHeight = -1;
     private int mNavigationBarHeight = -1;
     private int mHasNavigationBar = -1;
     private TypedValue mTypedValue;
 
     public int getScreenWidth(Context context) {
-        if (mScreenSize == null) {
-            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            Display display = wm.getDefaultDisplay();
-            mScreenSize = new Point();
-            display.getSize(mScreenSize);
-        }
+        getDisplay(context).getSize(mScreenSize);
         return mScreenSize.x;
     }
 
     public Point getScreenSize(Context context) {
-        if (mScreenSize == null) {
-            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            Display display = wm.getDefaultDisplay();
-            mScreenSize = new Point();
-            display.getSize(mScreenSize);
-        }
+        getDisplay(context).getSize(mScreenSize);
         return mScreenSize;
     }
 
     public Point getScreenSizeDp(Context context) {
-        if (mScreenSizeDp == null) {
-            final Point screenSize = getScreenSize(context);
-            mScreenSizeDp = new Point(
-                    Math.round(pxToDp(context, screenSize.x)),
-                    Math.round(pxToDp(context, screenSize.y)));
-        }
+        final Point screenSize = getScreenSize(context);
+        mScreenSizeDp.set(
+                Math.round(pxToDp(context, screenSize.x)),
+                Math.round(pxToDp(context, screenSize.y)));
         return mScreenSizeDp;
     }
 
@@ -79,11 +67,8 @@ public class ScreenUtils {
         // Calculate ActionBar height
         TypedValue tv = new TypedValue();
         if (context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            if (mDisplayMetrics == null) {
-                mDisplayMetrics = Resources.getSystem().getDisplayMetrics();
-            }
             return TypedValue.complexToDimensionPixelSize(
-                    tv.data, mDisplayMetrics);
+                    tv.data, getDisplayMetrics());
         } else {
             return Math.round(dpToPx(context, 32));
         }
@@ -115,17 +100,11 @@ public class ScreenUtils {
     }
 
     public float dpToPx(Context context, float dp) {
-        if (mDisplayMetrics == null) {
-            mDisplayMetrics = Resources.getSystem().getDisplayMetrics();
-        }
-        return dp * (mDisplayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT);
+        return dp * (getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
     public float pxToDp(Context context, float px) {
-        if (mDisplayMetrics == null) {
-            mDisplayMetrics = Resources.getSystem().getDisplayMetrics();
-        }
-        return Math.round(px / (mDisplayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return Math.round(px / (getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
     public int getColorAttribute(final Context context, int attributeId) {
@@ -134,6 +113,15 @@ public class ScreenUtils {
         }
         context.getTheme().resolveAttribute(attributeId, mTypedValue, true);
         return mTypedValue.data;
+    }
+
+    private DisplayMetrics getDisplayMetrics() {
+        return Resources.getSystem().getDisplayMetrics();
+    }
+
+    private Display getDisplay(Context context) {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        return wm.getDefaultDisplay();
     }
 
 }
