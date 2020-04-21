@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -32,6 +33,8 @@ class IconPickerFragment: Fragment() {
     private lateinit var iconPacksAdapter: IconPacksAdapter
     private lateinit var iconsAdapter: IconsAdapter
 
+    private var menu: Menu? = null
+    private var searchView: SearchView? = null
     private var icons: IconPackIconsLiveData? = null
 
     companion object {
@@ -81,13 +84,13 @@ class IconPickerFragment: Fragment() {
 
         (activity as AppCompatActivity?)?.let {
             it.setSupportActionBar(view.toolbar)
-            it.supportActionBar?.title = arguments!!.getString(FRAGMENT_ARG_TITLE)
+            it.supportActionBar?.title = requireArguments().getString(FRAGMENT_ARG_TITLE)
             it.supportActionBar?.setDisplayHomeAsUpEnabled(true)
             it.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_close)
         }
         setHasOptionsMenu(true)
 
-        view.appName.text = arguments!!.getString(FRAGMENT_ARG_APP_NAME)
+        view.appName.text = requireArguments().getString(FRAGMENT_ARG_APP_NAME)
         clearAppIconPreview(view)
 
         view.iconPacksRecyclerView.adapter = iconPacksAdapter
@@ -118,6 +121,35 @@ class IconPickerFragment: Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.iconpack_picker_menu, menu)
+
+        this.menu = menu
+
+        val searchItem = menu.findItem(R.id.action_search_icon)
+        searchView = searchItem.actionView as SearchView
+        searchView!!.setIconifiedByDefault(true)
+
+        searchView!!.setOnQueryTextFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                //startFilteringByName(fragment)
+            } else {
+                //stopFilteringByName(fragment)
+            }
+        }
+
+        searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText == null || newText.isEmpty()) {
+                    iconsAdapter.setFilterText(null)
+                } else {
+                    iconsAdapter.setFilterText(newText)
+                }
+                return true
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -128,8 +160,8 @@ class IconPickerFragment: Fragment() {
             }
             R.id.action_reset_icon -> {
                 viewModel.resetOriginalIcon(
-                        arguments!!.getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
-                        arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
+                        requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
+                        requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
                 EventBus.getDefault().post(DoneEvent())
                 return true
             }
@@ -161,19 +193,19 @@ class IconPickerFragment: Fragment() {
 
         icons = viewModel.icons(
             iconPackPackageName,
-            arguments!!.getString(FRAGMENT_ARG_APP_NAME)!!,
-            arguments!!.getParcelable(FRAGMENT_ARG_COMPONENT_NAME)!!
+            requireArguments().getString(FRAGMENT_ARG_APP_NAME)!!,
+            requireArguments().getParcelable(FRAGMENT_ARG_COMPONENT_NAME)!!
         )
         icons?.observe(viewLifecycleOwner, iconsObserver)
     }
 
-    private val iconsObserver = Observer<Pair<Boolean, List<String>>> {
+    private val iconsObserver = Observer<Pair<Boolean, List<IconPackIcon>>> {
         val isLoadingDone = it.first
         if (isLoadingDone) {
             iconsLoadingProgressBar.visibility = View.GONE
         }
         iconsRecyclerView.visibility = View.VISIBLE
-        iconsAdapter.addItems(it.second)
+        iconsAdapter.setItems(it.second)
     }
 
     private fun onIconSelected(position: Int, isSelected: Boolean) {
@@ -181,7 +213,7 @@ class IconPickerFragment: Fragment() {
             setAppIconPreview(position)
             showFab()
         } else {
-            clearAppIconPreview(view!!)
+            clearAppIconPreview(requireView())
             hideFab()
         }
     }
@@ -222,12 +254,12 @@ class IconPickerFragment: Fragment() {
     private fun setAppIconPreview(position: Int) {
         val iconBitmap = iconPackHelper.loadIcon(
                 iconsAdapter.iconPackPackageName,
-                iconsAdapter.getItem(position))
+                iconsAdapter.getItem(position).drawableName)
         appIcon.setImageBitmap(iconBitmap)
     }
 
     private fun clearAppIconPreview(view: View) {
-        val customIconFile = File(arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
+        val customIconFile = File(requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
         if (customIconFile.exists()) {
             GlideApp.with(this)
                     .load(customIconFile)
@@ -236,7 +268,7 @@ class IconPickerFragment: Fragment() {
             return
         }
 
-        val iconPath = arguments!!.getString(FRAGMENT_ARG_ICON_PATH)
+        val iconPath = requireArguments().getString(FRAGMENT_ARG_ICON_PATH)
         if (iconPath != null) {
             val iconFile = File(iconPath)
             if (iconFile.exists()) {
@@ -248,7 +280,7 @@ class IconPickerFragment: Fragment() {
             }
         }
 
-        val componentName = arguments!!.getParcelable<ComponentName>(FRAGMENT_ARG_COMPONENT_NAME)
+        val componentName = requireArguments().getParcelable<ComponentName>(FRAGMENT_ARG_COMPONENT_NAME)
         if (componentName != null) {
             GlideApp.with(this)
                     .load(componentName)
@@ -261,10 +293,10 @@ class IconPickerFragment: Fragment() {
             return
         }
         viewModel.setAppIcon(
-                arguments!!.getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
+                requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
                 iconsAdapter.iconPackPackageName,
-                iconsAdapter.getItem(position),
-                arguments!!.getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
+                iconsAdapter.getItem(position).drawableName,
+                requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
         EventBus.getDefault().post(DoneEvent())
     }
 

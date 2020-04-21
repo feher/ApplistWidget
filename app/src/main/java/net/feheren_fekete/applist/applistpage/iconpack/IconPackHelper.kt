@@ -25,7 +25,7 @@ class IconPackHelper(private val context: Context,
         inDither = false
     }
 
-    fun getSupportedApps(iconPackPackageName: String): Flow<IconPackAppItem> {
+    fun getSupportedApps(iconPackPackageName: String): Flow<IconPackApp> {
         val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
         return findFlowInXml(iconPackPackageName, iconPackResources, "appfilter") {
             if (it.name != "item" || it.attributeCount < 2) {
@@ -52,7 +52,7 @@ class IconPackHelper(private val context: Context,
                 }
             }
             if (componentName != null && drawableName != null) {
-                return@findFlowInXml IconPackAppItem(componentName, drawableName)
+                return@findFlowInXml IconPackApp(componentName, drawableName)
             }
             return@findFlowInXml null
         }

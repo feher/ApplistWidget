@@ -633,7 +633,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     private fun createNotificationMenuItem(text: String, icon: Drawable?, remoteViews: RemoteViews?, statusBarNotification: StatusBarNotification): ItemMenuItem {
         var t = text
         if (t.isEmpty() && remoteViews == null) {
-            t = context!!.getString(R.string.app_item_menu_notification_without_title)
+            t = requireContext().getString(R.string.app_item_menu_notification_without_title)
         }
         return ItemMenuItem(
                 "", t, icon, R.drawable.notification_menu_item_background,

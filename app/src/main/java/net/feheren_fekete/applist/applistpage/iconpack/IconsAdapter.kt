@@ -11,10 +11,13 @@ class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Bo
     var selectedItemPosition = RecyclerView.NO_POSITION
         private set
 
-    private val items = arrayListOf<String>()
+    private val items = arrayListOf<IconPackIcon>()
+    private val filteredItems = arrayListOf<IconPackIcon>()
+    private var filterText: String? = null
 
     fun clearItems() {
         this.items.clear()
+        updateFilteredItems()
 
         selectedItemPosition = RecyclerView.NO_POSITION
         notifyDataSetChanged()
@@ -23,21 +26,22 @@ class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Bo
         itemClickCallback(selectedItemPosition, false)
     }
 
-    fun setItems(items: List<String>) {
+    fun setItems(items: List<IconPackIcon>) {
         this.items.clear()
         this.items.addAll(items)
+        updateFilteredItems()
         notifyDataSetChanged()
     }
 
-    fun addItems(items: List<String>) {
-//        val oldSize = this.items.size
-        this.items.clear()
-        this.items.addAll(items)
+    fun getItem(position: Int) = filteredItems.get(position)
+
+    fun setFilterText(filter: String?) {
+        filterText = filter
+        updateFilteredItems()
         notifyDataSetChanged()
-//        notifyItemRangeInserted(oldSize, items.size)
     }
 
-    fun getItem(position: Int) = items.get(position)
+    fun isFiltered() = filterText != null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IconViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.iconpack_icon_item, parent, false)
@@ -46,10 +50,10 @@ class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Bo
         }
     }
 
-    override fun getItemCount() = items.size
+    override fun getItemCount() = filteredItems.size
 
     override fun onBindViewHolder(holder: IconViewHolder, position: Int) {
-        holder.bind(iconPackPackageName, items[position], position == selectedItemPosition)
+        holder.bind(iconPackPackageName, filteredItems[position].drawableName, position == selectedItemPosition)
     }
 
     private fun selectItem(position: Int) {
@@ -68,6 +72,27 @@ class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Bo
             notifyItemChanged(selectedItemPosition)
 
             itemClickCallback(position, true)
+        }
+    }
+
+    private fun updateFilteredItems() {
+        val ft = filterText
+        if (ft == null) {
+            filteredItems.clear()
+            filteredItems.addAll(items)
+        } else {
+            filteredItems.clear()
+            filteredItems.addAll(items.filter {
+                if (it.drawableName.contains(ft)) {
+                    return@filter true
+                }
+                for (component in it.componentNames) {
+                    if (component.packageName.contains(ft)) {
+                        return@filter true
+                    }
+                }
+                return@filter false
+            })
         }
     }
 

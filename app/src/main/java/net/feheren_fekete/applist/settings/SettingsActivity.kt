@@ -283,7 +283,6 @@ class SettingsActivity : PreferenceActivity() {
                             selectedPhoneApp.activityInfo.packageName,
                             selectedPhoneApp.activityInfo.name)
                     AppUtils.savePhoneApp(appContext, componentName)
-                    val showPhoneBadge = findPreference(PREF_KEY_SHOW_PHONE_BADGE) as SwitchPreference
                     showPhoneBadge.isChecked = true
                 }
                 return false

@@ -25,7 +25,7 @@ class SectionItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) :
             itemListenerRef.get()?.onSectionTapped(item)
         }
         layout.setOnTouchListener { _, event ->
-            if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+            if (event.action == MotionEvent.ACTION_DOWN) {
                 itemListenerRef.get()?.onSectionTouched(item)
             }
             false

@@ -14,19 +14,17 @@ class IconPackIconsLiveData(
     private val iconPackPackageName: String,
     private val appName: String,
     private val appComponentName: ComponentName
-) : MutableLiveData<Pair<Boolean, List<String>>>() {
+) : MutableLiveData<Pair<Boolean, List<IconPackIcon>>>() {
 
     private var job: Job? = null
 
     override fun onActive() {
         super.onActive()
-        Log.d("POO", "onActive")
         queryIconPackIcons(iconPackPackageName)
     }
 
     override fun onInactive() {
         super.onInactive()
-        Log.d("POO", "onInactive")
         coroutineScope.launch {
             job?.cancelAndJoin()
         }
@@ -34,25 +32,23 @@ class IconPackIconsLiveData(
 
     private fun queryIconPackIcons(iconPackPackageName: String) {
         job = coroutineScope.launch(Dispatchers.IO) {
-            val iconDrawableNames = ArrayList<Pair<String, Int>>()
+            val icons = ArrayList<IconPackIcon>()
             var lastUpdateTime = System.currentTimeMillis()
             val f = iconPackIconsRepository.iconPackIcons(
                 iconPackPackageName, appName, appComponentName)
             f.collect {
-                //Log.d("POO", "GOT ONE ${it.first}")
-                iconDrawableNames.add(it)
+                icons.add(it)
                 val time = System.currentTimeMillis()
                 val shouldUpdateValue = (time - lastUpdateTime) > 500
                 if (shouldUpdateValue) {
-                    Log.d("POO", "update")
                     lastUpdateTime = time
-                    iconDrawableNames.sortBy { it.second }
-                    postValue(Pair(false, iconDrawableNames.map { it.first }))
+                    icons.sortBy { it.rank }
+                    postValue(Pair(false, icons))
                 }
             }
             if (isActive) {
-                iconDrawableNames.sortBy { it.second }
-                postValue(Pair(true, iconDrawableNames.map { it.first }))
+                icons.sortBy { it.rank }
+                postValue(Pair(true, icons))
             }
         }
     }

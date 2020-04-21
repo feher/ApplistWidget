@@ -27,8 +27,8 @@ interface LauncherPageDao {
         // Always have one main page.
         val mainPage = getMainPageInternal()
         if (mainPage == null) {
-            val applistPage = getApplistPageInternal()
-            setMainPage(applistPage!!.id)
+            val applistPage2 = getApplistPageInternal()
+            setMainPage(applistPage2!!.id)
         }
     }
 
@@ -54,8 +54,8 @@ interface LauncherPageDao {
 
         // Give out fresh position numbers
         val pages = getPages()
-        pages.forEachIndexed { i, page ->
-            setPositionInternal(page.id, i)
+        pages.forEachIndexed { i, p ->
+            setPositionInternal(p.id, i)
         }
 
         // Set a new main page

@@ -4,66 +4,63 @@ import android.content.ComponentName
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import org.apache.commons.text.similarity.JaccardDistance
 import org.apache.commons.text.similarity.JaroWinklerDistance
-import org.apache.commons.text.similarity.LevenshteinDetailedDistance
-import org.apache.commons.text.similarity.LevenshteinDistance
 import kotlin.math.max
 import kotlin.math.min
 
 class IconPackIconsRepository(private val iconPackHelper: IconPackHelper) {
 
-//    private val stringDistance = JaroWinklerDistance()
-    private val stringDistance = JaccardDistance()
+    private val stringDistance = JaroWinklerDistance()
 
     public suspend fun iconPackIcons(
         iconPackPackageName: String,
         appName: String,
         appComponentName: ComponentName
-    ): Flow<Pair<String, Int>> {
-        val iconPackApps = ArrayList<IconPackAppItem>()
+    ): Flow<IconPackIcon> {
+        val iconPackApps = ArrayList<IconPackApp>()
         iconPackHelper.getSupportedApps(iconPackPackageName).collect {
             iconPackApps.add(it)
         }
         val iconPackDrawables = iconPackHelper.getIconDrawableNames(iconPackPackageName)
         return iconPackDrawables.map { drawableName ->
-            //                Log.d("POO", "GIVE ONE $drawableName")
             val drawableApps = getAppsOfDrawable(drawableName, iconPackApps)
-            Pair(
-                drawableName,
+            IconPackIcon(
                 calculateIconRanking(
-                    appName,
-                    appComponentName.packageName,
                     drawableName,
-                    drawableApps
-                )
-//                    )
+                    drawableApps,
+                    appName,
+                    appComponentName.packageName
+                ),
+                drawableName,
+                drawableApps
             )
         }
     }
 
     private fun getAppsOfDrawable(
         drawableName: String,
-        allApps: List<IconPackAppItem>
-    ): List<IconPackAppItem> {
+        allApps: List<IconPackApp>
+    ): List<ComponentName> {
         return allApps.filter {
             it.drawableName == drawableName
+        }.map {
+            it.componentName
         }
     }
 
     private fun calculateIconRanking(
-        appName: String,
-        appPackageName: String,
         iconDrawableName: String,
-        iconApps: List<IconPackAppItem>
+        iconApps: List<ComponentName>,
+        appName: String,
+        appPackageName: String
     ): Int {
         var ranking = Int.MAX_VALUE
         iconApps.forEach {
             val r = calculateIconRanking(
-                appName,
-                appPackageName,
                 iconDrawableName,
-                it.componentName.packageName
+                it.packageName,
+                appName,
+                appPackageName
             )
             ranking = min(ranking, r)
         }
@@ -71,12 +68,12 @@ class IconPackIconsRepository(private val iconPackHelper: IconPackHelper) {
     }
 
     private fun calculateIconRanking(
-        appName: String,
-        appPackageName: String,
         iconDrawableName: String,
-        iconPackageName: String
+        iconPackageName: String,
+        appName: String,
+        appPackageName: String
     ): Int {
-        val best = 0.0
+        val best = 1.0
         val d1 = stringDistance.apply(appPackageName, iconPackageName)
         if (d1 == best) {
             return 0
@@ -93,59 +90,8 @@ class IconPackIconsRepository(private val iconPackHelper: IconPackHelper) {
         if (d4 == best) {
             return 0
         }
-        val md = min(min(min(d1, d2), d3), d4)
-//        val md = max(max(max(d1, d2), d3), d4)
+        val md = max(max(max(d1, d2), d3), d4)
         return ((1.0 - md) * 100).toInt()
-
-//        val md = min(min(min(d1, d2), d3), d4)
-//        return md
-
-
-//        if (appPackageName == iconPackageName) {
-//            return 0
-//        }
-//
-//        var ranking = 0
-//        val appNameParts = appName.toLowerCase(Locale.getDefault()).split(' ')
-//        val appPackageNameParts = appPackageName.toLowerCase(Locale.US).split('.')
-//        val iconPackageNameParts = iconPackageName.toLowerCase(Locale.US).split('.')
-//        iconPackageNameParts.forEachIndexed { j, iconPart ->
-//            appNameParts.forEachIndexed { i, appPart ->
-//                val i1 = i + 1
-//                val j1 = j + 1
-//                when {
-//                    appPart == iconPart -> {
-//                        ranking += (i1 * 10) * j1
-//                    }
-//                    iconPart.contains(appPart) -> {
-//                        ranking += ((i1 * 10) * j1) * 10
-//                    }
-//                    appPart.contains(iconPart) -> {
-//                        ranking += ((i1 * 10) * j1) * 100
-//                    }
-//                }
-//            }
-////            appPackageNameParts.forEachIndexed { i, appPkgPart ->
-////                when {
-////                    appPkgPart == iconPart -> {
-////                        ranking += (i * 10) * j * 1000
-////                    }
-////                    iconPart.contains(appPkgPart) -> {
-////                        ranking += ((i * 10) * j) * 10000
-////                    }
-////                    appPkgPart.contains(iconPart) -> {
-////                        ranking += ((i * 10) * j) * 100000
-////                    }
-////                }
-////            }
-//        }
-//
-//        return if (ranking != 0) {
-//            Log.d("POO", "RANK $ranking $iconDrawableName $iconPackageName")
-//            ranking
-//        } else {
-//            Int.MAX_VALUE
-//        }
     }
 
 }

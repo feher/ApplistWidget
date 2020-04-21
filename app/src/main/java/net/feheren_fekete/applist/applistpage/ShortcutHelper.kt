@@ -58,7 +58,7 @@ class ShortcutHelper {
                         try {
                             val resources = packageManager.getResourcesForApplication(shortcutIconResource.packageName)
                             val drawableId = resources!!.getIdentifier(shortcutIconResource.resourceName, null, null)
-                            val drawable = resources.getDrawable(drawableId)
+                            val drawable = resources.getDrawable(drawableId, null)
                             shortcutIconBitmap = imageUtils.drawableToBitmap(drawable)
                         } catch (e: Resources.NotFoundException) {
                             applistLog.log(e)

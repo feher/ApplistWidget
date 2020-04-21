@@ -69,7 +69,7 @@ class ApplistPageFragment : Fragment() {
     }
 
     private val launcherPageId: Long
-        get() = arguments!!.getLong("launcherPageId")
+        get() = requireArguments().getLong("launcherPageId")
 
     private val applistPagePageFragment: ApplistPagePageFragment?
         get() = childFragmentManager.findFragmentByTag(
@@ -92,8 +92,8 @@ class ApplistPageFragment : Fragment() {
             searchView?.isIconified = false
         }
 
-        val activity = activity as AppCompatActivity?
-        activity!!.setSupportActionBar(view.toolbar)
+        val activity = requireActivity() as AppCompatActivity
+        activity.setSupportActionBar(view.toolbar)
         activity.supportActionBar!!.setDisplayShowTitleEnabled(false)
         activity.supportActionBar!!.setDisplayHomeAsUpEnabled(false)
         setHasOptionsMenu(true)
@@ -105,7 +105,7 @@ class ApplistPageFragment : Fragment() {
         packageIntentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED)
         packageIntentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED)
         packageIntentFilter.addDataScheme("package")
-        context!!.registerReceiver(packageStateReceiver, packageIntentFilter)
+        requireContext().registerReceiver(packageStateReceiver, packageIntentFilter)
 
         return view
     }
@@ -146,7 +146,7 @@ class ApplistPageFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         searchView?.let {
-            hideKeyboardFrom(context!!, it)
+            hideKeyboardFrom(requireContext(), it)
             it.isIconified = true
         }
         EventBus.getDefault().unregister(this)
@@ -154,7 +154,7 @@ class ApplistPageFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        context!!.unregisterReceiver(packageStateReceiver)
+        requireContext().unregisterReceiver(packageStateReceiver)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -170,10 +170,10 @@ class ApplistPageFragment : Fragment() {
         searchView!!.setOnQueryTextFocusChangeListener { _, hasFocus ->
             val fragment = applistPagePageFragment
             if (fragment != null) {
-                if (!hasFocus) {
-                    stopFilteringByName(fragment)
-                } else {
+                if (hasFocus) {
                     startFilteringByName(fragment)
+                } else {
+                    stopFilteringByName(fragment)
                 }
             }
         }
@@ -265,7 +265,7 @@ class ApplistPageFragment : Fragment() {
     private fun createToolbarGradient(): Drawable {
         // REF: 2017_06_30_toolbar_gradient
         val typedValue = TypedValue()
-        context!!.theme.resolveAttribute(R.attr.toolbarBackgroundColor, typedValue, true)
+        requireContext().theme.resolveAttribute(R.attr.toolbarBackgroundColor, typedValue, true)
         var startColor = typedValue.data
         val endColor: Int
         if (settingsUtils.isThemeTransparent) {
