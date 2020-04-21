@@ -12,16 +12,29 @@ import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
-class IconPickerViewModel: ViewModel(), KoinComponent {
+class IconPickerViewModel : ViewModel(), KoinComponent {
 
     private val applistLog: ApplistLog by inject()
     private val applistRepo: ApplistPageRepository by inject()
     private val iconPackHelper: IconPackHelper by inject()
+    private val iconPackIconsRepository: IconPackIconsRepository by inject()
     private val packageManager: PackageManager by inject()
 
     val iconPacks = IconPacksLiveData(viewModelScope, packageManager)
 
-    fun icons(iconpackPackageName: String) = IconPackIconsLiveData(viewModelScope, iconPackHelper, packageManager, iconpackPackageName)
+    fun icons(
+        iconPackPackageName: String,
+        appName: String,
+        appComponentName: ComponentName
+    ) =
+        IconPackIconsLiveData(
+            viewModelScope,
+            iconPackIconsRepository,
+            packageManager,
+            iconPackPackageName,
+            appName,
+            appComponentName
+        )
 
     fun resetOriginalIcon(applistItemId: Long, customIconPath: String) {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
@@ -29,10 +42,12 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
         }
     }
 
-    fun setAppIcon(applistItemId: Long,
-                   iconPackPackageName: String,
-                   iconDrawableName: String,
-                   customIconPath: String) {
+    fun setAppIcon(
+        applistItemId: Long,
+        iconPackPackageName: String,
+        iconDrawableName: String,
+        customIconPath: String
+    ) {
         val iconBitmap = iconPackHelper.loadIcon(iconPackPackageName, iconDrawableName)
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.storeCustomStartableIcon(applistItemId, customIconPath, iconBitmap!!, true)
@@ -46,9 +61,10 @@ class IconPickerViewModel: ViewModel(), KoinComponent {
                 applistRepo.forEachAppItem {
                     try {
                         val iconBitmap = iconPackHelper.loadIcon(
-                                iconPackPackageName,
-                                ComponentName(it.packageName, it.className),
-                                48, 48)
+                            iconPackPackageName,
+                            ComponentName(it.packageName, it.className),
+                            48, 48
+                        )
                         val iconPath = applistRepo.getCustomAppIconPath(it)
                         applistRepo.storeCustomStartableIcon(it.id, iconPath, iconBitmap, false)
                     } catch (e: Exception) {

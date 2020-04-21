@@ -9,6 +9,7 @@ import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.applistpage.IconPreloadHelper
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
+import net.feheren_fekete.applist.applistpage.iconpack.IconPackIconsRepository
 import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistIconStorage
@@ -59,6 +60,7 @@ val applistModule = module {
     single { ShortcutHelper() }
     single { WidgetHelper() }
     single { IconPackHelper(androidContext(), get(), get(), get()) }
+    single { IconPackIconsRepository(get()) }
     single { IconPreloadHelper() }
     single { SettingsUtils(androidContext()) }
     single { WriteSettingsPermissionHelper(androidContext()) }

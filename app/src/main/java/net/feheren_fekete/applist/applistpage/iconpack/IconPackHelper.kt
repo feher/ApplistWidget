@@ -7,11 +7,12 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.*
 import android.graphics.Paint.FILTER_BITMAP_FLAG
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import net.feheren_fekete.applist.utils.ImageUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
+import kotlin.coroutines.coroutineContext
 
 class IconPackHelper(private val context: Context,
                      private val packageManager: PackageManager,
@@ -24,62 +25,54 @@ class IconPackHelper(private val context: Context,
         inDither = false
     }
 
-    fun getSupportedApps(iconPackPackageName: String): List<ComponentName> {
-        val result = mutableListOf<ComponentName>()
+    fun getSupportedApps(iconPackPackageName: String): Flow<IconPackAppItem> {
         val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
-        findInXml(iconPackPackageName, iconPackResources, "appfilter") {
-            if (it.name == "item"
-                    && it.attributeCount >= 2
-                    && it.getAttributeName(0) == "component") {
-                // We assume the component to be in this format:
-                // ComponentInfo{package-name/class-name}
-                var componentString = it.getAttributeValue(0)
-                if (componentString.startsWith("ComponentInfo{")
-                        && componentString.indexOf('/') != -1) {
-                    componentString = componentString.drop("ComponentInfo{".length)
-                    componentString = componentString.dropLast(1)
-                    val componentName = ComponentName.unflattenFromString(componentString)
-                    if (componentName != null) {
-                        result.add(componentName)
-                        return@findInXml false
+        return findFlowInXml(iconPackPackageName, iconPackResources, "appfilter") {
+            if (it.name != "item" || it.attributeCount < 2) {
+                return@findFlowInXml null
+            }
+            var componentName: ComponentName? = null
+            var drawableName: String? = null
+            for (i in 0 until it.attributeCount) {
+                when (it.getAttributeName(i)) {
+                    "component" -> {
+                        // We assume the component to be in this format:
+                        // ComponentInfo{package-name/class-name}
+                        var componentString = it.getAttributeValue(i)
+                        if (componentString.startsWith("ComponentInfo{")
+                            && componentString.indexOf('/') != -1) {
+                            componentString = componentString.drop("ComponentInfo{".length)
+                            componentString = componentString.dropLast(1)
+                            componentName = ComponentName.unflattenFromString(componentString)
+                        }
+                    }
+                    "drawable" -> {
+                        drawableName = it.getAttributeValue(i)
                     }
                 }
             }
-            return@findInXml false
+            if (componentName != null && drawableName != null) {
+                return@findFlowInXml IconPackAppItem(componentName, drawableName)
+            }
+            return@findFlowInXml null
         }
-        return result
     }
 
-    fun getIconDrawableNames(iconPackPackageName: String,
-                             livedata: MutableLiveData<List<String>>,
-                             scope: CoroutineScope) {
-        val batchSize = 20
-        val result = arrayListOf<String>()
+    fun getIconDrawableNames(iconPackPackageName: String): Flow<String> {
         val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
-        findInXml(iconPackPackageName, iconPackResources, "drawable") {
-            if (!scope.isActive) {
-                return@findInXml true
-            }
+        return findFlowInXml(iconPackPackageName, iconPackResources, "drawable") {
             if (it.name == "item") {
                 for (i in 0 until it.attributeCount) {
                     if (it.getAttributeName(i) == "drawable") {
                         val drawableName = it.getAttributeValue(i)
                         val resourceId = getDrawableId(iconPackPackageName, iconPackResources, drawableName)
                         if (resourceId != 0) {
-                            result.add(drawableName)
-                            if (result.size % batchSize == 0) {
-                                livedata.postValue(result)
-                            }
+                            return@findFlowInXml drawableName
                         }
                     }
                 }
             }
-            return@findInXml false
-        }
-        if (scope.isActive) {
-            if (result.isNotEmpty()) {
-                livedata.postValue(result)
-            }
+            return@findFlowInXml null
         }
     }
 
@@ -244,6 +237,28 @@ class IconPackHelper(private val context: Context,
                 if (xrp.eventType == XmlResourceParser.START_TAG) {
                     if (finder(xrp)) {
                         return
+                    }
+                }
+                xrp.next()
+            }
+        }
+    }
+
+    private inline fun <T> findFlowInXml(packageName: String,
+                          resources: Resources,
+                          xmlName: String,
+                          crossinline finder: (XmlResourceParser) -> T?) = flow {
+        val resourceValue = resources.getIdentifier(xmlName, "xml", packageName)
+        if (resourceValue != 0) {
+            val xrp = resources.getXml(resourceValue)
+            while (xrp.eventType != XmlResourceParser.END_DOCUMENT) {
+                if (!coroutineContext.isActive) {
+                    return@flow
+                }
+                if (xrp.eventType == XmlResourceParser.START_TAG) {
+                    val v = finder(xrp)
+                    if (v != null) {
+                        emit(v!!)
                     }
                 }
                 xrp.next()

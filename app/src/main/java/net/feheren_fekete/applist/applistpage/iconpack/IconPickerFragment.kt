@@ -156,12 +156,24 @@ class IconPickerFragment: Fragment() {
         iconsAdapter.clearItems()
         iconsAdapter.iconPackPackageName = iconPackPackageName
 
-        icons = viewModel.icons(iconPackPackageName)
+        iconsRecyclerView.visibility = View.GONE
+        iconsLoadingProgressBar.visibility = View.VISIBLE
+
+        icons = viewModel.icons(
+            iconPackPackageName,
+            arguments!!.getString(FRAGMENT_ARG_APP_NAME)!!,
+            arguments!!.getParcelable(FRAGMENT_ARG_COMPONENT_NAME)!!
+        )
         icons?.observe(viewLifecycleOwner, iconsObserver)
     }
 
-    private val iconsObserver = Observer<List<String>> {
-        iconsAdapter.addItems(it)
+    private val iconsObserver = Observer<Pair<Boolean, List<String>>> {
+        val isLoadingDone = it.first
+        if (isLoadingDone) {
+            iconsLoadingProgressBar.visibility = View.GONE
+        }
+        iconsRecyclerView.visibility = View.VISIBLE
+        iconsAdapter.addItems(it.second)
     }
 
     private fun onIconSelected(position: Int, isSelected: Boolean) {

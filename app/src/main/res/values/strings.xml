@@ -97,7 +97,7 @@
     <string name="page_picker_cannot_add_to_page">Cannot add Widgets to this page</string>
     <string name="page_picker_already_on_page">Widget is already on this page</string>
 
-    <string name="iconpack_picker_empty">You don\'t have any icon packs.\nGo the Play Store to install some.</string>
+    <string name="iconpack_picker_empty">You don\'t have any icon packs.\nGo to the Play Store to install some.</string>
     <string name="iconpack_picker_icon_packs">Icon packs</string>
     <string name="iconpack_picker_change_icon">Change app icon</string>
     <string name="iconpack_picker_reset_icon">Reset to original</string>

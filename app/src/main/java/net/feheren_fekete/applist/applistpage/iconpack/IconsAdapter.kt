@@ -30,10 +30,11 @@ class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Bo
     }
 
     fun addItems(items: List<String>) {
-        val oldSize = this.items.size
+//        val oldSize = this.items.size
         this.items.clear()
         this.items.addAll(items)
-        notifyItemRangeInserted(oldSize, items.size)
+        notifyDataSetChanged()
+//        notifyItemRangeInserted(oldSize, items.size)
     }
 
     fun getItem(position: Int) = items.get(position)
