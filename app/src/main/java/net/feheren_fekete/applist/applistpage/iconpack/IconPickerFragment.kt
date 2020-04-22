@@ -25,7 +25,7 @@ import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
 import java.io.File
 
-class IconPickerFragment: Fragment() {
+class IconPickerFragment : Fragment() {
 
     class CancelEvent
     class DoneEvent
@@ -49,12 +49,14 @@ class IconPickerFragment: Fragment() {
         private const val FRAGMENT_ARG_ICON_PATH = "iconPath"
         private const val FRAGMENT_ARG_CUSTOM_ICON_PATH = "customIconPath"
 
-        fun newInstance(title: String,
-                        applistItemId: Long,
-                        appName: String,
-                        componentName: ComponentName?,
-                        iconPath: String?,
-                        customIconPath: String): IconPickerFragment {
+        fun newInstance(
+            title: String,
+            applistItemId: Long,
+            appName: String,
+            componentName: ComponentName?,
+            iconPath: String?,
+            customIconPath: String
+        ): IconPickerFragment {
             val args = Bundle()
             args.putString(FRAGMENT_ARG_TITLE, title)
             args.putLong(FRAGMENT_ARG_APPLIST_ITEM_ID, applistItemId)
@@ -79,7 +81,11 @@ class IconPickerFragment: Fragment() {
         iconsAdapter = IconsAdapter(::onIconSelected)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.iconpack_picker_fragment, container, false)
     }
 
@@ -98,7 +104,8 @@ class IconPickerFragment: Fragment() {
         clearAppIconPreview(view)
 
         view.iconPacksRecyclerView.adapter = iconPacksAdapter
-        view.iconPacksRecyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        view.iconPacksRecyclerView.layoutManager =
+            LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
         view.iconsRecyclerView.adapter = iconsAdapter
         view.iconsRecyclerView.layoutManager = GridLayoutManager(context, 6)
@@ -272,11 +279,11 @@ class IconPickerFragment: Fragment() {
         setFab.scaleY = 0.3f
         setFab.alpha = 0.0f
         setFab.animate()
-                .scaleX(1.0f)
-                .scaleY(1.0f)
-                .alpha(1.0f)
-                .setDuration(300)
-                .setListener(null)
+            .scaleX(1.0f)
+            .scaleY(1.0f)
+            .alpha(1.0f)
+            .setDuration(300)
+            .setListener(null)
     }
 
     private fun hideFab() {
@@ -284,22 +291,23 @@ class IconPickerFragment: Fragment() {
             return
         }
         setFab.animate()
-                .scaleX(0.3f)
-                .scaleY(0.3f)
-                .alpha(0.0f)
-                .setDuration(300)
-                .setListener(object: AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
-                        super.onAnimationEnd(animation)
-                        setFab.visibility = View.GONE
-                    }
-                })
+            .scaleX(0.3f)
+            .scaleY(0.3f)
+            .alpha(0.0f)
+            .setDuration(300)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    super.onAnimationEnd(animation)
+                    setFab.visibility = View.GONE
+                }
+            })
     }
 
     private fun setAppIconPreview(icon: IconPackIcon) {
         val iconBitmap = iconPackHelper.loadIcon(
-                iconsAdapter.iconPackPackageName,
-                icon.drawableName)
+            iconsAdapter.iconPackPackageName,
+            icon.drawableName
+        )
         appIcon.setImageBitmap(iconBitmap)
     }
 
@@ -307,9 +315,9 @@ class IconPickerFragment: Fragment() {
         val customIconFile = File(requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
         if (customIconFile.exists()) {
             GlideApp.with(this)
-                    .load(customIconFile)
-                    .signature(FileSignature(customIconFile))
-                    .into(view.appIcon)
+                .load(customIconFile)
+                .signature(FileSignature(customIconFile))
+                .into(view.appIcon)
             return
         }
 
@@ -318,18 +326,19 @@ class IconPickerFragment: Fragment() {
             val iconFile = File(iconPath)
             if (iconFile.exists()) {
                 GlideApp.with(this)
-                        .load(iconFile)
-                        .signature(FileSignature(iconFile))
-                        .into(view.appIcon)
+                    .load(iconFile)
+                    .signature(FileSignature(iconFile))
+                    .into(view.appIcon)
                 return
             }
         }
 
-        val componentName = requireArguments().getParcelable<ComponentName>(FRAGMENT_ARG_COMPONENT_NAME)
+        val componentName =
+            requireArguments().getParcelable<ComponentName>(FRAGMENT_ARG_COMPONENT_NAME)
         if (componentName != null) {
             GlideApp.with(this)
-                    .load(componentName)
-                    .into(view.appIcon)
+                .load(componentName)
+                .into(view.appIcon)
         }
     }
 
@@ -338,10 +347,11 @@ class IconPickerFragment: Fragment() {
             return
         }
         viewModel.setAppIcon(
-                requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
-                iconsAdapter.iconPackPackageName,
-                icon.drawableName,
-                requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
+            requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
+            iconsAdapter.iconPackPackageName,
+            icon.drawableName,
+            requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!
+        )
         EventBus.getDefault().post(DoneEvent())
     }
 
