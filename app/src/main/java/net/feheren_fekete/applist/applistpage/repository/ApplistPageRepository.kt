@@ -17,6 +17,8 @@ import net.feheren_fekete.applist.applistpage.repository.database.MigrateJsonToR
 import net.feheren_fekete.applist.applistpage.viewmodel.*
 import net.feheren_fekete.applist.utils.AppUtils
 import org.koin.java.KoinJavaComponent.inject
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ApplistPageRepository(val context: Context,
                             val applistPageDao: ApplistPageDao) {
@@ -37,10 +39,9 @@ class ApplistPageRepository(val context: Context,
     }
 
     inner class ApplistItemsLiveData : MediatorLiveData<List<BaseItem>>() {
-        private val allItemsRawLiveData: LiveData<List<ApplistItemData>>
+        private val allItemsRawLiveData = applistPageDao.getAllItems()
 
         init {
-            allItemsRawLiveData = applistPageDao.getAllItems()
             addSource(allItemsRawLiveData) { items ->
                 val result = ArrayList<BaseItem>()
                 val sortedItems = items.sortedBy {
@@ -106,13 +107,12 @@ class ApplistPageRepository(val context: Context,
     }
 
     fun getItems(): LiveData<List<BaseItem>> {
-        val result = ApplistItemsLiveData()
-        return result
+        return ApplistItemsLiveData()
     }
 
     suspend fun updateInstalledApps(context: Context) {
         val installedApps = AppUtils.getInstalledApps(context).sortedBy {
-            it.getDisplayName().toLowerCase()
+            it.getDisplayName().toLowerCase(Locale.getDefault())
         }
         val items = applistPageDao.getAllItemsSync().sortedBy {
             it.position
@@ -200,20 +200,25 @@ class ApplistPageRepository(val context: Context,
     }
 
     private fun removeIcons(item: ApplistItemData) {
-        if (item.type == ApplistItemData.TYPE_APP) {
-            iconStorage.deleteCustomStartableIcon(
+        when (item.type) {
+            ApplistItemData.TYPE_APP -> {
+                iconStorage.deleteCustomStartableIcon(
                     iconStorage.getCustomAppIconFilePath(
-                            item.packageName, item.className))
-        } else if (item.type == ApplistItemData.TYPE_APP_SHORTCUT) {
-            iconStorage.deleteCustomStartableIcon(
+                        item.packageName, item.className))
+            }
+            ApplistItemData.TYPE_APP_SHORTCUT -> {
+                iconStorage.deleteCustomStartableIcon(
                     iconStorage.getCustomShortcutIconFilePath(item.id))
-            iconStorage.deleteShortcutIcon(item.id)
-        } else if (item.type == ApplistItemData.TYPE_SHORTCUT) {
-            iconStorage.deleteCustomStartableIcon(
+                iconStorage.deleteShortcutIcon(item.id)
+            }
+            ApplistItemData.TYPE_SHORTCUT -> {
+                iconStorage.deleteCustomStartableIcon(
                     iconStorage.getCustomShortcutIconFilePath(item.id))
-            iconStorage.deleteShortcutIcon(item.id)
-        } else {
-            applistLog.log(IllegalStateException())
+                iconStorage.deleteShortcutIcon(item.id)
+            }
+            else -> {
+                applistLog.log(IllegalStateException())
+            }
         }
     }
 
@@ -273,7 +278,7 @@ class ApplistPageRepository(val context: Context,
         applistPageDao.transcation {
             val section = applistPageDao.getItemById(sectionId) ?: return@transcation
             val items = applistPageDao.getItemsBySectionSync(sectionId).sortedBy {
-                it.getDisplayName().toLowerCase()
+                it.getDisplayName().toLowerCase(Locale.getDefault())
             }
             items.forEachIndexed { index, item ->
                 applistPageDao.updatePosition(item.id, section.position + index + 1)

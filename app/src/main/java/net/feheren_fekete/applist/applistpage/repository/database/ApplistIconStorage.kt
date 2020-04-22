@@ -7,15 +7,9 @@ import java.io.File
 
 class ApplistIconStorage(context: Context, private val mImageUtils: ImageUtils) {
 
-    private val customAppIconsDirPath: String
-    private val customShortcutIconsDirPath: String
-    private val shortcutIconsDirPath: String
-
-    init {
-        customAppIconsDirPath = context.filesDir.absolutePath + File.separator + "custom-app-icons-v2"
-        customShortcutIconsDirPath = context.filesDir.absolutePath + File.separator + "custom-shortcut-icons-v2"
-        shortcutIconsDirPath = context.filesDir.absolutePath + File.separator + "shortcut-icons-v2"
-    }
+    private val customAppIconsDirPath: String = context.filesDir.absolutePath + File.separator + "custom-app-icons-v2"
+    private val customShortcutIconsDirPath: String = context.filesDir.absolutePath + File.separator + "custom-shortcut-icons-v2"
+    private val shortcutIconsDirPath: String = context.filesDir.absolutePath + File.separator + "shortcut-icons-v2"
 
     fun getCustomAppIconFilePath(packageName: String, className: String): String {
         return customAppIconsDirPath + File.separator + packageName + "::" + className
