@@ -318,21 +318,25 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 onCancel = {}
             )
         } else if (applistPreferences.showRearrangeItemsHelp) {
-            AlertDialog.Builder(activity!!)
-                    .setMessage(R.string.rearrange_items_help)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.got_it) { _, _ ->
-                        applistPreferences.showRearrangeItemsHelp = false
-                    }
-                    .show()
+            ApplistDialogs.messageDialog(
+                requireActivity(),
+                R.string.help_title,
+                R.string.rearrange_items_help,
+                onOk = {
+                    applistPreferences.showRearrangeItemsHelp = false
+                },
+                onCancel = {}
+            )
         } else if (applistPreferences.showUseLauncherTip) {
-            AlertDialog.Builder(activity!!)
-                    .setMessage(R.string.use_launcher_tip)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.got_it) { _, _ ->
-                        applistPreferences.showUseLauncherTip = false
-                    }
-                    .show()
+            ApplistDialogs.messageDialog(
+                requireActivity(),
+                R.string.tip_title,
+                R.string.use_launcher_tip,
+                onOk = {
+                    applistPreferences.showUseLauncherTip = false
+                },
+                onCancel = {}
+            )
         }
         adapter.registerAdapterDataObserver(adapterDataObserver)
     }
