@@ -65,7 +65,9 @@
         <item>@string/widget_menu_remove</item>
     </string-array>
 
-    <string name="whats_new" translatable="false">Updates!\n\nGroups and apps can be <b>reordered</b>.\n\n<b>Multiple</b> apps can be moved to a group at once.\n\n<b>Pin app shortcuts</b> from app contect menu.</string>
+    <string name="whats_new_title" translatable="false">Updates</string>
+    <string name="whats_new" translatable="false">Groups and apps can be <b>reordered</b>.\n\n<b>Multiple</b> apps can be moved to a group at once.\n\n<b>Pin app shortcuts</b> from app contect menu.</string>
+    <string name="whats_new_69" translatable="false">Experimental icon pack support.\nLong tap on an app and select the <b>Change icon</b> option.</string>
     <string name="rearrange_items_help">Long press and select <b>\"Reorder\"</b> to rearrange groups and apps.</string>
     <string name="reorder_apps_help">Long press and Drag <b>individual</b> apps.\n\nSelect and tap the folder icon to move <b>multiple</b> apps to new group.</string>
     <string name="use_launcher_tip">Did you know that you can use Apper as your <b>launcher</b>?\n\nGo to your phone Settings and set Apper as your <b>Home screen launcher</b>.</string>

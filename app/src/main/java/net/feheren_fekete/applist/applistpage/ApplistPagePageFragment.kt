@@ -305,15 +305,18 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
     override fun onResume() {
         super.onResume()
         if (applistPreferences.versionCode < BuildConfig.VERSION_CODE
-                || applistPreferences.showWhatsNew) {
-            AlertDialog.Builder(activity!!)
-                    .setMessage(R.string.whats_new)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.got_it) { _, _ ->
-                        applistPreferences.showWhatsNew = false
-                        applistPreferences.versionCode = BuildConfig.VERSION_CODE
-                    }
-                    .show()
+            || applistPreferences.showWhatsNew
+        ) {
+            ApplistDialogs.messageDialog(
+                requireActivity(),
+                R.string.whats_new_title,
+                R.string.whats_new_69,
+                onOk = {
+                    applistPreferences.showWhatsNew = false
+                    applistPreferences.versionCode = BuildConfig.VERSION_CODE
+                },
+                onCancel = {}
+            )
         } else if (applistPreferences.showRearrangeItemsHelp) {
             AlertDialog.Builder(activity!!)
                     .setMessage(R.string.rearrange_items_help)
