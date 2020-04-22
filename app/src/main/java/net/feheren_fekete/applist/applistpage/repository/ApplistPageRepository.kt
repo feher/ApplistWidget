@@ -187,19 +187,18 @@ class ApplistPageRepository(val context: Context,
         applistPageDao.transcation(action)
     }
 
-    suspend fun removeAllIcons() {
+    suspend fun removeCustomIcons() {
         applistPageDao.transcation {
             val items = applistPageDao.getItemsByTypesSync(arrayOf(
                     ApplistItemData.TYPE_APP, ApplistItemData.TYPE_SHORTCUT, ApplistItemData.TYPE_APP_SHORTCUT))
             for (item in items) {
-                removeIcons(item)
+                removeIcons(item, true)
                 applistPageDao.updateTimestamp(item.id)
             }
-
         }
     }
 
-    private fun removeIcons(item: ApplistItemData) {
+    private fun removeIcons(item: ApplistItemData, keepDefaultIcons: Boolean = false) {
         when (item.type) {
             ApplistItemData.TYPE_APP -> {
                 iconStorage.deleteCustomStartableIcon(
@@ -209,12 +208,16 @@ class ApplistPageRepository(val context: Context,
             ApplistItemData.TYPE_APP_SHORTCUT -> {
                 iconStorage.deleteCustomStartableIcon(
                     iconStorage.getCustomShortcutIconFilePath(item.id))
-                iconStorage.deleteShortcutIcon(item.id)
+                if (!keepDefaultIcons) {
+                    iconStorage.deleteShortcutIcon(item.id)
+                }
             }
             ApplistItemData.TYPE_SHORTCUT -> {
                 iconStorage.deleteCustomStartableIcon(
                     iconStorage.getCustomShortcutIconFilePath(item.id))
-                iconStorage.deleteShortcutIcon(item.id)
+                if (!keepDefaultIcons) {
+                    iconStorage.deleteShortcutIcon(item.id)
+                }
             }
             else -> {
                 applistLog.log(IllegalStateException())

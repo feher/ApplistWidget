@@ -57,7 +57,7 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
     fun applyIconPack(iconPackPackageName: String) {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.transaction {
-                applistRepo.removeAllIcons()
+                applistRepo.removeCustomIcons()
                 applistRepo.forEachAppItem {
                     try {
                         val iconBitmap = iconPackHelper.loadIcon(
@@ -79,7 +79,7 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
 
     fun resetAllIcons() {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
-            applistRepo.removeAllIcons()
+            applistRepo.removeCustomIcons()
         }
     }
 
