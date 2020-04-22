@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.applistpage
 
 import android.app.Activity
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.getInputField
@@ -38,7 +39,24 @@ object ApplistDialogs {
                 .setMessage(message)
                 .setCancelable(true)
                 .setPositiveButton(R.string.ok) { _, _ -> onOk() }
-            .setNegativeButton(R.string.cancel) { _, _ -> onCancel() }
+                .setNegativeButton(R.string.cancel) { _, _ -> onCancel() }
+                .setOnCancelListener { onCancel() }
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
+    fun questionDialog(activity: Activity,
+                       @StringRes title: Int,
+                       @StringRes message: Int,
+                       onOk: () -> Unit,
+                       onCancel: () -> Unit) {
+        val alertDialogBuilder = AlertDialog.Builder(activity)
+        alertDialogBuilder
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(true)
+                .setPositiveButton(R.string.ok) { _, _ -> onOk() }
+                .setNegativeButton(R.string.cancel) { _, _ -> onCancel() }
                 .setOnCancelListener { onCancel() }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
@@ -47,6 +65,22 @@ object ApplistDialogs {
     fun messageDialog(activity: Activity,
                       title: String,
                       message: String,
+                      onOk: () -> Unit,
+                      onCancel: () -> Unit) {
+        val alertDialogBuilder = AlertDialog.Builder(activity)
+        alertDialogBuilder
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(true)
+                .setPositiveButton(R.string.ok) { _, _ -> onOk() }
+                .setOnCancelListener { onCancel() }
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
+    fun messageDialog(activity: Activity,
+                      @StringRes title: Int,
+                      @StringRes message: Int,
                       onOk: () -> Unit,
                       onCancel: () -> Unit) {
         val alertDialogBuilder = AlertDialog.Builder(activity)
