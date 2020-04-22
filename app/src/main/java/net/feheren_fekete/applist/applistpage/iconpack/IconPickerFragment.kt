@@ -114,7 +114,7 @@ class IconPickerFragment: Fragment() {
 
         view.setFab.visibility = View.GONE
         view.setFab.setOnClickListener {
-            setAppIcon(iconsAdapter.selectedItemPosition)
+            setAppIcon(iconsAdapter.selectedItem)
         }
     }
 
@@ -142,7 +142,7 @@ class IconPickerFragment: Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText == null || newText.isEmpty()) {
+                if (newText.isNullOrEmpty()) {
                     iconsAdapter.setFilterText(null)
                 } else {
                     iconsAdapter.setFilterText(newText)
@@ -208,9 +208,9 @@ class IconPickerFragment: Fragment() {
         iconsAdapter.setItems(it.second)
     }
 
-    private fun onIconSelected(position: Int, isSelected: Boolean) {
+    private fun onIconSelected(icon: IconPackIcon, isSelected: Boolean) {
         if (isSelected) {
-            setAppIconPreview(position)
+            setAppIconPreview(icon)
             showFab()
         } else {
             clearAppIconPreview(requireView())
@@ -251,10 +251,10 @@ class IconPickerFragment: Fragment() {
                 })
     }
 
-    private fun setAppIconPreview(position: Int) {
+    private fun setAppIconPreview(icon: IconPackIcon) {
         val iconBitmap = iconPackHelper.loadIcon(
                 iconsAdapter.iconPackPackageName,
-                iconsAdapter.getItem(position).drawableName)
+                icon.drawableName)
         appIcon.setImageBitmap(iconBitmap)
     }
 
@@ -288,14 +288,14 @@ class IconPickerFragment: Fragment() {
         }
     }
 
-    private fun setAppIcon(position: Int) {
-        if (position == RecyclerView.NO_POSITION) {
+    private fun setAppIcon(icon: IconPackIcon) {
+        if (!icon.isValid()) {
             return
         }
         viewModel.setAppIcon(
                 requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
                 iconsAdapter.iconPackPackageName,
-                iconsAdapter.getItem(position).drawableName,
+                icon.drawableName,
                 requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
         EventBus.getDefault().post(DoneEvent())
     }

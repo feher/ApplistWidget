@@ -5,10 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import net.feheren_fekete.applist.R
 
-class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Boolean) -> Unit): RecyclerView.Adapter<IconViewHolder>() {
+class IconsAdapter(private val itemClickCallback: (icon: IconPackIcon, isSelected: Boolean) -> Unit): RecyclerView.Adapter<IconViewHolder>() {
+
+    private val invalidItem = IconPackIcon()
 
     var iconPackPackageName = ""
-    var selectedItemPosition = RecyclerView.NO_POSITION
+    var selectedItem = invalidItem
         private set
 
     private val items = arrayListOf<IconPackIcon>()
@@ -19,11 +21,11 @@ class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Bo
         this.items.clear()
         updateFilteredItems()
 
-        selectedItemPosition = RecyclerView.NO_POSITION
+        selectedItem = invalidItem
         notifyDataSetChanged()
 
         // Let the listener know that nothing is selected
-        itemClickCallback(selectedItemPosition, false)
+        itemClickCallback(selectedItem, false)
     }
 
     fun setItems(items: List<IconPackIcon>) {
@@ -33,7 +35,7 @@ class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Bo
         notifyDataSetChanged()
     }
 
-    fun getItem(position: Int) = filteredItems.get(position)
+    fun getItem(position: Int) = filteredItems[position]
 
     fun setFilterText(filter: String?) {
         filterText = filter
@@ -53,26 +55,39 @@ class IconsAdapter(private val itemClickCallback: (position: Int, isSelected: Bo
     override fun getItemCount() = filteredItems.size
 
     override fun onBindViewHolder(holder: IconViewHolder, position: Int) {
-        holder.bind(iconPackPackageName, filteredItems[position].drawableName, position == selectedItemPosition)
+        val item = filteredItems[position]
+        val isSelected = item.isSameAs(selectedItem)
+        holder.bind(iconPackPackageName, item.drawableName, isSelected)
     }
 
     private fun selectItem(position: Int) {
-        if (position == selectedItemPosition) {
+        val item = filteredItems[position]
+        if (item.isSameAs(selectedItem)) {
             // Unselect
-            val previousSelectedItem = selectedItemPosition
-            selectedItemPosition = RecyclerView.NO_POSITION
-            notifyItemChanged(previousSelectedItem)
-
-            itemClickCallback(position, false)
-        } else {
-            // Select
-            val previousSelectedItem = selectedItemPosition
-            selectedItemPosition = position
-            notifyItemChanged(previousSelectedItem)
+            val selectedItemPosition = getSelectedItemPosition()
+            selectedItem = invalidItem
             notifyItemChanged(selectedItemPosition)
 
-            itemClickCallback(position, true)
+            itemClickCallback(item, false)
+        } else {
+            // Select
+            val previousSelectedItemPosition = getSelectedItemPosition()
+            selectedItem = item
+            notifyItemChanged(previousSelectedItemPosition)
+            notifyItemChanged(position)
+
+            itemClickCallback(item, true)
         }
+    }
+
+    private fun getSelectedItemPosition(): Int {
+        for (i in 0 until filteredItems.size) {
+            val item = filteredItems[i]
+            if (item.isSameAs(selectedItem)) {
+                return i
+            }
+        }
+        return RecyclerView.NO_POSITION
     }
 
     private fun updateFilteredItems() {
