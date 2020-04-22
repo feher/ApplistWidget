@@ -66,11 +66,14 @@
     </string-array>
 
     <string name="whats_new_title" translatable="false">Updates</string>
+    <string name="help_title" translatable="false">Help</string>
+    <string name="tip_title" translatable="false">Help</string>
     <string name="whats_new" translatable="false">Groups and apps can be <b>reordered</b>.\n\n<b>Multiple</b> apps can be moved to a group at once.\n\n<b>Pin app shortcuts</b> from app contect menu.</string>
     <string name="whats_new_69" translatable="false">Experimental icon pack support.\nLong tap on an app and select the <b>Change icon</b> option.</string>
     <string name="rearrange_items_help">Long press and select <b>\"Reorder\"</b> to rearrange groups and apps.</string>
-    <string name="reorder_apps_help">Long press and Drag <b>individual</b> apps.\n\nSelect and tap the folder icon to move <b>multiple</b> apps to new group.</string>
+    <string name="reorder_apps_help" translatable="false">Long press and Drag <b>individual</b> apps.\n\nSelect and tap the folder icon to move <b>multiple</b> apps to new group.</string>
     <string name="use_launcher_tip">Did you know that you can use Apper as your <b>launcher</b>?\n\nGo to your phone Settings and set Apper as your <b>Home screen launcher</b>.</string>
+    <string name="icon_pack_help" translatable="false"><b>Pick</b> an icon from one of your icon packs and tap the apply button.\n\n<b>Search</b> for icons using the search bar above.\n\nFor <b>more options</b> check out the menu in the corner above.</string>
 
     <string name="change_wallpaper_dialog_title">Select wallpaper source</string>
 
@@ -99,7 +102,7 @@
     <string name="page_picker_cannot_add_to_page">Cannot add Widgets to this page</string>
     <string name="page_picker_already_on_page">Widget is already on this page</string>
 
-    <string name="iconpack_picker_empty">You don\'t have any icon packs.\nGo to the Play Store to install some.</string>
+    <string name="iconpack_picker_empty">You don\'t have any icon packs. Go to the <a href="https://play.google.com/store/search?q=iconpack&amp;c=apps">Play Store</a> to install some.</string>
     <string name="iconpack_picker_icon_packs">Icon packs</string>
     <string name="iconpack_picker_change_icon">Change app icon</string>
     <string name="iconpack_picker_reset_icon">Reset to original</string>
@@ -107,6 +110,9 @@
     <string name="iconpack_picker_apply_iconpack">Apply icon pack</string>
     <string name="iconpack_picker_apply_icon">Use selected</string>
     <string name="iconpack_picker_search_icon">Search app</string>
+    <string name="iconpack_picker_reset_warning">Are you sure you want to reset this app icon to its default?</string>
+    <string name="iconpack_picker_reset_all_warning">Are you sure you want to reset all your app icons to their default ones?</string>
+    <string name="iconpack_picker_apply_all_warning">This will change all your app icons.\n\nAll your previous customizations will be lost.\n\nSome apps may not have a matching icon.</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>

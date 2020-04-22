@@ -23,6 +23,10 @@ class ApplistPreferences(context: Context) {
         get() = sharedPreferences.getBoolean(PREFERENCE_SHOW_REORDER_APPS_HELP, DEFAULT_SHOW_REORDER_APPS_HELP)
         set(show) = sharedPreferences.edit().putBoolean(PREFERENCE_SHOW_REORDER_APPS_HELP, show).apply()
 
+    var showIconPackHelp: Boolean
+        get() = sharedPreferences.getBoolean(PREFERENCE_SHOW_ICON_PACK_HELP, DEFAULT_SHOW_ICON_PACK_HELP)
+        set(show) = sharedPreferences.edit().putBoolean(PREFERENCE_SHOW_ICON_PACK_HELP, show).apply()
+
     var showUseLauncherTip: Boolean
         get() = sharedPreferences.getBoolean(PREFERENCE_SHOW_USE_LAUNCHER_TIP, DEFAULT_SHOW_USE_LAUNCHER_TIP)
         set(show) = sharedPreferences.edit().putBoolean(PREFERENCE_SHOW_USE_LAUNCHER_TIP, show).apply()
@@ -49,6 +53,9 @@ class ApplistPreferences(context: Context) {
 
         private const val PREFERENCE_SHOW_REORDER_APPS_HELP = "PREFERENCE_SHOW_REORDER_APPS_HELP"
         private const val DEFAULT_SHOW_REORDER_APPS_HELP = true
+
+        private const val PREFERENCE_SHOW_ICON_PACK_HELP = "PREFERENCE_SHOW_ICON_PACK_HELP"
+        private const val DEFAULT_SHOW_ICON_PACK_HELP = true
 
         private const val PREFERENCE_SHOW_USE_LAUNCHER_TIP = "PREFERENCE_SHOW_USE_LAUNCHER_TIP"
         private const val DEFAULT_SHOW_USE_LAUNCHER_TIP = true

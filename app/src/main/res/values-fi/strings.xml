@@ -107,4 +107,8 @@
     <string name="action_button_done">Valmis</string>
     <string name="action_button_move_to_section">Siirrä ryhmään</string>
     <string name="action_button_clear_selection">Kumoa valinta</string>
+    <string name="iconpack_picker_empty">Sinulla ei ole yhtään ikonipakkauksia. Ne löytyvät muun muassa <a href="https://play.google.com/store/search?q=iconpack&amp;c=apps">Play Kaupasta</a>.</string>
+    <string name="iconpack_picker_reset_warning">Oletko varma, että haluat palata tämän appin oletusikonin?</string>
+    <string name="iconpack_picker_reset_all_warning">Oletko varma, että haluat palata kaiken appin oletusikonit?</string>
+    <string name="iconpack_picker_apply_all_warning">Tämä muuttaa kaiken appin ikonit. Oletko varma?</string>
 </resources>

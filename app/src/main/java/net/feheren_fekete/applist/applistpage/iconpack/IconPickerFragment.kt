@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.ComponentName
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -15,7 +16,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.iconpack_picker_fragment.*
 import kotlinx.android.synthetic.main.iconpack_picker_fragment.view.*
+import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
+import net.feheren_fekete.applist.applistpage.ApplistDialogs
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
@@ -28,6 +31,7 @@ class IconPickerFragment: Fragment() {
     class DoneEvent
 
     private val iconPackHelper: IconPackHelper by inject()
+    private val applistPreferences: ApplistPreferences by inject()
 
     private lateinit var viewModel: IconPickerViewModel
     private lateinit var iconPacksAdapter: IconPacksAdapter
@@ -104,6 +108,7 @@ class IconPickerFragment: Fragment() {
             if (it.isEmpty()) {
                 iconpackPickerEmptyLayout.visibility = View.VISIBLE
                 iconpackPickerContentLayout.visibility = View.GONE
+                emptyContentText.movementMethod = LinkMovementMethod.getInstance()
             } else {
                 iconpackPickerEmptyLayout.visibility = View.GONE
                 iconpackPickerContentLayout.visibility = View.VISIBLE
@@ -115,6 +120,21 @@ class IconPickerFragment: Fragment() {
         view.setFab.visibility = View.GONE
         view.setFab.setOnClickListener {
             setAppIcon(iconsAdapter.selectedItem)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (applistPreferences.showIconPackHelp) {
+            ApplistDialogs.messageDialog(
+                requireActivity(),
+                R.string.help_title,
+                R.string.icon_pack_help,
+                onOk = {
+                    applistPreferences.showIconPackHelp = false
+                },
+                onCancel = {}
+            )
         }
     }
 
@@ -159,20 +179,45 @@ class IconPickerFragment: Fragment() {
                 return true
             }
             R.id.action_reset_icon -> {
-                viewModel.resetOriginalIcon(
-                        requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
-                        requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!)
-                EventBus.getDefault().post(DoneEvent())
+                ApplistDialogs.questionDialog(
+                    requireActivity(),
+                    android.R.string.dialog_alert_title,
+                    R.string.iconpack_picker_reset_warning,
+                    onOk = {
+                        viewModel.resetOriginalIcon(
+                            requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
+                            requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!
+                        )
+                        EventBus.getDefault().post(DoneEvent())
+                    },
+                    onCancel = {}
+                )
                 return true
             }
             R.id.action_reset_all_icons -> {
-                viewModel.resetAllIcons()
-                EventBus.getDefault().post(DoneEvent())
+                ApplistDialogs.questionDialog(
+                    requireActivity(),
+                    android.R.string.dialog_alert_title,
+                    R.string.iconpack_picker_reset_all_warning,
+                    onOk = {
+                        viewModel.resetAllIcons()
+                        EventBus.getDefault().post(DoneEvent())
+                    },
+                    onCancel = {}
+                )
                 return true
             }
             R.id.action_apply_iconpack -> {
-                viewModel.applyIconPack(iconsAdapter.iconPackPackageName)
-                EventBus.getDefault().post(DoneEvent())
+                ApplistDialogs.questionDialog(
+                    requireActivity(),
+                    android.R.string.dialog_alert_title,
+                    R.string.iconpack_picker_apply_all_warning,
+                    onOk = {
+                        viewModel.applyIconPack(iconsAdapter.iconPackPackageName)
+                        EventBus.getDefault().post(DoneEvent())
+                    },
+                    onCancel = {}
+                )
                 return true
             }
         }
