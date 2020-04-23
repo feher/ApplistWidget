@@ -25,6 +25,7 @@ import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
 import java.io.File
+import java.lang.StringBuilder
 
 class IconPickerFragment : Fragment() {
 
@@ -79,7 +80,7 @@ class IconPickerFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         iconPacksAdapter = IconPacksAdapter { onIconPackSelected(it) }
-        iconsAdapter = IconsAdapter(::onIconSelected)
+        iconsAdapter = IconsAdapter(::onIconSelected, ::onIconLongTapped)
     }
 
     override fun onCreateView(
@@ -271,6 +272,15 @@ class IconPickerFragment : Fragment() {
             clearAppIconPreview(requireView())
             hideFab()
         }
+    }
+
+    private fun onIconLongTapped(icon: IconPackIcon) {
+        val sb = StringBuilder()
+        sb.append("Drawable: ${icon.drawableName}\n\n")
+        for (component in icon.componentNames) {
+            sb.append("${component.packageName} / ${component.className}\n\n")
+        }
+        ApplistDialogs.messageDialog(requireActivity(), "", sb.toString(), {}, {})
     }
 
     private fun showFab() {

@@ -7,12 +7,19 @@ import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import net.feheren_fekete.applist.utils.glide.GlideIconPackIcon
 
-class IconViewHolder(view: View,
-                     val onClickCallback: (position: Int) -> Unit): RecyclerView.ViewHolder(view) {
+class IconViewHolder(
+    view: View,
+    private val onClickCallback: (position: Int) -> Unit,
+    private val onLongClickCallback: (position: Int) -> Unit
+): RecyclerView.ViewHolder(view) {
 
     init {
         view.setOnClickListener {
             onClickCallback(adapterPosition)
+        }
+        view.setOnLongClickListener {
+            onLongClickCallback(adapterPosition)
+            true
         }
     }
 

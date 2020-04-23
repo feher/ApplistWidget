@@ -6,7 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 
-class IconsAdapter(private val itemClickCallback: (icon: IconPackIcon, isSelected: Boolean) -> Unit): RecyclerView.Adapter<IconViewHolder>() {
+class IconsAdapter(
+    private val itemClickCallback: (icon: IconPackIcon, isSelected: Boolean) -> Unit,
+    private val itemLongTapCallback: (icon: IconPackIcon) -> Unit
+): RecyclerView.Adapter<IconViewHolder>() {
 
     private val invalidItem =
         IconPackIcon()
@@ -45,13 +48,16 @@ class IconsAdapter(private val itemClickCallback: (icon: IconPackIcon, isSelecte
         notifyDataSetChanged()
     }
 
-    fun isFiltered() = filterText != null
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IconViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.iconpack_icon_item, parent, false)
-        return IconViewHolder(itemView) {
-            selectItem(it)
-        }
+        return IconViewHolder(itemView,
+            onClickCallback = {
+                selectItem(it)
+            },
+            onLongClickCallback = {
+                itemLongTapCallback(filteredItems[it])
+            }
+        )
     }
 
     override fun getItemCount() = filteredItems.size
