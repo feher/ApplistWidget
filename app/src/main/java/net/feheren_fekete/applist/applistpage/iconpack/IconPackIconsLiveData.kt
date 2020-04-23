@@ -1,16 +1,15 @@
 package net.feheren_fekete.applist.applistpage.iconpack
 
 import android.content.ComponentName
-import android.content.pm.PackageManager
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPackIconsRepository
 
 class IconPackIconsLiveData(
     private val coroutineScope: CoroutineScope,
     private val iconPackIconsRepository: IconPackIconsRepository,
-    private val packageManager: PackageManager,
     private val iconPackPackageName: String,
     private val appName: String,
     private val appComponentName: ComponentName
@@ -35,7 +34,8 @@ class IconPackIconsLiveData(
             val icons = ArrayList<IconPackIcon>()
             var lastUpdateTime = System.currentTimeMillis()
             val f = iconPackIconsRepository.iconPackIcons(
-                iconPackPackageName, appName, appComponentName)
+                iconPackPackageName, appName, appComponentName
+            )
             f.collect {
                 icons.add(it)
                 val time = System.currentTimeMillis()

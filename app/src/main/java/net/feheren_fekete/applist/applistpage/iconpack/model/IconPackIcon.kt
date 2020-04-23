@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applistpage.iconpack
+package net.feheren_fekete.applist.applistpage.iconpack.model
 
 import android.content.ComponentName
 

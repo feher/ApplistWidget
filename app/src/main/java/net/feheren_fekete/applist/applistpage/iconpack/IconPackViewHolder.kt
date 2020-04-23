@@ -4,6 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.iconpack_item.view.*
 import net.feheren_fekete.applist.R
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPack
 import net.feheren_fekete.applist.utils.glide.GlideApp
 
 class IconPackViewHolder(view: View,

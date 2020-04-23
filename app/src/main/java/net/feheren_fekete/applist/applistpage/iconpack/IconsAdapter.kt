@@ -4,10 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import net.feheren_fekete.applist.R
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 
 class IconsAdapter(private val itemClickCallback: (icon: IconPackIcon, isSelected: Boolean) -> Unit): RecyclerView.Adapter<IconViewHolder>() {
 
-    private val invalidItem = IconPackIcon()
+    private val invalidItem =
+        IconPackIcon()
 
     var iconPackPackageName = ""
     var selectedItem = invalidItem

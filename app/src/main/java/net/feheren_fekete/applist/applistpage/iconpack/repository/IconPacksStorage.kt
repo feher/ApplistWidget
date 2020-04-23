@@ -3,7 +3,7 @@ package net.feheren_fekete.applist.applistpage.iconpack.repository
 import android.content.ComponentName
 import android.content.Context
 import net.feheren_fekete.applist.ApplistLog
-import net.feheren_fekete.applist.applistpage.iconpack.IconPackIcon
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 import net.feheren_fekete.applist.utils.FileUtils
 import org.json.JSONArray
 import org.json.JSONObject

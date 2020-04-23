@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import net.feheren_fekete.applist.R
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPack
 
 class IconPacksAdapter(private val itemClickCallback: (position: Int) -> Unit): RecyclerView.Adapter<IconPackViewHolder>() {
 

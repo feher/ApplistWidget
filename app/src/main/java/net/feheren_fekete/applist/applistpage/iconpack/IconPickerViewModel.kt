@@ -9,6 +9,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPackIconsRepository
+import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPacksRepository
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -19,9 +20,9 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
     private val applistRepo: ApplistPageRepository by inject()
     private val iconPackHelper: IconPackHelper by inject()
     private val iconPackIconsRepository: IconPackIconsRepository by inject()
-    private val packageManager: PackageManager by inject()
+    private val iconPacksRepository: IconPacksRepository by inject()
 
-    val iconPacks = IconPacksLiveData(viewModelScope, packageManager)
+    val iconPacks = IconPacksLiveData(viewModelScope, iconPacksRepository)
 
     fun icons(
         iconPackPackageName: String,
@@ -31,7 +32,6 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
         IconPackIconsLiveData(
             viewModelScope,
             iconPackIconsRepository,
-            packageManager,
             iconPackPackageName,
             appName,
             appComponentName

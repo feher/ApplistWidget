@@ -10,6 +10,7 @@ import android.graphics.Paint.FILTER_BITMAP_FLAG
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackApp
 import net.feheren_fekete.applist.utils.ImageUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import kotlin.coroutines.coroutineContext
@@ -52,7 +53,10 @@ class IconPackHelper(private val context: Context,
                 }
             }
             if (componentName != null && drawableName != null) {
-                return@findFlowInXml IconPackApp(componentName, drawableName)
+                return@findFlowInXml IconPackApp(
+                    componentName,
+                    drawableName
+                )
             }
             return@findFlowInXml null
         }

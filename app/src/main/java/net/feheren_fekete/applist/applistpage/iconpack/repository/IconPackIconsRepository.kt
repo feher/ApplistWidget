@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
-import net.feheren_fekete.applist.applistpage.iconpack.IconPackIcon
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 import org.apache.commons.text.similarity.JaroWinklerDistance
 import kotlin.math.max
 import kotlin.math.min

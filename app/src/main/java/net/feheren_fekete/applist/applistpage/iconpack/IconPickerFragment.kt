@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.iconpack_picker_fragment.view.*
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
