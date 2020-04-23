@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
@@ -307,6 +308,7 @@ public class WidgetPageFragment extends Fragment {
         try {
             mWidgetContainer.addView(hostView);
         } catch (SecurityException e) {
+            Toast.makeText(requireContext(), R.string.widget_page_add_widget_error, Toast.LENGTH_LONG).show();
             mApplistLog.log(e);
         }
         mWidgetContainer.invalidate();

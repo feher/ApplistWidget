@@ -111,4 +111,5 @@
     <string name="iconpack_picker_reset_warning">Biztos, hogy vissza szeretnéd állítani ennek az appnak az eredeti ikonját?</string>
     <string name="iconpack_picker_reset_all_warning">Biztos, hogy vissza szeretnéd állítani az összes appnak az eredeti ikonját?</string>
     <string name="iconpack_picker_apply_all_warning">Ez minden app ikonját megváltoztatja. Biztos, hogy ezt akarod?</string>
+    <string name="widget_page_add_widget_error">Nincs jogosultságunk ezen widget használatához</string>
 </resources>
