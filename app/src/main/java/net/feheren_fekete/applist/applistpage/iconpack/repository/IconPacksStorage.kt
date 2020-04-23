@@ -34,6 +34,9 @@ class IconPacksStorage(
     fun getIcons(iconPackPackageName: String): List<IconPackIcon> {
         val icons = arrayListOf<IconPackIcon>()
         val fileContent = fileUtils.readFile(createFilePath(iconPackPackageName))
+        if (fileContent.isEmpty()) {
+            return icons
+        }
         try {
             val jsonObject = JSONObject(fileContent)
             val jsonIcons = jsonObject.getJSONArray("icons")
