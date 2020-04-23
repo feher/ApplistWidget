@@ -11,7 +11,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class IconPackIconsRepository(
-    private val iconPacksStorage: IconPacksStorage,
+    private val iconPacksCache: IconPacksCache,
     private val iconPackHelper: IconPackHelper
 ) {
 
@@ -22,11 +22,11 @@ class IconPackIconsRepository(
         appName: String,
         appComponentName: ComponentName
     ): Flow<IconPackIcon> {
-        var icons = getIconsFromStorage(iconPackPackageName)
+        var icons = getIconsFromCache(iconPackPackageName)
         if (icons.isEmpty()) {
             icons = getIconsFromPackage(iconPackPackageName)
             if (icons.isNotEmpty()) {
-                iconPacksStorage.storeIcons(iconPackPackageName, icons)
+                iconPacksCache.putIcons(iconPackPackageName, icons)
             }
         }
         return flow {
@@ -49,8 +49,8 @@ class IconPackIconsRepository(
         }
     }
 
-    private fun getIconsFromStorage(iconPackPackageName: String) =
-        iconPacksStorage.getIcons(iconPackPackageName)
+    private fun getIconsFromCache(iconPackPackageName: String) =
+        iconPacksCache.getIcons(iconPackPackageName)
 
     private suspend fun getIconsFromPackage(iconPackPackageName: String): List<IconPackIcon> {
         val icons = HashMap<String, MutableList<ComponentName>>()

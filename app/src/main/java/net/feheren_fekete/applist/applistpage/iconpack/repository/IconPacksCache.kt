@@ -11,7 +11,7 @@ import org.json.JSONObject
 import java.io.File
 import java.lang.RuntimeException
 
-class IconPacksStorage(
+class IconPacksCache(
     context: Context,
     private val fileUtils: FileUtils
 ) {
@@ -66,7 +66,7 @@ class IconPacksStorage(
         return icons
     }
 
-    fun storeIcons(iconPackPackageName: String, icons: List<IconPackIcon>) {
+    fun putIcons(iconPackPackageName: String, icons: List<IconPackIcon>) {
         try {
             val jsonIcons = JSONArray()
             for (icon in icons) {
@@ -88,7 +88,7 @@ class IconPacksStorage(
         }
     }
 
-    fun removeUninstalled(installedPacks: List<IconPack>) {
+    fun cleanupMissing(installedPacks: List<IconPack>) {
         val files = File(dirPath).listFiles { f ->
             f.isFile
         }

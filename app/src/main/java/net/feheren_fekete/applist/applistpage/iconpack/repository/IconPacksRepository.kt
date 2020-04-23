@@ -8,7 +8,7 @@ import net.feheren_fekete.applist.applistpage.iconpack.model.IconPack
 
 class IconPacksRepository(
     private val packageManager: PackageManager,
-    private val iconPacksStorage: IconPacksStorage
+    private val iconPacksCache: IconPacksCache
 ) {
 
     fun getIconPacks(): List<IconPack> {
@@ -29,7 +29,7 @@ class IconPacksRepository(
             )
         }
 
-        iconPacksStorage.removeUninstalled(iconPacks)
+        iconPacksCache.cleanupMissing(iconPacks)
 
         return iconPacks
     }
