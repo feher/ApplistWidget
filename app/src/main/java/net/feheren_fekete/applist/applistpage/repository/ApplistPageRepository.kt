@@ -23,8 +23,10 @@ import org.koin.java.KoinJavaComponent.inject
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ApplistPageRepository(val context: Context,
-                            val applistPageDao: ApplistPageDao) {
+class ApplistPageRepository(
+    val context: Context,
+    val applistPageDao: ApplistPageDao
+) {
 
     private val applistLog: ApplistLog by inject(ApplistLog::class.java)
     private val iconStorage: ApplistIconStorage by inject(ApplistIconStorage::class.java)
@@ -36,8 +38,9 @@ class ApplistPageRepository(val context: Context,
             val migrateJsonToRoom = MigrateJsonToRoom(context, applistPageDao)
             if (migrateJsonToRoom.migratePages()) {
                 applistLog.analytics(
-                        ApplistLog.MIGRATE_APPLIST,
-                        ApplistLog.APPLIST_PAGE_REPOSITORY)
+                    ApplistLog.MIGRATE_APPLIST,
+                    ApplistLog.APPLIST_PAGE_REPOSITORY
+                )
             }
             updateInstalledApps(context)
         }
@@ -55,19 +58,21 @@ class ApplistPageRepository(val context: Context,
                 for (item in sortedItems) {
                     val baseItem = when (item.type) {
                         ApplistItemData.TYPE_SECTION -> SectionItem(
-                                item.id,
-                                item.name,
-                                item.id != ApplistItemData.DEFAULT_SECTION_ID,
-                                item.sectionIsCollapsed)
+                            item.id,
+                            item.name,
+                            item.id != ApplistItemData.DEFAULT_SECTION_ID,
+                            item.sectionIsCollapsed
+                        )
                         ApplistItemData.TYPE_APP -> AppItem(
-                                item.id,
-                                item.packageName,
-                                item.className,
-                                item.appVersionCode,
-                                item.name,
-                                item.customName,
-                                iconStorage.getCustomAppIconFilePath(item.packageName, item.className),
-                                item.parentSectionId)
+                            item.id,
+                            item.packageName,
+                            item.className,
+                            item.appVersionCode,
+                            item.name,
+                            item.customName,
+                            iconStorage.getCustomAppIconFilePath(item.packageName, item.className),
+                            item.parentSectionId
+                        )
                         ApplistItemData.TYPE_SHORTCUT -> {
                             val intent = Intent.parseUri(item.shortcutIntent, 0)
                             var packageName = intent.getPackage()
@@ -75,28 +80,31 @@ class ApplistPageRepository(val context: Context,
                                 packageName = intent.component!!.packageName
                             }
                             if (packageName == null) {
-                                ApplistLog.getInstance().log(RuntimeException("Missing package name: " + intent.toUri(0)))
+                                ApplistLog.getInstance()
+                                    .log(RuntimeException("Missing package name: " + intent.toUri(0)))
                                 null
                             } else {
                                 ShortcutItem(
-                                        item.id,
-                                        item.name,
-                                        item.customName,
-                                        iconStorage.getCustomShortcutIconFilePath(item.id),
-                                        intent,
-                                        iconStorage.getShortcutIconFilePath(item.id),
-                                        item.parentSectionId)
+                                    item.id,
+                                    item.name,
+                                    item.customName,
+                                    iconStorage.getCustomShortcutIconFilePath(item.id),
+                                    intent,
+                                    iconStorage.getShortcutIconFilePath(item.id),
+                                    item.parentSectionId
+                                )
                             }
                         }
                         ApplistItemData.TYPE_APP_SHORTCUT -> AppShortcutItem(
-                                item.id,
-                                item.name,
-                                item.customName,
-                                iconStorage.getCustomShortcutIconFilePath(item.id),
-                                item.packageName,
-                                item.appShortcutId,
-                                iconStorage.getShortcutIconFilePath(item.id),
-                                item.parentSectionId)
+                            item.id,
+                            item.name,
+                            item.customName,
+                            iconStorage.getCustomShortcutIconFilePath(item.id),
+                            item.packageName,
+                            item.appShortcutId,
+                            iconStorage.getShortcutIconFilePath(item.id),
+                            item.parentSectionId
+                        )
                         else -> {
                             ApplistLog.getInstance().log(RuntimeException(""))
                             null
@@ -138,7 +146,8 @@ class ApplistPageRepository(val context: Context,
                     updatedItems.add(ApplistItemData.update(item, installedApp))
                 }
             } else if (item.type == ApplistItemData.TYPE_SHORTCUT
-                    || item.type == ApplistItemData.TYPE_APP_SHORTCUT) {
+                || item.type == ApplistItemData.TYPE_APP_SHORTCUT
+            ) {
                 val installedApp = installedApps.find {
                     it.packageName == item.packageName
                 }
@@ -155,9 +164,12 @@ class ApplistPageRepository(val context: Context,
             it.id == ApplistItemData.DEFAULT_SECTION_ID
         }
         if (defaultSectionPos == -1) {
-            updatedItems.add(ApplistItemData.createSection(
+            updatedItems.add(
+                ApplistItemData.createSection(
                     ApplistItemData.DEFAULT_SECTION_ID,
-                    context.getString(R.string.uncategorized_group)))
+                    context.getString(R.string.uncategorized_group)
+                )
+            )
             defaultSectionPos = updatedItems.size - 1
         }
 
@@ -188,8 +200,13 @@ class ApplistPageRepository(val context: Context,
 
     suspend fun removeCustomIcons() {
         applistPageDao.transcation {
-            val items = applistPageDao.getItemsByTypesSync(arrayOf(
-                    ApplistItemData.TYPE_APP, ApplistItemData.TYPE_SHORTCUT, ApplistItemData.TYPE_APP_SHORTCUT))
+            val items = applistPageDao.getItemsByTypesSync(
+                arrayOf(
+                    ApplistItemData.TYPE_APP,
+                    ApplistItemData.TYPE_SHORTCUT,
+                    ApplistItemData.TYPE_APP_SHORTCUT
+                )
+            )
             for (item in items) {
                 removeIcons(item, true)
                 applistPageDao.updateTimestamp(item.id)
@@ -202,18 +219,22 @@ class ApplistPageRepository(val context: Context,
             ApplistItemData.TYPE_APP -> {
                 iconStorage.deleteCustomStartableIcon(
                     iconStorage.getCustomAppIconFilePath(
-                        item.packageName, item.className))
+                        item.packageName, item.className
+                    )
+                )
             }
             ApplistItemData.TYPE_APP_SHORTCUT -> {
                 iconStorage.deleteCustomStartableIcon(
-                    iconStorage.getCustomShortcutIconFilePath(item.id))
+                    iconStorage.getCustomShortcutIconFilePath(item.id)
+                )
                 if (!keepDefaultIcons) {
                     iconStorage.deleteShortcutIcon(item.id)
                 }
             }
             ApplistItemData.TYPE_SHORTCUT -> {
                 iconStorage.deleteCustomStartableIcon(
-                    iconStorage.getCustomShortcutIconFilePath(item.id))
+                    iconStorage.getCustomShortcutIconFilePath(item.id)
+                )
                 if (!keepDefaultIcons) {
                     iconStorage.deleteShortcutIcon(item.id)
                 }
@@ -235,17 +256,19 @@ class ApplistPageRepository(val context: Context,
     suspend fun getSections(): List<Pair<Long, String>> {
         val result = ArrayList<Pair<Long, String>>()
         val sections =
-                applistPageDao.getItemsByTypesSync(arrayOf(ApplistItemData.TYPE_SECTION)).sortedBy {
-                    it.position
-                }
+            applistPageDao.getItemsByTypesSync(arrayOf(ApplistItemData.TYPE_SECTION)).sortedBy {
+                it.position
+            }
         for (section in sections) {
             result.add(Pair(section.id, section.name))
         }
         return result
     }
 
-    suspend fun updateItemPositionsAndParentSectionIds(orderedItemIds: List<Long>,
-                                                       parentSectionIds: List<Long>) {
+    suspend fun updateItemPositionsAndParentSectionIds(
+        orderedItemIds: List<Long>,
+        parentSectionIds: List<Long>
+    ) {
         applistPageDao.transcation {
             if (orderedItemIds.size != parentSectionIds.size) {
                 throw RuntimeException("Array sizes don't match")
@@ -265,9 +288,9 @@ class ApplistPageRepository(val context: Context,
                 position += 1
 
                 val sectionItems = applistPageDao
-                        .getItemsBySectionSync(sectionId).sortedBy {
-                            it.position
-                        }
+                    .getItemsBySectionSync(sectionId).sortedBy {
+                        it.position
+                    }
                 for (sectionItem in sectionItems) {
                     applistPageDao.updatePosition(sectionItem.id, position)
                     position += 1
@@ -288,13 +311,17 @@ class ApplistPageRepository(val context: Context,
         }
     }
 
-    suspend fun moveStartablesToSection(startableIds: List<Long>, sectionId: Long, append: Boolean) {
+    suspend fun moveStartablesToSection(
+        startableIds: List<Long>,
+        sectionId: Long,
+        append: Boolean
+    ) {
         applistPageDao.transcation {
             val items = applistPageDao.getAllItemsSync()
-                    .sortedBy {
-                        it.position
-                    }
-                    .toMutableList()
+                .sortedBy {
+                    it.position
+                }
+                .toMutableList()
             val movedItems = ArrayList<ApplistItemData>()
             var sectionItem: ApplistItemData? = null
 
@@ -396,17 +423,24 @@ class ApplistPageRepository(val context: Context,
         return (count > 0)
     }
 
-    suspend fun setCustomStartableIcon(itemId: Long,
-                                       iconPackageName: String,
-                                       iconDrawableName: String,
-                                       iconPath: String) {
+    suspend fun setCustomStartableIcon(
+        itemId: Long,
+        iconPackageName: String,
+        iconDrawableName: String,
+        iconPath: String
+    ) {
         val iconBitmap = iconPackHelper.loadIcon(iconPackageName, iconDrawableName)
-        iconBitmap?.let{
+        iconBitmap?.let {
             storeCustomStartableIcon(itemId, iconPath, iconBitmap, true)
         }
     }
 
-    private suspend fun storeCustomStartableIcon(itemId: Long, iconPath: String, icon: Bitmap, notify: Boolean) {
+    private suspend fun storeCustomStartableIcon(
+        itemId: Long,
+        iconPath: String,
+        icon: Bitmap,
+        notify: Boolean
+    ) {
         iconStorage.storeCustomStartableIcon(iconPath, icon)
         if (notify) {
             applistPageDao.updateTimestamp(itemId, System.currentTimeMillis())
@@ -418,10 +452,12 @@ class ApplistPageRepository(val context: Context,
         applistPageDao.updateTimestamp(itemId, System.currentTimeMillis())
     }
 
-    suspend fun addShortcut(item: ApplistItemData,
-                            shortcutIcon: Bitmap,
-                            sectionId: Long,
-                            append: Boolean) {
+    suspend fun addShortcut(
+        item: ApplistItemData,
+        shortcutIcon: Bitmap,
+        sectionId: Long,
+        append: Boolean
+    ) {
         applistPageDao.transcation {
             // Add the item as the very last one.
             item.parentSectionId = ApplistItemData.DEFAULT_SECTION_ID
@@ -430,7 +466,8 @@ class ApplistPageRepository(val context: Context,
 
             iconStorage.storeShortcutIcon(id, shortcutIcon)
             createCustomShortcutIcon(
-                applistPreferences.iconPackPackageName, id, item, shortcutIcon)
+                applistPreferences.iconPackPackageName, id, item, shortcutIcon
+            )
 
             // Then move it to the desired section
             moveStartablesToSection(arrayListOf(id), sectionId, append)
@@ -448,8 +485,13 @@ class ApplistPageRepository(val context: Context,
     suspend fun updateCustomIcons(iconPackPackageName: String) {
         applistPageDao.transcation {
             removeCustomIcons()
-            val items = applistPageDao.getItemsByTypesSync(arrayOf(
-                ApplistItemData.TYPE_APP, ApplistItemData.TYPE_SHORTCUT, ApplistItemData.TYPE_APP_SHORTCUT))
+            val items = applistPageDao.getItemsByTypesSync(
+                arrayOf(
+                    ApplistItemData.TYPE_APP,
+                    ApplistItemData.TYPE_SHORTCUT,
+                    ApplistItemData.TYPE_APP_SHORTCUT
+                )
+            )
             for (item in items) {
                 when (item.type) {
                     ApplistItemData.TYPE_APP -> createCustomAppIcon(iconPackPackageName, item)
@@ -494,7 +536,8 @@ class ApplistPageRepository(val context: Context,
             shortcutIcon
         )
         iconStorage.storeCustomStartableIcon(
-            iconStorage.getCustomShortcutIconFilePath(itemId), customIcon)
+            iconStorage.getCustomShortcutIconFilePath(itemId), customIcon
+        )
     }
 
 }
