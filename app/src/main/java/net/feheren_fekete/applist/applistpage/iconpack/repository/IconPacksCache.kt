@@ -94,7 +94,7 @@ class IconPacksCache(
         }
         for (file in files) {
             val installed = installedPacks.find {
-                file.name == it.componentName.packageName
+                file.name == createFileName(it.componentName.packageName)
             }
             if (installed == null) {
                 file.delete()
@@ -102,6 +102,10 @@ class IconPacksCache(
         }
     }
 
-    private fun createFilePath(iconPackPackageName: String) = "$dirPath/$iconPackPackageName"
+    private fun createFilePath(iconPackPackageName: String) =
+        "$dirPath/${createFileName(iconPackPackageName)}"
+
+    private fun createFileName(iconPackPackageName: String) =
+        iconPackPackageName.replace(Regex.fromLiteral("[:/]"), "_")
 
 }

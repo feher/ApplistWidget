@@ -198,7 +198,7 @@ class ApplistPageRepository(
         applistPageDao.transcation(action)
     }
 
-    suspend fun removeCustomIcons() {
+    suspend fun removeCustomIcons(notify: Boolean = true) {
         applistPageDao.transcation {
             val items = applistPageDao.getItemsByTypesSync(
                 arrayOf(
@@ -209,7 +209,9 @@ class ApplistPageRepository(
             )
             for (item in items) {
                 removeIcons(item, true)
-                applistPageDao.updateTimestamp(item.id)
+                if (notify) {
+                    applistPageDao.updateTimestamp(item.id)
+                }
             }
         }
     }
@@ -484,7 +486,7 @@ class ApplistPageRepository(
 
     suspend fun updateCustomIcons(iconPackPackageName: String) {
         applistPageDao.transcation {
-            removeCustomIcons()
+            removeCustomIcons(false)
             val items = applistPageDao.getItemsByTypesSync(
                 arrayOf(
                     ApplistItemData.TYPE_APP,
@@ -499,6 +501,7 @@ class ApplistPageRepository(
                         createCustomShortcutIcon(iconPackPackageName, item.id, item, it)
                     }
                 }
+                applistPageDao.updateTimestamp(item.id)
             }
         }
     }

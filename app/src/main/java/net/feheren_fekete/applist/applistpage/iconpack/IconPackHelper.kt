@@ -5,21 +5,19 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import kotlinx.coroutines.flow.Flow
-import net.feheren_fekete.applist.applistpage.iconpack.builtinpacks.IconPackLoader
-import net.feheren_fekete.applist.applistpage.iconpack.builtinpacks.NormalIconPackLoader
+import net.feheren_fekete.applist.applistpage.iconpack.loader.*
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackApp
 import net.feheren_fekete.applist.utils.ImageUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 
 class IconPackHelper(
-    context: Context,
-    packageManager: PackageManager,
-    imageUtils: ImageUtils,
-    screenUtils: ScreenUtils
+    private val context: Context,
+    private val packageManager: PackageManager,
+    private val imageUtils: ImageUtils,
+    private val screenUtils: ScreenUtils
 ) {
 
-    private val normalLoader =
-        NormalIconPackLoader(context, packageManager, imageUtils, screenUtils)
+    private val loaders = HashMap<String, IconPackLoader>()
 
     fun getSupportedApps(iconPackPackageName: String): Flow<IconPackApp> {
         val loader = getLoader(iconPackPackageName)
@@ -67,8 +65,44 @@ class IconPackHelper(
         )
     }
 
+    fun showEditDailog(iconPackPackageName: String) {
+        getLoader(iconPackPackageName).showEditDialog()
+    }
+
     private fun getLoader(iconPackPackageName: String): IconPackLoader {
-        return normalLoader
+        val loaderName = if (IconPackLoader.isEffectIconPack(iconPackPackageName)) {
+            IconPackLoader.getEffectIconPackLoaderName(iconPackPackageName)
+        } else {
+            ApkIconPackLoader.name
+        }
+        var loader = loaders[loaderName]
+        if (loader == null) {
+            when (loaderName) {
+                ApkIconPackLoader.name -> loader =
+                    ApkIconPackLoader(context, packageManager, imageUtils, screenUtils)
+                GrayscaleIconPackLoader.name -> loader =
+                    GrayscaleIconPackLoader(context, packageManager, imageUtils)
+                SketchIconPackLoader.name -> loader =
+                    SketchIconPackLoader(context, packageManager, imageUtils)
+                SepiaIconPackLoader.name -> loader =
+                    SepiaIconPackLoader(context, packageManager, imageUtils)
+                PixelIconPackLoader.name -> loader =
+                    PixelIconPackLoader(context, packageManager, imageUtils)
+                ToonIconPackLoader.name -> loader =
+                    ToonIconPackLoader(context, packageManager, imageUtils)
+                PosterizeIconPackLoader.name -> loader =
+                    PosterizeIconPackLoader(context, packageManager, imageUtils)
+                KuwaharaIconPackLoader.name -> loader =
+                    KuwaharaIconPackLoader(context, packageManager, imageUtils)
+                CgaIconPackLoader.name -> loader =
+                    CgaIconPackLoader(context, packageManager, imageUtils)
+                HueIconPackLoader.name -> loader =
+                    HueIconPackLoader(context, packageManager, imageUtils)
+                else -> loader = DefaultIconPackLoader(context, packageManager, imageUtils)
+            }
+            loaders[loaderName] = loader
+        }
+        return loader
     }
 
 }

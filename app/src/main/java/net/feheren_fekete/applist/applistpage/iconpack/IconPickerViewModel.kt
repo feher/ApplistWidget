@@ -57,8 +57,6 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
     fun applyIconPack(iconPackPackageName: String) {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.updateCustomIcons(iconPackPackageName)
-            // TODO: on app install -> create
-            // TODO: on shortcut pin -> create
         }
     }
 

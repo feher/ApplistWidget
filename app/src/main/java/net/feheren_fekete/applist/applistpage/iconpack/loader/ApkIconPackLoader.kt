@@ -1,4 +1,4 @@
-package net.feheren_fekete.applist.applistpage.iconpack.builtinpacks
+package net.feheren_fekete.applist.applistpage.iconpack.loader
 
 import android.content.ComponentName
 import android.content.Context
@@ -14,12 +14,12 @@ import net.feheren_fekete.applist.utils.ImageUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import kotlin.coroutines.coroutineContext
 
-class NormalIconPackLoader(
+class ApkIconPackLoader(
     private val context: Context,
     private val packageManager: PackageManager,
-    private val imageUtils: ImageUtils,
+    imageUtils: ImageUtils,
     private val screenUtils: ScreenUtils
-) : IconPackLoader {
+) : IconPackLoader(packageManager, imageUtils) {
 
     private val uniformOptions = BitmapFactory.Options().apply {
         inPreferredConfig = Bitmap.Config.ARGB_8888
@@ -126,13 +126,15 @@ class NormalIconPackLoader(
         fallbackIconWidthDp: Int,
         fallbackIconHeightDp: Int
     ): Bitmap {
-        val originalIcon = imageUtils.drawableToBitmap(
-            loadOriginalAppIcon(componentName)
-        )
+        val originalIcon = loadOriginalAppIcon(componentName)
         return loadIconWithFallback(
             iconPackPackageName, componentName, originalIcon,
             fallbackIconWidthDp, fallbackIconHeightDp
         )
+    }
+
+    override fun showEditDialog() {
+        // Nothing
     }
 
     private fun createFallbackIcon(
@@ -339,9 +341,8 @@ class NormalIconPackLoader(
         return matrix
     }
 
-    private fun loadOriginalAppIcon(componentName: ComponentName) =
-        packageManager.getActivityInfo(componentName, 0)
-            .applicationInfo
-            .loadIcon(packageManager)
+    companion object {
+        const val name = "apk"
+    }
 
 }

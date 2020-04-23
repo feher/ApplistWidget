@@ -130,6 +130,10 @@ class IconPickerFragment : Fragment() {
         view.setFab.setOnClickListener {
             setAppIcon(iconsAdapter.selectedItem)
         }
+
+        view.editEffectFab.setOnClickListener {
+            editEffectIconPack()
+        }
     }
 
     override fun onResume() {
@@ -366,6 +370,11 @@ class IconPickerFragment : Fragment() {
             requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!
         )
         EventBus.getDefault().post(DoneEvent())
+    }
+
+    private fun editEffectIconPack() {
+        val iconPackPackageName = iconsAdapter.iconPackPackageName
+        iconPackHelper.showEditDailog(iconPackPackageName)
     }
 
 }
