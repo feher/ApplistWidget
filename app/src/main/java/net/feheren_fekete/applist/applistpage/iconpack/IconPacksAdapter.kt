@@ -4,14 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import net.feheren_fekete.applist.R
-import net.feheren_fekete.applist.applistpage.iconpack.model.IconPack
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackInfo
 
 class IconPacksAdapter(private val itemClickCallback: (position: Int) -> Unit): RecyclerView.Adapter<IconPackViewHolder>() {
 
-    private val items = arrayListOf<IconPack>()
+    private val items = arrayListOf<IconPackInfo>()
     private var selectedItemPosition = RecyclerView.NO_POSITION
 
-    fun setItems(items: List<IconPack>) {
+    fun setItems(items: List<IconPackInfo>) {
         this.items.clear()
         this.items.addAll(items)
         this.selectedItemPosition = 0

@@ -3,7 +3,7 @@ package net.feheren_fekete.applist.applistpage.iconpack.repository
 import android.content.ComponentName
 import android.content.Context
 import net.feheren_fekete.applist.ApplistLog
-import net.feheren_fekete.applist.applistpage.iconpack.model.IconPack
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackInfo
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 import net.feheren_fekete.applist.utils.FileUtils
 import org.json.JSONArray
@@ -88,7 +88,7 @@ class IconPacksCache(
         }
     }
 
-    fun cleanupMissing(installedPacks: List<IconPack>) {
+    fun cleanupMissing(installedPacks: List<IconPackInfo>) {
         val files = File(dirPath).listFiles { f ->
             f.isFile
         }
