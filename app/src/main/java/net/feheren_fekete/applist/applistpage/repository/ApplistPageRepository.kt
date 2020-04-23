@@ -1,5 +1,6 @@
 package net.feheren_fekete.applist.applistpage.repository
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -9,7 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
+import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
+import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistIconStorage
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistPageDao
@@ -25,6 +28,8 @@ class ApplistPageRepository(val context: Context,
 
     private val applistLog: ApplistLog by inject(ApplistLog::class.java)
     private val iconStorage: ApplistIconStorage by inject(ApplistIconStorage::class.java)
+    private val iconPackHelper: IconPackHelper by inject(IconPackHelper::class.java)
+    private val applistPreferences: ApplistPreferences by inject(ApplistPreferences::class.java)
 
     init {
         GlobalScope.launch(Dispatchers.IO) {
@@ -165,6 +170,7 @@ class ApplistPageRepository(val context: Context,
             }
             if (item == null) {
                 updatedItems.add(defaultSectionPos + 1, installedApp)
+                createCustomAppIcon(applistPreferences.iconPackPackageName, installedApp)
             }
         }
 
@@ -174,13 +180,6 @@ class ApplistPageRepository(val context: Context,
         }
 
         applistPageDao.replaceItems(updatedItems)
-    }
-
-    suspend fun forEachAppItem(action: suspend (ApplistItemData) -> Unit) {
-        val items = applistPageDao.getItemsByTypesSync(arrayOf(ApplistItemData.TYPE_APP))
-        for (item in items) {
-            action(item)
-        }
     }
 
     suspend fun transaction(action: suspend () -> Unit) {
@@ -397,7 +396,17 @@ class ApplistPageRepository(val context: Context,
         return (count > 0)
     }
 
-    suspend fun storeCustomStartableIcon(itemId: Long, iconPath: String, icon: Bitmap, notify: Boolean) {
+    suspend fun setCustomStartableIcon(itemId: Long,
+                                       iconPackageName: String,
+                                       iconDrawableName: String,
+                                       iconPath: String) {
+        val iconBitmap = iconPackHelper.loadIcon(iconPackageName, iconDrawableName)
+        iconBitmap?.let{
+            storeCustomStartableIcon(itemId, iconPath, iconBitmap, true)
+        }
+    }
+
+    private suspend fun storeCustomStartableIcon(itemId: Long, iconPath: String, icon: Bitmap, notify: Boolean) {
         iconStorage.storeCustomStartableIcon(iconPath, icon)
         if (notify) {
             applistPageDao.updateTimestamp(itemId, System.currentTimeMillis())
@@ -409,7 +418,10 @@ class ApplistPageRepository(val context: Context,
         applistPageDao.updateTimestamp(itemId, System.currentTimeMillis())
     }
 
-    suspend fun addShortcut(item: ApplistItemData, shortcutIcon: Bitmap, sectionId: Long, append: Boolean) {
+    suspend fun addShortcut(item: ApplistItemData,
+                            shortcutIcon: Bitmap,
+                            sectionId: Long,
+                            append: Boolean) {
         applistPageDao.transcation {
             // Add the item as the very last one.
             item.parentSectionId = ApplistItemData.DEFAULT_SECTION_ID
@@ -417,6 +429,8 @@ class ApplistPageRepository(val context: Context,
             val id = applistPageDao.addItem(item)
 
             iconStorage.storeShortcutIcon(id, shortcutIcon)
+            createCustomShortcutIcon(
+                applistPreferences.iconPackPackageName, id, item, shortcutIcon)
 
             // Then move it to the desired section
             moveStartablesToSection(arrayListOf(id), sectionId, append)
@@ -431,9 +445,56 @@ class ApplistPageRepository(val context: Context,
         applistPageDao.delItem(shortcutId)
     }
 
-    fun getCustomAppIconPath(item: ApplistItemData): String {
-        return iconStorage.getCustomAppIconFilePath(
-                item.packageName, item.className)
+    suspend fun updateCustomIcons(iconPackPackageName: String) {
+        applistPageDao.transcation {
+            removeCustomIcons()
+            val items = applistPageDao.getItemsByTypesSync(arrayOf(
+                ApplistItemData.TYPE_APP, ApplistItemData.TYPE_SHORTCUT, ApplistItemData.TYPE_APP_SHORTCUT))
+            for (item in items) {
+                when (item.type) {
+                    ApplistItemData.TYPE_APP -> createCustomAppIcon(iconPackPackageName, item)
+                    else -> iconStorage.loadShortcutIcon(item.id)?.let {
+                        createCustomShortcutIcon(iconPackPackageName, item.id, item, it)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun createCustomAppIcon(iconPackPackageName: String, item: ApplistItemData) {
+        if (iconPackPackageName.isEmpty()) {
+            return
+        }
+        try {
+            val customIcon = iconPackHelper.loadIconWithFallback(
+                iconPackPackageName,
+                ComponentName(item.packageName, item.className)
+            )
+            iconStorage.storeCustomStartableIcon(
+                iconStorage.getCustomAppIconFilePath(item.packageName, item.className),
+                customIcon
+            )
+        } catch (e: Exception) {
+            ApplistLog.getInstance().log(e)
+        }
+    }
+
+    private fun createCustomShortcutIcon(
+        iconPackPackageName: String,
+        itemId: Long,
+        item: ApplistItemData,
+        shortcutIcon: Bitmap
+    ) {
+        if (iconPackPackageName.isEmpty()) {
+            return
+        }
+        val customIcon = iconPackHelper.loadIconWithFallback(
+            iconPackPackageName,
+            ComponentName(item.packageName, item.className),
+            shortcutIcon
+        )
+        iconStorage.storeCustomStartableIcon(
+            iconStorage.getCustomShortcutIconFilePath(itemId), customIcon)
     }
 
 }

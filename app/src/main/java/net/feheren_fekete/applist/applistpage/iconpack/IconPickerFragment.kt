@@ -221,7 +221,9 @@ class IconPickerFragment : Fragment() {
                     android.R.string.dialog_alert_title,
                     R.string.iconpack_picker_apply_all_warning,
                     onOk = {
-                        viewModel.applyIconPack(iconsAdapter.iconPackPackageName)
+                        val iconPackPackageName = iconsAdapter.iconPackPackageName
+                        applistPreferences.iconPackPackageName = iconPackPackageName
+                        viewModel.applyIconPack(iconPackPackageName)
                         EventBus.getDefault().post(DoneEvent())
                     },
                     onCancel = {}

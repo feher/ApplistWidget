@@ -80,7 +80,7 @@ class IconPackHelper(private val context: Context,
         }
     }
 
-    fun loadIcon(iconPackPackageName: String,
+    private fun loadIcon(iconPackPackageName: String,
                  componentName: ComponentName): Bitmap? {
         val iconPackResources = packageManager.getResourcesForApplication(iconPackPackageName)
         return getIconDrawableName(iconPackResources, iconPackPackageName, componentName)?.let {
@@ -94,21 +94,31 @@ class IconPackHelper(private val context: Context,
         return loadBitmap(iconPackPackageName, iconPackResources, drawableName)
     }
 
-    fun loadIcon(iconPackPackageName: String,
-                 componentName: ComponentName,
-                 widthDp: Int,
-                 heightDp: Int): Bitmap {
+    fun loadIconWithFallback(iconPackPackageName: String,
+                             componentName: ComponentName,
+                             originalIcon: Bitmap,
+                             fallbackIconWidthDp: Int = DEFAULT_FALLBACK_ICON_SIZE,
+                             fallbackIconHeightDp: Int = DEFAULT_FALLBACK_ICON_SIZE): Bitmap {
         val icon = loadIcon(iconPackPackageName, componentName)
         if (icon != null) {
             return icon
         }
-        val originalIcon = imageUtils.drawableToBitmap(
-                loadOriginalAppIcon(componentName))
-        val width = screenUtils.dpToPx(context, widthDp.toFloat()).toInt()
-        val height = screenUtils.dpToPx(context, heightDp.toFloat()).toInt()
+        val width = screenUtils.dpToPx(context, fallbackIconWidthDp.toFloat()).toInt()
+        val height = screenUtils.dpToPx(context, fallbackIconHeightDp.toFloat()).toInt()
         val fallbackIcon = createFallbackIcon(
                 packageManager, iconPackPackageName, width, height, originalIcon)
         return fallbackIcon
+    }
+
+    fun loadIconWithFallback(iconPackPackageName: String,
+                             componentName: ComponentName,
+                             fallbackIconWidthDp: Int = DEFAULT_FALLBACK_ICON_SIZE,
+                             fallbackIconHeightDp: Int = DEFAULT_FALLBACK_ICON_SIZE): Bitmap {
+        val originalIcon = imageUtils.drawableToBitmap(
+            loadOriginalAppIcon(componentName))
+        return loadIconWithFallback(
+            iconPackPackageName, componentName, originalIcon,
+            fallbackIconWidthDp, fallbackIconHeightDp)
     }
 
     fun createFallbackIcon(packageManager: PackageManager,
@@ -287,4 +297,7 @@ class IconPackHelper(private val context: Context,
                     .applicationInfo
                     .loadIcon(packageManager)
 
+    companion object {
+        private const val DEFAULT_FALLBACK_ICON_SIZE = 48
+    }
 }

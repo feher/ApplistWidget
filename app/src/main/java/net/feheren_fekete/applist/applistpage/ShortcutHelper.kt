@@ -30,8 +30,8 @@ class ShortcutHelper {
     // inside coroutine threads.
     // Crash is caused by creating a Handler in ApplistModel. Inside
     // threads we cannot create handles by "new Handle()".
-    private val applistRepo= get(ApplistPageRepository::class.java)
-    private val applistLog= get(ApplistLog::class.java)
+    private val applistRepo = get(ApplistPageRepository::class.java)
+    private val applistLog = get(ApplistLog::class.java)
 
     private val imageUtils: ImageUtils by inject(ImageUtils::class.java)
 

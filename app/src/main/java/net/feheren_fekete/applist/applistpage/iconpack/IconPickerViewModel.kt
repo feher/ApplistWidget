@@ -1,7 +1,6 @@
 package net.feheren_fekete.applist.applistpage.iconpack
 
 import android.content.ComponentName
-import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +17,6 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
 
     private val applistLog: ApplistLog by inject()
     private val applistRepo: ApplistPageRepository by inject()
-    private val iconPackHelper: IconPackHelper by inject()
     private val iconPackIconsRepository: IconPackIconsRepository by inject()
     private val iconPacksRepository: IconPacksRepository by inject()
 
@@ -49,30 +47,16 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
         iconDrawableName: String,
         customIconPath: String
     ) {
-        val iconBitmap = iconPackHelper.loadIcon(iconPackPackageName, iconDrawableName)
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
-            applistRepo.storeCustomStartableIcon(applistItemId, customIconPath, iconBitmap!!, true)
+            applistRepo.setCustomStartableIcon(
+                applistItemId, iconPackPackageName, iconDrawableName,
+                customIconPath)
         }
     }
 
     fun applyIconPack(iconPackPackageName: String) {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
-            applistRepo.transaction {
-                applistRepo.removeCustomIcons()
-                applistRepo.forEachAppItem {
-                    try {
-                        val iconBitmap = iconPackHelper.loadIcon(
-                            iconPackPackageName,
-                            ComponentName(it.packageName, it.className),
-                            48, 48
-                        )
-                        val iconPath = applistRepo.getCustomAppIconPath(it)
-                        applistRepo.storeCustomStartableIcon(it.id, iconPath, iconBitmap, false)
-                    } catch (e: Exception) {
-                        ApplistLog.getInstance().log(e)
-                    }
-                }
-            }
+            applistRepo.updateCustomIcons(iconPackPackageName)
             // TODO: on app install -> create
             // TODO: on shortcut pin -> create
         }

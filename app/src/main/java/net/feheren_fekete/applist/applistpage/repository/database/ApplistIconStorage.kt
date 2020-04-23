@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import net.feheren_fekete.applist.utils.ImageUtils
 import java.io.File
 
-class ApplistIconStorage(context: Context, private val mImageUtils: ImageUtils) {
+class ApplistIconStorage(context: Context, private val imageUtils: ImageUtils) {
 
     private val customAppIconsDirPath: String = context.filesDir.absolutePath + File.separator + "custom-app-icons-v2"
     private val customShortcutIconsDirPath: String = context.filesDir.absolutePath + File.separator + "custom-shortcut-icons-v2"
@@ -24,7 +24,11 @@ class ApplistIconStorage(context: Context, private val mImageUtils: ImageUtils) 
     }
 
     fun storeCustomStartableIcon(iconPath: String, shortcutIcon: Bitmap) {
-        mImageUtils.saveBitmap(shortcutIcon, iconPath)
+        imageUtils.saveBitmap(shortcutIcon, iconPath)
+    }
+
+    fun loadShortcutIcon(shortcutId: Long): Bitmap? {
+        return imageUtils.loadBitmap(getShortcutIconFilePath(shortcutId))
     }
 
     fun deleteCustomStartableIcon(iconPath: String) {
@@ -32,7 +36,7 @@ class ApplistIconStorage(context: Context, private val mImageUtils: ImageUtils) 
     }
 
     fun storeShortcutIcon(shortcutId: Long, shortcutIcon: Bitmap) {
-        mImageUtils.saveBitmap(
+        imageUtils.saveBitmap(
                 shortcutIcon,
                 getShortcutIconFilePath(shortcutId))
     }

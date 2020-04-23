@@ -39,6 +39,10 @@ class ApplistPreferences(context: Context) {
         get() = sharedPreferences.getInt(PREFERENCE_LAST_ACTIVE_LAUNCHER_PAGE_POSITION, DEFAULT_LAST_ACTIVE_LAUNCHER_PAGE_POSITION)
         set(pagePosition) = sharedPreferences.edit().putInt(PREFERENCE_LAST_ACTIVE_LAUNCHER_PAGE_POSITION, pagePosition).apply()
 
+    var iconPackPackageName: String
+        get() = sharedPreferences.getString(PREFERENCE_ICON_PACK_PACKAGE_NAME, DEFAULT_ICON_PACK_PACKAGE_NAME)!!
+        set(packageName) = sharedPreferences.edit().putString(PREFERENCE_ICON_PACK_PACKAGE_NAME, packageName).apply()
+
     companion object {
         private const val APPLIST_PREFERENCES = "APPLIST_PREFERENCES"
 
@@ -65,6 +69,9 @@ class ApplistPreferences(context: Context) {
 
         private const val PREFERENCE_LAST_ACTIVE_LAUNCHER_PAGE_POSITION = "LAST_ACTIVE_LAUNCHER_PAGE_POSITION"
         private const val DEFAULT_LAST_ACTIVE_LAUNCHER_PAGE_POSITION = -1
+
+        private const val PREFERENCE_ICON_PACK_PACKAGE_NAME = "ICON_PACK_PACKAGE_NAME"
+        private const val DEFAULT_ICON_PACK_PACKAGE_NAME = ""
     }
 
 }
