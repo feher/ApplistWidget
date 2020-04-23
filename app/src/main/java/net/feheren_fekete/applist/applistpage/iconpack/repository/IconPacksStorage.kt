@@ -3,6 +3,7 @@ package net.feheren_fekete.applist.applistpage.iconpack.repository
 import android.content.ComponentName
 import android.content.Context
 import net.feheren_fekete.applist.ApplistLog
+import net.feheren_fekete.applist.applistpage.iconpack.model.IconPack
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 import net.feheren_fekete.applist.utils.FileUtils
 import org.json.JSONArray
@@ -87,8 +88,18 @@ class IconPacksStorage(
         }
     }
 
-    fun removeIcons(iconPackPackageName: String) {
-        File(createFilePath(iconPackPackageName)).delete()
+    fun removeUninstalled(installedPacks: List<IconPack>) {
+        val files = File(dirPath).listFiles { f ->
+            f.isFile
+        }
+        for (file in files) {
+            val installed = installedPacks.find {
+                file.name == it.componentName.packageName
+            }
+            if (installed == null) {
+                file.delete()
+            }
+        }
     }
 
     private fun createFilePath(iconPackPackageName: String) = "$dirPath/$iconPackPackageName"

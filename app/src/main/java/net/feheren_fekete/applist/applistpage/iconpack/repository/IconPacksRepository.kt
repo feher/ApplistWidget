@@ -6,7 +6,10 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPack
 
-class IconPacksRepository(private val packageManager: PackageManager) {
+class IconPacksRepository(
+    private val packageManager: PackageManager,
+    private val iconPacksStorage: IconPacksStorage
+) {
 
     fun getIconPacks(): List<IconPack> {
         val iconPacks = mutableListOf<IconPack>()
@@ -25,6 +28,8 @@ class IconPacksRepository(private val packageManager: PackageManager) {
                 )
             )
         }
+
+        iconPacksStorage.removeUninstalled(iconPacks)
 
         return iconPacks
     }
