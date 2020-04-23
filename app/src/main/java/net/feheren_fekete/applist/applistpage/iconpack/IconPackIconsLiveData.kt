@@ -2,10 +2,10 @@ package net.feheren_fekete.applist.applistpage.iconpack
 
 import android.content.ComponentName
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPackIconsRepository
 
 class IconPackIconsLiveData(
     private val coroutineScope: CoroutineScope,
@@ -39,7 +39,7 @@ class IconPackIconsLiveData(
             f.collect {
                 icons.add(it)
                 val time = System.currentTimeMillis()
-                val shouldUpdateValue = (time - lastUpdateTime) > 500
+                val shouldUpdateValue = (time - lastUpdateTime) > 1000
                 if (shouldUpdateValue) {
                     lastUpdateTime = time
                     icons.sortBy { it.rank }

@@ -110,9 +110,9 @@
     <string name="iconpack_picker_apply_iconpack">Apply icon pack</string>
     <string name="iconpack_picker_apply_icon">Use selected</string>
     <string name="iconpack_picker_search_icon">Search app</string>
-    <string name="iconpack_picker_reset_warning">Are you sure you want to reset this app icon to its default?</string>
-    <string name="iconpack_picker_reset_all_warning">Are you sure you want to reset all your app icons to their default ones?</string>
-    <string name="iconpack_picker_apply_all_warning">This will change all your app icons.\n\nAll your previous customizations will be lost.\n\nSome apps may not have a matching icon.</string>
+    <string name="iconpack_picker_reset_warning">Are you sure you want to reset <b>this app icon</b> to its default?</string>
+    <string name="iconpack_picker_reset_all_warning">Are you sure you want to reset <b>all app icons</b> to their default ones?</string>
+    <string name="iconpack_picker_apply_all_warning">This will change <b>all app icons</b>.\n\nAll your previous customizations will be lost.\n\nSome apps may not have a matching icon.</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>

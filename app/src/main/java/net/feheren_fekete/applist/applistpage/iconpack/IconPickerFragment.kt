@@ -245,8 +245,8 @@ class IconPickerFragment : Fragment() {
 
         icons = viewModel.icons(
             iconPackPackageName,
-            requireArguments().getString(FRAGMENT_ARG_APP_NAME)!!,
-            requireArguments().getParcelable(FRAGMENT_ARG_COMPONENT_NAME)!!
+            requireArguments().getString(FRAGMENT_ARG_APP_NAME, ""),
+            requireArguments().getParcelable(FRAGMENT_ARG_COMPONENT_NAME) ?: ComponentName("", "")
         )
         icons?.observe(viewLifecycleOwner, iconsObserver)
     }

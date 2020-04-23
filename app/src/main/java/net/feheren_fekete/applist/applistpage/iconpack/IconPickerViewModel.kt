@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
+import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPackIconsRepository
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import org.koin.core.KoinComponent
 import org.koin.core.inject
