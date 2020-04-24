@@ -78,9 +78,14 @@ class IconPackHelper(
     fun getEditableParameter(iconPackPackageName: String) =
         getLoader(iconPackPackageName).getEditableParameter()
 
+    fun createFullPackageName(iconPackPackageName: String) =
+        IconPackLoader.createBuiltinPackageNameWithParam(
+            iconPackPackageName,
+            getLoader(iconPackPackageName).getEditableParameter())
+
     private fun getLoader(iconPackPackageName: String): IconPackLoader {
-        val loaderName = if (IconPackLoader.isEffectIconPack(iconPackPackageName)) {
-            IconPackLoader.getEffectIconPackLoaderName(iconPackPackageName)
+        val loaderName = if (IconPackLoader.isBuiltinIconPack(iconPackPackageName)) {
+            IconPackLoader.getBuiltinIconPackLoaderName(iconPackPackageName)
         } else {
             ApkIconPackLoader.name
         }

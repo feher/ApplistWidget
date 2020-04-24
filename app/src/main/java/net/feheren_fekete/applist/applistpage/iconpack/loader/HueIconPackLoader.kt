@@ -15,21 +15,22 @@ class HueIconPackLoader(
     imageUtils: ImageUtils
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
-    private var parameter = 90.0f // 0..360
+    init {
+        parameter = 90.0f // 0..360
+    }
 
-    override fun applyEffect(originalIcon: Bitmap): Bitmap {
+    override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
         val gpuImage = GPUImage(context)
         gpuImage.setFilter(GPUImageHueFilter(parameter))
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun isEditable() = true
-
-    override fun setEditableParameter(parameterValue: Int) {
-        val percentage = parameterValue.toFloat() / 100.0f
-        val value = 360.0f * percentage
-        parameter = value
+    override fun parameterToFloat(intParameter: Int): Float {
+        val percentage = intParameter.toFloat() / 100.0f
+        return 360.0f * percentage
     }
+
+    override fun isEditable() = true
 
     override fun getEditableParameter(): Int {
         return ((parameter / 360.0f) * 100.0f).toInt()

@@ -14,7 +14,7 @@ class CgaIconPackLoader(
     imageUtils: ImageUtils
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
-    override fun applyEffect(originalIcon: Bitmap): Bitmap {
+    override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
         val gpuImage = GPUImage(context)
         gpuImage.setFilter(GPUImageCGAColorspaceFilter())
         return gpuImage.getBitmapWithFilterApplied(originalIcon)

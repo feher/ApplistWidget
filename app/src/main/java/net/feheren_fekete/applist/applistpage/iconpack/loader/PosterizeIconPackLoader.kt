@@ -15,21 +15,22 @@ class PosterizeIconPackLoader(
     imageUtils: ImageUtils
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
-    private var parameter = 1.0f // 1..50
+    init {
+        parameter = 1.0f // 1..50
+    }
 
-    override fun applyEffect(originalIcon: Bitmap): Bitmap {
+    override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
         val gpuImage = GPUImage(context)
         gpuImage.setFilter(GPUImagePosterizeFilter(parameter.toInt()))
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun isEditable() = true
-
-    override fun setEditableParameter(parameterValue: Int) {
-        val percentage = parameterValue.toFloat() / 100.0f
-        val value = max(1.0f, 50.0f * percentage)
-        parameter = value
+    override fun parameterToFloat(intParameter: Int): Float {
+        val percentage = intParameter.toFloat() / 100.0f
+        return max(1.0f, 50.0f * percentage)
     }
+
+    override fun isEditable() = true
 
     override fun getEditableParameter(): Int {
         return ((parameter / 50.0f) * 100.0f).toInt()

@@ -19,7 +19,7 @@ class IconPackViewHolder(view: View,
     }
 
     fun bind(iconPack: IconPackInfo, isSelected: Boolean) {
-        if (IconPackLoader.isEffectIconPack(iconPack.componentName.packageName)) {
+        if (IconPackLoader.isBuiltinIconPack(iconPack.componentName.packageName)) {
             try {
                 val iconDrawableId = iconPack.componentName.className.toInt()
                 itemView.icon.setImageResource(iconDrawableId)

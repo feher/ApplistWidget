@@ -15,21 +15,22 @@ class PixelIconPackLoader(
     imageUtils: ImageUtils
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
-    private var parameter = 15.0f
+    init {
+        parameter = 15.0f
+    }
 
-    override fun applyEffect(originalIcon: Bitmap): Bitmap {
+    override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
         val gpuImage = GPUImage(context)
         gpuImage.setFilter(PixelFilter().apply { setPixel(parameter) })
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun isEditable() = true
-
-    override fun setEditableParameter(parameterValue: Int) {
-        val percentage = parameterValue.toFloat() / 100.0f
-        val value = 30.0f * percentage
-        parameter = value
+    override fun parameterToFloat(intParameter: Int): Float {
+        val percentage = intParameter.toFloat() / 100.0f
+        return 30.0f * percentage
     }
+
+    override fun isEditable() = true
 
     override fun getEditableParameter(): Int {
         return ((parameter / 30.0f) * 100.0f).toInt()

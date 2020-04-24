@@ -21,7 +21,7 @@ abstract class BuiltinIconPackLoader(
     override fun getSupportedApps(iconPackPackageName: String) = flow {
         AppUtils.getInstalledApps(context).forEach {
             val componentName = ComponentName(it.packageName, it.className)
-            emit(IconPackApp(componentName, componentName.flattenToString()))
+            emit(IconPackApp(componentName, drawableName = componentName.flattenToString()))
         }
     }
 

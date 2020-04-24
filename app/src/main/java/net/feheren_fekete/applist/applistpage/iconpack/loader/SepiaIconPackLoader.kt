@@ -14,21 +14,22 @@ class SepiaIconPackLoader(
     imageUtils: ImageUtils
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
-    private var parameter = 0.5f // 0..2
+    init {
+        parameter = 0.5f // 0..2
+    }
 
-    override fun applyEffect(originalIcon: Bitmap): Bitmap {
+    override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
         val gpuImage = GPUImage(context)
         gpuImage.setFilter(GPUImageSepiaToneFilter(parameter))
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun isEditable() = true
-
-    override fun setEditableParameter(parameterValue: Int) {
-        val percentage = parameterValue.toFloat() / 100.0f
-        val value = 2.0f * percentage
-        parameter = value
+    override fun parameterToFloat(intParameter: Int): Float {
+        val percentage = intParameter.toFloat() / 100.0f
+        return 2.0f * percentage
     }
+
+    override fun isEditable() = true
 
     override fun getEditableParameter(): Int {
         return ((parameter / 2.0f) * 100.0f).toInt()

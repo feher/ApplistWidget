@@ -245,9 +245,9 @@ class IconPickerFragment : Fragment() {
                     android.R.string.dialog_alert_title,
                     R.string.iconpack_picker_apply_all_warning,
                     onOk = {
-                        val iconPackPackageName = iconsAdapter.iconPackPackageName
-                        applistPreferences.iconPackPackageName = iconPackPackageName
-                        viewModel.applyIconPack(iconPackPackageName)
+                        val fullPackageName = iconPackHelper.createFullPackageName(iconsAdapter.iconPackPackageName)
+                        applistPreferences.iconPackPackageName = fullPackageName
+                        viewModel.applyIconPack(fullPackageName)
                         EventBus.getDefault().post(DoneEvent())
                     },
                     onCancel = {}
@@ -391,7 +391,7 @@ class IconPickerFragment : Fragment() {
         }
         viewModel.setAppIcon(
             requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
-            iconsAdapter.iconPackPackageName,
+            iconPackHelper.createFullPackageName(iconsAdapter.iconPackPackageName),
             icon.drawableName,
             requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!
         )

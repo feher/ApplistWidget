@@ -5,12 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
-import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackApp
-import net.feheren_fekete.applist.utils.AppUtils
 import net.feheren_fekete.applist.utils.ImageUtils
+import java.lang.NumberFormatException
 
 abstract class EffectIconPackLoader(
     context: Context,
@@ -18,11 +14,13 @@ abstract class EffectIconPackLoader(
     imageUtils: ImageUtils
 ): BuiltinIconPackLoader(context, packageManager, imageUtils) {
 
+    protected var parameter = 0.0f
+
     override fun loadIcon(iconPackPackageName: String, drawableName: String): Bitmap? {
-        val param = getEffectParameter(iconPackPackageName)
+        val parameter = getParameter(iconPackPackageName)
         val componentName = ComponentName.unflattenFromString(drawableName) ?: return null
         val originalIcon = loadOriginalAppIcon(componentName)
-        return applyEffect(originalIcon)
+        return applyEffect(originalIcon, parameter)
     }
 
     override fun loadIconWithFallback(
@@ -32,7 +30,8 @@ abstract class EffectIconPackLoader(
         fallbackIconWidthDp: Int,
         fallbackIconHeightDp: Int
     ): Bitmap {
-        return applyEffect(originalIcon)
+        val parameter = getParameter(iconPackPackageName)
+        return applyEffect(originalIcon, parameter)
     }
 
     override fun loadIconWithFallback(
@@ -41,13 +40,30 @@ abstract class EffectIconPackLoader(
         fallbackIconWidthDp: Int,
         fallbackIconHeightDp: Int
     ): Bitmap {
+        val parameter = getParameter(iconPackPackageName)
         val originalIcon = loadOriginalAppIcon(componentName)
-        return applyEffect(originalIcon)
+        return applyEffect(originalIcon, parameter)
     }
 
-    protected abstract fun applyEffect(originalIcon: Bitmap): Bitmap
+    override fun setEditableParameter(parameterValue: Int) {
+        parameter = parameterToFloat(parameterValue)
+    }
 
-    protected fun getEffectParameter(iconPackPackageName: String) =
-        Uri.parse(iconPackPackageName).getQueryParameter("param") ?: ""
+    protected abstract fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap
+
+    protected open fun parameterToFloat(intParameter: Int) = intParameter.toFloat()
+
+    private fun getParameter(iconPackPackageName: String): Float {
+        val paramString = getBuiltinIconPackParameter(iconPackPackageName)
+        return if (paramString.isNotEmpty()) {
+            try {
+                parameterToFloat(paramString.toInt())
+            } catch (e: NumberFormatException) {
+                parameter
+            }
+        } else {
+            parameter
+        }
+    }
 
 }
