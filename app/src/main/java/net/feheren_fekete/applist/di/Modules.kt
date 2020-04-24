@@ -63,7 +63,7 @@ val applistModule = module {
     single { WidgetHelper() }
     single { IconPackHelper(androidContext(), get(), get(), get()) }
     single { IconPacksCache(androidContext(), get()) }
-    single { IconPacksRepository(get(), get()) }
+    single { IconPacksRepository(androidContext(), get(), get()) }
     single { IconPackIconsRepository(get(), get()) }
     single { IconPreloadHelper() }
     single { SettingsUtils(androidContext()) }

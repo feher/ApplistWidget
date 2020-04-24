@@ -1,6 +1,7 @@
 package net.feheren_fekete.applist.applistpage.iconpack.repository
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -9,6 +10,7 @@ import net.feheren_fekete.applist.applistpage.iconpack.loader.*
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackInfo
 
 class IconPacksRepository(
+    private val context: Context,
     private val packageManager: PackageManager,
     private val iconPacksCache: IconPacksCache
 ) {
@@ -39,6 +41,13 @@ class IconPacksRepository(
         // packs in case the list of installed apps has changed (the builtin
         // packs contain the icons of the user's installed apps)
         iconPacks.addAll(0, getBuiltinIconPacks())
+
+        iconPacks.add(
+            IconPackInfo(
+                context.getString(R.string.iconpack_picker_install_more),
+                ComponentName(INSTALLER_ICON_PACK_ID, R.drawable.ic_add.toString())
+            )
+        )
 
         return iconPacks
     }
@@ -97,6 +106,12 @@ class IconPacksRepository(
             SketchIconPackLoader.name))
 
         return iconPacks
+    }
+
+    companion object {
+        private const val INSTALLER_ICON_PACK_ID = "+"
+        fun isInstallerIconPack(iconPackInfo: IconPackInfo) =
+            iconPackInfo.componentName.packageName == INSTALLER_ICON_PACK_ID
     }
 
 }

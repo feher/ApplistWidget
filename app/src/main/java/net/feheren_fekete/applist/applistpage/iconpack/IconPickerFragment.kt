@@ -22,6 +22,7 @@ import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
+import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPacksRepository
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
@@ -265,6 +266,12 @@ class IconPickerFragment : Fragment() {
 
     private fun onIconPackSelected(position: Int) {
         val iconPack = iconPacksAdapter.getItem(position)
+
+        if (IconPacksRepository.isInstallerIconPack(iconPack)) {
+            showInstallIconPacksDialog()
+            return
+        }
+
         val iconPackPackageName = iconPack.componentName.packageName
 
         icons?.removeObserver(iconsObserver)
@@ -410,6 +417,16 @@ class IconPickerFragment : Fragment() {
     private fun scheduleIconsUpdate() {
         handler.removeCallbacks(iconsUpdateRunnable)
         handler.postDelayed(iconsUpdateRunnable, 500)
+    }
+
+    private fun showInstallIconPacksDialog() {
+        ApplistDialogs.messageDialog(
+            requireActivity(),
+            R.string.iconpack_picker_install_more,
+            R.string.iconpack_picker_empty,
+            onOk = {},
+            onCancel = {}
+        )
     }
 
 }

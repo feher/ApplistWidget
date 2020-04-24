@@ -6,11 +6,13 @@ import kotlinx.android.synthetic.main.iconpack_item.view.*
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.iconpack.loader.IconPackLoader
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackInfo
+import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPacksRepository
 import net.feheren_fekete.applist.utils.glide.GlideApp
-import java.lang.NumberFormatException
 
-class IconPackViewHolder(view: View,
-                         val onClickCallback: (position: Int) -> Unit): RecyclerView.ViewHolder(view) {
+class IconPackViewHolder(
+    view: View,
+    val onClickCallback: (position: Int) -> Unit
+) : RecyclerView.ViewHolder(view) {
 
     init {
         view.setOnClickListener {
@@ -19,7 +21,9 @@ class IconPackViewHolder(view: View,
     }
 
     fun bind(iconPack: IconPackInfo, isSelected: Boolean) {
-        if (IconPackLoader.isBuiltinIconPack(iconPack.componentName.packageName)) {
+        if (IconPackLoader.isBuiltinIconPack(iconPack.componentName.packageName) ||
+            IconPacksRepository.isInstallerIconPack(iconPack)
+        ) {
             try {
                 val iconDrawableId = iconPack.componentName.className.toInt()
                 itemView.icon.setImageResource(iconDrawableId)
