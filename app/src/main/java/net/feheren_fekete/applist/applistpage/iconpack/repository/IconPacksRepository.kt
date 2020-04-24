@@ -91,10 +91,10 @@ class IconPacksRepository(
             CgaIconPackLoader.displayIconId,
             CgaIconPackLoader.name))
 
-//        iconPacks.add(IconPackLoader.createIconPackInfo(
-//            SketchIconPackLoader.displayName,
-//            SketchIconPackLoader.displayIconId,
-//            SketchIconPackLoader.name))
+        iconPacks.add(IconPackLoader.createIconPackInfo(
+            SketchIconPackLoader.displayName,
+            SketchIconPackLoader.displayIconId,
+            SketchIconPackLoader.name))
 
         return iconPacks
     }
