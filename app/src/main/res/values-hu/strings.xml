@@ -108,8 +108,8 @@
     <string name="action_button_move_to_section">Áthelyezés csoportba</string>
     <string name="action_button_clear_selection">Kijelölés megszüntetése</string>
     <string name="iconpack_picker_empty">Nem találtunk ikon csomagokat. A <a href="https://play.google.com/store/search?q=iconpack&amp;c=apps">Play Store</a>-ban találsz párat.</string>
-    <string name="iconpack_picker_reset_warning">Biztos, hogy vissza szeretnéd állítani ennek az appnak az eredeti ikonját?</string>
-    <string name="iconpack_picker_reset_all_warning">Biztos, hogy vissza szeretnéd állítani az összes appnak az eredeti ikonját?</string>
-    <string name="iconpack_picker_apply_all_warning">Ez minden app ikonját megváltoztatja. Biztos, hogy ezt akarod?</string>
+    <string name="iconpack_picker_reset_warning">Biztos, hogy vissza szeretnéd állítani <b>ennek az appnak</b> az eredeti ikonját?</string>
+    <string name="iconpack_picker_reset_all_warning">Biztos, hogy vissza szeretnéd állítani <b>az összes appnak</b> az eredeti ikonját?</string>
+    <string name="iconpack_picker_apply_all_warning">Ez <b>minden app ikonját</b> megváltoztatja. Biztos, hogy ezt akarod?</string>
     <string name="widget_page_add_widget_error">Nincs jogosultságunk ezen widget használatához</string>
 </resources>
