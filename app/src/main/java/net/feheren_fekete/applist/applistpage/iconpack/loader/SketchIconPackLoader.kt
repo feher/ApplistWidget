@@ -64,7 +64,7 @@ class SketchIconPackLoader(
     companion object {
         const val name = "sketch"
         const val displayName = "Sketch"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_sketch
     }
 
 }

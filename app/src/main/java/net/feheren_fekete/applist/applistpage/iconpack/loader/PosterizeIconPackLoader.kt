@@ -39,7 +39,7 @@ class PosterizeIconPackLoader(
     companion object {
         const val name = "poster"
         const val displayName = "Poster"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_poster
     }
 
 }

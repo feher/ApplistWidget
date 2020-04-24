@@ -38,7 +38,7 @@ class SepiaIconPackLoader(
     companion object {
         const val name = "sepia"
         const val displayName = "Sepia"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_sepia
     }
 
 }

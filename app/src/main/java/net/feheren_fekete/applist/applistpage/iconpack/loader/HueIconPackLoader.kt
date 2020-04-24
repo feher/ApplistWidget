@@ -39,7 +39,7 @@ class HueIconPackLoader(
     companion object {
         const val name = "hue"
         const val displayName = "Hue"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_hue
     }
 
 }

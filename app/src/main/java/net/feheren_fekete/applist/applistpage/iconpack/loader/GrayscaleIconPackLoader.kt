@@ -23,7 +23,7 @@ class GrayscaleIconPackLoader(
     companion object {
         const val name = "grayscale"
         const val displayName = "Grayscale"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_grayscale
     }
 
 }

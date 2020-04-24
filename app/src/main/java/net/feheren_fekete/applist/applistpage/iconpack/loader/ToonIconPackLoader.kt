@@ -38,7 +38,7 @@ class ToonIconPackLoader(
     companion object {
         const val name = "toon"
         const val displayName = "Toon"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_toon
     }
 
 }

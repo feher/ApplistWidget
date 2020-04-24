@@ -69,7 +69,7 @@ class CgaIconPackLoader(
     companion object {
         const val name = "cga"
         const val displayName = "CGA"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_cga
     }
 
 }

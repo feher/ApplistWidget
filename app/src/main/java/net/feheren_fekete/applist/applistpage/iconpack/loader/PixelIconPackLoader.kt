@@ -89,7 +89,7 @@ class PixelIconPackLoader(
     companion object {
         const val name = "pixel"
         const val displayName = "Pixel"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_pixel
     }
 
 }

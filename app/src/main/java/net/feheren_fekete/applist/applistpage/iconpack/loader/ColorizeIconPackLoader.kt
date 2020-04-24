@@ -104,7 +104,7 @@ class ColorizeIconPackLoader(
     companion object {
         const val name = "colorize"
         const val displayName = "Mono Color"
-        const val displayIconId = R.drawable.ic_apps
+        const val displayIconId = R.drawable.icon_effect_monocolor
     }
 
 }
