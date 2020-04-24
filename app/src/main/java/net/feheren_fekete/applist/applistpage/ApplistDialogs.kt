@@ -1,6 +1,8 @@
 package net.feheren_fekete.applist.applistpage
 
 import android.app.Activity
+import android.text.method.LinkMovementMethod
+import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.afollestad.materialdialogs.MaterialDialog
@@ -8,6 +10,7 @@ import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
 import net.feheren_fekete.applist.R
+
 
 object ApplistDialogs {
 
@@ -43,6 +46,7 @@ object ApplistDialogs {
                 .setOnCancelListener { onCancel() }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
+        alertDialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun questionDialog(activity: Activity,
@@ -60,6 +64,7 @@ object ApplistDialogs {
                 .setOnCancelListener { onCancel() }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
+        alertDialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun messageDialog(activity: Activity,
@@ -76,6 +81,7 @@ object ApplistDialogs {
                 .setOnCancelListener { onCancel() }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
+        alertDialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun messageDialog(activity: Activity,
@@ -92,6 +98,7 @@ object ApplistDialogs {
                 .setOnCancelListener { onCancel() }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
+        alertDialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun listDialog(activity: Activity,
