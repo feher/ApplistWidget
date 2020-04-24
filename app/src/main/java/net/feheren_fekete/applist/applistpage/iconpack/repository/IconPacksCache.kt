@@ -106,6 +106,6 @@ class IconPacksCache(
         "$dirPath/${createFileName(iconPackPackageName)}"
 
     private fun createFileName(iconPackPackageName: String) =
-        iconPackPackageName.replace(Regex.fromLiteral("[:/]"), "_")
+        iconPackPackageName.replace(Regex("[:/]"), "_")
 
 }

@@ -16,6 +16,36 @@ class IconPacksRepository(
     fun getIconPacks(): List<IconPackInfo> {
         val iconPacks = mutableListOf<IconPackInfo>()
 
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.addCategory("com.anddoes.launcher.THEME")
+
+        val resolveInfos = packageManager.queryIntentActivities(intent, 0)
+        resolveInfos.sortWith(ResolveInfo.DisplayNameComparator(packageManager))
+
+        resolveInfos.forEach {
+            iconPacks.add(
+                IconPackInfo(
+                    it.loadLabel(packageManager).toString(),
+                    ComponentName(it.activityInfo.packageName, it.activityInfo.name)
+                )
+            )
+        }
+
+        iconPacksCache.cleanupMissing(iconPacks)
+
+        // We add the builtin icon packs only after cleanup.
+        // This has the effect that the builtin packs will be removed from
+        // the cache above. We want to recreate the cache for builtin
+        // packs in case the list of installed apps has changed (the builtin
+        // packs contain the icons of the user's installed apps)
+        iconPacks.addAll(0, getBuiltinIconPacks())
+
+        return iconPacks
+    }
+
+    private fun getBuiltinIconPacks(): List<IconPackInfo> {
+        val iconPacks = mutableListOf<IconPackInfo>()
+
         iconPacks.add(IconPackLoader.createIconPackInfo(
             SepiaIconPackLoader.displayName,
             SepiaIconPackLoader.displayIconId,
@@ -65,23 +95,6 @@ class IconPacksRepository(
 //            SketchIconPackLoader.displayName,
 //            SketchIconPackLoader.displayIconId,
 //            SketchIconPackLoader.name))
-
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory("com.anddoes.launcher.THEME")
-
-        val resolveInfos = packageManager.queryIntentActivities(intent, 0)
-        resolveInfos.sortWith(ResolveInfo.DisplayNameComparator(packageManager))
-
-        resolveInfos.forEach {
-            iconPacks.add(
-                IconPackInfo(
-                    it.loadLabel(packageManager).toString(),
-                    ComponentName(it.activityInfo.packageName, it.activityInfo.name)
-                )
-            )
-        }
-
-        iconPacksCache.cleanupMissing(iconPacks)
 
         return iconPacks
     }
