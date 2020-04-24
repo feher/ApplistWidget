@@ -51,6 +51,11 @@ class ApkIconPackLoader(
                     }
                     "drawable" -> {
                         drawableName = it.getAttributeValue(i)
+                        val resourceId =
+                            getDrawableId(iconPackPackageName, iconPackResources, drawableName)
+                        if (resourceId == 0) {
+                            drawableName = null
+                        }
                     }
                 }
             }
