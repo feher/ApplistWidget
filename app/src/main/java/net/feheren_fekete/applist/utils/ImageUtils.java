@@ -71,6 +71,14 @@ public class ImageUtils {
 
         try {
             outStream = new FileOutputStream(file);
+            // From Stack Overflow: https://stackoverflow.com/a/59399265/3577903
+            // "For anyone who stumbles upon it, like me, wondering why bitnap colors change once
+            // you write it out in PNG. I have found out that using bitmap.setPreMultiplied(false)
+            // before calling bitmap.compress(PNG, 100, fileout) preserves the color of your image
+            // if it has alpha channel values. Setpremultiplied prevents the pixels written onto
+            // disk from being multiplied by alpha channel, thus generating different pixel
+            // color values."
+            bitmap.setPremultiplied(false);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
             outStream.flush();
         } catch (Exception e) {
