@@ -69,6 +69,15 @@ class IconPackHelper(
         getLoader(iconPackPackageName).showEditDialog()
     }
 
+    fun isEditable(iconPackPackageName: String) = getLoader(iconPackPackageName).isEditable()
+
+    fun setEditableParameter(iconPackPackageName: String, parameterValue: Int) {
+        getLoader(iconPackPackageName).setEditableParameter(parameterValue)
+    }
+
+    fun getEditableParameter(iconPackPackageName: String) =
+        getLoader(iconPackPackageName).getEditableParameter()
+
     private fun getLoader(iconPackPackageName: String): IconPackLoader {
         val loaderName = if (IconPackLoader.isEffectIconPack(iconPackPackageName)) {
             IconPackLoader.getEffectIconPackLoaderName(iconPackPackageName)
@@ -82,6 +91,8 @@ class IconPackHelper(
                     ApkIconPackLoader(context, packageManager, imageUtils, screenUtils)
                 GrayscaleIconPackLoader.name -> loader =
                     GrayscaleIconPackLoader(context, packageManager, imageUtils)
+                ColorizeIconPackLoader.name -> loader =
+                    ColorizeIconPackLoader(context, packageManager, imageUtils)
                 SketchIconPackLoader.name -> loader =
                     SketchIconPackLoader(context, packageManager, imageUtils)
                 SepiaIconPackLoader.name -> loader =

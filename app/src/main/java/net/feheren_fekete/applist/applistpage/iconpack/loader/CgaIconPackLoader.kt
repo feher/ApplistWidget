@@ -20,10 +20,6 @@ class CgaIconPackLoader(
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun showEditDialog() {
-        // Nothing
-    }
-
     companion object {
         const val name = "cga"
         const val displayName = "CGA"

@@ -36,8 +36,4 @@ class DefaultIconPackLoader(
         return loadOriginalAppIcon(componentName)
     }
 
-    override fun showEditDialog() {
-        // Nothing
-    }
-
 }

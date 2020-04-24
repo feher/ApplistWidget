@@ -7,6 +7,7 @@ import jp.co.cyberagent.android.gpuimage.GPUImage
 import jp.co.cyberagent.android.gpuimage.filter.GPUImagePosterizeFilter
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.utils.ImageUtils
+import kotlin.math.max
 
 class PosterizeIconPackLoader(
     private val context: Context,
@@ -14,14 +15,24 @@ class PosterizeIconPackLoader(
     imageUtils: ImageUtils
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
+    private var parameter = 1.0f // 1..50
+
     override fun applyEffect(originalIcon: Bitmap): Bitmap {
         val gpuImage = GPUImage(context)
-        gpuImage.setFilter(GPUImagePosterizeFilter(5))
+        gpuImage.setFilter(GPUImagePosterizeFilter(parameter.toInt()))
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun showEditDialog() {
-        // Nothing
+    override fun isEditable() = true
+
+    override fun setEditableParameter(parameterValue: Int) {
+        val percentage = parameterValue.toFloat() / 100.0f
+        val value = max(1.0f, 50.0f * percentage)
+        parameter = value
+    }
+
+    override fun getEditableParameter(): Int {
+        return ((parameter / 50.0f) * 100.0f).toInt()
     }
 
     companion object {

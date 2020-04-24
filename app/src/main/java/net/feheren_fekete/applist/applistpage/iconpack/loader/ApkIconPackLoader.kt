@@ -138,10 +138,6 @@ class ApkIconPackLoader(
         )
     }
 
-    override fun showEditDialog() {
-        // Nothing
-    }
-
     private fun createFallbackIcon(
         packageManager: PackageManager,
         iconPackPackageName: String,

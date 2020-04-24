@@ -15,6 +15,26 @@ class PixelIconPackLoader(
     imageUtils: ImageUtils
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
+    private var parameter = 15.0f
+
+    override fun applyEffect(originalIcon: Bitmap): Bitmap {
+        val gpuImage = GPUImage(context)
+        gpuImage.setFilter(PixelFilter().apply { setPixel(parameter) })
+        return gpuImage.getBitmapWithFilterApplied(originalIcon)
+    }
+
+    override fun isEditable() = true
+
+    override fun setEditableParameter(parameterValue: Int) {
+        val percentage = parameterValue.toFloat() / 100.0f
+        val value = 30.0f * percentage
+        parameter = value
+    }
+
+    override fun getEditableParameter(): Int {
+        return ((parameter / 30.0f) * 100.0f).toInt()
+    }
+
     private class PixelFilter: GPUImageFilter(
         NO_FILTER_VERTEX_SHADER,
         """
@@ -63,16 +83,6 @@ class PixelIconPackLoader(
             this.pixel = pixel
             setFloat(pixelLocation, this.pixel)
         }
-    }
-
-    override fun applyEffect(originalIcon: Bitmap): Bitmap {
-        val gpuImage = GPUImage(context)
-        gpuImage.setFilter(PixelFilter().apply { setPixel(15.0f) })
-        return gpuImage.getBitmapWithFilterApplied(originalIcon)
-    }
-
-    override fun showEditDialog() {
-        // Nothing
     }
 
     companion object {

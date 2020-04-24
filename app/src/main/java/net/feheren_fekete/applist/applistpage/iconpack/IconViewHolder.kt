@@ -6,6 +6,7 @@ import kotlinx.android.synthetic.main.iconpack_icon_item.view.*
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import net.feheren_fekete.applist.utils.glide.GlideIconPackIcon
+import net.feheren_fekete.applist.utils.glide.IconPackIconSignature
 
 class IconViewHolder(
     view: View,
@@ -26,6 +27,7 @@ class IconViewHolder(
     fun bind(iconPackPackageName: String, item: String, isSelected: Boolean) {
         GlideApp.with(itemView)
                 .load(GlideIconPackIcon(iconPackPackageName, item))
+                .signature(IconPackIconSignature(System.currentTimeMillis()))
                 .into(itemView.icon)
         if (isSelected) {
             itemView.setBackgroundResource(R.drawable.iconpack_picker_item_highlighted_background)

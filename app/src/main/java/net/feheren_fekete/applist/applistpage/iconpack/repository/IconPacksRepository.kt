@@ -27,14 +27,24 @@ class IconPacksRepository(
             GrayscaleIconPackLoader.name))
 
         iconPacks.add(IconPackLoader.createIconPackInfo(
+            ColorizeIconPackLoader.displayName,
+            ColorizeIconPackLoader.displayIconId,
+            ColorizeIconPackLoader.name))
+
+        iconPacks.add(IconPackLoader.createIconPackInfo(
             PosterizeIconPackLoader.displayName,
             PosterizeIconPackLoader.displayIconId,
             PosterizeIconPackLoader.name))
 
         iconPacks.add(IconPackLoader.createIconPackInfo(
-            KuwaharaIconPackLoader.displayName,
-            KuwaharaIconPackLoader.displayIconId,
-            KuwaharaIconPackLoader.name))
+            HueIconPackLoader.displayName,
+            HueIconPackLoader.displayIconId,
+            HueIconPackLoader.name))
+
+//        iconPacks.add(IconPackLoader.createIconPackInfo(
+//            KuwaharaIconPackLoader.displayName,
+//            KuwaharaIconPackLoader.displayIconId,
+//            KuwaharaIconPackLoader.name))
 
         iconPacks.add(IconPackLoader.createIconPackInfo(
             ToonIconPackLoader.displayName,
@@ -47,19 +57,14 @@ class IconPacksRepository(
             PixelIconPackLoader.name))
 
         iconPacks.add(IconPackLoader.createIconPackInfo(
-            HueIconPackLoader.displayName,
-            HueIconPackLoader.displayIconId,
-            HueIconPackLoader.name))
-
-        iconPacks.add(IconPackLoader.createIconPackInfo(
             CgaIconPackLoader.displayName,
             CgaIconPackLoader.displayIconId,
             CgaIconPackLoader.name))
 
-        iconPacks.add(IconPackLoader.createIconPackInfo(
-            SketchIconPackLoader.displayName,
-            SketchIconPackLoader.displayIconId,
-            SketchIconPackLoader.name))
+//        iconPacks.add(IconPackLoader.createIconPackInfo(
+//            SketchIconPackLoader.displayName,
+//            SketchIconPackLoader.displayIconId,
+//            SketchIconPackLoader.name))
 
         val intent = Intent(Intent.ACTION_MAIN)
         intent.addCategory("com.anddoes.launcher.THEME")

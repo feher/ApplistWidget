@@ -20,10 +20,6 @@ class GrayscaleIconPackLoader(
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun showEditDialog() {
-        // Nothing
-    }
-
     companion object {
         const val name = "grayscale"
         const val displayName = "Grayscale"

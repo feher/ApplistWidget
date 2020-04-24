@@ -20,10 +20,6 @@ class KuwaharaIconPackLoader(
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun showEditDialog() {
-        // Nothing
-    }
-
     companion object {
         const val name = "kuwahara"
         const val displayName = "Kuwahara"

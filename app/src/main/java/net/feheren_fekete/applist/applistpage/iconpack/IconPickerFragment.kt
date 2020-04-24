@@ -4,8 +4,10 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.ComponentName
 import android.os.Bundle
+import android.os.Handler
 import android.text.method.LinkMovementMethod
 import android.view.*
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
@@ -42,6 +44,7 @@ class IconPickerFragment : Fragment() {
     private var menu: Menu? = null
     private var searchView: SearchView? = null
     private var icons: IconPackIconsLiveData? = null
+    private val handler = Handler()
 
     companion object {
         private const val FRAGMENT_ARG_TITLE = "title"
@@ -131,9 +134,25 @@ class IconPickerFragment : Fragment() {
             setAppIcon(iconsAdapter.selectedItem)
         }
 
-        view.editEffectFab.setOnClickListener {
-            editEffectIconPack()
-        }
+        view.iconPackEffectSeekBar.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        iconPackHelper.setEditableParameter(
+                            iconsAdapter.iconPackPackageName,
+                            progress
+                        )
+                        scheduleIconsUpdate()
+                    }
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                }
+            }
+        )
     }
 
     override fun onResume() {
@@ -257,6 +276,13 @@ class IconPickerFragment : Fragment() {
             requireArguments().getParcelable(FRAGMENT_ARG_COMPONENT_NAME) ?: ComponentName("", "")
         )
         icons?.observe(viewLifecycleOwner, iconsObserver)
+
+        if (iconPackHelper.isEditable(iconPackPackageName)) {
+            iconPackEffectSeekBar.visibility = View.VISIBLE
+            iconPackEffectSeekBar.progress = iconPackHelper.getEditableParameter(iconPackPackageName)
+        } else {
+            iconPackEffectSeekBar.visibility = View.GONE
+        }
     }
 
     private val iconsObserver = Observer<Pair<Boolean, List<IconPackIcon>>> {
@@ -372,9 +398,13 @@ class IconPickerFragment : Fragment() {
         EventBus.getDefault().post(DoneEvent())
     }
 
-    private fun editEffectIconPack() {
-        val iconPackPackageName = iconsAdapter.iconPackPackageName
-        iconPackHelper.showEditDailog(iconPackPackageName)
+    private val iconsUpdateRunnable = Runnable {
+        iconsAdapter.notifyDataSetChanged()
+    }
+
+    private fun scheduleIconsUpdate() {
+        handler.removeCallbacks(iconsUpdateRunnable)
+        handler.postDelayed(iconsUpdateRunnable, 500)
     }
 
 }

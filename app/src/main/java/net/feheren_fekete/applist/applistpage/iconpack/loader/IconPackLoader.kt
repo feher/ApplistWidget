@@ -14,6 +14,8 @@ abstract class IconPackLoader(
     private val imageUtils: ImageUtils
 ) {
 
+    private var parameterValue = 0
+
     abstract fun getSupportedApps(iconPackPackageName: String): Flow<IconPackApp>
     abstract fun getIconDrawableNames(iconPackPackageName: String): Flow<String>
 
@@ -34,7 +36,23 @@ abstract class IconPackLoader(
         fallbackIconHeightDp: Int = DEFAULT_FALLBACK_ICON_SIZE
     ): Bitmap
 
-    abstract fun showEditDialog()
+    open fun isEditable() = false
+
+    open fun showEditDialog() {
+        // Nothing
+    }
+
+    /**
+     * @param parameterValue Between 0 and 100
+     */
+    open fun setEditableParameter(parameterValue: Int) {
+        // Nothing
+    }
+
+    /**
+     * @return Value between 0 and 100
+     */
+    open fun getEditableParameter() = 0
 
     protected fun loadOriginalAppIcon(componentName: ComponentName): Bitmap {
         return imageUtils.drawableToBitmap(loadOriginalAppIconDrawable(componentName))

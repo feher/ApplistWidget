@@ -20,10 +20,6 @@ class SketchIconPackLoader(
         return gpuImage.getBitmapWithFilterApplied(originalIcon)
     }
 
-    override fun showEditDialog() {
-        // Nothing
-    }
-
     companion object {
         const val name = "sketch"
         const val displayName = "Sketch"
