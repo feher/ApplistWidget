@@ -38,7 +38,7 @@ class ColorizeIconPackLoader(
     private class ColorizeFilter : GPUImageFilter(
         NO_FILTER_VERTEX_SHADER,
         """
-            precision highp float;
+            precision mediump float;
             varying vec2 textureCoordinate;
             uniform sampler2D inputImageTexture;
             uniform float parameter;
@@ -48,7 +48,7 @@ class ColorizeIconPackLoader(
                 float Cmin = min(rgb.r, min(rgb.g, rgb.b));
                 float delta = Cmax - Cmin;
             
-                vec3 hsv = vec3(0., 0., Cmax);
+                vec3 hsv = vec3(0.0, 0.0, Cmax);
             
                 if (Cmax > Cmin) {
                     hsv.y = delta / Cmax;
@@ -57,11 +57,11 @@ class ColorizeIconPackLoader(
                         hsv.x = (rgb.g - rgb.b) / delta;
                     else {
                         if (rgb.g == Cmax)
-                            hsv.x = 2. + (rgb.b - rgb.r) / delta;
+                            hsv.x = 2.0 + (rgb.b - rgb.r) / delta;
                         else
-                            hsv.x = 4. + (rgb.r - rgb.g) / delta;
+                            hsv.x = 4.0 + (rgb.r - rgb.g) / delta;
                     }
-                    hsv.x = fract(hsv.x / 6.);
+                    hsv.x = fract(hsv.x / 6.0);
                 }
                 return hsv;
             }
@@ -73,10 +73,10 @@ class ColorizeIconPackLoader(
             }
 
             void main() {
-                lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
+                vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
                 vec3 hsv = rgb2hsv(textureColor.rgb);
-                hsv.x = radians(parameter * 360.0f);
-                /*hsv.x = 3.14f; */
+                hsv.x = radians(parameter * 360.0);
+                /*hsv.x = 3.14; */
                 vec3 color = hsv2rgb(hsv);
                 gl_FragColor = vec4(color, textureColor.a);
             }
