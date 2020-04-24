@@ -83,6 +83,10 @@ class IconPackHelper(
             iconPackPackageName,
             getLoader(iconPackPackageName).getEditableParameter())
 
+    fun releaseLoaders() {
+        loaders.clear()
+    }
+
     private fun getLoader(iconPackPackageName: String): IconPackLoader {
         val loaderName = if (IconPackLoader.isBuiltinIconPack(iconPackPackageName)) {
             IconPackLoader.getBuiltinIconPackLoaderName(iconPackPackageName)

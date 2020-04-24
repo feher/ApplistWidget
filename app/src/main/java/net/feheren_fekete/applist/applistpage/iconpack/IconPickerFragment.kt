@@ -170,6 +170,11 @@ class IconPickerFragment : Fragment() {
         }
     }
 
+    override fun onDestroy() {
+        iconPackHelper.releaseLoaders()
+        super.onDestroy()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.iconpack_picker_menu, menu)
