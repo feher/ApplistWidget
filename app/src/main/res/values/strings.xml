@@ -73,7 +73,7 @@
     <string name="rearrange_items_help">Long press and select <b>\"Reorder\"</b> to rearrange groups and apps.</string>
     <string name="reorder_apps_help" translatable="false">Long press and Drag <b>individual</b> apps.\n\nSelect and tap the folder icon to move <b>multiple</b> apps to new group.</string>
     <string name="use_launcher_tip">Did you know that you can use Apper as your <b>launcher</b>?\n\nGo to your phone Settings and set Apper as your <b>Home screen launcher</b>.</string>
-    <string name="icon_pack_help" translatable="false"><b>Pick</b> an icon from one of your icon packs and tap the apply button.\n\n<b>Search</b> for icons using the search bar above.\n\nFor <b>more options</b> check out the menu in the corner above.</string>
+    <string name="icon_pack_help" translatable="false"><b>Select</b> an icon from one of the icon packs and tap the orange apply button.\n\n<b>Search</b> for icons using the search bar above.\n\nFor <b>more options</b> check out the menu in the corner above.</string>
 
     <string name="change_wallpaper_dialog_title">Select wallpaper source</string>
 
