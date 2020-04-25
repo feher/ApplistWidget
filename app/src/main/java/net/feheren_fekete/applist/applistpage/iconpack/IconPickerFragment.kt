@@ -28,7 +28,6 @@ import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
 import java.io.File
-import java.lang.StringBuilder
 
 class IconPickerFragment : Fragment() {
 
@@ -84,7 +83,7 @@ class IconPickerFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         iconPacksAdapter = IconPacksAdapter { onIconPackSelected(it) }
-        iconsAdapter = IconsAdapter(::onIconSelected, ::onIconLongTapped)
+        iconsAdapter = IconsAdapter(iconPackHelper, ::onIconSelected, ::onIconLongTapped)
     }
 
     override fun onCreateView(
@@ -132,7 +131,7 @@ class IconPickerFragment : Fragment() {
 
         view.setFab.visibility = View.GONE
         view.setFab.setOnClickListener {
-            setAppIcon(iconsAdapter.selectedItem)
+            setAppIcon(iconsAdapter.selectedIcon)
         }
 
         view.iconPackEffectSeekBar.setOnSeekBarChangeListener(
@@ -143,7 +142,7 @@ class IconPickerFragment : Fragment() {
                             iconsAdapter.iconPackPackageName,
                             progress
                         )
-                        setAppIconPreview(iconsAdapter.selectedItem)
+                        setAppIconPreview(iconsAdapter.selectedIcon)
                         scheduleIconsUpdate()
                     }
                 }
@@ -415,7 +414,9 @@ class IconPickerFragment : Fragment() {
     }
 
     private val iconsUpdateRunnable = Runnable {
-        iconsAdapter.notifyDataSetChanged()
+        val a = (iconsRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        val b = (iconsRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+        iconsAdapter.updateViews(a, b)
     }
 
     private fun scheduleIconsUpdate() {
