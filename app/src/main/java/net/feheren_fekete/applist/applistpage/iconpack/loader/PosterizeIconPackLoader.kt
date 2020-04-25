@@ -16,7 +16,7 @@ class PosterizeIconPackLoader(
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
     init {
-        parameter = 1.0f // 1..50
+        parameter = 1.0f // 1..10
     }
 
     override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
@@ -27,13 +27,13 @@ class PosterizeIconPackLoader(
 
     override fun parameterToFloat(intParameter: Int): Float {
         val percentage = intParameter.toFloat() / 100.0f
-        return max(1.0f, 50.0f * percentage)
+        return max(1.0f, 10.0f * percentage)
     }
 
     override fun isEditable() = true
 
     override fun getEditableParameter(): Int {
-        return ((parameter / 50.0f) * 100.0f).toInt()
+        return ((parameter / 10.0f) * 100.0f).toInt()
     }
 
     companion object {
