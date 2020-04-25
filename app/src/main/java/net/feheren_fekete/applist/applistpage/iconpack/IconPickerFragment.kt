@@ -143,6 +143,7 @@ class IconPickerFragment : Fragment() {
                             iconsAdapter.iconPackPackageName,
                             progress
                         )
+                        setAppIconPreview(iconsAdapter.selectedItem)
                         scheduleIconsUpdate()
                     }
                 }
@@ -359,6 +360,9 @@ class IconPickerFragment : Fragment() {
     }
 
     private fun setAppIconPreview(icon: IconPackIcon) {
+        if (!icon.isValid()) {
+            return
+        }
         val iconBitmap = iconPackHelper.loadIcon(
             iconsAdapter.iconPackPackageName,
             icon.drawableName
