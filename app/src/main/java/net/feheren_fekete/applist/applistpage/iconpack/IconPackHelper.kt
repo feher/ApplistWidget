@@ -79,9 +79,14 @@ class IconPackHelper(
         getLoader(iconPackPackageName).getEditableParameter()
 
     fun createFullPackageName(iconPackPackageName: String) =
-        IconPackLoader.createBuiltinPackageNameWithParam(
-            iconPackPackageName,
-            getLoader(iconPackPackageName).getEditableParameter())
+        if (IconPackLoader.isBuiltinIconPack(iconPackPackageName)) {
+            IconPackLoader.createBuiltinPackageNameWithParam(
+                iconPackPackageName,
+                getLoader(iconPackPackageName).getEditableParameter()
+            )
+        } else {
+            iconPackPackageName
+        }
 
     fun releaseLoaders() {
         loaders.clear()

@@ -65,7 +65,7 @@ abstract class IconPackLoader(
 
     companion object {
         const val DEFAULT_FALLBACK_ICON_SIZE = 48
-        private const val ICONPACK_LOADER_SCHEMA = "applisticonpack"
+        private const val BUILTIN_ICONPACK_SCHEMA = "builtin"
 
         fun createBuiltinPackageNameWithParam(iconPackPackageName: String, parameter: Int) =
             "$iconPackPackageName?param=$parameter"
@@ -76,10 +76,10 @@ abstract class IconPackLoader(
         fun createIconPackInfo(displayName: String, displayIconId: Int, iconPackLoaderName: String) =
             IconPackInfo(
                 displayName,
-                ComponentName("$ICONPACK_LOADER_SCHEMA://$iconPackLoaderName", "$displayIconId"))
+                ComponentName("$BUILTIN_ICONPACK_SCHEMA://$iconPackLoaderName", "$displayIconId"))
 
         fun isBuiltinIconPack(iconPackPackageName: String): Boolean {
-            return iconPackPackageName.startsWith("$ICONPACK_LOADER_SCHEMA://")
+            return iconPackPackageName.startsWith("$BUILTIN_ICONPACK_SCHEMA://")
         }
 
         fun getBuiltinIconPackLoaderName(iconPackPackageName: String) =
