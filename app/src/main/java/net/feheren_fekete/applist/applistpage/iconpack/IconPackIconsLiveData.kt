@@ -43,7 +43,12 @@ class IconPackIconsLiveData(
                 if (shouldUpdateValue) {
                     lastUpdateTime = time
                     icons.sortBy { it.rank }
-                    postValue(Pair(false, icons))
+                    //
+                    // This caused ConcurrentModificationException: must pass a copy of the
+                    // array to postValue here.
+                    //
+                    val iconsCopy = icons.map { it }
+                    postValue(Pair(false, iconsCopy))
                 }
             }
             if (isActive) {
