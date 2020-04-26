@@ -113,4 +113,5 @@
     <string name="iconpack_picker_apply_all_warning">Tämä muuttaa <b>kaikkien appien ikonit</b>. Oletko varma?</string>
     <string name="widget_page_add_widget_error">Meillä ei ole oikeutta tämän widgetin käyttöön</string>
     <string name="iconpack_picker_install_more">Lisää ikonejä</string>
+    <string name="cannot_drag_multiple_apps">Vain yksi appi voi raahata</string>
 </resources>

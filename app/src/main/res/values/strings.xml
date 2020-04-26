@@ -48,6 +48,7 @@
     <string name="cannot_pin_disabled_shortcut">Cannot pin. Shortcut is disabled.</string>
     <string name="cannot_pin_pinned_shortcut">Shortcut is already pinned.</string>
     <string name="cannot_pin">Cannot pin shortcut.</string>
+    <string name="cannot_drag_multiple_apps">Only single items can be dragged</string>
 
     <string name="section_item_menu_rename">Rename</string>
     <string name="section_item_menu_delete">Delete</string>

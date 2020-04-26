@@ -410,12 +410,10 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         }
 
         if (isMovingStartables) {
-            if (adapter.selectedCount == 1) {
-                startDraggingStartable(startableItem)
-            } else {
-                Toast.makeText(
-                    context, "Only single items can be dragged", Toast.LENGTH_SHORT
-                ).show()
+            when (adapter.selectedCount) {
+                0, 1 -> startDraggingStartable(startableItem)
+                else -> Toast.makeText(
+                    context, R.string.cannot_drag_multiple_apps, Toast.LENGTH_SHORT).show()
             }
         } else {
             showContextMenuForStartable(startableItem)
