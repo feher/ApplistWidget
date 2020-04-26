@@ -68,7 +68,11 @@ abstract class IconPackLoader(
         private const val BUILTIN_ICONPACK_SCHEMA = "builtin"
 
         fun createBuiltinPackageNameWithParam(iconPackPackageName: String, parameter: Int) =
-            "$iconPackPackageName?param=$parameter"
+            if (!iconPackPackageName.contains("?param=")) {
+                "$iconPackPackageName?param=$parameter"
+            } else {
+                iconPackPackageName
+            }
 
         fun getBuiltinIconPackParameter(iconPackPackageName: String) =
             Uri.parse(iconPackPackageName).getQueryParameter("param") ?: ""
