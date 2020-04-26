@@ -16,7 +16,7 @@ class PixelIconPackLoader(
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
     init {
-        parameter = MIN_PARAM
+        parameter = DEFAULT_PARAM
     }
 
     override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
@@ -54,9 +54,7 @@ class PixelIconPackLoader(
             }
             """
     ) {
-        private var imageWidthFactorLocation = 0
-        private var imageHeightFactorLocation = 0
-        private var percent = 0.1f
+        private var percent = DEFAULT_PARAM
         private var percentLocation = 0
 
         override fun onInit() {
@@ -82,6 +80,7 @@ class PixelIconPackLoader(
 
         private const val MIN_PARAM = 0.05f
         private const val MAX_PARAM = 0.14f
+        private const val DEFAULT_PARAM = MIN_PARAM
     }
 
 }
