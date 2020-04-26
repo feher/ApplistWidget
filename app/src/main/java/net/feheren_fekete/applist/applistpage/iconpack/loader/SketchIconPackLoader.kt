@@ -16,10 +16,17 @@ class SketchIconPackLoader(
     imageUtils: ImageUtils
 ): EffectIconPackLoader(context, packageManager, imageUtils) {
 
+    private val appIconSize = context.resources.getDimensionPixelSize(R.dimen.appitem_icon_size)
+
     override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
         val gpuImage = GPUImage(context)
         gpuImage.setFilter(SketchFilter())
-        return gpuImage.getBitmapWithFilterApplied(originalIcon)
+        return if (originalIcon.width > appIconSize * 2) {
+            val scaled = Bitmap.createScaledBitmap(originalIcon, appIconSize, appIconSize, false)
+            gpuImage.getBitmapWithFilterApplied(scaled)
+        } else {
+            gpuImage.getBitmapWithFilterApplied(originalIcon)
+        }
     }
 
     private class SketchFilter : GPUImageFilterGroup() {
