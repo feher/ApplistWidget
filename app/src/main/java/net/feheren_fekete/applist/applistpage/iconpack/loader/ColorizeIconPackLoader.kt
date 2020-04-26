@@ -16,7 +16,7 @@ class ColorizeIconPackLoader(
 ) : EffectIconPackLoader(context, packageManager, imageUtils) {
 
     init {
-        parameter = 0.5f // 0..1
+        parameter = DEFAULT_PARAM // 0..1
     }
 
     override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
@@ -76,12 +76,14 @@ class ColorizeIconPackLoader(
                 vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
                 vec3 hsv = rgb2hsv(textureColor.rgb);
                 hsv.x = parameter;
+                hsv.y = hsv.y; /* * 0.7f; */
+                hsv.z = hsv.z * 0.8f;
                 vec3 color = hsv2rgb(hsv);
                 gl_FragColor = vec4(color, textureColor.a);
             }
         """
     ) {
-        private var parameter = 0.5f
+        private var parameter = DEFAULT_PARAM
         private var parameterLocation = 0
 
         override fun onInit() {
@@ -104,6 +106,10 @@ class ColorizeIconPackLoader(
         const val name = "colorize"
         const val displayName = "Mono Color"
         const val displayIconId = R.drawable.icon_effect_monocolor
+
+        private const val MIN_PARAM = 0.0f
+        private const val MAX_PARAM = 1.0f
+        private const val DEFAULT_PARAM = 0.12f
     }
 
 }
