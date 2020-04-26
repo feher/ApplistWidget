@@ -23,11 +23,11 @@ class ToonIconPackLoader(
     override fun applyEffect(originalIcon: Bitmap, parameter: Float): Bitmap {
         val gpuImage = GPUImage(context)
         gpuImage.setFilter(GPUImageToonFilter().apply { setLineSize(parameter) })
-        if (originalIcon.width > appIconSize * 2) {
+        return if (originalIcon.width > appIconSize * 2) {
             val scaled = Bitmap.createScaledBitmap(originalIcon, appIconSize, appIconSize, false)
-            return gpuImage.getBitmapWithFilterApplied(scaled)
+            gpuImage.getBitmapWithFilterApplied(scaled)
         } else {
-            return gpuImage.getBitmapWithFilterApplied(originalIcon)
+            gpuImage.getBitmapWithFilterApplied(originalIcon)
         }
     }
 
