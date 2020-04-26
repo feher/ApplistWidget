@@ -48,7 +48,12 @@ class PixelIconPackLoader(
               vec2 uv  = textureCoordinate.xy;
               float dx = percent;
               float dy = percent;
-              vec2 coord = vec2(dx * floor(uv.x / dx), dy * floor(uv.y / dy));
+              float columnCount = floor(1.0f / dx);
+              float dxExtra = (1.0f - columnCount * dx) / columnCount;
+              dx = dx + dxExtra;
+              dy = dy + dxExtra;
+              float halfDx = dx / 2.0f;
+              vec2 coord = vec2(dx * floor(uv.x / dx) + halfDx, dy * floor(uv.y / dy) + halfDx);
               vec4 tc = texture2D(inputImageTexture, coord).rgba;
               gl_FragColor = tc;
             }
@@ -79,7 +84,7 @@ class PixelIconPackLoader(
         const val displayIconId = R.drawable.icon_effect_pixel
 
         private const val MIN_PARAM = 0.05f
-        private const val MAX_PARAM = 0.14f
+        private const val MAX_PARAM = 0.10f
         private const val DEFAULT_PARAM = MIN_PARAM
     }
 
