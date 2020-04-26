@@ -73,7 +73,7 @@
                 android:layout_width="@dimen/appitem_icon_size"
                 android:layout_height="@dimen/appitem_icon_size"
                 android:layout_marginTop="10dp"
-                android:scaleType="centerInside"
+                android:scaleType="centerCrop"
                 app:layout_constraintRight_toLeftOf="@id/arrowImage"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@tools:sample/avatars" />
@@ -102,7 +102,7 @@
                 android:layout_width="@dimen/appitem_icon_size"
                 android:layout_height="@dimen/appitem_icon_size"
                 android:layout_marginTop="10dp"
-                android:scaleType="centerInside"
+                android:scaleType="centerCrop"
                 app:layout_constraintLeft_toRightOf="@id/arrowImage"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@tools:sample/avatars" />
