@@ -1147,6 +1147,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
                 } else {
                     val sectionId = sections.get(itemIndex).first
                     viewModel.moveStartablesToSection(startableItemIds, sectionId, true)
+                    if (isMovingStartables) {
+                        clearSelection()
+                    }
                 }
             }
         }
@@ -1264,6 +1267,9 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
             { sectionName ->
                 if (!sectionName.isEmpty()) {
                     viewModel.createSection(sectionName, appsToMove)
+                    if (isMovingStartables) {
+                        clearSelection()
+                    }
                 }
             })
     }
