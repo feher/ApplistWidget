@@ -97,8 +97,8 @@
     <string name="iconpack_picker_apply_iconpack">Käytä kaikki ikonit</string>
     <string name="iconpack_picker_change_icon">Vaihda appin ikoni</string>
     <string name="iconpack_picker_icon_packs">Ikonpakkaukset</string>
-    <string name="iconpack_picker_reset_all_icons">Palauta kaikki ikonit</string>
-    <string name="iconpack_picker_reset_icon">Palauta</string>
+    <string name="iconpack_picker_reset_all_icons">Palauta kaikki oletusikonit</string>
+    <string name="iconpack_picker_reset_icon">Palauta oletusikoni</string>
     <string name="iconpack_picker_search_icon">Hae appi</string>
     <string name="move_app_to_new_section">Uusi ryhmä...</string>
     <string name="move_app_title">Valitse ryhmä</string>

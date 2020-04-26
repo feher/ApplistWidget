@@ -212,7 +212,11 @@ class ApkIconPackLoader(
         resourceName: String
     ): Bitmap? {
         val resourceId = getDrawableId(iconPackPackageName, iconPackResources, resourceName)
-        return BitmapFactory.decodeResource(iconPackResources, resourceId, uniformOptions)
+        return if (resourceId != 0) {
+            BitmapFactory.decodeResource(iconPackResources, resourceId, uniformOptions)
+        } else {
+            null
+        }
     }
 
     private fun getDrawableId(

@@ -57,18 +57,29 @@
             tools:visibility="visible">
 
             <ImageView
-                android:id="@+id/appIcon"
+                android:id="@+id/arrowImage"
                 android:layout_width="@dimen/appitem_icon_size"
                 android:layout_height="@dimen/appitem_icon_size"
                 android:layout_marginTop="10dp"
                 android:scaleType="centerInside"
+                android:src="@drawable/ic_arrow_forward"
+                android:tint="@android:color/white"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/originalAppIcon"
+                android:layout_width="@dimen/appitem_icon_size"
+                android:layout_height="@dimen/appitem_icon_size"
+                android:layout_marginTop="10dp"
+                android:scaleType="centerInside"
+                app:layout_constraintRight_toLeftOf="@id/arrowImage"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@tools:sample/avatars" />
 
             <TextView
-                android:id="@+id/appName"
+                android:id="@+id/originalAppName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -78,13 +89,23 @@
                 android:maxLines="1"
                 android:paddingLeft="50dp"
                 android:paddingRight="50dp"
-                android:textColor="?attr/appTextColor"
+                android:textColor="@android:color/darker_gray"
                 android:textSize="12sp"
                 android:textStyle="normal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/appIcon"
+                app:layout_constraintTop_toBottomOf="@+id/originalAppIcon"
                 tools:text="App name" />
+
+            <ImageView
+                android:id="@+id/appIcon"
+                android:layout_width="@dimen/appitem_icon_size"
+                android:layout_height="@dimen/appitem_icon_size"
+                android:layout_marginTop="10dp"
+                android:scaleType="centerInside"
+                app:layout_constraintLeft_toRightOf="@id/arrowImage"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@tools:sample/avatars" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/iconsRecyclerView"
@@ -97,7 +118,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/appName"
+                app:layout_constraintTop_toBottomOf="@+id/originalAppName"
                 tools:itemCount="100"
                 tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 tools:listitem="@layout/iconpack_icon_item"
@@ -161,6 +182,13 @@
                 tools:listitem="@layout/iconpack_item"
                 tools:orientation="horizontal" />
 
+            <View
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/iconpack_picker_fab_background"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -171,7 +199,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="15dp"
-        android:layout_marginBottom="30dp"
-        android:src="@drawable/ic_done" />
+        android:layout_marginBottom="15dp"
+        android:elevation="21dp"
+        android:src="@drawable/ic_done"
+        android:translationZ="10dp"
+        app:borderWidth="0dp"
+        app:elevation="21dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

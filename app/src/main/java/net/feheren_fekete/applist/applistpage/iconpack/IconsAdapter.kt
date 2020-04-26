@@ -1,7 +1,5 @@
 package net.feheren_fekete.applist.applistpage.iconpack
 
-import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -9,7 +7,6 @@ import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 
 class IconsAdapter(
-    private val iconPackHelper: IconPackHelper,
     private val itemClickCallback: (icon: IconPackIcon, isSelected: Boolean) -> Unit,
     private val itemLongTapCallback: (icon: IconPackIcon) -> Unit
 ): RecyclerView.Adapter<IconViewHolder>() {
@@ -19,8 +16,6 @@ class IconsAdapter(
         var directUpdate: Boolean = false,
         var previousTimestamp: Long = 0,
         var currentTimestamp: Long = 0)
-
-    private val h = Handler()
 
     private val invalidItem = Item()
 
@@ -32,16 +27,12 @@ class IconsAdapter(
     private val filteredItems = arrayListOf<Item>()
     private var filterText: String? = null
 
-//    private var previousDataTimeStamp = 0L
-//    private var currentDataTimeStamp = 0L
-
     fun clearItems() {
         this.items.clear()
         updateFilteredItems()
 
         selectedIcon = invalidItem.icon
-//        updateViews()
-        notifyDataSetChanged()
+        updateViews()
 
         // Let the listener know that nothing is selected
         itemClickCallback(selectedIcon, false)
@@ -51,36 +42,16 @@ class IconsAdapter(
         this.items.clear()
         this.items.addAll(items.map { Item(it) })
         updateFilteredItems()
-//        updateViews()
-        notifyDataSetChanged()
+
+        selectedIcon = invalidItem.icon
+        updateViews()
     }
 
-    fun updateViews(from: Int, to: Int) {
-        Log.d("ZIZI", "update")
+    fun updateViews() {
         for (item in items) {
             item.currentTimestamp = System.currentTimeMillis()
         }
-        for (i in from..to) {
-            val item = filteredItems[i]
-            item.directUpdate = true
-        }
-        //notifyItemRangeChanged(from, to - from + 1)
-//        h.post {
-//            notifyItemRangeChanged(0, 5)
-//            h.post {
-//                notifyItemRangeChanged(5, 5)
-//                h.post {
-//                    notifyItemRangeChanged(10, 5)
-//                }
-//            }
-//        }
-        //notifyItemRangeChanged(0, filteredItems.size - 5)
-        //(notifyItemRangeChanged(0, filteredItems.size)
         notifyDataSetChanged()
-//        h.postDelayed({
-//            previousDataTimeStamp = currentDataTimeStamp
-//            currentDataTimeStamp = System.currentTimeMillis()
-//        }, 2000)
     }
 
     fun getItem(position: Int) = filteredItems[position].icon
@@ -108,12 +79,12 @@ class IconsAdapter(
     override fun onBindViewHolder(holder: IconViewHolder, position: Int) {
         val item = filteredItems[position]
         val isSelected = item.icon.isSameAs(selectedIcon)
-        holder.bind(iconPackHelper, iconPackPackageName, item, isSelected)
+        holder.bind(iconPackPackageName, item, isSelected)
         item.previousTimestamp = item.currentTimestamp
         item.directUpdate = false
     }
 
-    private fun selectItem(position: Int) {
+    fun selectItem(position: Int) {
         val item = filteredItems[position]
         if (item.icon.isSameAs(selectedIcon)) {
             // Unselect

@@ -92,6 +92,9 @@ class IconPacksCache(
         val files = File(dirPath).listFiles { f ->
             f.isFile
         }
+        if (files == null) {
+            return
+        }
         for (file in files) {
             val installed = installedPacks.find {
                 file.name == createFileName(it.componentName.packageName)
