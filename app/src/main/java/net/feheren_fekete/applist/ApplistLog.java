@@ -44,6 +44,10 @@ public class ApplistLog {
     public static String RENAME_APP = "RenameApp";
     public static String MOVE_APP_TO_SECTION = "MoveAppToSection";
     public static String CHANGE_APP_ICON = "ChangeAppIcon";
+    public static String APPLY_ICON_PACK = "ApplyIconPack";
+    public static String APPLY_ICON_PACK_ICON = "ApplyIconPackIcon";
+    public static String APPLY_RESET_ALL_ICONS = "ResetAllIcons";
+    public static String APPLY_RESET_ICON = "ResetIcon";
     public static String RENAME_SECTION = "RenameSection";
     public static String DELETE_SECTION = "DeleteSection";
     public static String SORT_SECTION = "SortSection";
@@ -64,6 +68,8 @@ public class ApplistLog {
     public static String DELETE_WIDGET = "DeleteWidget";
     public static String CREATE_LEGACY_SHORTCUT = "CreateLegacyShortcut";
     public static String CREATE_PINNED_APP_SHORTCUT = "CreatePinnedAppShortcut";
+    public static String IAP_PURCHASE_COMPLETED = "IapPurchaseCompleted";
+    public static String IAP_PURCHASE_CANCELLED = "IapPurchaseCancelled";
 
     public static String SETTINGS_KEEP_APPS_SORTED_ON = "SKeepAppsSortedOn";
     public static String SETTINGS_KEEP_APPS_SORTED_OFF = "SKeepAppsSortedOff";
@@ -88,9 +94,11 @@ public class ApplistLog {
     public static String TOOLBAR = "Toolbar";
     public static String PAGE_EDITOR = "PageEditor";
     public static String WIDGET_MENU = "WidgetMenu";
+    public static String ICON_PACK_PICKER = "IconPackPicker";
     public static String WIDGET_PAGE_MENU = "WidgetPageMenu";
     public static String LAUNCHER_PAGE_REPOSITORY = "LauncherPageRepository";
     public static String APPLIST_PAGE_REPOSITORY = "ApplistPageRepository";
+    public static String IAP_REPOSITORY = "IapRespository";
 
     public void analytics(String event, String origin) {
         Bundle bundle = new Bundle();
