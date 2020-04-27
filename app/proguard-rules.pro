@@ -60,3 +60,6 @@
 
 ###### Kotlin
 -dontwarn kotlinx.atomicfu.**
+
+###### In-App Purchase
+-keep class com.android.vending.billing.**
