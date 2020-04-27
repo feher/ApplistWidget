@@ -50,12 +50,26 @@ class PixelIconPackLoader(
               float dy = percent;
               float columnCount = floor(1.0f / dx);
               float dxExtra = (1.0f - columnCount * dx) / columnCount;
-              dx = dx + dxExtra;
-              dy = dy + dxExtra;
-              float halfDx = dx / 2.0f;
-              vec2 coord = vec2(dx * floor(uv.x / dx) + halfDx, dy * floor(uv.y / dy) + halfDx);
-              vec4 tc = texture2D(inputImageTexture, coord).rgba;
-              gl_FragColor = tc;
+              dx += dxExtra;
+              dy += dxExtra;
+              float dxh = dx / 2.0f;
+              float dxq = dx / 4.0f;
+              float dx2q = 3.0f * dxq;
+
+              vec2 cellCoord = vec2(dx * floor(uv.x / dx), dy * floor(uv.y / dy));
+              // Middle
+              vec4 cellColor = texture2D(inputImageTexture, vec2(cellCoord.x + dxh, cellCoord.y + dxh)).rgba;
+              // Left-Top
+              cellColor += texture2D(inputImageTexture, vec2(cellCoord.x + dxq, cellCoord.y + dxq)).rgba;
+              // Right-Bottom
+              cellColor += texture2D(inputImageTexture, vec2(cellCoord.x + dx2q, cellCoord.y + dx2q)).rgba;
+              // Right-Top
+              cellColor += texture2D(inputImageTexture, vec2(cellCoord.x + dx2q, cellCoord.y + dxq)).rgba;
+              // Left-Bottom
+              cellColor += texture2D(inputImageTexture, vec2(cellCoord.x + dxq, cellCoord.y + dx2q)).rgba;
+
+              cellColor /= 5.0f;
+              gl_FragColor = cellColor;
             }
             """
     ) {
