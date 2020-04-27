@@ -108,6 +108,10 @@ dependencies {
     // Firebase
     implementation 'com.google.firebase:firebase-core:17.3.0'
 
+    // In-app purchases
+    implementation 'com.android.billingclient:billing:2.2.0'
+    implementation 'com.android.billingclient:billing-ktx:2.2.0'
+
     // Material dialog
     // We use this because this does a good job of not-covering
     // the dialog when the software keyboard is active.
