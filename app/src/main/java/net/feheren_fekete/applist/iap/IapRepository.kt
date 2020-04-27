@@ -2,51 +2,86 @@ package net.feheren_fekete.applist.iap
 
 import android.app.Activity
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.*
 import net.feheren_fekete.applist.ApplistLog
 
 class IapRepository(
-    private val applistLog: ApplistLog,
-    private val context: Context,
+    context: Context,
+    private val applistLog: ApplistLog
 ) : PurchasesUpdatedListener {
 
     private val billingClient: BillingClient =
         BillingClient.newBuilder(context).setListener(this).build()
 
-    private val skuList = ArrayList<SkuDetails>()
+    private val skuDetailsList = ArrayList<SkuDetails>()
+    private val productsLiveData = ProductsLiveData()
+    private val purchasedProductLiveData = MutableLiveData<IapProduct>()
 
-    init {
-        billingClient.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(billingResult: BillingResult) {
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    // The BillingClient is ready. You can query purchases here.
-                }
-            }
+    val products: LiveData<List<IapProduct>> = productsLiveData
+    val purchasedProduct: LiveData<IapProduct> = purchasedProductLiveData
 
-            override fun onBillingServiceDisconnected() {
-                // Try to restart the connection on the next request to
-                // Google Play by calling the startConnection() method.
-            }
-        })
+    inner class ProductsLiveData : MutableLiveData<List<IapProduct>>() {
+        override fun onActive() {
+            super.onActive()
+            queryProducts()
+        }
     }
 
-    fun getAvailableProducts(): Flow<IapProduct> {
+    //
+    // From https://developer.android.com/google/play/billing/billing_library_overview
+    // <quote>
+    // You should call queryPurchases() at least twice in your code:
+    // * Call queryPurchases() every time your app launches so that you can restore any
+    //   purchases that a user has made since the app last stopped.
+    // * Call queryPurchases() in your onResume() method, because a user can make a purchase
+    //   when your app is in the background (for example, redeeming a promo code in the Google Play Store app).
+    // </quote>
+    //
+    fun queryAndHandlePurchases() {
         if (!billingClient.isReady) {
-            return emptyFlow()
+            initBillingClient()
+            return
         }
-        return querySkuDetails().map {
-            IapProduct(it.sku, it.price, it.iconUrl)
+        val purchasesResult: Purchase.PurchasesResult =
+            billingClient.queryPurchases(BillingClient.SkuType.INAPP)
+        for (purchase in purchasesResult.purchasesList) {
+            handlePurchase(purchase)
+        }
+    }
+
+    private fun queryProducts() {
+        if (!billingClient.isReady) {
+            initBillingClient()
+            return
+        }
+        GlobalScope.launch(Dispatchers.IO) {
+            val products = ArrayList<IapProduct>()
+            val params = SkuDetailsParams.newBuilder()
+            params.setSkusList(listOf("donut_1", "donut_2", "donut_3"))
+            params.setType(BillingClient.SkuType.INAPP)
+            val skuDetailsResult = billingClient.querySkuDetails(params.build())
+            if (skuDetailsResult.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                skuDetailsList.clear()
+                skuDetailsResult.skuDetailsList?.forEach {
+                    skuDetailsList.add(it)
+                    products.add(IapProduct(it.sku, it.price, it.iconUrl))
+                }
+            } else {
+                logIfError("Unhandled error", skuDetailsResult.billingResult)
+            }
+            productsLiveData.postValue(products)
         }
     }
 
     fun purchaseProduct(activity: Activity, product: IapProduct) {
-        val skuDetails = skuList.find {
-            it.sku == product.productId
+        if (!billingClient.isReady) {
+            applistLog.log(RuntimeException("Billing client is not ready"))
+            return
         }
+        val skuDetails = getSkuDetails(product.productId)
         if (skuDetails == null) {
             applistLog.log(RuntimeException("Invalid product: ${product.productId}"))
             return
@@ -55,6 +90,7 @@ class IapRepository(
             .setSkuDetails(skuDetails)
             .build()
         val responseCode = billingClient.launchBillingFlow(activity, flowParams)
+        logIfError("Cannot launch billing flow", responseCode)
     }
 
     override fun onPurchasesUpdated(
@@ -68,48 +104,64 @@ class IapRepository(
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             applistLog.analytics(ApplistLog.IAP_REPOSITORY, ApplistLog.IAP_PURCHASE_CANCELLED)
         } else {
-            applistLog.log(RuntimeException(
-                "onPurchasesUpdated: Error code: ${billingResult.responseCode}"))
+            logIfError("Unhandled error", billingResult)
         }
     }
 
-    private fun querySkuDetails(): Flow<SkuDetails> {
-        val skuList = ArrayList<String>()
-        skuList.add("donut_1")
-        skuList.add("donut_2")
-        skuList.add("donut_3")
-        val params = SkuDetailsParams.newBuilder()
-        params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP)
-        return flow {
-            val skuDetailsResult = billingClient.querySkuDetails(params.build())
-            if (skuDetailsResult.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                this@IapRepository.skuList.clear()
-                skuDetailsResult.skuDetailsList?.forEach {
-                    this@IapRepository.skuList.add(it)
-                    emit(it)
+    private fun initBillingClient() {
+        billingClient.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    queryAndHandlePurchases()
+                    queryProducts()
                 }
-            } else {
-                applistLog.log(
-                    RuntimeException(
-                        "querySkuDetails: Error code: ${skuDetailsResult.billingResult.responseCode}"
-                    )
-                )
             }
-        }
+
+            override fun onBillingServiceDisconnected() {
+                // Try to restart the connection on the next request to
+                // Google Play by calling the startConnection() method.
+            }
+        })
     }
 
     private fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            // Grant entitlement to the user.
-            ...
             // Acknowledge the purchase if it hasn't already been acknowledged.
             if (!purchase.isAcknowledged) {
                 val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.purchaseToken)
-                val ackPurchaseResult = withContext(Dispatchers.IO) {
-                    client.acknowledgePurchase(acknowledgePurchaseParams.build())
+                GlobalScope.launch(Dispatchers.IO) {
+                    val ackPurchaseResult =
+                        billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+                    if (ackPurchaseResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                        getProduct(purchase.sku)?.let {
+                            purchasedProductLiveData.postValue(it)
+                        }
+                    } else {
+                        logIfError("Unhandled purchase ack result", ackPurchaseResult)
+                    }
                 }
             }
+        } else {
+            applistLog.log(
+                RuntimeException("Unhandled purchase state: ${purchase.purchaseState}")
+            )
+        }
+    }
+
+    private fun getSkuDetails(productId: String) =
+        skuDetailsList.find {
+            it.sku == productId
+        }
+
+    private fun getProduct(productId: String) =
+        getSkuDetails(productId)?.let {
+            IapProduct(it.sku, it.price, it.iconUrl)
+        }
+
+    private fun logIfError(message: String, billingResult: BillingResult) {
+        if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+            applistLog.log(RuntimeException("$message: ${billingResult.responseCode} ${billingResult.debugMessage}"))
         }
     }
 
