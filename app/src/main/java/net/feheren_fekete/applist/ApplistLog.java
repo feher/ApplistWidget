@@ -28,6 +28,7 @@ public class ApplistLog {
         Crashlytics.log(Log.DEBUG, tag, message);
     }
 
+    public static String SHOW_DONUTS = "ShowDonuts";
     public static String SHOW_SETTINGS = "ShowSettings";
     public static String SHOW_PAGE_EDITOR = "ShowPageEditor";
     public static String CHANGE_WALLPAPER = "ChangeWallpaper";

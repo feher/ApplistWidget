@@ -30,4 +30,9 @@
         android:title="@string/action_settings"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/action_donut"
+        android:title="@string/action_donut"
+        app:showAsAction="never"/>
+
 </menu>

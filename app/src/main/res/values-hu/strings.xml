@@ -114,4 +114,5 @@
     <string name="widget_page_add_widget_error">Nincs jogosultságunk ezen widget használatához</string>
     <string name="iconpack_picker_install_more">Több ikoncsomag</string>
     <string name="cannot_drag_multiple_apps">Egyszerre csak egy appot lehet mozgatni</string>
+    <string name="action_donut">Támogatás</string>
 </resources>
