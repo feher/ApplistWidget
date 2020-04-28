@@ -76,6 +76,7 @@ val applistModule = module {
     single { ApplistIconStorage(androidContext(), get()) }
     single { ApplistPageRepository(androidContext(), get()) }
     single { LauncherRepository(androidContext(), get(), get()) }
+    single { IapRepository(androidContext(), get()) }
     single { WidgetModel(androidContext()) }
     single { LauncherStateManager() }
     single { ApplistPreferences(androidContext()) }
