@@ -10,6 +10,7 @@ import net.feheren_fekete.applist.applistpage.ApplistPageFragment
 import net.feheren_fekete.applist.applistpage.ApplistPagePageFragment
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPickerFragment
+import net.feheren_fekete.applist.iap.DonutFragment
 import net.feheren_fekete.applist.launcher.LauncherFragment
 import net.feheren_fekete.applist.launcher.pageeditor.PageEditorFragment
 import net.feheren_fekete.applist.launcher.pagepicker.PagePickerFragment
@@ -99,6 +100,12 @@ class MainActivity : AppCompatActivity() {
 
     @Suppress("UNUSED_PARAMETER", "unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onShowDonutPageEvent(event: ApplistPageFragment.ShowDonutPageEvent) {
+        showDonutPageFragment()
+    }
+
+    @Suppress("UNUSED_PARAMETER", "unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onShowIconPickerEvent(event: ApplistPagePageFragment.ShowIconPickerEvent) {
         showIconPackPickerFragment(
                 event.applistItemId,
@@ -162,6 +169,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER", "unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onDonutPageDoneEvent(event: DonutFragment.DoneEvent) {
+        showLauncherFragment(-1)
+    }
+
     private fun handleIntent(intent: Intent?) {
         var handled: Boolean
         if (intent != null) {
@@ -222,6 +235,13 @@ class MainActivity : AppCompatActivity() {
                                 iconPath,
                                 customIconPath))
                 .commit()
+    }
+
+    private fun showDonutPageFragment() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.main_activity_fragment_container, DonutFragment())
+            .commit()
     }
 
     companion object {

@@ -138,6 +138,10 @@
     <string name="settings_show_notification_badge_dialog_message">Make sure Notification access is enabled for Apper in the System Settings.</string>
     <string name="settings_open_system_settings">Open settings</string>
 
+    <string name="donut_page_title">Apper is free</string>
+    <string name="donut_page_message">It has no ads and no locked-down features.\n\nYou may support its development if you wish.</string>
+    <string name="donut_page_close">Close</string>
+
     <string name="color_theme_transparent_light">Transparent Light</string>
     <string name="color_theme_transparent_dark">Transparent Dark</string>
     <string name="color_theme_black">Black</string>

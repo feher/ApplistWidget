@@ -33,6 +33,7 @@ import java.util.*
 class ApplistPageFragment : Fragment() {
 
     class ShowPageEditorEvent
+    class ShowDonutPageEvent
 
     private val settingsUtils: SettingsUtils by inject()
     private val launcherUtils: LauncherUtils by inject()
@@ -243,6 +244,11 @@ class ApplistPageFragment : Fragment() {
                     // Let the system handle it. It will open the SearchView.
                     isHandled = false
                 }
+                R.id.action_donut -> {
+                    ApplistLog.getInstance().analytics(ApplistLog.SHOW_DONUTS, ApplistLog.OPTIONS_MENU)
+                    showDonuts()
+                    isHandled = true
+                }
             }
         }
 
@@ -296,6 +302,10 @@ class ApplistPageFragment : Fragment() {
     private fun showSettings() {
         val settingsIntent = Intent(context, SettingsActivity::class.java)
         startActivity(settingsIntent)
+    }
+
+    private fun showDonuts() {
+        EventBus.getDefault().post(ShowDonutPageEvent())
     }
 
     private fun hideKeyboardFrom(context: Context, view: View) {
