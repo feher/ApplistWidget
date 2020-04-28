@@ -1,32 +1,20 @@
 package net.feheren_fekete.applist;
 
-import android.os.Bundle;
-import android.util.Log;
-
-import com.crashlytics.android.Crashlytics;
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 import static org.koin.java.KoinJavaComponent.get;
 
-public class ApplistLog {
-
-    private FirebaseAnalytics mFirebaseAnalytics = get(FirebaseAnalytics.class);
+public interface ApplistLog {
 
     public static ApplistLog getInstance() {
         return get(ApplistLog.class);
     }
 
-    public void log(String message, Throwable exception) {
-        Crashlytics.logException(exception);
-    }
+    void log(String message, Throwable exception);
 
-    public void log(Throwable exception) {
-        Crashlytics.logException(exception);
-    }
+    void log(Throwable exception);
 
-    public void d(String tag, String message) {
-        Crashlytics.log(Log.DEBUG, tag, message);
-    }
+    void d(String tag, String message);
+
+    void analytics(String event, String origin);
 
     public static String SHOW_DONUTS = "ShowDonuts";
     public static String SHOW_SETTINGS = "ShowSettings";
@@ -102,10 +90,5 @@ public class ApplistLog {
     public static String APPLIST_PAGE_REPOSITORY = "ApplistPageRepository";
     public static String IAP_REPOSITORY = "IapRespository";
 
-    public void analytics(String event, String origin) {
-        Bundle bundle = new Bundle();
-        bundle.putString("origin", origin);
-        mFirebaseAnalytics.logEvent(event, bundle);
-    }
 
 }

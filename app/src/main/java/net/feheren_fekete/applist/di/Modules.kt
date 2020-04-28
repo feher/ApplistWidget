@@ -4,8 +4,10 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import androidx.room.Room
 import com.google.firebase.analytics.FirebaseAnalytics
+import net.feheren_fekete.applist.ApplistDevLog
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
+import net.feheren_fekete.applist.ApplistProdLog
 import net.feheren_fekete.applist.applistpage.IconPreloadHelper
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
@@ -19,6 +21,7 @@ import net.feheren_fekete.applist.applistpage.shortcutbadge.BadgeUtils
 import net.feheren_fekete.applist.database.ApplistDatabase
 import net.feheren_fekete.applist.database.Migration1to2
 import net.feheren_fekete.applist.database.Migration2to3
+import net.feheren_fekete.applist.iap.IapRepository
 import net.feheren_fekete.applist.launcher.LauncherStateManager
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.launcher.ScreenshotUtils
@@ -52,7 +55,7 @@ val applistModule = module {
     }
     single { get<ApplistDatabase>().applistPageDao() }
     single { get<ApplistDatabase>().pageDao() }
-    single { ApplistLog() }
+    single { ApplistProdLog() as ApplistLog }
     single { ImageUtils() }
     single { FileUtils() }
     single { ScreenUtils() }
