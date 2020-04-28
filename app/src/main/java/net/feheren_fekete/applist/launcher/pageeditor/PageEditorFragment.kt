@@ -148,7 +148,7 @@ class PageEditorFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val useAsPagePicker = arguments!!.getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER)
+        val useAsPagePicker = requireArguments().getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER)
         val pagePreviewSizeMultiplier = if (useAsPagePicker) 0.5f else 0.7f
         adapter = PageEditorAdapter(pagePreviewSizeMultiplier, pageEditorAdapterListener)
         adapter.showMainPageIndicator(!useAsPagePicker)
@@ -159,14 +159,14 @@ class PageEditorFragment : Fragment() {
             adapter.setPages(it)
         })
 
-        requestData = arguments!!.getBundle(FRAGMENT_ARG_REQUEST_DATA)!!
+        requestData = requireArguments().getBundle(FRAGMENT_ARG_REQUEST_DATA)!!
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.launcher_page_editor_fragment, container, false)
 
-        if (arguments!!.getBoolean(FRAGMENT_ARG_ADD_PADDING)) {
+        if (requireArguments().getBoolean(FRAGMENT_ARG_ADD_PADDING)) {
             // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
             val topPadding = screenUtils.getStatusBarHeight(context)
             // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
@@ -180,7 +180,7 @@ class PageEditorFragment : Fragment() {
         maxDragScroll = Math.round(screenUtils.dpToPx(context, 3f))
         dragScrollThreshold = Math.round(screenUtils.dpToPx(context, 100f))
 
-        val useAsPagePicker = arguments!!.getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER)
+        val useAsPagePicker = requireArguments().getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER)
         val pagePreviewSizeMultiplier = if (useAsPagePicker) 0.5f else 0.7f
         if (!useAsPagePicker) {
             val helper = PagerSnapHelper()
@@ -236,7 +236,7 @@ class PageEditorFragment : Fragment() {
     private fun ensureReadWallpaperPermission() {
         val a = activity ?: return
         if (ContextCompat.checkSelfPermission(a, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity!!, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 ApplistDialogs.messageDialog(
                         a,
                         a.getString(R.string.launcher_page_editor_permission_title),
@@ -268,10 +268,11 @@ class PageEditorFragment : Fragment() {
     }
 
     private fun removePage(position: Int) {
+        val c = context ?: return
         val pageData = adapter.getItem(position)
         val pageId = pageData.id
-        val screenshotPath = screenshotUtils.createScreenshotPath(context, pageId)
-        val alertDialog = AlertDialog.Builder(context!!)
+        val screenshotPath = screenshotUtils.createScreenshotPath(c, pageId)
+        val alertDialog = AlertDialog.Builder(c)
                 .setTitle(R.string.launcher_page_editor_remove_dialog_title)
                 .setMessage(R.string.launcher_page_editor_remove_dialog_message)
                 .setPositiveButton(R.string.yes) { _, _ ->
