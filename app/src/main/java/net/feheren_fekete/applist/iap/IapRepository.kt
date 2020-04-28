@@ -6,8 +6,10 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
-import kotlinx.android.synthetic.main.donut_fragment.view.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.R
 
@@ -17,8 +19,12 @@ class IapRepository(
 ) : PurchasesUpdatedListener {
 
     private val billingClient: BillingClient =
-        BillingClient.newBuilder(context).setListener(this).build()
+        BillingClient.newBuilder(context)
+            .enablePendingPurchases()
+            .setListener(this)
+            .build()
 
+    private var isInitializing = false
     private val skuDetailsList = ArrayList<SkuDetails>()
     private val productsLiveData = ProductsLiveData()
     private val purchasedProductLiveData = MutableLiveData<IapProduct>()
@@ -82,6 +88,7 @@ class IapRepository(
     fun purchaseProduct(activity: Activity, product: IapProduct) {
         if (!billingClient.isReady) {
             applistLog.log(RuntimeException("Billing client is not ready"))
+            initBillingClient()
             return
         }
         val skuDetails = getSkuDetails(product.productId)
@@ -112,11 +119,18 @@ class IapRepository(
     }
 
     private fun initBillingClient() {
+        if (isInitializing) {
+            return
+        }
+        isInitializing = true
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
+                isInitializing = false
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     queryAndHandlePurchases()
                     queryProducts()
+                } else {
+                    logIfError("Cannot init billing client", billingResult)
                 }
             }
 
@@ -129,7 +143,11 @@ class IapRepository(
 
     private fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            acknowledgePurchase(purchase)
+            if (!purchase.isAcknowledged) {
+                acknowledgePurchase(purchase)
+            } else {
+                consumePurchase(purchase)
+            }
         } else {
             applistLog.log(
                 RuntimeException("Unhandled purchase state: ${purchase.purchaseState}")
@@ -138,14 +156,12 @@ class IapRepository(
     }
 
     private fun acknowledgePurchase(purchase: Purchase) {
-        if (purchase.isAcknowledged) {
-            return
-        }
         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
             .setPurchaseToken(purchase.purchaseToken)
-        GlobalScope.launch(Dispatchers.IO) {
-            val ackPurchaseResult =
+        GlobalScope.launch(Dispatchers.Main) {
+            val ackPurchaseResult = async(Dispatchers.IO) {
                 billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+            }.await()
             if (ackPurchaseResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 getProduct(purchase.sku)?.let {
                     purchasedProductLiveData.postValue(it)
@@ -184,7 +200,7 @@ class IapRepository(
 
     private fun logIfError(message: String, billingResult: BillingResult) {
         if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
-            applistLog.log(RuntimeException("$message: ${billingResult.responseCode} ${billingResult.debugMessage}"))
+            applistLog.log(RuntimeException("$message: code ${billingResult.responseCode}, ${billingResult.debugMessage}"))
         }
     }
 

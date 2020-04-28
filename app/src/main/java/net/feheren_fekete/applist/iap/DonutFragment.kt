@@ -41,23 +41,21 @@ class DonutFragment: Fragment() {
                 view.giveOneDonut.text = getString(R.string.donut_page_donut, products[0].price)
                 view.giveOneDonut.setOnClickListener { purchaseDonut(products[0]) }
                 view.giveTwoDonuts.text = getString(R.string.donut_page_donut, products[1].price)
-                view.giveOneDonut.setOnClickListener { purchaseDonut(products[1]) }
+                view.giveTwoDonuts.setOnClickListener { purchaseDonut(products[1]) }
                 view.giveThreeDonuts.text = getString(R.string.donut_page_donut, products[2].price)
-                view.giveOneDonut.setOnClickListener { purchaseDonut(products[2]) }
+                view.giveThreeDonuts.setOnClickListener { purchaseDonut(products[2]) }
             }
         })
         viewModel.purchasedProduct().observe(viewLifecycleOwner, Observer {
             if (it == null) {
                 return@Observer
             }
-            Toast.makeText(context, "You bought ${it.productId}", Toast.LENGTH_LONG).show()
         })
     }
 
     private fun purchaseDonut(donut: IapProduct) {
         val a = activity ?: return
-        val testDonut = IapProduct("android.test.purchased", "1 ajuro", "juerel")
-        viewModel.purchaseProduct(a, testDonut)
+        viewModel.purchaseProduct(a, donut)
     }
 
 }
