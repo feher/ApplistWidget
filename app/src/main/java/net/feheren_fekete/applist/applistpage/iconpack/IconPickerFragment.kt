@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.iconpack_picker_fragment.*
 import kotlinx.android.synthetic.main.iconpack_picker_fragment.view.*
+import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
@@ -37,6 +38,7 @@ class IconPickerFragment : Fragment() {
 
     private val iconPackHelper: IconPackHelper by inject()
     private val applistPreferences: ApplistPreferences by inject()
+    private val applistLog: ApplistLog by inject()
 
     private lateinit var viewModel: IconPickerViewModel
     private lateinit var iconPacksAdapter: IconPacksAdapter
@@ -134,6 +136,7 @@ class IconPickerFragment : Fragment() {
 
         view.setFab.visibility = View.GONE
         view.setFab.setOnClickListener {
+            applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.SET_APP_ICON)
             setAppIcon(iconsAdapter.selectedIcon)
         }
 
@@ -198,6 +201,9 @@ class IconPickerFragment : Fragment() {
                 if (newText.isNullOrEmpty()) {
                     iconsAdapter.setFilterText(null)
                 } else {
+                    if (!iconsAdapter.isFiltered()) {
+                        applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.SEARCH_APP_ICON)
+                    }
                     iconsAdapter.setFilterText(newText)
                 }
                 return true
@@ -217,6 +223,7 @@ class IconPickerFragment : Fragment() {
                     android.R.string.dialog_alert_title,
                     R.string.iconpack_picker_reset_warning,
                     onOk = {
+                        applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.RESET_APP_ICON)
                         viewModel.resetOriginalIcon(
                             requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
                             requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!
@@ -233,6 +240,7 @@ class IconPickerFragment : Fragment() {
                     android.R.string.dialog_alert_title,
                     R.string.iconpack_picker_reset_all_warning,
                     onOk = {
+                        applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.RESET_ALL_APP_ICONS)
                         viewModel.resetAllIcons()
                         EventBus.getDefault().post(DoneEvent())
                     },
@@ -246,6 +254,7 @@ class IconPickerFragment : Fragment() {
                     android.R.string.dialog_alert_title,
                     R.string.iconpack_picker_apply_all_warning,
                     onOk = {
+                        applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.SET_ALL_APP_ICONS)
                         val fullPackageName = iconPackHelper.createFullPackageName(iconsAdapter.iconPackPackageName)
                         applistPreferences.iconPackPackageName = fullPackageName
                         viewModel.applyIconPack(fullPackageName)

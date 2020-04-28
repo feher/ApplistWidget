@@ -44,10 +44,11 @@ public class ApplistLog {
     public static String RENAME_APP = "RenameApp";
     public static String MOVE_APP_TO_SECTION = "MoveAppToSection";
     public static String CHANGE_APP_ICON = "ChangeAppIcon";
-    public static String APPLY_ICON_PACK = "ApplyIconPack";
-    public static String APPLY_ICON_PACK_ICON = "ApplyIconPackIcon";
-    public static String APPLY_RESET_ALL_ICONS = "ResetAllIcons";
-    public static String APPLY_RESET_ICON = "ResetIcon";
+    public static String SET_ALL_APP_ICONS = "SetAllAppIcons";
+    public static String SET_APP_ICON = "SetAppIcon";
+    public static String RESET_ALL_APP_ICONS = "ResetAllAppIcons";
+    public static String RESET_APP_ICON = "ResetAppIcon";
+    public static String SEARCH_APP_ICON = "SearchAppIcon";
     public static String RENAME_SECTION = "RenameSection";
     public static String DELETE_SECTION = "DeleteSection";
     public static String SORT_SECTION = "SortSection";

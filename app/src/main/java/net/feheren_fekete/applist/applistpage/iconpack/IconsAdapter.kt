@@ -56,6 +56,8 @@ class IconsAdapter(
 
     fun getItem(position: Int) = filteredItems[position].icon
 
+    fun isFiltered() = filterText != null
+
     fun setFilterText(filter: String?) {
         filterText = filter
         updateFilteredItems()
