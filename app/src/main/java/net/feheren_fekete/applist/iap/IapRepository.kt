@@ -2,14 +2,17 @@ package net.feheren_fekete.applist.iap
 
 import android.app.Activity
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
+import kotlinx.android.synthetic.main.donut_fragment.view.*
 import kotlinx.coroutines.*
 import net.feheren_fekete.applist.ApplistLog
+import net.feheren_fekete.applist.R
 
 class IapRepository(
-    context: Context,
+    private val context: Context,
     private val applistLog: ApplistLog
 ) : PurchasesUpdatedListener {
 
@@ -126,26 +129,46 @@ class IapRepository(
 
     private fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            // Acknowledge the purchase if it hasn't already been acknowledged.
-            if (!purchase.isAcknowledged) {
-                val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-                    .setPurchaseToken(purchase.purchaseToken)
-                GlobalScope.launch(Dispatchers.IO) {
-                    val ackPurchaseResult =
-                        billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
-                    if (ackPurchaseResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                        getProduct(purchase.sku)?.let {
-                            purchasedProductLiveData.postValue(it)
-                        }
-                    } else {
-                        logIfError("Unhandled purchase ack result", ackPurchaseResult)
-                    }
-                }
-            }
+            acknowledgePurchase(purchase)
         } else {
             applistLog.log(
                 RuntimeException("Unhandled purchase state: ${purchase.purchaseState}")
             )
+        }
+    }
+
+    private fun acknowledgePurchase(purchase: Purchase) {
+        if (purchase.isAcknowledged) {
+            return
+        }
+        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+            .setPurchaseToken(purchase.purchaseToken)
+        GlobalScope.launch(Dispatchers.IO) {
+            val ackPurchaseResult =
+                billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+            if (ackPurchaseResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                getProduct(purchase.sku)?.let {
+                    purchasedProductLiveData.postValue(it)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.donut_page_purchase_thanks, it.price),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                consumePurchase(purchase)
+            } else {
+                logIfError("Unhandled purchase ack result", ackPurchaseResult)
+            }
+        }
+    }
+
+    private fun consumePurchase(purchase: Purchase) {
+        val consumeParams =
+            ConsumeParams.newBuilder()
+                .setPurchaseToken(purchase.purchaseToken)
+                .build()
+        billingClient.consumeAsync(consumeParams) { billingResult, _ ->
+            logIfError("Cannot consume purchase", billingResult)
         }
     }
 

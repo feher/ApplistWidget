@@ -21,6 +21,7 @@ import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.viewmodel.ApplistViewModel
 import net.feheren_fekete.applist.applistpage.viewmodel.PageItem
+import net.feheren_fekete.applist.iap.IapRepository
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.settings.SettingsActivity
 import net.feheren_fekete.applist.settings.SettingsUtils
@@ -38,6 +39,7 @@ class ApplistPageFragment : Fragment() {
     private val settingsUtils: SettingsUtils by inject()
     private val launcherUtils: LauncherUtils by inject()
     private val applistPreferences: ApplistPreferences by inject()
+    private val iapRepository: IapRepository by inject()
 
     private lateinit var viewModel: ApplistViewModel
     private lateinit var toolbarGradient: Drawable
@@ -129,6 +131,8 @@ class ApplistPageFragment : Fragment() {
         super.onResume()
 
         EventBus.getDefault().register(this)
+
+        iapRepository.queryAndHandlePurchases()
 
         context?.let {
             packageStateReceiver.onReceive(it, null)

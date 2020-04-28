@@ -43,11 +43,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:background="@android:color/transparent"
-        android:text="Support with &#9733; 1 Eur"
+        android:text="@string/donut_page_donut"
         android:textColor="@android:color/holo_green_light"
-        app:layout_constraintTop_toBottomOf="@id/donutMessage"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/donutMessage"
+        tools:text="Support with &#9733; 1 Eur" />
 
     <Button
         android:id="@+id/giveTwoDonuts"
@@ -55,11 +56,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@android:color/transparent"
-        android:text="Support with &#9733; 2 Eur"
+        android:text="@string/donut_page_donut"
         android:textColor="@android:color/holo_green_light"
-        app:layout_constraintTop_toBottomOf="@id/giveOneDonut"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/giveOneDonut"
+        tools:text="Support with &#9733; 2 Eur" />
 
     <Button
         android:id="@+id/giveThreeDonuts"
@@ -67,11 +69,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@android:color/transparent"
-        android:text="Support with &#9733; 3 Eur"
+        android:text="@string/donut_page_donut"
         android:textColor="@android:color/holo_green_light"
-        app:layout_constraintTop_toBottomOf="@id/giveTwoDonuts"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/giveTwoDonuts"
+        tools:text="Support with &#9733; 3 Eur" />
 
     <Button
         android:id="@+id/closeButton"
@@ -87,17 +90,17 @@
         app:layout_constraintRight_toRightOf="parent" />
 
 
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/recyclerView"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:layout_marginTop="30dp"-->
-<!--        android:layout_marginBottom="15dp"-->
-<!--        android:clipChildren="false"-->
-<!--        android:clipToPadding="false"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/closeButton"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/donutMessage" />-->
+    <!--    <androidx.recyclerview.widget.RecyclerView-->
+    <!--        android:id="@+id/recyclerView"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:layout_marginTop="30dp"-->
+    <!--        android:layout_marginBottom="15dp"-->
+    <!--        android:clipChildren="false"-->
+    <!--        android:clipToPadding="false"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/closeButton"-->
+    <!--        app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--        app:layout_constraintRight_toRightOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/donutMessage" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
