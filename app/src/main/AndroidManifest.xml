@@ -79,6 +79,16 @@
         </activity>
 
         <activity
+            android:name="net.feheren_fekete.applist.launcher.pageeditor.PageEditorActivity"
+            android:parentActivityName=".MainActivity"
+            />
+
+        <activity
+            android:name="net.feheren_fekete.applist.launcher.pagepicker.PagePickerActivity"
+            android:parentActivityName=".MainActivity"
+            />
+
+        <activity
             android:name="net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerActivity"
             android:parentActivityName=".MainActivity"
             />

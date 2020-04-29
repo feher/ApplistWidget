@@ -6,17 +6,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
-import net.feheren_fekete.applist.applistpage.ApplistPageFragment
 import net.feheren_fekete.applist.applistpage.ApplistPagePageFragment
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.applistpage.iconpack.IconPickerFragment
 import net.feheren_fekete.applist.launcher.LauncherFragment
-import net.feheren_fekete.applist.launcher.pageeditor.PageEditorFragment
-import net.feheren_fekete.applist.launcher.pagepicker.PagePickerFragment
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.WriteSettingsPermissionHelper
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
-import net.feheren_fekete.applist.widgetpage.WidgetPageFragment
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -118,50 +114,6 @@ class MainActivity : AppCompatActivity() {
         showLauncherFragment(-1)
     }
 
-    @Suppress("UNUSED_PARAMETER", "unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onShowPageEditorEvent(event: WidgetPageFragment.ShowPageEditorEvent) {
-        showPageEditorFragment()
-    }
-
-    @Suppress("UNUSED_PARAMETER", "unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onShowPageEditorEvent(event: ApplistPageFragment.ShowPageEditorEvent) {
-        showPageEditorFragment()
-    }
-
-    @Suppress("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onShowPagePickerEvent(event: WidgetHelper.ShowPagePickerEvent) {
-        showPagePickerFragment(
-                resources.getString(R.string.page_picker_pin_widget_title),
-                resources.getString(R.string.page_picker_message),
-                event.data)
-    }
-
-    @Suppress("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onShowPagePickerEvent(event: WidgetPageFragment.ShowPagePickerEvent) {
-        showPagePickerFragment(
-                resources.getString(R.string.page_picker_move_widget_title),
-                resources.getString(R.string.page_picker_message),
-                event.data)
-    }
-
-    @Suppress("UNUSED_PARAMETER", "unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onPageEditorDoneEvent(event: PageEditorFragment.DoneEvent) {
-        showLauncherFragment(-1)
-    }
-
-    @Suppress("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onPageEditorPageTappedEvent(event: PageEditorFragment.PageTappedEvent) {
-        if (widgetHelper.handlePagePicked(this, event.pageData, event.requestData)) {
-            showLauncherFragment(event.pageData.id)
-        }
-    }
-
     private fun handleIntent(intent: Intent?) {
         var handled: Boolean
         if (intent != null) {
@@ -185,24 +137,6 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.main_activity_fragment_container, LauncherFragment.newInstance(activePageId))
-                .commit()
-    }
-
-    private fun showPageEditorFragment() {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.main_activity_fragment_container,
-                        PageEditorFragment.newInstance(true, false, Bundle()))
-                .commit()
-    }
-
-    private fun showPagePickerFragment(title: String,
-                                       message: String,
-                                       data: Bundle) {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.main_activity_fragment_container,
-                        PagePickerFragment.newInstance(title, message, data))
                 .commit()
     }
 

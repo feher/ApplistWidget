@@ -18,13 +18,12 @@ import android.widget.Toast;
 
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
+import net.feheren_fekete.applist.launcher.pagepicker.PagePickerActivity;
 import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData;
 import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
 import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerActivity;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -91,7 +90,18 @@ public class WidgetHelper {
         Bundle data = new Bundle();
         data.putInt(PAGE_PICK_REQUEST_KEY, PICK_PAGE_FOR_PINNING_WIDGET_REQUEST);
         data.putParcelable(APP_WIDGET_PROVIDER_INFO_KEY, mPinnedAppWidgetProviderInfo);
-        EventBus.getDefault().post(new ShowPagePickerEvent(data));
+
+        Intent pagePickerIntent = new Intent(activity, PagePickerActivity.class);
+        pagePickerIntent.putExtra(
+                PagePickerActivity.EXTRA_TITLE,
+                activity.getString(R.string.page_picker_pin_widget_title));
+        pagePickerIntent.putExtra(
+                PagePickerActivity.EXTRA_MESSAGE,
+                activity.getString(R.string.page_picker_message));
+        pagePickerIntent.putExtra(
+                PagePickerActivity.EXTRA_REQUEST_DATA,
+                data);
+        activity.startActivity(pagePickerIntent);
     }
 
     public boolean handlePagePicked(Context context,

@@ -18,13 +18,19 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+
 import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.LauncherUtils;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
+import net.feheren_fekete.applist.launcher.pageeditor.PageEditorActivity;
+import net.feheren_fekete.applist.launcher.pagepicker.PagePickerActivity;
+import net.feheren_fekete.applist.utils.ScreenUtils;
 import net.feheren_fekete.applist.widgetpage.model.WidgetData;
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel;
-import net.feheren_fekete.applist.utils.ScreenUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -34,9 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
 import bolts.Task;
 
 import static org.koin.java.KoinJavaComponent.get;
@@ -49,15 +52,8 @@ public class WidgetPageFragment extends Fragment {
     private static final int LEFT_BORDER = 1 << 2;
     private static final int RIGHT_BORDER = 1 << 3;
 
-    public static final class ShowPageEditorEvent {}
     public static final class WidgetMoveStartedEvent {}
     public static final class WidgetMoveFinishedEvent {}
-    public static final class ShowPagePickerEvent {
-        public final Bundle data;
-        public ShowPagePickerEvent(Bundle data) {
-            this.data = data;
-        }
-    }
 
     private static final class WidgetItem {
         public WidgetData widgetData;
@@ -243,7 +239,8 @@ public class WidgetPageFragment extends Fragment {
     }
 
     private void showPageEditor() {
-        EventBus.getDefault().post(new ShowPageEditorEvent());
+        Intent intent = new Intent(requireContext(), PageEditorActivity.class);
+        startActivity(intent);
     }
 
     private boolean haveWidgetsChangedInModel() {
@@ -346,13 +343,29 @@ public class WidgetPageFragment extends Fragment {
     }
 
     private void moveWidgetToOtherPage(WidgetItem widgetItem) {
+        Context c = getContext();
+        if (c == null) {
+            return;
+        }
+
         AppWidgetProviderInfo appWidgetProviderInfo = mAppWidgetManager.getAppWidgetInfo(
                 widgetItem.widgetData.getAppWidgetId());
         Bundle data = new Bundle();
         data.putInt(WidgetHelper.PAGE_PICK_REQUEST_KEY, WidgetHelper.PICK_PAGE_FOR_MOVING_WIDGET_REQUEST);
         data.putParcelable(WidgetHelper.WIDGET_DATA_KEY, widgetItem.widgetData);
         data.putParcelable(WidgetHelper.APP_WIDGET_PROVIDER_INFO_KEY, appWidgetProviderInfo);
-        EventBus.getDefault().post(new ShowPagePickerEvent(data));
+
+        Intent pagePickerIntent = new Intent(c, PagePickerActivity.class);
+        pagePickerIntent.putExtra(
+                PagePickerActivity.EXTRA_TITLE,
+                c.getString(R.string.page_picker_move_widget_title));
+        pagePickerIntent.putExtra(
+                PagePickerActivity.EXTRA_MESSAGE,
+                c.getString(R.string.page_picker_message));
+        pagePickerIntent.putExtra(
+                PagePickerActivity.EXTRA_REQUEST_DATA,
+                data);
+        startActivity(pagePickerIntent);
     }
 
     private void bringWidgetToTop(final WidgetItem widgetItem) {

@@ -24,6 +24,7 @@ import net.feheren_fekete.applist.applistpage.viewmodel.PageItem
 import net.feheren_fekete.applist.iap.DonutActivity
 import net.feheren_fekete.applist.iap.IapRepository
 import net.feheren_fekete.applist.launcher.LauncherUtils
+import net.feheren_fekete.applist.launcher.pageeditor.PageEditorActivity
 import net.feheren_fekete.applist.settings.SettingsActivity
 import net.feheren_fekete.applist.settings.SettingsUtils
 import org.greenrobot.eventbus.EventBus
@@ -33,9 +34,6 @@ import org.koin.android.ext.android.inject
 import java.util.*
 
 class ApplistPageFragment : Fragment() {
-
-    class ShowPageEditorEvent
-    class ShowDonutPageEvent
 
     private val settingsUtils: SettingsUtils by inject()
     private val launcherUtils: LauncherUtils by inject()
@@ -301,17 +299,18 @@ class ApplistPageFragment : Fragment() {
     }
 
     private fun showPageEditor() {
-        EventBus.getDefault().post(ShowPageEditorEvent())
+        val intent = Intent(context, PageEditorActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showSettings() {
-        val settingsIntent = Intent(context, SettingsActivity::class.java)
-        startActivity(settingsIntent)
+        val intent = Intent(context, SettingsActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showDonuts() {
-        val donutIntent = Intent(context, DonutActivity::class.java)
-        startActivity(donutIntent)
+        val intent = Intent(context, DonutActivity::class.java)
+        startActivity(intent)
     }
 
     private fun hideKeyboardFrom(context: Context, view: View) {

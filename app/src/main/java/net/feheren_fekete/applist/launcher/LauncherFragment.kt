@@ -118,9 +118,9 @@ class LauncherFragment : Fragment() {
             handleHomeButtonPress()
         }
 
-        val pageId = arguments!!.getLong(FRAGMENT_ARG_SCROLL_TO_PAGE_ID, -1)
+        val pageId = requireArguments().getLong(FRAGMENT_ARG_SCROLL_TO_PAGE_ID, -1)
         if (pageId != -1L) {
-            arguments!!.remove(FRAGMENT_ARG_SCROLL_TO_PAGE_ID)
+            requireArguments().remove(FRAGMENT_ARG_SCROLL_TO_PAGE_ID)
             scrollToRequestedPage(pageId)
         }
 
