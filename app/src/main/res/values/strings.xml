@@ -141,7 +141,6 @@
 
     <string name="donut_page_title">Apper is free</string>
     <string name="donut_page_message">It has no ads and no locked-down features.\n\nYou may support its development if you wish.</string>
-    <string name="donut_page_close">Close</string>
     <string name="donut_page_donut">Support with &#9733; %1$s</string>
     <string name="donut_page_purchase_thanks">Thank you for supporting with %1$s</string>
 

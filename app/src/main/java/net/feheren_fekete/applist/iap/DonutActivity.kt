@@ -28,10 +28,6 @@ class DonutActivity: AppCompatActivity() {
             } else 0
         donutActivityRoot.setPadding(0, topPadding, 0, bottomPadding)
 
-        closeButton.setOnClickListener {
-            finish()
-        }
-
         viewModel = ViewModelProvider(this).get(DonutViewModel::class.java)
         viewModel.products().observe(this, Observer { products ->
             if (products == null) {
