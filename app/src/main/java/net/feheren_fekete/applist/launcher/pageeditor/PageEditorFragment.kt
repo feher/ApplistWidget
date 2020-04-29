@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.launcher_page_editor_fragment.*
 import kotlinx.android.synthetic.main.launcher_page_editor_fragment.view.*
+import kotlinx.android.synthetic.main.launcher_page_editor_fragment.view.recyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -47,8 +49,9 @@ class PageEditorFragment : Fragment() {
     private lateinit var viewModel: PageEditorViewModel
     private lateinit var adapter: PageEditorAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
-    private var dragScrollThreshold: Int = 0
-    private var maxDragScroll: Int = 0
+    private var dragScrollThreshold = 0
+    private var maxDragScroll = 0
+    private var shouldScrollToEnd = false
 
     private lateinit var requestData: Bundle
 
@@ -157,6 +160,10 @@ class PageEditorFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(PageEditorViewModel::class.java)
         viewModel.launcherPages.observe(this, Observer {
             adapter.setPages(it)
+            if (shouldScrollToEnd) {
+                shouldScrollToEnd = false
+                recyclerView.smoothScrollToPosition(it.size - 1)
+            }
         })
 
         requestData = requireArguments().getBundle(FRAGMENT_ARG_REQUEST_DATA)!!
@@ -251,6 +258,7 @@ class PageEditorFragment : Fragment() {
     }
 
     private fun addNewPage() {
+        shouldScrollToEnd = true
         viewModel.launcherRepository.addPage(LauncherPageData.TYPE_WIDGET_PAGE)
     }
 
