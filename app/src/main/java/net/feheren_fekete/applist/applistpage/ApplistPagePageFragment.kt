@@ -43,6 +43,7 @@ import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.BuildConfig
 import net.feheren_fekete.applist.R
+import net.feheren_fekete.applist.applistpage.iconpack.IconPickerActivity
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuAdapter
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuItem
 import net.feheren_fekete.applist.applistpage.itemmenu.ItemMenuListener
@@ -61,14 +62,6 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
     class ShowToolbarEvent
     class HideToolbarEvent
-
-    data class ShowIconPickerEvent(
-        val applistItemId: Long,
-        val appName: String,
-        val componentName: ComponentName?,
-        val iconPath: String?,
-        val customIconPath: String
-    )
 
     enum class ItemMenuAction {
         AppInfo,
@@ -1176,31 +1169,24 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         if (!isAttached) {
             return
         }
-        val event = when (startableItem) {
-            is AppItem -> ShowIconPickerEvent(
-                startableItem.id,
-                startableItem.getDisplayName(),
-                ComponentName(startableItem.packageName, startableItem.className),
-                null,
-                startableItem.customIconPath
-            )
-            is AppShortcutItem -> ShowIconPickerEvent(
-                startableItem.id,
-                startableItem.getDisplayName(),
-                null,
-                startableItem.iconPath,
-                startableItem.customIconPath
-            )
-            is ShortcutItem -> ShowIconPickerEvent(
-                startableItem.id,
-                startableItem.getDisplayName(),
-                null,
-                startableItem.iconPath,
-                startableItem.customIconPath
-            )
+        val appItemId = startableItem.id
+        val appName = startableItem.getDisplayName()
+        var componentName: ComponentName? = null
+        var iconPath: String? = null
+        val customIconPath = startableItem.customIconPath
+        when (startableItem) {
+            is AppItem -> componentName = ComponentName(startableItem.packageName, startableItem.className)
+            is AppShortcutItem -> iconPath = startableItem.iconPath
+            is ShortcutItem -> iconPath = startableItem.iconPath
             else -> throw java.lang.IllegalStateException()
         }
-        EventBus.getDefault().post(event)
+        val intent = Intent(requireContext(), IconPickerActivity::class.java)
+        intent.putExtra(IconPickerActivity.EXTRA_APPLIST_ITEM_ID, appItemId)
+        intent.putExtra(IconPickerActivity.EXTRA_APP_NAME, appName)
+        intent.putExtra(IconPickerActivity.EXTRA_APP_COMPONENT_NAME, componentName)
+        intent.putExtra(IconPickerActivity.EXTRA_ICON_PATH, iconPath)
+        intent.putExtra(IconPickerActivity.EXTRA_CUSTOM_ICON_PATH, customIconPath)
+        startActivity(intent)
     }
 
     private fun renameSection(sectionItem: SectionItem) {

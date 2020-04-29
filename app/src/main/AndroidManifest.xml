@@ -94,6 +94,11 @@
             />
 
         <activity
+            android:name="net.feheren_fekete.applist.applistpage.iconpack.IconPickerActivity"
+            android:parentActivityName=".MainActivity"
+            />
+
+        <activity
             android:name="net.feheren_fekete.applist.iap.DonutActivity"
             android:parentActivityName=".MainActivity"
             />

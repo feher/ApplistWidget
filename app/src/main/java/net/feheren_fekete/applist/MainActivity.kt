@@ -1,21 +1,15 @@
 package net.feheren_fekete.applist
 
 import android.appwidget.AppWidgetHost
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
-import net.feheren_fekete.applist.applistpage.ApplistPagePageFragment
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
-import net.feheren_fekete.applist.applistpage.iconpack.IconPickerFragment
 import net.feheren_fekete.applist.launcher.LauncherFragment
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.WriteSettingsPermissionHelper
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
@@ -69,7 +63,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        EventBus.getDefault().register(this)
         if (shouldHandleIntent) {
             shouldHandleIntent = false
             handleIntent(intent)
@@ -79,11 +72,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        EventBus.getDefault().unregister(this)
-    }
-
     override fun onStop() {
         super.onStop()
         appWidgetHost.stopListening()
@@ -91,27 +79,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         // Don't exit on back-press. We are a launcher.
-    }
-
-    @Suppress("UNUSED_PARAMETER", "unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onShowIconPickerEvent(event: ApplistPagePageFragment.ShowIconPickerEvent) {
-        showIconPackPickerFragment(
-                event.applistItemId,
-                event.appName, event.componentName,
-                event.iconPath, event.customIconPath)
-    }
-
-    @Suppress("UNUSED_PARAMETER", "unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onIconPickerDoneEvent(event: IconPickerFragment.DoneEvent) {
-        showLauncherFragment(-1)
-    }
-
-    @Suppress("UNUSED_PARAMETER", "unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onIconPickerCancelEvent(event: IconPickerFragment.CancelEvent) {
-        showLauncherFragment(-1)
     }
 
     private fun handleIntent(intent: Intent?) {
@@ -137,24 +104,6 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.main_activity_fragment_container, LauncherFragment.newInstance(activePageId))
-                .commit()
-    }
-
-    private fun showIconPackPickerFragment(applistItemId: Long,
-                                           appName: String,
-                                           componentName: ComponentName?,
-                                           iconPath: String?,
-                                           customIconPath: String) {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.main_activity_fragment_container,
-                        IconPickerFragment.newInstance(
-                                getString(R.string.iconpack_picker_change_icon),
-                                applistItemId,
-                                appName,
-                                componentName,
-                                iconPath,
-                                customIconPath))
                 .commit()
     }
 
