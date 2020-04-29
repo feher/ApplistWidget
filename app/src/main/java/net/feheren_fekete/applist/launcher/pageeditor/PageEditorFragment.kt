@@ -171,7 +171,7 @@ class PageEditorFragment : Fragment() {
             val topPadding = screenUtils.getStatusBarHeight(context)
             // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
             val bottomPadding = if (screenUtils.hasNavigationBar(context)) screenUtils.getNavigationBarHeight(context) else 0
-            view.layout.setPadding(0, topPadding, 0, bottomPadding)
+            view.pageEditorFragmentLayout.setPadding(0, topPadding, 0, bottomPadding)
         }
 
         view.recyclerView.layoutManager = LinearLayoutManager(view.context, LinearLayoutManager.HORIZONTAL, false)
@@ -190,18 +190,9 @@ class PageEditorFragment : Fragment() {
             view.recyclerView.setPadding(padding, 0, padding, 0)
         }
 
-        view.addPageButton.setOnClickListener {
+        view.addPageFab.setOnClickListener {
             ApplistLog.getInstance().analytics(ApplistLog.ADD_PAGE, ApplistLog.PAGE_EDITOR)
             addNewPage()
-        }
-
-        view.doneButton.setOnClickListener { doneWithEditing() }
-        if (useAsPagePicker) {
-            view.doneButton.setText(R.string.launcher_page_editor_cancel)
-            view.doneButton.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_close, 0, 0)
-        } else {
-            view.doneButton.setText(R.string.launcher_page_editor_done)
-            view.doneButton.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_done, 0, 0)
         }
 
         return view
@@ -297,10 +288,6 @@ class PageEditorFragment : Fragment() {
     private fun handlePageTapped(position: Int) {
         val pageData = adapter.getItem(position)
         EventBus.getDefault().post(PageTappedEvent(requestData, pageData))
-    }
-
-    private fun doneWithEditing() {
-        EventBus.getDefault().post(DoneEvent())
     }
 
     companion object {

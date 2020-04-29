@@ -57,11 +57,11 @@ public class PagePickerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.page_picker_fragment, container, false);
 
-        // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
-        final int topPadding = mScreenUtils.getStatusBarHeight(getContext());
-        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
-        final int bottomPadding = mScreenUtils.hasNavigationBar(getContext()) ? mScreenUtils.getNavigationBarHeight(getContext()) : 0;
-        view.findViewById(R.id.page_picker_fragment_layout).setPadding(0, topPadding, 0, bottomPadding);
+//        // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
+//        final int topPadding = mScreenUtils.getStatusBarHeight(getContext());
+//        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
+//        final int bottomPadding = mScreenUtils.hasNavigationBar(getContext()) ? mScreenUtils.getNavigationBarHeight(getContext()) : 0;
+//        view.findViewById(R.id.page_picker_fragment_layout).setPadding(0, topPadding, 0, bottomPadding);
 
         Toolbar toolbar = view.findViewById(R.id.page_picker_fragment_toolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
