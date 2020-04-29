@@ -21,6 +21,7 @@ import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.viewmodel.ApplistViewModel
 import net.feheren_fekete.applist.applistpage.viewmodel.PageItem
+import net.feheren_fekete.applist.iap.DonutActivity
 import net.feheren_fekete.applist.iap.IapRepository
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.settings.SettingsActivity
@@ -309,7 +310,8 @@ class ApplistPageFragment : Fragment() {
     }
 
     private fun showDonuts() {
-        EventBus.getDefault().post(ShowDonutPageEvent())
+        val donutIntent = Intent(context, DonutActivity::class.java)
+        startActivity(donutIntent)
     }
 
     private fun hideKeyboardFrom(context: Context, view: View) {

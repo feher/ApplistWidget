@@ -83,6 +83,11 @@
             android:parentActivityName=".MainActivity"
             />
 
+        <activity
+            android:name="net.feheren_fekete.applist.iap.DonutActivity"
+            android:parentActivityName=".MainActivity"
+            />
+
         <receiver android:name=".applistpage.shortcutbadge.BadgeReceiver">
             <!-- Samsung, LG, Asus -->
             <intent-filter>
