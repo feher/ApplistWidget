@@ -24,6 +24,8 @@
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="MyThemeTransparentLight" parent="MyThemeBase">
@@ -47,6 +49,8 @@
         <item name="colorPrimary">?attr/primaryColor</item>
         <item name="colorPrimaryDark">?attr/primaryDarkColor</item>
         <item name="colorAccent">?attr/accentColor</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="MyThemeBlack" parent="MyThemeBase">
@@ -221,7 +225,7 @@
         REF: 2017_06_22_12_00_transparent_status_bar_top_padding
         REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
         -->
-        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">true</item>
 
         <item name="windowNoTitle">true</item>
