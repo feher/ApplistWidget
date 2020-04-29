@@ -53,6 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50dp"
                 android:background="@drawable/donut_background"
+                android:foreground="?attr/selectableItemBackground"
                 android:padding="10dp"
                 android:text="@string/donut_page_donut"
                 android:textColor="@android:color/white"
@@ -67,6 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/donut_background"
+                android:foreground="?attr/selectableItemBackground"
                 android:padding="10dp"
                 android:text="@string/donut_page_donut"
                 android:textColor="@android:color/white"
@@ -81,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/donut_background"
+                android:foreground="?attr/selectableItemBackground"
                 android:padding="10dp"
                 android:text="@string/donut_page_donut"
                 android:textColor="@android:color/white"
@@ -88,19 +91,6 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/giveTwoDonuts"
                 tools:text="Support with &#9733; 3 Eur" />
-
-            <!--    <androidx.recyclerview.widget.RecyclerView-->
-            <!--        android:id="@+id/recyclerView"-->
-            <!--        android:layout_width="0dp"-->
-            <!--        android:layout_height="0dp"-->
-            <!--        android:layout_marginTop="30dp"-->
-            <!--        android:layout_marginBottom="15dp"-->
-            <!--        android:clipChildren="false"-->
-            <!--        android:clipToPadding="false"-->
-            <!--        app:layout_constraintBottom_toTopOf="@id/closeButton"-->
-            <!--        app:layout_constraintLeft_toLeftOf="parent"-->
-            <!--        app:layout_constraintRight_toRightOf="parent"-->
-            <!--        app:layout_constraintTop_toBottomOf="@id/donutMessage" />-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
@@ -111,6 +101,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
         android:background="@android:color/transparent"
+        android:foreground="?attr/selectableItemBackground"
         android:drawableTop="@drawable/ic_close"
         android:text="@string/donut_page_close"
         android:textColor="?attr/colorAccent"
