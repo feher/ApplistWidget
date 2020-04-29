@@ -115,4 +115,9 @@
     <string name="iconpack_picker_install_more">Lisää ikonejä</string>
     <string name="cannot_drag_multiple_apps">Vain yksi appi voi raahata</string>
     <string name="action_donut">Tuki</string>
+    <string name="donut_page_donut">Tuki &#9733; %1$s</string>
+    <string name="donut_page_title">Apper on ilmainen</string>
+    <string name="donut_page_purchase_thanks">Kiitos %1$s tuesta</string>
+    <string name="donut_page_message">Ei sisällä mainoksia tai lukittuja ominaisuuksia. Jos haluat, voit tukea sen kehittämistä.</string>
+    <string name="page_picker_moved_widget">Widget on siirretty</string>
 </resources>

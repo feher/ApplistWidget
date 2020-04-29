@@ -115,4 +115,9 @@
     <string name="iconpack_picker_install_more">Több ikoncsomag</string>
     <string name="cannot_drag_multiple_apps">Egyszerre csak egy appot lehet mozgatni</string>
     <string name="action_donut">Támogatás</string>
+    <string name="donut_page_donut">Támogatás &#9733; %1$s</string>
+    <string name="donut_page_title">Apper ingyenes</string>
+    <string name="donut_page_purchase_thanks">Köszönöm a %1$s támogatást</string>
+    <string name="donut_page_message">Mentes a reklámoktól és a zárt tartalmaktól. Ha szeretnéd támogatni a fejlesztését, akkor azt itt teheted.</string>
+    <string name="page_picker_moved_widget">A widget át lett helyezve</string>
 </resources>
