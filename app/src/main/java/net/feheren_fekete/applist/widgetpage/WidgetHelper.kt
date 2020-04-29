@@ -33,10 +33,11 @@ import java.util.*
 class WidgetHelper {
     class ShowPagePickerEvent(val data: Bundle)
 
+    private val applistLog: ApplistLog by inject(ApplistLog::class.java)
     private val widgetModel: WidgetModel by inject(WidgetModel::class.java)
     private val screenUtils: ScreenUtils by inject(ScreenUtils::class.java)
     private val appWidgetManager: AppWidgetManager by inject(AppWidgetManager::class.java)
-    private val appWidgetHost1: AppWidgetHost by inject(AppWidgetHost::class.java)
+    private val appWidgetHost: AppWidgetHost by inject(AppWidgetHost::class.java)
 
     private var activityRef: WeakReference<Activity>? = null
     private var pinnedAppWidgetProviderInfo: AppWidgetProviderInfo? = null
@@ -58,6 +59,10 @@ class WidgetHelper {
             intent.getParcelableExtra<PinItemRequest>(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
         val appWidgetProviderInfo =
             pinItemRequest.getAppWidgetProviderInfo(activity)
+        if (appWidgetProviderInfo == null) {
+            applistLog.log(RuntimeException("AppWidgetProviderInfo is null"))
+            return
+        }
         Log.d(TAG, "PINNING WIDGET " + appWidgetProviderInfo.provider)
         activityRef = WeakReference(activity)
         pinnedAppWidgetProviderInfo = appWidgetProviderInfo
@@ -95,26 +100,23 @@ class WidgetHelper {
     }
 
     private fun pinWidgetToPage(pageData: LauncherPageData): Boolean {
-        var handled = false
-        val activity = activityRef?.get()
-        if (activity != null) {
-            if (pageData.type == LauncherPageData.TYPE_WIDGET_PAGE) {
-                bindWidget(
-                    activity,
-                    appWidgetHost1,
-                    pageData.id,
-                    pinnedAppWidgetProviderInfo!!.provider
-                )
-                handled = true
-            } else {
-                Toast.makeText(
-                    activity,
-                    R.string.page_picker_cannot_add_to_page,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        val activity = activityRef?.get() ?: return false
+        if (pageData.type == LauncherPageData.TYPE_WIDGET_PAGE) {
+            bindWidget(
+                activity,
+                appWidgetHost,
+                pageData.id,
+                pinnedAppWidgetProviderInfo!!.provider
+            )
+            return true
+        } else {
+            Toast.makeText(
+                activity,
+                R.string.page_picker_cannot_add_to_page,
+                Toast.LENGTH_SHORT
+            ).show()
+            return false
         }
-        return handled
     }
 
     private fun moveWidgetToPage(
@@ -124,8 +126,11 @@ class WidgetHelper {
     ): Boolean {
         var handled = false
         if (pageData.type == LauncherPageData.TYPE_WIDGET_PAGE) {
-            val widgetData: WidgetData =
-                pagePickRequestData.getParcelable(WIDGET_DATA_KEY) ?: return false
+            val widgetData: WidgetData? = pagePickRequestData.getParcelable(WIDGET_DATA_KEY)
+            if (widgetData == null) {
+                applistLog.log(RuntimeException("WidgetData is null"))
+                return false
+            }
             if (widgetData.pageId != pageData.id) {
                 widgetData.pageId = pageData.id
                 GlobalScope.launch(Dispatchers.IO) {
@@ -171,7 +176,7 @@ class WidgetHelper {
     fun pickWidget(activity: Activity, destinationPageId: Long) {
         activityRef = WeakReference(activity)
         pageId = destinationPageId
-        allocatedAppWidgetId = appWidgetHost1.allocateAppWidgetId()
+        allocatedAppWidgetId = appWidgetHost.allocateAppWidgetId()
 
 //        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
 //        addEmptyData(pickIntent);
@@ -294,7 +299,7 @@ class WidgetHelper {
     }
 
     private fun cancelPendingWidget(appWidgetId: Int) {
-        appWidgetHost1.deleteAppWidgetId(appWidgetId)
+        appWidgetHost.deleteAppWidgetId(appWidgetId)
         GlobalScope.launch(Dispatchers.IO) {
             widgetModel.deleteWidget(appWidgetId)
         }
