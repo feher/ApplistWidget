@@ -76,8 +76,8 @@ class ColorizeIconPackLoader(
                 vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
                 vec3 hsv = rgb2hsv(textureColor.rgb);
                 hsv.x = parameter;
-                hsv.y = hsv.y; /* * 0.7f; */
-                hsv.z = hsv.z * 0.8f;
+                hsv.y = hsv.y; /* * 0.7; */
+                hsv.z = hsv.z * 0.8;
                 vec3 color = hsv2rgb(hsv);
                 gl_FragColor = vec4(color, textureColor.a);
             }

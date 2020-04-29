@@ -48,13 +48,13 @@ class PixelIconPackLoader(
               vec2 uv  = textureCoordinate.xy;
               float dx = percent;
               float dy = percent;
-              float columnCount = floor(1.0f / dx);
-              float dxExtra = (1.0f - columnCount * dx) / columnCount;
+              float columnCount = floor(1.0 / dx);
+              float dxExtra = (1.0 - columnCount * dx) / columnCount;
               dx += dxExtra;
               dy += dxExtra;
-              float dxh = dx / 2.0f;
-              float dxq = dx / 4.0f;
-              float dx2q = 3.0f * dxq;
+              float dxh = dx / 2.0;
+              float dxq = dx / 4.0;
+              float dx2q = 3.0 * dxq;
 
               vec2 cellCoord = vec2(dx * floor(uv.x / dx), dy * floor(uv.y / dy));
               // Middle
@@ -68,7 +68,7 @@ class PixelIconPackLoader(
               // Left-Bottom
               cellColor += texture2D(inputImageTexture, vec2(cellCoord.x + dxq, cellCoord.y + dx2q)).rgba;
 
-              cellColor /= 5.0f;
+              cellColor /= 5.0;
               gl_FragColor = cellColor;
             }
             """
