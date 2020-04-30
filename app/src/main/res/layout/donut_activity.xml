@@ -93,6 +93,15 @@
                 app:layout_constraintTop_toBottomOf="@id/giveTwoDonuts"
                 tools:text="Support with &#9733; 3 Eur" />
 
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/giveTwoDonuts"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/giveTwoDonuts" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
