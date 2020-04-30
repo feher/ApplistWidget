@@ -66,6 +66,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
+    @NonNull
     public Fragment getItem(int position) {
         Fragment fragment;
         LauncherPageData pageData = mPages.get(position);
@@ -80,7 +81,7 @@ public class LauncherPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
+    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         super.destroyItem(container, position, object);
         mPageFragments.remove(position);
     }
