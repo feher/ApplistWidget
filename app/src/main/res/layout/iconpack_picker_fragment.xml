@@ -114,7 +114,7 @@
                 android:layout_marginTop="30dp"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:paddingBottom="150dp"
+                android:paddingBottom="170dp"
                 android:scrollbarThumbVertical="@android:color/darker_gray"
                 android:scrollbars="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -135,82 +135,78 @@
                 app:layout_constraintRight_toRightOf="@id/iconsRecyclerView"
                 app:layout_constraintTop_toTopOf="@id/iconsRecyclerView" />
 
-            <View
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:background="@drawable/iconpack_picker_iconpacks_background"
-                app:layout_constraintBottom_toBottomOf="@+id/iconPacksRecyclerView"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/iconPacksTextView" />
-
-            <TextView
-                android:id="@+id/iconEffectsTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:background="@drawable/iconpicker_selected_button_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="8dp"
-                android:text="@string/iconpack_picker_icon_effects"
-                android:textAllCaps="true"
-                android:textColor="@android:color/white"
-                app:layout_constraintBottom_toTopOf="@id/iconPackEffectSeekBar"
-                app:layout_constraintLeft_toLeftOf="parent" />
-
-            <TextView
-                android:id="@+id/iconPacksTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:background="@drawable/iconpicker_button_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="8dp"
-                android:text="@string/iconpack_picker_icon_packs"
-                android:textAllCaps="true"
-                android:textColor="@android:color/white"
-                app:layout_constraintBottom_toTopOf="@id/iconPackEffectSeekBar"
-                app:layout_constraintLeft_toRightOf="@id/iconEffectsTextView" />
-
-            <SeekBar
-                android:id="@+id/iconPackEffectSeekBar"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="@android:color/black"
-                android:max="99"
-                android:padding="10dp"
-                app:layout_constraintBottom_toTopOf="@+id/iconPacksRecyclerView"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/iconPacksRecyclerView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:clipToPadding="false"
-                android:paddingRight="70dp"
-                android:paddingBottom="10dp"
-                android:scrollbarThumbVertical="@android:color/darker_gray"
-                android:scrollbars="horizontal"
+                android:paddingTop="4dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/iconpack_item"
-                tools:orientation="horizontal" />
+                app:layout_constraintRight_toRightOf="parent">
 
-            <View
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:background="@drawable/iconpack_picker_fab_background"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
+                <SeekBar
+                    android:id="@+id/iconPackEffectSeekBar"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:max="99"
+                    app:layout_constraintBottom_toTopOf="@+id/iconPacksRecyclerView"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/iconPacksRecyclerView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:clipToPadding="false"
+                    android:paddingRight="70dp"
+                    android:paddingBottom="10dp"
+                    android:scrollbarThumbVertical="@android:color/darker_gray"
+                    android:scrollbars="horizontal"
+                    app:layout_constraintBottom_toTopOf="@id/iconEffectsTextView"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/iconpack_item"
+                    tools:orientation="horizontal" />
+
+                <TextView
+                    android:id="@+id/iconEffectsTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    android:background="@drawable/iconpicker_selected_button_background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:text="@string/iconpack_picker_icon_effects"
+                    android:textAllCaps="true"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent" />
+
+                <TextView
+                    android:id="@+id/iconPacksTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/iconpicker_button_background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:text="@string/iconpack_picker_icon_packs"
+                    android:textAllCaps="true"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/iconEffectsTextView" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -222,7 +218,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="15dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="30dp"
         android:elevation="21dp"
         android:src="@drawable/ic_done"
         android:translationZ="10dp"

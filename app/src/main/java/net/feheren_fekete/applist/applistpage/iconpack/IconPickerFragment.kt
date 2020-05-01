@@ -2,7 +2,6 @@ package net.feheren_fekete.applist.applistpage.iconpack
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.content.ComponentName
 import android.os.Bundle
 import android.os.Handler
@@ -32,7 +31,6 @@ import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
 import java.io.File
-import kotlin.math.roundToInt
 
 class IconPickerFragment : Fragment() {
 
@@ -367,6 +365,45 @@ class IconPickerFragment : Fragment() {
         ApplistDialogs.messageDialog(requireActivity(), "", sb.toString(), {}, {})
     }
 
+    private fun showEffectSeekBar() {
+        if (iconPackEffectSeekBar.visibility == View.VISIBLE && !isEffectSeekBarHiding) {
+            return
+        }
+        isEffectSeekBarHiding = false
+        iconPackEffectSeekBar.visibility = View.VISIBLE
+        iconPackEffectSeekBar.alpha = 0.0f
+        iconPackEffectSeekBar.animate()
+            .alpha(1.0f)
+            .setDuration(300)
+            .setListener(null)
+    }
+
+    private fun hideEffectSeekBar() {
+        if (iconPackEffectSeekBar.visibility == View.GONE) {
+            return
+        }
+        isEffectSeekBarHiding = true
+        iconPackEffectSeekBar.animate()
+            .alpha(0.0f)
+            .setDuration(300)
+            .setListener(object : AnimatorListenerAdapter() {
+                var isCanceled = false
+                override fun onAnimationEnd(animation: Animator?) {
+                    super.onAnimationEnd(animation)
+                    if (!isCanceled) {
+                        iconPackEffectSeekBar.visibility = View.GONE
+                    }
+                    isEffectSeekBarHiding = false
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {
+                    super.onAnimationCancel(animation)
+                    isEffectSeekBarHiding = false
+                    isCanceled = true
+                }
+            })
+    }
+
     private fun showFab() {
         if (setFab.visibility == View.VISIBLE && !isFabHiding) {
             return
@@ -488,56 +525,6 @@ class IconPickerFragment : Fragment() {
             onOk = {},
             onCancel = {}
         )
-    }
-
-    private fun showEffectSeekBar() {
-        if (iconPackEffectSeekBar.visibility == View.VISIBLE && !isEffectSeekBarHiding) {
-            return
-        }
-        isEffectSeekBarHiding = false
-        iconPackEffectSeekBar.visibility = View.VISIBLE
-        val heightAnimator = ValueAnimator.ofInt(
-            iconPackEffectSeekBar.height,
-            screenUtils.dpToPx(40.0f).roundToInt()
-        )
-        heightAnimator.duration = 300
-        heightAnimator.addUpdateListener {
-            val height = it.animatedValue as Int
-            val layoutParams = iconPackEffectSeekBar.layoutParams
-            layoutParams.height = height
-            iconPackEffectSeekBar.layoutParams = layoutParams
-        }
-        heightAnimator.start()
-    }
-
-    private fun hideEffectSeekBar() {
-        if (iconPackEffectSeekBar.visibility == View.GONE) {
-            return
-        }
-        isEffectSeekBarHiding = true
-        val heightAnimator = ValueAnimator.ofInt(
-            iconPackEffectSeekBar.height,
-            0
-        )
-        heightAnimator.duration = 300
-        heightAnimator.addListener(object: AnimatorListenerAdapter() {
-            override fun onAnimationCancel(animation: Animator?) {
-                super.onAnimationCancel(animation)
-                isEffectSeekBarHiding = false
-            }
-
-            override fun onAnimationEnd(animation: Animator?) {
-                super.onAnimationEnd(animation)
-                iconPackEffectSeekBar.visibility = View.GONE
-            }
-        })
-        heightAnimator.addUpdateListener {
-            val height = it.animatedValue as Int
-            val layoutParams = iconPackEffectSeekBar.layoutParams
-            layoutParams.height = height
-            iconPackEffectSeekBar.layoutParams = layoutParams
-        }
-        heightAnimator.start()
     }
 
 }
