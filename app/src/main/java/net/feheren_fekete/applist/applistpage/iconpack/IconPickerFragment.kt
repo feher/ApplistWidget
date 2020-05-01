@@ -2,6 +2,7 @@ package net.feheren_fekete.applist.applistpage.iconpack
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.content.ComponentName
 import android.os.Bundle
 import android.os.Handler
@@ -52,6 +53,7 @@ class IconPickerFragment : Fragment() {
     private var icons: IconPackIconsLiveData? = null
     private val handler = Handler()
     private var isFabHiding = false
+    private var isEffectSeekBarHiding = false
 
     companion object {
         private const val FRAGMENT_ARG_TITLE = "title"
@@ -152,7 +154,7 @@ class IconPickerFragment : Fragment() {
             iconPacksAdapter.setFilter(IconPacksAdapter.Filter.IconPack)
             view.iconPacksTextView.setBackgroundResource(R.drawable.iconpicker_selected_button_background)
             view.iconEffectsTextView.setBackgroundResource(R.drawable.iconpicker_button_background)
-            view.iconPackEffectSeekBar.visibility = View.GONE
+            hideEffectSeekBar()
         }
 
         view.setFab.visibility = View.GONE
@@ -325,11 +327,11 @@ class IconPickerFragment : Fragment() {
         icons?.observe(viewLifecycleOwner, iconsObserver)
 
         if (iconPackHelper.isEditable(iconPackPackageName)) {
-            iconPackEffectSeekBar.visibility = View.VISIBLE
+            showEffectSeekBar()
             iconPackEffectSeekBar.progress =
                 iconPackHelper.getEditableParameter(iconPackPackageName)
         } else {
-            iconPackEffectSeekBar.visibility = View.GONE
+            hideEffectSeekBar()
         }
     }
 
@@ -485,6 +487,56 @@ class IconPickerFragment : Fragment() {
             onOk = {},
             onCancel = {}
         )
+    }
+
+    private fun showEffectSeekBar() {
+        if (iconPackEffectSeekBar.visibility == View.VISIBLE && !isEffectSeekBarHiding) {
+            return
+        }
+        isEffectSeekBarHiding = false
+        iconPackEffectSeekBar.visibility = View.VISIBLE
+        val heightAnimator = ValueAnimator.ofInt(
+            iconPackEffectSeekBar.height,
+            screenUtils.dpToPx(40.0f).roundToInt()
+        )
+        heightAnimator.duration = 300
+        heightAnimator.addUpdateListener {
+            val height = it.animatedValue as Int
+            val layoutParams = iconPackEffectSeekBar.layoutParams
+            layoutParams.height = height
+            iconPackEffectSeekBar.layoutParams = layoutParams
+        }
+        heightAnimator.start()
+    }
+
+    private fun hideEffectSeekBar() {
+        if (iconPackEffectSeekBar.visibility == View.GONE) {
+            return
+        }
+        isEffectSeekBarHiding = true
+        val heightAnimator = ValueAnimator.ofInt(
+            iconPackEffectSeekBar.height,
+            0
+        )
+        heightAnimator.duration = 300
+        heightAnimator.addListener(object: AnimatorListenerAdapter() {
+            override fun onAnimationCancel(animation: Animator?) {
+                super.onAnimationCancel(animation)
+                isEffectSeekBarHiding = false
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                super.onAnimationEnd(animation)
+                iconPackEffectSeekBar.visibility = View.GONE
+            }
+        })
+        heightAnimator.addUpdateListener {
+            val height = it.animatedValue as Int
+            val layoutParams = iconPackEffectSeekBar.layoutParams
+            layoutParams.height = height
+            iconPackEffectSeekBar.layoutParams = layoutParams
+        }
+        heightAnimator.start()
     }
 
 }
