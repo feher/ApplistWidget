@@ -210,7 +210,10 @@ class IconPickerFragment : Fragment() {
                     iconsAdapter.setFilterText(null)
                 } else {
                     if (!iconsAdapter.isFiltered()) {
-                        applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.SEARCH_APP_ICON)
+                        applistLog.analytics(
+                            ApplistLog.ICON_PACK_PICKER,
+                            ApplistLog.SEARCH_APP_ICON
+                        )
                     }
                     iconsAdapter.setFilterText(newText)
                 }
@@ -248,7 +251,10 @@ class IconPickerFragment : Fragment() {
                     android.R.string.dialog_alert_title,
                     R.string.iconpack_picker_reset_all_warning,
                     onOk = {
-                        applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.RESET_ALL_APP_ICONS)
+                        applistLog.analytics(
+                            ApplistLog.ICON_PACK_PICKER,
+                            ApplistLog.RESET_ALL_APP_ICONS
+                        )
                         viewModel.resetAllIcons()
                         EventBus.getDefault().post(DoneEvent())
                     },
@@ -262,8 +268,12 @@ class IconPickerFragment : Fragment() {
                     android.R.string.dialog_alert_title,
                     R.string.iconpack_picker_apply_all_warning,
                     onOk = {
-                        applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.SET_ALL_APP_ICONS)
-                        val fullPackageName = iconPackHelper.createFullPackageName(iconsAdapter.iconPackPackageName)
+                        applistLog.analytics(
+                            ApplistLog.ICON_PACK_PICKER,
+                            ApplistLog.SET_ALL_APP_ICONS
+                        )
+                        val fullPackageName =
+                            iconPackHelper.createFullPackageName(iconsAdapter.iconPackPackageName)
                         applistPreferences.iconPackPackageName = fullPackageName
                         viewModel.applyIconPack(fullPackageName)
                         EventBus.getDefault().post(DoneEvent())
@@ -303,7 +313,8 @@ class IconPickerFragment : Fragment() {
 
         if (iconPackHelper.isEditable(iconPackPackageName)) {
             iconPackEffectSeekBar.visibility = View.VISIBLE
-            iconPackEffectSeekBar.progress = iconPackHelper.getEditableParameter(iconPackPackageName)
+            iconPackEffectSeekBar.progress =
+                iconPackHelper.getEditableParameter(iconPackPackageName)
         } else {
             iconPackEffectSeekBar.visibility = View.GONE
         }
