@@ -270,6 +270,7 @@ class IconPickerFragment : Fragment() {
                             ApplistLog.ICON_PACK_PICKER,
                             ApplistLog.RESET_ALL_APP_ICONS
                         )
+                        applistPreferences.iconPackPackageName = ""
                         viewModel.resetAllIcons()
                         EventBus.getDefault().post(DoneEvent())
                     },
