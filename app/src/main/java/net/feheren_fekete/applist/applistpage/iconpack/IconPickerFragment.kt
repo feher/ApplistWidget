@@ -25,17 +25,20 @@ import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPacksRepository
+import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.ext.android.inject
 import java.io.File
+import kotlin.math.roundToInt
 
 class IconPickerFragment : Fragment() {
 
     class CancelEvent
     class DoneEvent
 
+    private val screenUtils: ScreenUtils by inject()
     private val iconPackHelper: IconPackHelper by inject()
     private val applistPreferences: ApplistPreferences by inject()
     private val applistLog: ApplistLog by inject()
@@ -118,7 +121,12 @@ class IconPickerFragment : Fragment() {
             LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
         view.iconsRecyclerView.adapter = iconsAdapter
-        view.iconsRecyclerView.layoutManager = GridLayoutManager(context, 6)
+        val columnCount = screenUtils.calculateColumnCount(
+            context,
+            screenUtils.getDp(context, R.dimen.iconpicker_item_size),
+            4
+        )
+        view.iconsRecyclerView.layoutManager = GridLayoutManager(context, columnCount)
 
         viewModel = ViewModelProvider(this).get(IconPickerViewModel::class.java)
         viewModel.iconPacks.observe(viewLifecycleOwner, Observer {

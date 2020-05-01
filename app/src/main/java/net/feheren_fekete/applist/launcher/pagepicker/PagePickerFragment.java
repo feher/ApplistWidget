@@ -80,7 +80,7 @@ public class PagePickerFragment extends Fragment {
         label.setText(widgetLabel);
         if (widgetIcon != null) {
             widgetIcon.mutate();
-            final int iconSize = Math.round(mScreenUtils.dpToPx(getContext(), 24));
+            final int iconSize = Math.round(mScreenUtils.dpToPx(24));
             widgetIcon.setBounds(0, 0, iconSize, iconSize);
         }
         label.setCompoundDrawables(widgetIcon, null, null, null);

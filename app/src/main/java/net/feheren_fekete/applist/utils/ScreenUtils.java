@@ -9,10 +9,7 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
-import android.view.Surface;
 import android.view.WindowManager;
-
-import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 
 public class ScreenUtils {
 
@@ -36,8 +33,8 @@ public class ScreenUtils {
     public Point getScreenSizeDp(Context context) {
         final Point screenSize = getScreenSize(context);
         mScreenSizeDp.set(
-                Math.round(pxToDp(context, screenSize.x)),
-                Math.round(pxToDp(context, screenSize.y)));
+                Math.round(pxToDp(screenSize.x)),
+                Math.round(pxToDp(screenSize.y)));
         return mScreenSizeDp;
     }
 
@@ -56,8 +53,8 @@ public class ScreenUtils {
                 mStatusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
             } else {
                 mStatusBarHeight = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        ? Math.round(dpToPx(context, 24))
-                        : Math.round(dpToPx(context, 25));
+                        ? Math.round(dpToPx(24))
+                        : Math.round(dpToPx(25));
             }
         }
         return mStatusBarHeight;
@@ -70,7 +67,7 @@ public class ScreenUtils {
             return TypedValue.complexToDimensionPixelSize(
                     tv.data, getDisplayMetrics());
         } else {
-            return Math.round(dpToPx(context, 32));
+            return Math.round(dpToPx(32));
         }
     }
 
@@ -93,17 +90,23 @@ public class ScreenUtils {
             if (resourceId > 0) {
                 mNavigationBarHeight = context.getResources().getDimensionPixelSize(resourceId);
             } else {
-                mNavigationBarHeight = Math.round(dpToPx(context, 48));
+                mNavigationBarHeight = Math.round(dpToPx(48));
             }
         }
         return mNavigationBarHeight;
     }
 
-    public float dpToPx(Context context, float dp) {
+    public int getDp(Context context, int resourceId) {
+        return Math.round(
+                context.getResources().getDimension(resourceId) / getDisplayMetrics().density
+        );
+    }
+
+    public float dpToPx(float dp) {
         return dp * (getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
-    public float pxToDp(Context context, float px) {
+    public float pxToDp(float px) {
         return Math.round(px / (getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
@@ -113,6 +116,16 @@ public class ScreenUtils {
         }
         context.getTheme().resolveAttribute(attributeId, mTypedValue, true);
         return mTypedValue.data;
+    }
+
+    public int calculateColumnCount(Context context, int columnWidthDp, int minColumnCount) {
+        int columnSize = Math.round(dpToPx(columnWidthDp));
+        int screenWidth = getScreenWidth(context);
+        int columnCount = screenWidth / columnSize;
+        if (columnCount <= minColumnCount) {
+            columnCount = minColumnCount;
+        }
+        return columnCount;
     }
 
     private DisplayMetrics getDisplayMetrics() {

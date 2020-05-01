@@ -240,15 +240,8 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         //val bottomPadding = if (screenUtils.hasNavigationBar(context)) screenUtils.getNavigationBarHeight(context) else 0
         //view.recyclerView.setPadding(0, topPadding, 0, bottomPadding)
 
-        val columnSize =
-            screenUtils.dpToPx(context, settingsUtils.columnWidth.toFloat()).roundToInt()
-        val screenWidth = screenUtils.getScreenWidth(context)
-        var tempColumnCount = screenWidth / columnSize
-        if (tempColumnCount <= 0) {
-            applistLog.log(IllegalStateException("Invalid column count: $tempColumnCount"))
-            tempColumnCount = 4
-        }
-        val columnCount = tempColumnCount
+        val columnCount =
+            screenUtils.calculateColumnCount(context, settingsUtils.columnWidth, 4)
         val layoutManager = GridLayoutManager(requireContext(), columnCount)
         layoutManager.isSmoothScrollbarEnabled = true
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {

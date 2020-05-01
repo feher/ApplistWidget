@@ -288,10 +288,10 @@ public class WidgetPageFragment extends Fragment {
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getWidth())),
-                Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getHeight())));
-        layoutParams.leftMargin = Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getPositionX()));
-        layoutParams.topMargin = Math.round(mScreenUtils.dpToPx(getContext(), widgetData.getPositionY()));
+                Math.round(mScreenUtils.dpToPx(widgetData.getWidth())),
+                Math.round(mScreenUtils.dpToPx(widgetData.getHeight())));
+        layoutParams.leftMargin = Math.round(mScreenUtils.dpToPx(widgetData.getPositionX()));
+        layoutParams.topMargin = Math.round(mScreenUtils.dpToPx(widgetData.getPositionY()));
         hostView.setLayoutParams(layoutParams);
 
         final WidgetItem widgetItem = new WidgetItem();
@@ -523,10 +523,10 @@ public class WidgetPageFragment extends Fragment {
         }
         widgetItem.appWidgetHostView.setLayoutParams(layoutParams);
         Context context = getContext();
-        widgetItem.widgetData.setPositionX(Math.round(mScreenUtils.pxToDp(context, layoutParams.leftMargin)));
-        widgetItem.widgetData.setPositionY(Math.round(mScreenUtils.pxToDp(context, layoutParams.topMargin)));
-        widgetItem.widgetData.setWidth(Math.round(mScreenUtils.pxToDp(context, layoutParams.width)));
-        widgetItem.widgetData.setHeight(Math.round(mScreenUtils.pxToDp(context, layoutParams.height)));
+        widgetItem.widgetData.setPositionX(Math.round(mScreenUtils.pxToDp(layoutParams.leftMargin)));
+        widgetItem.widgetData.setPositionY(Math.round(mScreenUtils.pxToDp(layoutParams.topMargin)));
+        widgetItem.widgetData.setWidth(Math.round(mScreenUtils.pxToDp(layoutParams.width)));
+        widgetItem.widgetData.setHeight(Math.round(mScreenUtils.pxToDp(layoutParams.height)));
 
         mWidgetContainer.invalidate();
 

@@ -184,8 +184,8 @@ class PageEditorFragment : Fragment() {
         view.recyclerView.layoutManager = LinearLayoutManager(view.context, LinearLayoutManager.HORIZONTAL, false)
         view.recyclerView.adapter = adapter
 
-        maxDragScroll = Math.round(screenUtils.dpToPx(context, 3f))
-        dragScrollThreshold = Math.round(screenUtils.dpToPx(context, 100f))
+        maxDragScroll = Math.round(screenUtils.dpToPx(3f))
+        dragScrollThreshold = Math.round(screenUtils.dpToPx(100f))
 
         val useAsPagePicker = requireArguments().getBoolean(FRAGMENT_ARG_USE_AS_PAGE_PICKER)
         val pagePreviewSizeMultiplier = if (useAsPagePicker) 0.5f else 0.7f

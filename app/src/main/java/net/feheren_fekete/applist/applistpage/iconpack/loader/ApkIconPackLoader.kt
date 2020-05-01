@@ -117,8 +117,8 @@ class ApkIconPackLoader(
         if (icon != null) {
             return icon
         }
-        val width = screenUtils.dpToPx(context, fallbackIconWidthDp.toFloat()).toInt()
-        val height = screenUtils.dpToPx(context, fallbackIconHeightDp.toFloat()).toInt()
+        val width = screenUtils.dpToPx(fallbackIconWidthDp.toFloat()).toInt()
+        val height = screenUtils.dpToPx(fallbackIconHeightDp.toFloat()).toInt()
         val fallbackIcon = createFallbackIcon(
             packageManager, iconPackPackageName, width, height, originalIcon
         )

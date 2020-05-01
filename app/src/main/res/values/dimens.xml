@@ -33,4 +33,7 @@
     <dimen name="item_menu_item_pin_size">34dp</dimen>
     <dimen name="item_menu_swipe_threshold">20dp</dimen>
 
+    <dimen name="iconpicker_item_size">58dp</dimen>
+
+
 </resources>
