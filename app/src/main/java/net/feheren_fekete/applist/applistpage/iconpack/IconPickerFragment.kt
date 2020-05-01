@@ -379,7 +379,7 @@ class IconPickerFragment : Fragment() {
     }
 
     private fun hideEffectSeekBar() {
-        if (iconPackEffectSeekBar.visibility == View.GONE) {
+        if (iconPackEffectSeekBar.visibility == View.INVISIBLE) {
             return
         }
         isEffectSeekBarHiding = true
@@ -391,7 +391,7 @@ class IconPickerFragment : Fragment() {
                 override fun onAnimationEnd(animation: Animator?) {
                     super.onAnimationEnd(animation)
                     if (!isCanceled) {
-                        iconPackEffectSeekBar.visibility = View.GONE
+                        iconPackEffectSeekBar.visibility = View.INVISIBLE
                     }
                     isEffectSeekBarHiding = false
                 }

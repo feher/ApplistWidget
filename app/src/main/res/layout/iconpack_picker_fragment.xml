@@ -114,7 +114,7 @@
                 android:layout_marginTop="30dp"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:paddingBottom="170dp"
+                android:paddingBottom="160dp"
                 android:scrollbarThumbVertical="@android:color/darker_gray"
                 android:scrollbars="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -147,7 +147,7 @@
                 <SeekBar
                     android:id="@+id/iconPackEffectSeekBar"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="30dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:max="99"
