@@ -65,7 +65,7 @@ abstract class IconPackLoader(
 
     companion object {
         const val DEFAULT_FALLBACK_ICON_SIZE = 48
-        private const val BUILTIN_ICONPACK_SCHEMA = "builtin"
+        private const val BUILTIN_ICONPACK_SCHEMA = "iconeffect"
 
         fun createBuiltinPackageNameWithParam(iconPackPackageName: String, parameter: Int) =
             if (!iconPackPackageName.contains("?param=")) {

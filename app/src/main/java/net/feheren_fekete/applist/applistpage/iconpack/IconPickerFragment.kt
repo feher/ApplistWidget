@@ -142,6 +142,19 @@ class IconPickerFragment : Fragment() {
             }
         })
 
+        view.iconEffectsTextView.setOnClickListener {
+            iconPacksAdapter.setFilter(IconPacksAdapter.Filter.IconEffect)
+            view.iconPacksTextView.setBackgroundResource(R.drawable.iconpicker_button_background)
+            view.iconEffectsTextView.setBackgroundResource(R.drawable.iconpicker_selected_button_background)
+        }
+
+        view.iconPacksTextView.setOnClickListener {
+            iconPacksAdapter.setFilter(IconPacksAdapter.Filter.IconPack)
+            view.iconPacksTextView.setBackgroundResource(R.drawable.iconpicker_selected_button_background)
+            view.iconEffectsTextView.setBackgroundResource(R.drawable.iconpicker_button_background)
+            view.iconPackEffectSeekBar.visibility = View.GONE
+        }
+
         view.setFab.visibility = View.GONE
         view.setFab.setOnClickListener {
             applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.SET_APP_ICON)
