@@ -99,7 +99,7 @@ class PixelIconPackLoader(
 
         private const val MIN_PARAM = 0.05f
         private const val MAX_PARAM = 0.10f
-        private const val DEFAULT_PARAM = MIN_PARAM
+        private const val DEFAULT_PARAM = 0.07f
     }
 
 }
