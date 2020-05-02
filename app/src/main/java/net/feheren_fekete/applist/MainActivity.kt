@@ -3,17 +3,21 @@ package net.feheren_fekete.applist
 import android.appwidget.AppWidgetHost
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.launcher.LauncherFragment
 import net.feheren_fekete.applist.settings.SettingsUtils
+import net.feheren_fekete.applist.utils.ProgressDialog
 import net.feheren_fekete.applist.utils.WriteSettingsPermissionHelper
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
 import org.koin.android.ext.android.inject
 
+
 class MainActivity : AppCompatActivity() {
 
+    private val applistLog: ApplistLog by inject()
     private val shortcutHelper: ShortcutHelper by inject()
     private val widgetHelper: WidgetHelper by inject()
     private val appWidgetHost: AppWidgetHost by inject()
@@ -22,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     private var isHomePressed = false
     private var shouldHandleIntent = false
+    private val handler = Handler()
 
     fun isHomePressed(): Boolean {
         val wasHomePressed = isHomePressed
@@ -89,22 +94,45 @@ class MainActivity : AppCompatActivity() {
                 handled = widgetHelper.handleIntent(this, intent)
             }
             if (!handled) {
+                // TODO: Move this "restart" code to the settings activity.
                 if (ACTION_RESTART == intent.action) {
-                    val restartIntent = Intent(this, MainActivity::class.java)
-                    restartIntent.action = Intent.ACTION_MAIN
-                    restartIntent.addCategory(Intent.CATEGORY_HOME)
-                    setIntent(restartIntent)
-                    recreate()
+                    val progressDialog = ProgressDialog(R.string.settings_restarting_app)
+                    progressDialog.show(supportFragmentManager, "ProgressDialog")
+                    handler.postDelayed(::restartApp, 1000)
                 }
             }
         }
     }
 
+    private fun restartApp() {
+        val packageManager = getPackageManager()
+        val intent = packageManager.getLaunchIntentForPackage(getPackageName())
+        if (intent == null) {
+            applistLog.log(RuntimeException("Cannot restart app: null intent"))
+            return
+        }
+        val componentName = intent.component
+        if (componentName == null) {
+            applistLog.log(RuntimeException("Cannot restart app: null component name"))
+            return
+        }
+        val mainIntent = Intent.makeRestartActivityTask(componentName)
+        try {
+            startActivity(mainIntent)
+            Runtime.getRuntime().exit(0)
+        } catch (e: Exception) {
+            applistLog.log(RuntimeException("Cannot restart app", e))
+        }
+    }
+
     private fun showLauncherFragment(activePageId: Long) {
         supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.main_activity_fragment_container, LauncherFragment.newInstance(activePageId))
-                .commit()
+            .beginTransaction()
+            .replace(
+                R.id.main_activity_fragment_container,
+                LauncherFragment.newInstance(activePageId)
+            )
+            .commit()
     }
 
     companion object {
