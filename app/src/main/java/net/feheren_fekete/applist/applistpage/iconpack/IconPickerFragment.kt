@@ -416,7 +416,7 @@ class IconPickerFragment : Fragment() {
     }
 
     private fun setOriginalAppIcon(iconView: ImageView) {
-        val customIconFile = File(requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH))
+        val customIconFile = File(requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH, ""))
         if (customIconFile.exists()) {
             GlideApp.with(this)
                 .load(customIconFile)
