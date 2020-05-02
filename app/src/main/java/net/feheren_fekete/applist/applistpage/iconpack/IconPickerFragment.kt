@@ -251,38 +251,11 @@ class IconPickerFragment : Fragment() {
                 return true
             }
             R.id.action_reset_icon -> {
-                ApplistDialogs.questionDialog(
-                    requireActivity(),
-                    android.R.string.dialog_alert_title,
-                    R.string.iconpack_picker_reset_warning,
-                    onOk = {
-                        applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.RESET_APP_ICON)
-                        viewModel.resetOriginalIcon(
-                            requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
-                            requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!
-                        )
-                        EventBus.getDefault().post(DoneEvent())
-                    },
-                    onCancel = {}
-                )
+                resetIcon()
                 return true
             }
             R.id.action_reset_all_icons -> {
-                ApplistDialogs.questionDialog(
-                    requireActivity(),
-                    android.R.string.dialog_alert_title,
-                    R.string.iconpack_picker_reset_all_warning,
-                    onOk = {
-                        applistLog.analytics(
-                            ApplistLog.ICON_PACK_PICKER,
-                            ApplistLog.RESET_ALL_APP_ICONS
-                        )
-                        applistPreferences.iconPackPackageName = ""
-                        viewModel.resetAllIcons()
-                        EventBus.getDefault().post(DoneEvent())
-                    },
-                    onCancel = {}
-                )
+                resetAllIcons()
                 return true
             }
             R.id.action_apply_iconpack -> {
@@ -501,6 +474,40 @@ class IconPickerFragment : Fragment() {
         EventBus.getDefault().post(DoneEvent())
     }
 
+    private fun resetIcon() {
+        ApplistDialogs.questionDialog(
+            requireActivity(),
+            android.R.string.dialog_alert_title,
+            R.string.iconpack_picker_reset_warning,
+            onOk = {
+                applistLog.analytics(ApplistLog.ICON_PACK_PICKER, ApplistLog.RESET_APP_ICON)
+                viewModel.resetOriginalIcon(
+                    requireArguments().getLong(FRAGMENT_ARG_APPLIST_ITEM_ID),
+                    requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!
+                )
+                EventBus.getDefault().post(DoneEvent())
+            },
+            onCancel = {}
+        )
+    }
+
+    private fun resetAllIcons() {
+        ApplistDialogs.questionDialog(
+            requireActivity(),
+            android.R.string.dialog_alert_title,
+            R.string.iconpack_picker_reset_all_warning,
+            onOk = {
+                applistLog.analytics(
+                    ApplistLog.ICON_PACK_PICKER,
+                    ApplistLog.RESET_ALL_APP_ICONS
+                )
+                applistPreferences.iconPackPackageName = ""
+                viewModel.resetAllIcons()
+                EventBus.getDefault().post(DoneEvent())
+            },
+            onCancel = {}
+        )
+    }
 
     private fun applyIconPack() {
         ApplistDialogs.questionDialog(
