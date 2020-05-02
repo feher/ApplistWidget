@@ -120,6 +120,7 @@
     <string name="iconpack_picker_apply_all_warning">This will change <b>all app icons</b> (it may take a few seconds).\n\nAll your previous customizations will be lost.\n\nSome apps may not have a matching icon.</string>
     <string name="iconpack_picker_install_more">More icon packs</string>
     <string name="iconpack_picker_apply_progress">Applying icon pack…</string>
+    <string name="iconpack_picker_reset_progress">Resetting default icons…</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_keep_apps_sorted_alphabetically">Keep apps sorted</string>

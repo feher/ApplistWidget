@@ -502,8 +502,15 @@ class IconPickerFragment : Fragment() {
                     ApplistLog.RESET_ALL_APP_ICONS
                 )
                 applistPreferences.iconPackPackageName = ""
-                viewModel.resetAllIcons()
-                EventBus.getDefault().post(DoneEvent())
+
+                progressDialog?.dismiss()
+                progressDialog = ProgressDialog(R.string.iconpack_picker_reset_progress)
+                progressDialog?.show(parentFragmentManager, "ProgressDialog")
+                lifecycleScope.launch(Dispatchers.Main) {
+                    viewModel.resetAllIcons()
+                    progressDialog?.dismiss()
+                    EventBus.getDefault().post(DoneEvent())
+                }
             },
             onCancel = {}
         )

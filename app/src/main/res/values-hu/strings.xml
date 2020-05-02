@@ -122,4 +122,5 @@
     <string name="page_picker_moved_widget">A widget át lett helyezve</string>
     <string name="iconpack_picker_icon_effects">Ikon effektek</string>
     <string name="iconpack_picker_apply_progress">Ikoncsomag aktiválása…</string>
+    <string name="iconpack_picker_reset_progress">Eredeti ikonok visszaállítása…</string>
 </resources>

@@ -122,4 +122,5 @@
     <string name="page_picker_moved_widget">Widget on siirretty</string>
     <string name="iconpack_picker_icon_effects">Ikoneffektit</string>
     <string name="iconpack_picker_apply_progress">Ikonpakkaus aktivoidaan…</string>
+    <string name="iconpack_picker_reset_progress">Oletusikonit palautetaan…</string>
 </resources>

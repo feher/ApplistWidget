@@ -61,11 +61,9 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
             applistRepo.updateCustomIcons(iconPackPackageName)
         }
 
-    fun resetAllIcons() {
+    fun resetAllIcons() =
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.removeCustomIcons()
         }
-    }
-
 
 }
