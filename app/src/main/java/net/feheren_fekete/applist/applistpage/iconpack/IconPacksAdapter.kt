@@ -39,6 +39,8 @@ class IconPacksAdapter(private val itemClickCallback: (position: Int) -> Unit) :
         notifyDataSetChanged()
     }
 
+    fun getFilter() = filter
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IconPackViewHolder {
         val itemView =
             LayoutInflater.from(parent.context).inflate(R.layout.iconpack_item, parent, false)

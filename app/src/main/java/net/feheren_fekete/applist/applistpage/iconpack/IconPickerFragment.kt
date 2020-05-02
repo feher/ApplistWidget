@@ -143,16 +143,20 @@ class IconPickerFragment : Fragment() {
         })
 
         view.iconEffectsTextView.setOnClickListener {
-            iconPacksAdapter.setFilter(IconPacksAdapter.Filter.IconEffect)
-            view.iconPacksTextView.setBackgroundResource(R.drawable.iconpicker_button_background)
-            view.iconEffectsTextView.setBackgroundResource(R.drawable.iconpicker_selected_button_background)
+            if (iconPacksAdapter.getFilter() != IconPacksAdapter.Filter.IconEffect) {
+                iconPacksAdapter.setFilter(IconPacksAdapter.Filter.IconEffect)
+                view.iconPacksTextView.setBackgroundResource(R.drawable.iconpicker_button_background)
+                view.iconEffectsTextView.setBackgroundResource(R.drawable.iconpicker_selected_button_background)
+            }
         }
 
         view.iconPacksTextView.setOnClickListener {
-            iconPacksAdapter.setFilter(IconPacksAdapter.Filter.IconPack)
-            view.iconPacksTextView.setBackgroundResource(R.drawable.iconpicker_selected_button_background)
-            view.iconEffectsTextView.setBackgroundResource(R.drawable.iconpicker_button_background)
-            hideEffectSeekBar()
+            if (iconPacksAdapter.getFilter() != IconPacksAdapter.Filter.IconPack) {
+                iconPacksAdapter.setFilter(IconPacksAdapter.Filter.IconPack)
+                view.iconPacksTextView.setBackgroundResource(R.drawable.iconpicker_selected_button_background)
+                view.iconEffectsTextView.setBackgroundResource(R.drawable.iconpicker_button_background)
+                hideEffectSeekBar()
+            }
         }
 
         view.setFab.visibility = View.GONE
