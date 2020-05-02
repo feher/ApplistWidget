@@ -14,17 +14,21 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.iconpack_picker_fragment.*
 import kotlinx.android.synthetic.main.iconpack_picker_fragment.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.ApplistPreferences
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.applistpage.ApplistDialogs
 import net.feheren_fekete.applist.applistpage.iconpack.model.IconPackIcon
 import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPacksRepository
+import net.feheren_fekete.applist.utils.ProgressDialog
 import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
@@ -52,6 +56,7 @@ class IconPickerFragment : Fragment() {
     private val handler = Handler()
     private var isFabHiding = false
     private var isEffectSeekBarHiding = false
+    private var progressDialog: ProgressDialog? = null
 
     companion object {
         private const val FRAGMENT_ARG_TITLE = "title"
@@ -281,23 +286,7 @@ class IconPickerFragment : Fragment() {
                 return true
             }
             R.id.action_apply_iconpack -> {
-                ApplistDialogs.questionDialog(
-                    requireActivity(),
-                    android.R.string.dialog_alert_title,
-                    R.string.iconpack_picker_apply_all_warning,
-                    onOk = {
-                        applistLog.analytics(
-                            ApplistLog.ICON_PACK_PICKER,
-                            ApplistLog.SET_ALL_APP_ICONS
-                        )
-                        val fullPackageName =
-                            iconPackHelper.createFullPackageName(iconsAdapter.iconPackPackageName)
-                        applistPreferences.iconPackPackageName = fullPackageName
-                        viewModel.applyIconPack(fullPackageName)
-                        EventBus.getDefault().post(DoneEvent())
-                    },
-                    onCancel = {}
-                )
+                applyIconPack()
                 return true
             }
         }
@@ -510,6 +499,34 @@ class IconPickerFragment : Fragment() {
             requireArguments().getString(FRAGMENT_ARG_CUSTOM_ICON_PATH)!!
         )
         EventBus.getDefault().post(DoneEvent())
+    }
+
+
+    private fun applyIconPack() {
+        ApplistDialogs.questionDialog(
+            requireActivity(),
+            android.R.string.dialog_alert_title,
+            R.string.iconpack_picker_apply_all_warning,
+            onOk = {
+                applistLog.analytics(
+                    ApplistLog.ICON_PACK_PICKER,
+                    ApplistLog.SET_ALL_APP_ICONS
+                )
+                val fullPackageName =
+                    iconPackHelper.createFullPackageName(iconsAdapter.iconPackPackageName)
+                applistPreferences.iconPackPackageName = fullPackageName
+
+                progressDialog?.dismiss()
+                progressDialog = ProgressDialog(R.string.iconpack_picker_apply_progress)
+                progressDialog?.show(parentFragmentManager, "ProgressDialog")
+                lifecycleScope.launch(Dispatchers.Main) {
+                    viewModel.applyIconPack(fullPackageName).await()
+                    progressDialog?.dismiss()
+                    EventBus.getDefault().post(DoneEvent())
+                }
+            },
+            onCancel = {}
+        )
     }
 
     private val iconsUpdateRunnable = Runnable {

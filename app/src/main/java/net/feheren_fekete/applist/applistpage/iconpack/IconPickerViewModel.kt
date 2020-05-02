@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPackIconsRepository
@@ -50,15 +51,15 @@ class IconPickerViewModel : ViewModel(), KoinComponent {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             applistRepo.setCustomStartableIcon(
                 applistItemId, iconPackPackageName, iconDrawableName,
-                customIconPath)
+                customIconPath
+            )
         }
     }
 
-    fun applyIconPack(iconPackPackageName: String) {
-        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+    fun applyIconPack(iconPackPackageName: String) =
+        viewModelScope.async(Dispatchers.IO + NonCancellable) {
             applistRepo.updateCustomIcons(iconPackPackageName)
         }
-    }
 
     fun resetAllIcons() {
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {

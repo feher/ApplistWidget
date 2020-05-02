@@ -120,4 +120,6 @@
     <string name="donut_page_purchase_thanks">Köszönöm a %1$s támogatást</string>
     <string name="donut_page_message">Mentes a reklámoktól és a zárt tartalmaktól. Ha szeretnéd támogatni a fejlesztését, akkor azt itt teheted.</string>
     <string name="page_picker_moved_widget">A widget át lett helyezve</string>
+    <string name="iconpack_picker_icon_effects">Ikon effektek</string>
+    <string name="iconpack_picker_apply_progress">Ikoncsomag aktiválása…</string>
 </resources>
