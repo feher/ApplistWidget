@@ -28,11 +28,11 @@ repositories {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "net.feheren_fekete.applist"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
 
         versionCode 76
         versionName "7.6"
