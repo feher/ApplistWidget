@@ -176,8 +176,13 @@ class LauncherFragment : Fragment() {
                     // HACK: Without posting a delayed Runnable, the smooth scrolling is very laggy.
                     // The delay time also matters. E.g. 10 ms is too little.
                     // https://stackoverflow.com/questions/11962268/viewpager-setcurrentitempageid-true-does-not-smoothscroll
+                    //
+                    // Keep a reference to the ViewPager to avoid NPE inside the runnable (the viewPager
+                    // sometimes can become null for some reason).
+                    //
+                    val vp = viewPager
                     handler.postDelayed({
-                        viewPager.setCurrentItem(activePagePosition, true)
+                        vp.setCurrentItem(activePagePosition, true)
                     }, 100)
                 } else {
                     viewPager.setCurrentItem(activePagePosition, false)
