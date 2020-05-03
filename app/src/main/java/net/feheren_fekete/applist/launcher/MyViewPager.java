@@ -57,13 +57,16 @@ public class MyViewPager extends ViewPager {
             if (mGestureDetector != null) {
                 mGestureDetector.onTouchEvent(ev);
             }
-            if (mOnUpListener != null
-                    && MotionEventCompat.getActionMasked(ev) == MotionEvent.ACTION_UP) {
+            if (mOnUpListener != null && ev.getAction() == MotionEvent.ACTION_UP) {
                 mOnUpListener.onUp(ev);
             }
             return true;
         } else {
-            return super.onTouchEvent(ev);
+            try {
+                return super.onTouchEvent(ev);
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 }
