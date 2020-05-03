@@ -56,6 +56,11 @@ class IapRepository(
         }
         val purchasesResult: Purchase.PurchasesResult =
             billingClient.queryPurchases(BillingClient.SkuType.INAPP)
+        val purchases = purchasesResult.purchasesList
+        if (purchases == null) {
+            applistLog.log(RuntimeException("Null purchases list"))
+            return
+        }
         for (purchase in purchasesResult.purchasesList) {
             handlePurchase(purchase)
         }
