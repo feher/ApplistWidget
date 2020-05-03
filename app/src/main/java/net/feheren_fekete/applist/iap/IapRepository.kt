@@ -142,6 +142,7 @@ class IapRepository(
             override fun onBillingServiceDisconnected() {
                 // Try to restart the connection on the next request to
                 // Google Play by calling the startConnection() method.
+                isInitializing = false
             }
         })
     }
