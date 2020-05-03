@@ -38,7 +38,7 @@ public class AppUtils {
                 PackageInfo packageInfo = packageManager.getPackageInfo(
                         launcherActivityInfo.getComponentName().getPackageName(), 0);
                 versionCode = packageInfo.versionCode;
-            } catch (PackageManager.NameNotFoundException e) {
+            } catch (Exception e) {
                 continue;
             }
             installedApps.add(ApplistItemData.Companion.createApp(
@@ -57,11 +57,15 @@ public class AppUtils {
 
     @Nullable
     public static ComponentName getSmsApp(Context context) {
-        String smsPackage = Telephony.Sms.getDefaultSmsPackage(context);
-        Intent smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(smsPackage);
-        if (smsAppIntent != null) {
-            return smsAppIntent.getComponent();
-        } else {
+        try {
+            String smsPackage = Telephony.Sms.getDefaultSmsPackage(context);
+            Intent smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(smsPackage);
+            if (smsAppIntent != null) {
+                return smsAppIntent.getComponent();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
             return null;
         }
     }
