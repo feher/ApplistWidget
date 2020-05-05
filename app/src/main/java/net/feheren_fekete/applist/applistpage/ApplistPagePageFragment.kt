@@ -304,7 +304,7 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         ) {
             ApplistDialogs.messageDialog(
                 requireActivity(),
-                R.string.whats_new_title,
+                getString(R.string.whats_new_title, BuildConfig.VERSION_NAME),
                 R.string.whats_new_69,
                 onOk = {
                     applistPreferences.showWhatsNew = false

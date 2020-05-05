@@ -67,7 +67,7 @@
         <item>@string/widget_menu_remove</item>
     </string-array>
 
-    <string name="whats_new_title" translatable="false">Updates</string>
+    <string name="whats_new_title" translatable="false">Version %1$s</string>
     <string name="help_title" translatable="false">Help</string>
     <string name="tip_title" translatable="false">Help</string>
     <string name="whats_new" translatable="false">Groups and apps can be <b>reordered</b>.\n\n<b>Multiple</b> apps can be moved to a group at once.\n\n<b>Pin app shortcuts</b> from app contect menu.</string>
