@@ -19,9 +19,9 @@ class NotificationListener : NotificationListenerService() {
 
     private var isConnected: Boolean = false
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val result = super.onStartCommand(intent, flags, startId)
-        if (isConnected) {
+        if (intent != null && isConnected) {
             if (ACTION_CANCEL_NOTIFICATION == intent.action) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     cancelNotification(intent.getStringExtra(EXTRA_NOTIFICATION_KEY))
