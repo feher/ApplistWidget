@@ -47,7 +47,11 @@ public class MyViewPager extends ViewPager {
         if (mIsInterceptingTouchEvents) {
             return true;
         } else {
-            return super.onInterceptTouchEvent(ev);
+            try {
+                return super.onInterceptTouchEvent(ev);
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 
