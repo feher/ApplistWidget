@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.UserHandle;
 import android.provider.Telephony;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData;
 
 import java.util.ArrayList;
@@ -30,8 +31,18 @@ public class AppUtils {
 
         UserHandle userHandle = android.os.Process.myUserHandle();
         LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        if (launcherApps == null) {
+            ApplistLog.getInstance().log(new RuntimeException("Cannot get LauncherApps"));
+            return installedApps;
+        }
         PackageManager packageManager = context.getPackageManager();
-        List<LauncherActivityInfo> launcherActivityInfos = launcherApps.getActivityList(null, userHandle);
+        List<LauncherActivityInfo> launcherActivityInfos;
+        try {
+            launcherActivityInfos = launcherApps.getActivityList(null, userHandle);
+        } catch (Exception e) {
+            ApplistLog.getInstance().log(e);
+            return installedApps;
+        }
         for (LauncherActivityInfo launcherActivityInfo : launcherActivityInfos) {
             long versionCode = 0;
             try {
