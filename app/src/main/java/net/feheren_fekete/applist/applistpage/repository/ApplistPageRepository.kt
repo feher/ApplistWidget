@@ -19,7 +19,7 @@ import net.feheren_fekete.applist.applistpage.repository.database.ApplistPageDao
 import net.feheren_fekete.applist.applistpage.repository.database.MigrateJsonToRoom
 import net.feheren_fekete.applist.applistpage.viewmodel.*
 import net.feheren_fekete.applist.utils.AppUtils
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -28,10 +28,10 @@ class ApplistPageRepository(
     val applistPageDao: ApplistPageDao
 ) {
 
-    private val applistLog: ApplistLog by inject(ApplistLog::class.java)
-    private val iconStorage: ApplistIconStorage by inject(ApplistIconStorage::class.java)
-    private val iconPackHelper: IconPackHelper by inject(IconPackHelper::class.java)
-    private val applistPreferences: ApplistPreferences by inject(ApplistPreferences::class.java)
+    private val applistLog = get(ApplistLog::class.java)
+    private val iconStorage = get(ApplistIconStorage::class.java)
+    private val iconPackHelper = get(IconPackHelper::class.java)
+    private val applistPreferences = get(ApplistPreferences::class.java)
 
     init {
         GlobalScope.launch(Dispatchers.IO) {

@@ -33,7 +33,7 @@ import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
 import org.greenrobot.eventbus.EventBus
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 import java.io.File
 
 class IconPickerFragment : Fragment() {
@@ -41,10 +41,10 @@ class IconPickerFragment : Fragment() {
     class CancelEvent
     class DoneEvent
 
-    private val screenUtils: ScreenUtils by inject()
-    private val iconPackHelper: IconPackHelper by inject()
-    private val applistPreferences: ApplistPreferences by inject()
-    private val applistLog: ApplistLog by inject()
+    private val screenUtils = get<ScreenUtils>()
+    private val iconPackHelper = get<IconPackHelper>()
+    private val applistPreferences = get<ApplistPreferences>()
+    private val applistLog = get<ApplistLog>()
 
     private lateinit var viewModel: IconPickerViewModel
     private lateinit var iconPacksAdapter: IconPacksAdapter

@@ -3,19 +3,21 @@ package net.feheren_fekete.applist.applistpage.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData
 import net.feheren_fekete.applist.utils.FileUtils
-import org.koin.android.ext.android.inject
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 
 class ApplistViewModel: ViewModel() {
 
-    private val repository: ApplistPageRepository by inject(ApplistPageRepository::class.java)
-    private val fileUtils: FileUtils by inject(FileUtils::class.java)
-    private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
+    private val repository = get(ApplistPageRepository::class.java)
+    private val fileUtils = get(FileUtils::class.java)
+    private val badgeStore = get(BadgeStore::class.java)
 
     fun getItems() = repository.getItems()
 

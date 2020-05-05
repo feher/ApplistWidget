@@ -2,11 +2,11 @@ package net.feheren_fekete.applist.iap
 
 import android.app.Activity
 import androidx.lifecycle.ViewModel
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 
 class DonutViewModel: ViewModel() {
 
-    private val repository: IapRepository by inject(IapRepository::class.java)
+    private val repository = get(IapRepository::class.java)
 
     fun products() = repository.products
 

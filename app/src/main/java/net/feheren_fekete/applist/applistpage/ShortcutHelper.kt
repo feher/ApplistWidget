@@ -21,7 +21,6 @@ import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import net.feheren_fekete.applist.applistpage.repository.database.ApplistItemData
 import net.feheren_fekete.applist.utils.ImageUtils
 import org.koin.java.KoinJavaComponent.get
-import org.koin.java.KoinJavaComponent.inject
 
 
 class ShortcutHelper {
@@ -33,7 +32,7 @@ class ShortcutHelper {
     private val applistRepo = get(ApplistPageRepository::class.java)
     private val applistLog = get(ApplistLog::class.java)
 
-    private val imageUtils: ImageUtils by inject(ImageUtils::class.java)
+    private val imageUtils = get(ImageUtils::class.java)
 
     private val installShortcutReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {

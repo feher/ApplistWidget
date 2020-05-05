@@ -4,17 +4,15 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.settings.SettingsUtils
-
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 
 class BadgeReceiver : BroadcastReceiver() {
 
-    private val settingsUtils: SettingsUtils by inject(SettingsUtils::class.java)
-    private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
+    private val settingsUtils = get(SettingsUtils::class.java)
+    private val badgeStore = get(BadgeStore::class.java)
 
     override fun onReceive(context: Context, intent: Intent) {
         // Note: intent.toUri(0) may crash with "Duplicate key in ArrayMap: badge_count"

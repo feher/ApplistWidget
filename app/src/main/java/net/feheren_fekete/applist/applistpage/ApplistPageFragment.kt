@@ -30,15 +30,15 @@ import net.feheren_fekete.applist.settings.SettingsUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 import java.util.*
 
 class ApplistPageFragment : Fragment() {
 
-    private val settingsUtils: SettingsUtils by inject()
-    private val launcherUtils: LauncherUtils by inject()
-    private val applistPreferences: ApplistPreferences by inject()
-    private val iapRepository: IapRepository by inject()
+    private val settingsUtils = get<SettingsUtils>()
+    private val launcherUtils = get<LauncherUtils>()
+    private val applistPreferences = get<ApplistPreferences>()
+    private val iapRepository = get<IapRepository>()
 
     private lateinit var viewModel: ApplistViewModel
     private lateinit var toolbarGradient: Drawable

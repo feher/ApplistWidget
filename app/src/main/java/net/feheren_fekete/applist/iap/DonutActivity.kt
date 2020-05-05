@@ -8,11 +8,11 @@ import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.donut_activity.*
 import net.feheren_fekete.applist.R
 import net.feheren_fekete.applist.utils.ScreenUtils
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 
 class DonutActivity: AppCompatActivity() {
 
-    private val screenUtils: ScreenUtils by inject()
+    private val screenUtils = get<ScreenUtils>()
 
     private lateinit var viewModel: DonutViewModel
 

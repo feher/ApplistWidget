@@ -11,11 +11,11 @@ import com.bumptech.glide.util.Util
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.iconpack.IconPackHelper
 import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.get
 
 internal class GlideIconPackIconDecoder(private val context: Context) : ResourceDecoder<GlideIconPackIcon, Drawable>, KoinComponent {
 
-    private val iconPackHelper: IconPackHelper by inject()
+    private val iconPackHelper = get<IconPackHelper>()
 
     override fun decode(source: GlideIconPackIcon, width: Int, height: Int, options: Options): Resource<Drawable>? {
         return try {

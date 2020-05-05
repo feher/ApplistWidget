@@ -12,12 +12,12 @@ import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.AppUtils
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 
 class CallStateReceiver : BroadcastReceiver() {
 
-    private val settingsUtils: SettingsUtils by inject(SettingsUtils::class.java)
-    private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
+    private val settingsUtils = get(SettingsUtils::class.java)
+    private val badgeStore = get(BadgeStore::class.java)
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "RECEIVED: " + intent.toUri(0))

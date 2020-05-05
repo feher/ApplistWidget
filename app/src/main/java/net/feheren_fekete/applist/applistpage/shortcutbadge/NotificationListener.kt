@@ -7,15 +7,15 @@ import android.service.notification.StatusBarNotification
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.applistpage.repository.BadgeStore
 import net.feheren_fekete.applist.settings.SettingsUtils
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 import java.util.ArrayList
 import java.util.Arrays
 import kotlin.Comparator
 
 class NotificationListener : NotificationListenerService() {
 
-    private val settingsUtils: SettingsUtils by inject()
-    private val badgeStore: BadgeStore by inject()
+    private val settingsUtils = get<SettingsUtils>()
+    private val badgeStore = get<BadgeStore>()
 
     private var isConnected: Boolean = false
 

@@ -12,14 +12,14 @@ import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPackIconsR
 import net.feheren_fekete.applist.applistpage.iconpack.repository.IconPacksRepository
 import net.feheren_fekete.applist.applistpage.repository.ApplistPageRepository
 import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.get
 
 class IconPickerViewModel : ViewModel(), KoinComponent {
 
-    private val applistLog: ApplistLog by inject()
-    private val applistRepo: ApplistPageRepository by inject()
-    private val iconPackIconsRepository: IconPackIconsRepository by inject()
-    private val iconPacksRepository: IconPacksRepository by inject()
+    private val applistLog = get<ApplistLog>()
+    private val applistRepo = get<ApplistPageRepository>()
+    private val iconPackIconsRepository = get<IconPackIconsRepository>()
+    private val iconPacksRepository = get<IconPacksRepository>()
 
     val iconPacks = IconPacksLiveData(viewModelScope, iconPacksRepository)
 

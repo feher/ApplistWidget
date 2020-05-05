@@ -33,18 +33,18 @@ import net.feheren_fekete.applist.launcher.repository.database.LauncherPageData
 import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel
 import org.greenrobot.eventbus.EventBus
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 
 class PageEditorFragment : Fragment() {
 
     class DoneEvent
     class PageTappedEvent(val requestData: Bundle, val pageData: LauncherPageData)
 
-    private val launcherStateManager: LauncherStateManager by inject()
-    private val widgetModel: WidgetModel by inject()
-    private val appWidgetHost: AppWidgetHost by inject()
-    private val screenshotUtils: ScreenshotUtils by inject()
-    private val screenUtils: ScreenUtils by inject()
+    private val launcherStateManager = get<LauncherStateManager>()
+    private val widgetModel = get<WidgetModel>()
+    private val appWidgetHost = get<AppWidgetHost>()
+    private val screenshotUtils = get<ScreenshotUtils>()
+    private val screenUtils = get<ScreenUtils>()
 
     private lateinit var viewModel: PageEditorViewModel
     private lateinit var adapter: PageEditorAdapter

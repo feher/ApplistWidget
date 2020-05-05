@@ -12,17 +12,17 @@ import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.ProgressDialog
 import net.feheren_fekete.applist.utils.WriteSettingsPermissionHelper
 import net.feheren_fekete.applist.widgetpage.WidgetHelper
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 
 
 class MainActivity : AppCompatActivity() {
 
-    private val applistLog: ApplistLog by inject()
-    private val shortcutHelper: ShortcutHelper by inject()
-    private val widgetHelper: WidgetHelper by inject()
-    private val appWidgetHost: AppWidgetHost by inject()
-    private val settingsUtils: SettingsUtils by inject()
-    private val writeSettingsPermissionHelper: WriteSettingsPermissionHelper by inject()
+    private val applistLog = get<ApplistLog>()
+    private val shortcutHelper = get<ShortcutHelper>()
+    private val widgetHelper = get<WidgetHelper>()
+    private val appWidgetHost = get<AppWidgetHost>()
+    private val settingsUtils = get<SettingsUtils>()
+    private val writeSettingsPermissionHelper = get<WriteSettingsPermissionHelper>()
 
     private var isHomePressed = false
     private var shouldHandleIntent = false

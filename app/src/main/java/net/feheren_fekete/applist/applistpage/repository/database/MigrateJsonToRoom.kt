@@ -2,19 +2,18 @@ package net.feheren_fekete.applist.applistpage.repository.database
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.utils.FileUtils
 import org.json.JSONException
 import org.json.JSONObject
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 import java.io.File
 import java.net.URISyntaxException
 
 class MigrateJsonToRoom(context: Context,
                         private val applistPageDao: ApplistPageDao) {
 
-    private val fileUtils: FileUtils by inject(FileUtils::class.java)
+    private val fileUtils = get(FileUtils::class.java)
 
     private val pagesFilePath = context.filesDir.absolutePath + File.separator + "applist-pages-v2.json"
     private var itemCount = 0;

@@ -12,13 +12,12 @@ import com.bumptech.glide.util.Util
 import net.feheren_fekete.applist.ApplistLog
 import net.feheren_fekete.applist.utils.ImageUtils
 import org.koin.core.KoinComponent
-import org.koin.core.inject
-import java.io.File
+import org.koin.core.get
 
 internal class GlideAppIconDecoder(private val context: Context)
     : ResourceDecoder<ComponentName, Drawable>, KoinComponent {
 
-    private val imageUtils: ImageUtils by inject()
+    private val imageUtils = get<ImageUtils>()
 
     override fun decode(source: ComponentName, width: Int, height: Int, options: Options): Resource<Drawable>? {
         return try {

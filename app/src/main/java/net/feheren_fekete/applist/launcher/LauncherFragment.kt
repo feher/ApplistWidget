@@ -18,13 +18,13 @@ import net.feheren_fekete.applist.widgetpage.WidgetPageFragment
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 
 class LauncherFragment : Fragment() {
 
-    private val screenshotUtils: ScreenshotUtils by inject()
-    private val launcherStateManager: LauncherStateManager by inject()
-    private val applistPreferences: ApplistPreferences by inject()
+    private val screenshotUtils = get<ScreenshotUtils>()
+    private val launcherStateManager = get<LauncherStateManager>()
+    private val applistPreferences = get<ApplistPreferences>()
 
     private val handler = Handler()
     private lateinit var viewModel: LauncherViewModel

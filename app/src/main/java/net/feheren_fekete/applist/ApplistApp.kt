@@ -7,17 +7,15 @@ import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import net.feheren_fekete.applist.applistpage.ShortcutHelper
 import net.feheren_fekete.applist.di.applistModule
-import org.koin.android.ext.android.inject
+import org.greenrobot.eventbus.EventBus
+import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import org.greenrobot.eventbus.EventBus
-
-
 
 
 class ApplistApp : MultiDexApplication() {
 
-    private val shortcutHelper: ShortcutHelper by inject()
+    private lateinit var shortcutHelper: ShortcutHelper
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
@@ -38,6 +36,7 @@ class ApplistApp : MultiDexApplication() {
             modules(applistModule)
         }
 
+        shortcutHelper = get<ShortcutHelper>()
         shortcutHelper.registerInstallShortcutReceiver(this)
     }
 

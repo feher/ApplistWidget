@@ -23,13 +23,12 @@ import net.feheren_fekete.applist.applistpage.ApplistDialogs
 import net.feheren_fekete.applist.launcher.LauncherUtils
 import net.feheren_fekete.applist.utils.AppUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
-import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.get
 
 
 class SettingsActivity : PreferenceActivity() {
 
-    private val settingsUtils: SettingsUtils by inject()
+    private val settingsUtils = get(SettingsUtils::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         PreferenceManager.setDefaultValues(applicationContext, R.xml.preferences, false)

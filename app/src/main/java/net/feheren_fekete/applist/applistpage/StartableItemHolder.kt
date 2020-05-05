@@ -21,16 +21,16 @@ import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.glide.AppIconSignature
 import net.feheren_fekete.applist.utils.glide.FileSignature
 import net.feheren_fekete.applist.utils.glide.GlideApp
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 import java.io.File
 import java.lang.ref.WeakReference
 
 
 class StartableItemHolder(view: View, itemListener: ApplistAdapter.ItemListener) : ViewHolderBase(view, R.id.applist_app_item_layout) {
 
-    private val applistLog: ApplistLog by inject(ApplistLog::class.java)
-    private val settingsUtils: SettingsUtils by inject(SettingsUtils::class.java)
-    private val badgeStore: BadgeStore by inject(BadgeStore::class.java)
+    private val applistLog = get(ApplistLog::class.java)
+    private val settingsUtils = get(SettingsUtils::class.java)
+    private val badgeStore = get(BadgeStore::class.java)
 
     private val appIcon: ImageView = view.findViewById(R.id.applist_app_item_icon)
     private val appNameWithoutShadow: TextView = view.findViewById(R.id.applist_app_item_app_name)

@@ -55,8 +55,7 @@ import net.feheren_fekete.applist.settings.SettingsUtils
 import net.feheren_fekete.applist.utils.AppUtils
 import net.feheren_fekete.applist.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
-import org.koin.android.ext.android.inject
-import kotlin.math.roundToInt
+import org.koin.android.ext.android.get
 
 class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
 
@@ -77,14 +76,14 @@ class ApplistPagePageFragment : Fragment(), ApplistAdapter.ItemListener {
         ReorderSections
     }
 
-    private val applistLog: ApplistLog by inject()
-    private val screenshotUtils: ScreenshotUtils by inject()
-    private val settingsUtils: SettingsUtils by inject()
-    private val screenUtils: ScreenUtils by inject()
-    private val badgeStore: BadgeStore by inject()
-    private val applistPreferences: ApplistPreferences by inject()
-    private val iconPreloadHelper: IconPreloadHelper by inject()
-    private val shortcutHelper: ShortcutHelper by inject()
+    private val applistLog = get<ApplistLog>()
+    private val screenshotUtils = get<ScreenshotUtils>()
+    private val settingsUtils = get<SettingsUtils>()
+    private val screenUtils = get<ScreenUtils>()
+    private val badgeStore = get<BadgeStore>()
+    private val applistPreferences = get<ApplistPreferences>()
+    private val iconPreloadHelper = get<IconPreloadHelper>()
+    private val shortcutHelper = get<ShortcutHelper>()
 
     private val handler = Handler()
     private lateinit var adapter: ApplistAdapter

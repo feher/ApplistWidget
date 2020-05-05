@@ -8,11 +8,11 @@ import net.feheren_fekete.applist.widgetpage.WidgetHelper
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 
 class PagePickerActivity: AppCompatActivity() {
 
-    private val widgetHelper: WidgetHelper by inject()
+    private val widgetHelper = get<WidgetHelper>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

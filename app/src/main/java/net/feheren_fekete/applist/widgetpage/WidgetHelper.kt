@@ -26,18 +26,18 @@ import net.feheren_fekete.applist.utils.ScreenUtils
 import net.feheren_fekete.applist.widgetpage.model.WidgetData
 import net.feheren_fekete.applist.widgetpage.model.WidgetModel
 import net.feheren_fekete.applist.widgetpage.widgetpicker.WidgetPickerActivity
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 import java.lang.ref.WeakReference
 import java.util.*
 
 class WidgetHelper {
     class ShowPagePickerEvent(val data: Bundle)
 
-    private val applistLog: ApplistLog by inject(ApplistLog::class.java)
-    private val widgetModel: WidgetModel by inject(WidgetModel::class.java)
-    private val screenUtils: ScreenUtils by inject(ScreenUtils::class.java)
-    private val appWidgetManager: AppWidgetManager by inject(AppWidgetManager::class.java)
-    private val appWidgetHost: AppWidgetHost by inject(AppWidgetHost::class.java)
+    private val applistLog = get(ApplistLog::class.java)
+    private val widgetModel = get(WidgetModel::class.java)
+    private val screenUtils = get(ScreenUtils::class.java)
+    private val appWidgetManager = get(AppWidgetManager::class.java)
+    private val appWidgetHost = get(AppWidgetHost::class.java)
 
     private var activityRef: WeakReference<Activity>? = null
     private var pinnedAppWidgetProviderInfo: AppWidgetProviderInfo? = null
