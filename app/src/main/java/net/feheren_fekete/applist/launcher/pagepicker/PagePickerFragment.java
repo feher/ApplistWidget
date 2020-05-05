@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import net.feheren_fekete.applist.ApplistLog;
 import net.feheren_fekete.applist.R;
 import net.feheren_fekete.applist.launcher.ScreenshotUtils;
 import net.feheren_fekete.applist.launcher.pageeditor.PageEditorFragment;
@@ -57,6 +58,12 @@ public class PagePickerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.page_picker_fragment, container, false);
 
+        Bundle args = getArguments();
+        if (args == null) {
+            ApplistLog.getInstance().log(new RuntimeException("Missing arguments"));
+            return view;
+        }
+
 //        // REF: 2017_06_22_12_00_transparent_status_bar_top_padding
 //        final int topPadding = mScreenUtils.getStatusBarHeight(getContext());
 //        // REF: 2017_06_22_12_00_transparent_navigation_bar_bottom_padding
@@ -66,12 +73,19 @@ public class PagePickerFragment extends Fragment {
         Toolbar toolbar = view.findViewById(R.id.page_picker_fragment_toolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setTitle(getArguments().getString(FRAGMENT_ARG_TITLE));
+        activity.getSupportActionBar().setTitle(args.getString(FRAGMENT_ARG_TITLE, ""));
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        mRequestData = getArguments().getBundle(FRAGMENT_ARG_REQUEST_DATA);
+        mRequestData = args.getBundle(FRAGMENT_ARG_REQUEST_DATA);
+        if (mRequestData == null) {
+            return view;
+        }
 
         AppWidgetProviderInfo appWidgetProviderInfo = mRequestData.getParcelable(WidgetHelper.APP_WIDGET_PROVIDER_INFO_KEY);
+        if (appWidgetProviderInfo == null) {
+            ApplistLog.getInstance().log(new RuntimeException("Missing APP_WIDGET_PROVIDER_INFO_KEY"));
+            return view;
+        }
         Drawable widgetIcon = mWidgetUtils.getIcon(getContext(), appWidgetProviderInfo);
         Drawable widgetPreview = mWidgetUtils.getPreviewImage(getContext(), appWidgetProviderInfo);
         String widgetLabel = mWidgetUtils.getLabel(getContext(), appWidgetProviderInfo);
@@ -105,7 +119,15 @@ public class PagePickerFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mScreenshotUtils.cancelScheduledScreenshot();
-        Toast toast = Toast.makeText(getContext(), getArguments().getString(FRAGMENT_ARG_MESSAGE), Toast.LENGTH_SHORT);
+        Bundle args = getArguments();
+        if (args == null) {
+            ApplistLog.getInstance().log(new RuntimeException("Missing arguments"));
+            return;
+        }
+        Toast toast = Toast.makeText(
+                getContext(),
+                args.getString(FRAGMENT_ARG_MESSAGE, ""),
+                Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
