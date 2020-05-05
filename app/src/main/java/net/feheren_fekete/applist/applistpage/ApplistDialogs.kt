@@ -101,6 +101,23 @@ object ApplistDialogs {
         alertDialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
     }
 
+    fun messageDialog(activity: Activity,
+                      title: String,
+                      @StringRes message: Int,
+                      onOk: () -> Unit,
+                      onCancel: () -> Unit) {
+        val alertDialogBuilder = AlertDialog.Builder(activity)
+        alertDialogBuilder
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(true)
+            .setPositiveButton(R.string.ok) { _, _ -> onOk() }
+            .setOnCancelListener { onCancel() }
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+        alertDialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
+    }
+
     fun listDialog(activity: Activity,
                    title: String,
                    items: List<String>,
