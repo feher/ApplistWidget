@@ -58,7 +58,7 @@ class WidgetHelper {
         val pinItemRequest =
             intent.getParcelableExtra<PinItemRequest>(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
         val appWidgetProviderInfo =
-            pinItemRequest.getAppWidgetProviderInfo(activity)
+            pinItemRequest?.getAppWidgetProviderInfo(activity)
         if (appWidgetProviderInfo == null) {
             applistLog.log(RuntimeException("AppWidgetProviderInfo is null"))
             return
